@@ -1,6 +1,9 @@
 import React from 'react'
+import useDocumentTitle from '../hooks/useDocumentTitle'
 
 export default function ComoFunciona() {
+	useDocumentTitle('Como Funciona - Caxiauto')
+
 	return (
 		<main className="max-w-7xl mx-auto p-6">
 			<h1 className="text-3xl font-bold">Como Funciona</h1>
