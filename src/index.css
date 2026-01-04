@@ -63,3 +63,8 @@
 .fc-btn--icon { font-size: 20px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
 .fc-btn:active { transform: translateY(1px); }
 
+/* Parts badges */
+.badge { background: #f3f4f6; color: #111827; border: 1px solid #e5e7eb; }
+.badge.--promo { background: #fff1f2; color: #b91c1c; border-color: #fecaca; }
+.badge.--maisvendida { background: #fffbeb; color: #92400e; border-color: #fef3c7; }
+
