@@ -17,7 +17,7 @@ export default function Header() {
 					{/* Left: Logo */}
 					<div className="flex items-center">
 						<Link to="/" className="inline-block transition-transform hover:scale-105" aria-label="Home">
-							<img src="/LogoOficialCrooped.png" alt="FinTech" className="h-12 rounded-lg object-cover" />
+							<img src="./images/logos/LogoOficialCrooped.png" alt="FinTech" className="h-12 rounded-lg object-cover" />
 						</Link>
 					</div>
 
