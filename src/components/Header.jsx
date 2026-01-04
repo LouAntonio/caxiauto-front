@@ -1,18 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function Header() {
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+	const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
+
 	return (
 		<header
-					style={{
-						backgroundColor: 'rgba(255, 255, 255, 0.95)',
-				}}
-				className="relative z-50 backdrop-blur-md rounded-xl shadow-xl border border-gray-100"
-				>
-			<div className="mx-auto ">
-				<div
-					className="py-4 flex max-w-7xl mx-auto items-center justify-between gap-8"
-				>
+			style={{
+				backgroundColor: 'rgba(255, 255, 255, 0.95)',
+			}}
+			className="relative z-50 backdrop-blur-md rounded-xl shadow-xl border border-gray-100"
+		>
+			<div className="mx-auto">
+				<div className="py-4 flex max-w-7xl mx-auto items-center justify-between gap-8 px-4 md:px-0">
 					{/* Left: Logo */}
 					<div className="flex items-center">
 						<Link to="/" className="inline-block transition-transform hover:scale-105" aria-label="Home">
@@ -20,7 +21,7 @@ export default function Header() {
 						</Link>
 					</div>
 
-					{/* Center: Navigation */}
+					{/* Center: Navigation - Desktop */}
 					<nav className="hidden md:flex items-center gap-8">
 						<Link
 							to="/"
@@ -41,7 +42,7 @@ export default function Header() {
 							Como Funciona
 						</Link>
 
-						{/* Serviços com submenu */}
+						{/* Serviços com submenu - Desktop */}
 						<div className="relative group">
 							<button className="flex items-center gap-2 text-gray-700 font-medium hover:text-[var(--primary)] transition-colors duration-200">
 								Serviços
@@ -84,18 +85,123 @@ export default function Header() {
 							</Link>
 						</div>
 
+						{/* Mobile menu button */}
 						<div className="md:hidden">
 							<button
+								onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
 								style={{ backgroundColor: 'var(--primary)' }}
 								className="p-2.5 rounded-lg text-white hover:opacity-90 transition-opacity"
+								aria-label="Toggle menu"
 							>
-								<svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-								</svg>
+								{mobileMenuOpen ? (
+									<svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+									</svg>
+								) : (
+									<svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+									</svg>
+								)}
 							</button>
 						</div>
 					</div>
 				</div>
+
+				{/* Mobile Menu */}
+				{mobileMenuOpen && (
+					<div className="md:hidden border-t border-gray-200">
+						<nav className="px-4 py-4 space-y-2">
+							<Link
+								to="/"
+								onClick={() => setMobileMenuOpen(false)}
+								className="block px-4 py-3 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+							>
+								Home
+							</Link>
+							<Link
+								to="/sobre"
+								onClick={() => setMobileMenuOpen(false)}
+								className="block px-4 py-3 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+							>
+								Sobre
+							</Link>
+							<Link
+								to="/como-funciona"
+								onClick={() => setMobileMenuOpen(false)}
+								className="block px-4 py-3 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+							>
+								Como Funciona
+							</Link>
+
+							{/* Serviços - Mobile */}
+							<div>
+								<button
+									onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+									className="w-full flex items-center justify-between px-4 py-3 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+								>
+									Serviços
+									<svg
+										className={`w-4 h-4 transition-transform ${mobileServicesOpen ? 'rotate-180' : ''}`}
+										viewBox="0 0 20 20"
+										fill="currentColor"
+									>
+										<path d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.356a.75.75 0 111.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z" />
+									</svg>
+								</button>
+
+								{mobileServicesOpen && (
+									<div className="ml-4 mt-2 space-y-1">
+										<Link
+											to="/servicos/venda-de-automoveis"
+											onClick={() => setMobileMenuOpen(false)}
+											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+										>
+											Venda de Automóveis
+										</Link>
+										<Link
+											to="/servicos/aluguel-de-automoveis"
+											onClick={() => setMobileMenuOpen(false)}
+											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+										>
+											Aluguel de Automóveis
+										</Link>
+										<Link
+											to="/servicos/venda-de-pecas"
+											onClick={() => setMobileMenuOpen(false)}
+											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+										>
+											Venda de Peças e Acessórios
+										</Link>
+										<Link
+											to="/servicos/venda-seu-automovel"
+											onClick={() => setMobileMenuOpen(false)}
+											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+										>
+											Venda seu Automóvel
+										</Link>
+										<Link
+											to="/servicos/reboque"
+											onClick={() => setMobileMenuOpen(false)}
+											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+										>
+											Reboque
+										</Link>
+									</div>
+								)}
+							</div>
+
+							{/* Botão Contato - Mobile */}
+							<Link
+								to="/contato"
+								onClick={() => setMobileMenuOpen(false)}
+								style={{ backgroundColor: 'var(--secondary)' }}
+								className="block text-center px-4 py-3 rounded-lg text-white font-semibold shadow-lg mt-4"
+							>
+								Contato
+							</Link>
+						</nav>
+					</div>
+				)}
 			</div>
 		</header>
 	);
