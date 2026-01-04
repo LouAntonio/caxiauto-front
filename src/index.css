@@ -36,3 +36,30 @@
 .trusted-section .card--preview .w-40 { min-width: 160px; }
 .trusted-section .card--info h2 { line-height: 1.05; }
 
+
+/* Featured cars carousel */
+.featured-section .controls { align-items: center; }
+.carousel {
+	display: flex;
+	gap: 1rem;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	-webkit-overflow-scrolling: touch;
+	padding-bottom: 8px;
+}
+.fc-card {
+	min-width: 260px;
+	flex: 0 0 280px;
+	background: var(--bg-soft);
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	overflow: hidden;
+	scroll-snap-align: start;
+	box-shadow: 0 6px 18px rgba(20, 20, 20, 0.06);
+}
+.fc-media img { width: 100%; height: 160px; object-fit: cover; display: block; }
+.fc-body { padding: 0.75rem 1rem; }
+.fc-btn { background: rgba(255,255,255,0.9); border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+.fc-btn--icon { font-size: 20px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+.fc-btn:active { transform: translateY(1px); }
+
