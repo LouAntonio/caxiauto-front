@@ -11,6 +11,7 @@ import VendaDePecas from './pages/servicos/VendaDePecas'
 import VendaSeuAutomovel from './pages/servicos/VendaSeuAutomovel'
 import Reboque from './pages/servicos/Reboque'
 import Footer from './components/Footer'
+import NotFound from './pages/NotFound'
 
 function App() {
 	return (
@@ -27,6 +28,9 @@ function App() {
 				<Route path="/servicos/venda-de-pecas" element={<VendaDePecas />} />
 				<Route path="/servicos/venda-seu-automovel" element={<VendaSeuAutomovel />} />
 				<Route path="/servicos/reboque" element={<Reboque />} />
+
+				{/* 404 route - keep last */}
+				<Route path="*" element={<NotFound />} />
 
 			</Routes>
 			<Footer />
