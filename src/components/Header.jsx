@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 export default function Header() {
 	return (
 		<header
-				style={{
-					backgroundColor: 'rgba(255, 255, 255, 0.95)',
-			}}
-			className="backdrop-blur-md rounded-xl shadow-xl border border-gray-100"
-			>
+					style={{
+						backgroundColor: 'rgba(255, 255, 255, 0.95)',
+				}}
+				className="relative z-50 backdrop-blur-md rounded-xl shadow-xl border border-gray-100"
+				>
 			<div className="mx-auto ">
 				<div
 					className="py-4 flex max-w-7xl mx-auto items-center justify-between gap-8"
