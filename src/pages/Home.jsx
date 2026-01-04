@@ -4,6 +4,7 @@ import Hero from '../components/Hero'
 import TrustedVehicles from '../components/TrustedVehicles'
 import FeaturedCars from '../components/FeaturedCars'
 import FeaturedParts from '../components/FeaturedParts'
+import CTA from '../components/CTA'
 
 export default function Home() {
 	useDocumentTitle('Página Inicial - Caxiauto')
@@ -15,6 +16,7 @@ export default function Home() {
 				<TrustedVehicles />
 				<FeaturedCars />
 				<FeaturedParts />
+				<CTA />
 			</main>
 		</>
 	)

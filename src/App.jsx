@@ -10,6 +10,7 @@ import AluguelDeAutomoveis from './pages/servicos/AluguelDeAutomoveis'
 import VendaDePecas from './pages/servicos/VendaDePecas'
 import VendaSeuAutomovel from './pages/servicos/VendaSeuAutomovel'
 import Reboque from './pages/servicos/Reboque'
+import Footer from './components/Footer'
 
 function App() {
 	return (
@@ -28,6 +29,7 @@ function App() {
 				<Route path="/servicos/reboque" element={<Reboque />} />
 
 			</Routes>
+			<Footer />
 		</Router>
 	)
 }
