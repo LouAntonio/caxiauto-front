@@ -9,11 +9,12 @@ export default function Header() {
 		<header
 			style={{
 				backgroundColor: 'rgba(255, 255, 255, 0.95)',
+				height: '80px',
 			}}
 			className="relative z-50 backdrop-blur-md rounded-xl shadow-xl border border-gray-100"
 		>
-			<div className="mx-auto">
-				<div className="py-4 flex max-w-7xl mx-auto items-center justify-between gap-8 px-4 md:px-0">
+			<div className="mx-auto h-full">
+				<div className="h-full flex max-w-7xl mx-auto items-center justify-between gap-8 px-4 md:px-0">
 					{/* Left: Logo */}
 					<div className="flex items-center">
 						<Link to="/" className="inline-block transition-transform hover:scale-105" aria-label="Home">
