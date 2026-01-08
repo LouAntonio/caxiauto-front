@@ -1,12 +1,12 @@
 import React from 'react'
 import useDocumentTitle from '../hooks/useDocumentTitle'
 import Hero from '../components/Hero'
-import TrustedVehicles from '../components/TrustedVehicles'
 import FeaturedCars from '../components/FeaturedCars'
 import FeaturedParts from '../components/FeaturedParts'
 import CTA from '../components/CTA'
 import RentACarSection from '../components/RentACarSection'
 import TowingSection from '../components/TowingSection'
+import SellBuySection from '../components/SellBuySection'
 
 export default function Home() {
 	useDocumentTitle('Página Inicial - Caxiauto')
@@ -15,10 +15,11 @@ export default function Home() {
 		<>
 			<Hero />
 			<main className="max-w-7xl mx-auto p-6">
+				<SellBuySection />
 				<RentACarSection />
-				<TowingSection />
 				<FeaturedCars />
 				<FeaturedParts />
+				<TowingSection />
 				<CTA />
 			</main>
 		</>
