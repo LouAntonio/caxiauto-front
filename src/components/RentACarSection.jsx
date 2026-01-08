@@ -22,13 +22,9 @@ export default function RentACarSection() {
 	}
 	return (
 		<section className="py-12 section-rent-a-car">
-			<div className="flex items-center justify-between mb-6">
-				<h2 className="text-2xl font-bold text-[#1a1a2e]">Popular no Rent-a-car</h2>
-			</div>
-
 			<div className="flex flex-col lg:flex-row gap-6">
 				{/* Left Promo Card */}
-				<div className="lg:w-2/5 flex-shrink-0 relative overflow-hidden rounded-xl bg-gradient-to-br from-[#ffcd82] to-[#ffb142] p-6 pr-0 shadow-sm min-h-[220px] flex flex-col justify-between group">
+				<div className="lg:w-2/5 flex-shrink-0 relative overflow-hidden rounded-xl bg-gradient-to-br from-[#ffcd82] to-[#ffb142] py-4 pr-0 pl-4 shadow-sm min-h-[220px] flex flex-col justify-between group">
 
 					{/* Decorative shapes */}
 					<div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
@@ -39,12 +35,12 @@ export default function RentACarSection() {
 							Desconto
 						</div>
 
-						<h3 className="text-3xl font-extrabold text-[#1a1a2e] leading-tight mb-2">
-							Milhares de carros<br /> com desconto
+						<h3 className="text-2xl font-extrabold text-[#1a1a2e] leading-tight">
+							Centenas de carros<br /> para alugar
 						</h3>
 
-						<button className="group/btn mt-8 flex items-center gap-2 text-[#1a1a2e] font-bold border-b-2 border-[#1a1a2e] pb-0.5 w-fit hover:opacity-75 transition-opacity">
-							<span className="text-lg">330 002 carros</span>
+						<button className="group/btn mt-3 flex items-center gap-2 text-[#1a1a2e] font-bold border-b-2 border-[#1a1a2e] pb-0.5 w-fit hover:opacity-75 transition-opacity">
+							<span className="text-lg">123 carros</span>
 							<ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
 						</button>
 					</div>

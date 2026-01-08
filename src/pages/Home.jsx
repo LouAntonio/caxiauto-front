@@ -6,6 +6,7 @@ import FeaturedCars from '../components/FeaturedCars'
 import FeaturedParts from '../components/FeaturedParts'
 import CTA from '../components/CTA'
 import RentACarSection from '../components/RentACarSection'
+import TowingSection from '../components/TowingSection'
 
 export default function Home() {
 	useDocumentTitle('Página Inicial - Caxiauto')
@@ -14,8 +15,8 @@ export default function Home() {
 		<>
 			<Hero />
 			<main className="max-w-7xl mx-auto p-6">
-				<TrustedVehicles />
 				<RentACarSection />
+				<TowingSection />
 				<FeaturedCars />
 				<FeaturedParts />
 				<CTA />
