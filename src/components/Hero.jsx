@@ -83,14 +83,6 @@ export default function Hero() {
 						</div>
 
 					</form>
-
-					<div className="mt-6 flex items-center gap-6 text-sm text-gray-600">
-						<div className="flex items-center gap-2">
-							<span className="text-yellow-400">★★★★☆</span>
-							<span className="font-semibold text-gray-800">4.8</span>
-							<span className="text-gray-500">1894 avaliações</span>
-						</div>
-					</div>
 				</div>
 
 				<div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
