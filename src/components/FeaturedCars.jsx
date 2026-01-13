@@ -12,7 +12,7 @@ const sampleCars = [
 	{ id: 8, title: 'Jeep Compass', price: '9.850.000', km: '32.800 km', year: 2021, location: 'Luanda', img: './images/i10.jpg', fuel: 'Gasolina', condition: 'Novo' },
 ];
 
-export default function FeaturedCars() {
+export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 	const railRef = useRef(null);
 
 	function scroll(dir = 1) {
@@ -28,7 +28,7 @@ export default function FeaturedCars() {
 				{/* Header */}
 				<div className="flex items-center justify-between mb-8">
 					<div>
-						<h2 className="text-2xl font-bold text-gray-900">Carros em Destaque</h2>
+						<h2 className="text-2xl font-bold text-gray-900">{title}</h2>
 					</div>
 
 					<div className="hidden md:flex gap-3">

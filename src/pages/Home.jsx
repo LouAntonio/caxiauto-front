@@ -18,7 +18,8 @@ export default function Home() {
 			<main className="max-w-7xl mx-auto p-6">
 				<SellBuySection />
 				<RentACarSection />
-				<FeaturedCars />
+				<FeaturedCars title="Carros em Destaque" />
+				<FeaturedCars title="Adicionados Recentemente" />
 				<FeaturedParts />
 				<TowingSection />
 				<Publicidades />
