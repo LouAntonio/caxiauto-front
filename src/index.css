@@ -68,3 +68,22 @@
 .badge.--promo { background: #fff1f2; color: #b91c1c; border-color: #fecaca; }
 .badge.--maisvendida { background: #fffbeb; color: #92400e; border-color: #fef3c7; }
 
+/* Partners slider */
+.partners-section { background: transparent; }
+.partners-slider { overflow: hidden; width: 100%; }
+.partners-track {
+	display: flex;
+ 	gap: 2.5rem;
+ 	align-items: center;
+ 	padding: 1.5rem 0;
+ 	animation: partners-scroll 20s linear infinite;
+}
+.partners-item { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; }
+.partners-item img { height: 56px; display: block; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.06)); }
+.partners-slider:hover .partners-track { animation-play-state: paused; }
+
+@keyframes partners-scroll {
+ 0% { transform: translateX(0); }
+ 100% { transform: translateX(-50%); }
+}
+

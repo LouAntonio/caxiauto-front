@@ -91,7 +91,7 @@ export default function FeaturedParts() {
 			<div className="max-w-7xl mx-auto px-4">
 				<div className="flex items-center justify-between mb-6">
 					<div>
-						<h2 className="text-2xl font-semibold">Peças em Destaque</h2>
+						<h2 className="text-2xl font-semibold">Peças e Acessórios</h2>
 					</div>
 
 					<div className="hidden md:flex gap-3">
