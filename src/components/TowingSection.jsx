@@ -26,7 +26,7 @@ export default function TowingSection() {
 	]
 
 	return (
-		<section className="py-12 bg-white">
+		<section className="py-6 bg-white">
 			<div className="max-w-7xl mx-auto px-6">
 				<div className="mb-10">
 					<h2 className="text-3xl font-extrabold text-[#1a1a2e] mb-2">Reboque</h2>

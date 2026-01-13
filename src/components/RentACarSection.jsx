@@ -21,7 +21,7 @@ export default function RentACarSection() {
 		el.scrollBy({ left: scrollAmount, behavior: 'smooth' })
 	}
 	return (
-		<section className="py-12 section-rent-a-car">
+		<section className="py-6 section-rent-a-car">
 			<div className="flex flex-col lg:flex-row gap-6">
 				{/* Left Promo Card */}
 				<div className="lg:w-2/5 flex-shrink-0 relative overflow-hidden rounded-xl bg-gradient-to-br from-[#ffcd82] to-[#ffb142] py-4 pr-0 pl-4 shadow-sm min-h-[220px] flex flex-col justify-between group">

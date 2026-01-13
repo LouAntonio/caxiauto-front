@@ -87,7 +87,7 @@ export default function FeaturedParts() {
 	}
 
 	return (
-		<section className="parts-section py-12">
+		<section className="parts-section py-6">
 			<div className="max-w-7xl mx-auto px-4">
 				<div className="flex items-center justify-between mb-6">
 					<div>
