@@ -7,6 +7,7 @@ import CTA from '../components/CTA'
 import RentACarSection from '../components/RentACarSection'
 import TowingSection from '../components/TowingSection'
 import SellBuySection from '../components/SellBuySection'
+import Publicidades from '../components/Publicidades'
 
 export default function Home() {
 	useDocumentTitle('Página Inicial - Caxiauto')
@@ -20,6 +21,7 @@ export default function Home() {
 				<FeaturedCars />
 				<FeaturedParts />
 				<TowingSection />
+				<Publicidades />
 				<CTA />
 			</main>
 		</>

@@ -4,42 +4,24 @@ import { Truck, Check, Gauge, Weight } from 'lucide-react'
 // Placeholder for tow truck images
 const TOW_TRUCK_1 = "https://placehold.co/600x400/e65100/white?text=Reboque+Ligeiro"
 const TOW_TRUCK_2 = "https://placehold.co/600x400/1a1a2e/white?text=Plataforma+Pesados"
-const TOW_TRUCK_3 = "https://placehold.co/600x400/333/white?text=Reboque+Moto"
-const TOW_TRUCK_4 = "https://placehold.co/600x400/555/white?text=Grua+Rotativa"
 
 export default function TowingSection() {
 	const vehicles = [
 		{
 			id: 1,
-			title: 'Iveco Daily 70C18',
-			type: 'Plataforma Deslizante',
-			capacity: '3.5 Toneladas',
-			specs: ['Guincho Hidráulico', 'Asa Delta'],
+			title: 'Reboque ligeiro',
+			type: 'Reboque ligeiro',
+			capacity: 'Até 3.5 Toneladas',
+			specs: ['Assistência rápida', 'Transporte de ligeiros'],
 			image: TOW_TRUCK_1,
 		},
 		{
 			id: 2,
-			title: 'Mercedes-Benz Actros',
-			type: 'Pesados / Super-Reboque',
-			capacity: '40 Toneladas',
-			specs: ['Lança Rotativa', 'Elevação de Eixo'],
+			title: 'Reboque pesado',
+			type: 'Reboque pesado',
+			capacity: 'Até 40 Toneladas',
+			specs: ['Plataforma pesada', 'Guincho hidráulico'],
 			image: TOW_TRUCK_2,
-		},
-		{
-			id: 3,
-			title: 'Ford Transit Custom',
-			type: 'Assistência Rápida / Motos',
-			capacity: '1.2 Toneladas',
-			specs: ['Rampa Especial', 'Oficina Móvel'],
-			image: TOW_TRUCK_3,
-		},
-		{
-			id: 4,
-			title: 'Scania R500 XT',
-			type: 'Resgate e Grua',
-			capacity: '60 Toneladas',
-			specs: ['Braço Extensível', 'Patolagem Completa'],
-			image: TOW_TRUCK_4,
 		},
 	]
 
@@ -99,7 +81,7 @@ export default function TowingSection() {
 						{vehicles.map((vehicle) => (
 							<div
 								key={vehicle.id}
-								className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:border-[#e65100]/30"
+								className="group bg-white border border-[#ccc] rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:border-[#e65100]/30 z-1"
 							>
 								{/* Image Area */}
 								<div className="relative h-48 overflow-hidden bg-gray-100">

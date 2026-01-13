@@ -3,8 +3,8 @@ import { PhoneCall, Mail, Clock, ArrowRight, Star } from 'lucide-react'
 
 export default function CTA() {
 	return (
-		<section className="py-16 px-4">
-			<div className="max-w-7xl mx-auto">
+		<section className="max-w-7xl mx-auto px-4">
+			<div className="">
 				<div className="relative rounded-3xl overflow-hidden bg-[#1a1a2e] shadow-2xl isolate">
 					{/* Background Decorations */}
 					<div className="absolute top-0 right-0 -mr-20 -mt-20 w-[500px] h-[500px] bg-[#e65100] rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse"></div>
