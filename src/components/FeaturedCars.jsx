@@ -19,7 +19,7 @@ export default function FeaturedCars() {
 		const rail = railRef.current;
 		if (!rail) return;
 		const cardWidth = 260;
-		rail.scrollBy({ left: dir * cardWidth, behavior: 'smooth' });
+		rail.scrollBy({ left: dir * (cardWidth * 2), behavior: 'smooth' });
 	}
 
 	return (
