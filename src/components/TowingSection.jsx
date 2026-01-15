@@ -36,7 +36,7 @@ export default function TowingSection() {
 				<div className="flex flex-col lg:flex-row gap-8 items-start">
 					{/* Left: Main Feature / Active Fleet Overview */}
 					<div className="w-full lg:w-1/3 sticky top-6">
-						<div className="bg-[#1a1a2e] text-white rounded-2xl p-8 overflow-hidden relative min-h-[400px] flex flex-col justify-between">
+						<div className="bg-[#1a1a2e] text-white rounded-2xl p-8 overflow-hidden relative min-h-[400px] flex flex-col justify-between hidden">
 							<div className="absolute top-0 right-0 w-64 h-64 bg-[#e65100] rounded-full filter blur-[80px] opacity-20 transform translate-x-1/2 -translate-y-1/2"></div>
 
 							<div className="relative z-10">
@@ -73,6 +73,9 @@ export default function TowingSection() {
 								</div>
 								<Truck className="w-12 h-12 text-gray-600 opacity-50" />
 							</div>
+						</div>
+						<div className="block">
+							<img src="./images/reboque.png" alt="Reboque Caxiauto"  />
 						</div>
 					</div>
 
