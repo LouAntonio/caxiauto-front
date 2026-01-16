@@ -43,8 +43,8 @@ export default function Footer() {
 						<h5 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Empresa</h5>
 						<ul className="mt-4 space-y-2 text-sm">
 							<li><Link to="/contato" className="text-gray-300 hover:text-white transition-colors">Contato</Link></li>
+							<li><Link to="/parceiros" className="text-gray-300 hover:text-white transition-colors">Parceiros</Link></li>
 							<li><Link to="/sobre" className="text-gray-300 hover:text-white transition-colors">Sobre nós</Link></li>
-							<li><Link to="/termos" className="text-gray-300 hover:text-white transition-colors">Termos de uso</Link></li>
 							<li><Link to="/como-funciona" className="text-gray-300 hover:text-white transition-colors">Como funciona</Link></li>
 						</ul>
 					</div>

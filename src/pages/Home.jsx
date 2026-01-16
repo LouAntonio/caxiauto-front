@@ -7,7 +7,7 @@ import RentACarSection from '../components/RentACarSection'
 import TowingSection from '../components/TowingSection'
 import SellBuySection from '../components/SellBuySection'
 import Publicidades from '../components/Publicidades'
-	import PartnersSlider from '../components/PartnersSlider'
+import PartnersSlider from '../components/PartnersSlider'
 
 export default function Home() {
 	useDocumentTitle('Página Inicial - Caxiauto')
@@ -20,8 +20,8 @@ export default function Home() {
 				<FeaturedCars title="Carros em Destaque" />
 				<RentACarSection />
 				<FeaturedCars title="Adicionados Recentemente" />
-				<FeaturedParts />
 				<TowingSection />
+				<FeaturedParts />
 				<Publicidades />
 				<PartnersSlider />
 			</main>

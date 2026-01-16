@@ -42,6 +42,12 @@ export default function Header() {
 						>
 							Como Funciona
 						</Link>
+						<Link
+							to="/parceiros"
+							className="text-gray-700 font-medium hover:text-[var(--primary)] transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-[var(--primary)] hover:after:w-full after:transition-all"
+						>
+							Parceiros
+						</Link>
 
 						{/* Serviços com submenu - Desktop */}
 						<div className="relative group">
@@ -132,6 +138,13 @@ export default function Header() {
 								className="block px-4 py-3 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors"
 							>
 								Como Funciona
+							</Link>
+							<Link
+								to="/parceiros"
+								onClick={() => setMobileMenuOpen(false)}
+								className="block px-4 py-3 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+							>
+								Parceiros
 							</Link>
 
 							{/* Serviços - Mobile */}

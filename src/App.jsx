@@ -13,17 +13,19 @@ import Reboque from './pages/servicos/Reboque'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
 import NotFound from './pages/NotFound'
+import Parceiros from './pages/Parceiros'
 
 function App() {
 	return (
-		    <Router>
-			    <ScrollToTop />
-			    <Header />
+		<Router>
+			<ScrollToTop />
+			<Header />
 			<Routes>
 				<Route path="/" element={<Home />} />
 				<Route path="/sobre" element={<Sobre />} />
 				<Route path="/como-funciona" element={<ComoFunciona />} />
 				<Route path="/contato" element={<Contato />} />
+				<Route path="/parceiros" element={<Parceiros />} />
 
 				<Route path="/servicos/venda-de-automoveis" element={<VendaDeAutomoveis />} />
 				<Route path="/servicos/aluguel-de-automoveis" element={<AluguelDeAutomoveis />} />
