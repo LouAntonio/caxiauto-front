@@ -90,8 +90,17 @@ export default function FeaturedParts() {
 		<section className="parts-section py-6">
 			<div className="max-w-7xl mx-auto px-4">
 				<div className="flex items-center justify-between mb-6">
-					<div>
+					<div className="flex gap-3 items-baseline">
 						<h2 className="text-2xl font-semibold">Peças e Acessórios</h2>
+						<span className="text-gray-400 text-2xl">|</span>
+						<a
+							href="/pecas"
+							style={{ color: 'var(--primary)' }}
+							className="group flex items-center gap-1 text-lg font-medium hover:underline"
+						>
+							Ver todas
+							<ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+						</a>
 					</div>
 
 					<div className="hidden md:flex gap-3">
@@ -135,11 +144,7 @@ export default function FeaturedParts() {
 					))}
 				</div>
 
-				<div className="text-center mt-6">
-					<a href="/pecas" style={{ color: 'var(--primary)' }} className="inline-flex items-center gap-2 font-semibold hover:underline">
-						Ver todas as peças
-					</a>
-				</div>
+
 			</div>
 		</section>
 	)

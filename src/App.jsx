@@ -11,12 +11,14 @@ import VendaDePecas from './pages/servicos/VendaDePecas'
 import VendaSeuAutomovel from './pages/servicos/VendaSeuAutomovel'
 import Reboque from './pages/servicos/Reboque'
 import Footer from './components/Footer'
+import ScrollToTop from './components/ScrollToTop'
 import NotFound from './pages/NotFound'
 
 function App() {
 	return (
-		<Router>
-			<Header />
+		    <Router>
+			    <ScrollToTop />
+			    <Header />
 			<Routes>
 				<Route path="/" element={<Home />} />
 				<Route path="/sobre" element={<Sobre />} />

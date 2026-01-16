@@ -15,16 +15,16 @@ export default function Hero() {
 			<div className="relative max-w-7xl mx-auto px-6 h-full flex flex-col justify-center gap-8">
 				<div className="max-w-3xl">
 					<h1 className="text-4xl sm:text-5xl font-extrabold leading-tight drop-shadow-md">
-						Escolha o seu carro online.
+						Escolha o seu carro online
 					</h1>
-					<p className="mt-6 text-indigo-100">Encontre o seu próximo carro sem sair de casa — inspecionado e entregue em Luanda e em todo o país.</p>
+					<p className="text-indigo-100">Encontre o seu próximo carro sem sair de casa - inspecionado e entregue em Luanda e em todo o país.</p>
 				</div>
 
-				<div className="w-full max-w-xl bg-white/80 text-gray-800 rounded-lg p-4 shadow-lg">
-					<form className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+				<div className="w-full max-w-xl bg-white/75 text-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
+					<form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-3">
 						<div>
 							<label className="sr-only">Marca</label>
-							<select className="w-full max-w-[220px] mx-auto border rounded px-3 py-2 bg-white">
+							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:bg-white">
 								<option disabled selected>Marca</option>
 								<option>Toyota</option>
 								<option>Ford</option>
@@ -35,7 +35,7 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Combustível</label>
-							<select className="w-full max-w-[220px] mx-auto border rounded px-3 py-2 bg-white">
+							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:bg-white">
 								<option disabled selected>Combustível</option>
 								<option>Gasolina</option>
 								<option>Diesel</option>
@@ -45,7 +45,7 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Transmissão</label>
-							<select className="w-full max-w-[220px] mx-auto border rounded px-3 py-2 bg-white">
+							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:bg-white">
 								<option disabled selected>Transmissão</option>
 								<option>Manual</option>
 								<option>Automática</option>
@@ -54,7 +54,7 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Quilômetros até</label>
-							<select className="w-full max-w-[220px] mx-auto border rounded px-3 py-2 bg-white">
+							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:bg-white">
 								<option disabled selected>Quilômetros até</option>
 								<option>50.000 km</option>
 								<option>100.000 km</option>
@@ -64,7 +64,7 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Ano até</label>
-							<select className="w-full max-w-[220px] mx-auto border rounded px-3 py-2 bg-white">
+							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:bg-white">
 								<option disabled selected>Ano até</option>
 								<option>2024</option>
 								<option>2020</option>
@@ -74,12 +74,21 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Preço</label>
-							<select className="w-full max-w-[220px] mx-auto border rounded px-3 py-2 bg-white">
+							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:bg-white">
 								<option disabled selected>Preço até (Kz)</option>
 								<option>Até 5.000.000 Kz</option>
 								<option>Até 10.000.000 Kz</option>
 								<option>Até 20.000.000 Kz</option>
 							</select>
+						</div>
+
+						<div className="lg:col-span-3">
+							<button type="button" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group transform active:scale-[0.98]">
+								<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+								</svg>
+								Pesquisar
+							</button>
 						</div>
 
 					</form>

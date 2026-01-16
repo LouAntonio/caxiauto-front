@@ -26,9 +26,18 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 		<section className="pt-6 bg-gradient-to-b from-white to-gray-50">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				{/* Header */}
-				<div className="flex items-center justify-between mb-8">
-					<div>
+				<div className="flex justify-between mb-8 ">
+					<div className="flex gap-3 items-baseline">
 						<h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+						<span className="text-gray-400 text-2xl">|</span>
+						<a
+							href="/carros"
+							style={{ color: 'var(--primary)' }}
+							className="group flex items-center gap-1 text-lg font-medium hover:underline"
+						>
+							Ver todos
+							<ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+						</a>
 					</div>
 
 					<div className="hidden md:flex gap-3">
@@ -130,16 +139,7 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 				</div>
 
 				{/* Link para ver todos */}
-				<div className="text-center mt-10">
-					<a
-						href="/carros"
-						style={{ color: 'var(--primary)' }}
-						className="inline-flex items-center gap-2 font-semibold text-lg hover:underline"
-					>
-						Ver todos os veículos
-						<ChevronRight className="w-5 h-5" />
-					</a>
-				</div>
+
 			</div>
 
 			<style jsx>{`
