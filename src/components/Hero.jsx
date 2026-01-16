@@ -21,7 +21,7 @@ export default function Hero() {
 				</div>
 
 				<div className="w-full max-w-xl bg-white/75 text-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
-					<form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-3">
+					<form className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-3">
 						<div>
 							<label className="sr-only">Marca</label>
 							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:bg-white">
@@ -94,7 +94,7 @@ export default function Hero() {
 					</form>
 				</div>
 
-				<div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+				<div className="grid grid-cols-1 sm:grid-cols-3 gap-6 hidden md:grid">
 					<div className="bg-white/90 rounded-lg p-6 text-gray-800 shadow">
 						<h3 className="font-semibold">Garantia de devolução</h3>
 						<p className="mt-2 text-sm text-gray-600">Se não ficar satisfeito com o veículo, devolva-o dentro do prazo e reembolsamos.</p>
