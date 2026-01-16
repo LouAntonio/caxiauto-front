@@ -62,7 +62,7 @@ export default function ComoFunciona() {
 
 				<div className="max-w-4xl mx-auto text-center relative z-10">
 					<h1 className="text-5xl md:text-6xl font-extrabold mb-8 tracking-tight">
-						Como Funciona a CAXIAUTO
+						Como Funciona a Caxiauto
 					</h1>
 					<p className="text-xl md:text-2xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
 						A sua jornada para soluções de mobilidade simplificada em apenas 4 passos claros e eficientes.
@@ -123,9 +123,9 @@ export default function ComoFunciona() {
 				<div className="max-w-7xl mx-auto">
 					<div className="text-center mb-20">
 						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Público Alvo</span>
-						<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Para quem é a CAXIAUTO?</h2>
+						<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Para quem é a Caxiauto?</h2>
 						<p className="text-xl text-gray-600 max-w-2xl mx-auto">
-							Conectamos todos os pontos do setor automóvel numa única plataforma integrada.
+							Conectamos todos os pontos do sector automóvel numa única plataforma integrada.
 						</p>
 					</div>
 

@@ -24,7 +24,7 @@ export default function Reboque() {
 			number: '01',
 			label: 'PASSO',
 			title: 'Faça o Pedido',
-			description: 'Contacte a CAXIAUTO através da plataforma informando sua localização e tipo de problema.',
+			description: 'Contacte a Caxiauto através da plataforma informando sua localização e tipo de problema.',
 			icon: Phone,
 		},
 		{

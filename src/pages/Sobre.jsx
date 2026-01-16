@@ -53,10 +53,10 @@ export default function Sobre() {
 
 				<div className="mx-auto max-w-7xl px-6 text-center lg:px-8 relative z-10">
 					<h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl mb-6">
-						Simplificamos o mundo automóvel
+						Somos uma Plataforma online angolana para venda e serviços automóveis, num só lugar.
 					</h1>
 					<p className="mt-6 text-lg leading-8 text-gray-100 max-w-3xl mx-auto opacity-90">
-						Com a CAXIAUTO, comprar, vender ou alugar é seguro e rápido.
+						Com a Caxiauto, comprar, vender ou alugar é seguro e rápido.
 						Reunimos inspeção, administração, transporte e peças numa única plataforma.
 					</p>
 				</div>
@@ -89,13 +89,13 @@ export default function Sobre() {
 				<div className="grid lg:grid-cols-2 gap-12 items-center">
 					<div>
 						<h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-6">
-							Somos o maior serviço online de Angola para compra e venda de automóveis
+							Somos uma Plataforma online angolana para venda e serviços automóveis, num só lugar.
 						</h2>
 						<div className="space-y-6 text-lg text-gray-600 leading-relaxed">
 							<p>
-								A <strong>CAXIAUTO</strong> é uma plataforma digital centralizada no mundo automobilístico. Criada para facilitar o acesso
+								A Caxiauto é uma plataforma digital centralizada no mundo automobilístico. Criada para facilitar o acesso
 								a soluções de mobilidade, reunimos num só lugar a venda de viaturas novas e usadas, peças e acessórios,
-								serviço de reboque e aluguer de viaturas.
+								serviços de reboque e aluguer de viaturas, soluções mecânicas, estética automóvel e muito mais.
 							</p>
 							<p>
 								Tudo o que fazemos é pautado pela segurança, transparência e rapidez. Queremos que sinta confiança em cada clique e em cada negócio fechado.
@@ -147,7 +147,7 @@ export default function Sobre() {
 			{/* Why Choose Us */}
 			<section className="mx-auto max-w-7xl px-6 lg:px-8 py-6">
 				<div className="mx-auto max-w-2xl text-center mb-16">
-					<h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Por que escolher a CAXIAUTO?</h2>
+					<h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Por que escolher a Caxiauto?</h2>
 					<p className="mt-4 text-lg text-gray-600">Oferecemos um ecossistema completo pensado para facilitar a sua vida automobilística.</p>
 				</div>
 
