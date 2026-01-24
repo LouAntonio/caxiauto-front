@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Gauge, Calendar, MapPin, Droplet } from 'lucide-react'
 import VehicleFilter from '../../components/VehicleFilter'
 import Pagination from '../../components/Pagination'
@@ -6,6 +7,7 @@ import useDocumentTitle from '../../hooks/useDocumentTitle'
 
 export default function Aluguel() {
 	useDocumentTitle('Aluguel de Veículos - Caxiauto')
+	const navigate = useNavigate()
 
 	const [filters, setFilters] = useState({})
 	const [currentPage, setCurrentPage] = useState(1)
@@ -195,6 +197,7 @@ export default function Aluguel() {
 
 										{/* Botão */}
 										<button
+											onClick={() => navigate(`/stand/aluguel/${car.id}`)}
 											style={{ backgroundColor: 'var(--secondary)' }}
 											className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm"
 										>

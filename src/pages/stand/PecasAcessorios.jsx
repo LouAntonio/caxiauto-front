@@ -233,7 +233,7 @@ export default function PecasAcessorios() {
 										<img
 											src={part.image}
 											alt={part.name}
-											// onError={(e) => { e.target.src = './images/i10.png' }}
+											//onError={(e) => { e.target.src = '/images/i10.png' }}
 											className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 										/>
 										{/* Badge de estoque */}
