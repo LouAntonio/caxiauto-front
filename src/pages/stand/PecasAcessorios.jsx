@@ -128,7 +128,7 @@ export default function PecasAcessorios() {
 									<Layers className="w-4 h-4 text-indigo-600" />
 									Categorias
 								</label>
-								<div className="space-y-2">
+								<div className="flex flex-wrap gap-2">
 									{categories.map((category) => {
 										const getCategoryIcon = () => {
 											switch(category) {
@@ -151,15 +151,15 @@ export default function PecasAcessorios() {
 													setSelectedCategory(category)
 													setCurrentPage(1)
 												}}
-												className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${selectedCategory === category
-														? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md transform scale-[1.02]'
-														: 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-sm hover:translate-x-1'
+												className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${selectedCategory === category
+														? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md'
+														: 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-sm'
 													}`}
 											>
 												{getCategoryIcon()}
-												<span className="flex-1 text-left">{category}</span>
+												<span>{category}</span>
 												{selectedCategory === category && (
-													<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+													<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
 														<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
 													</svg>
 												)}
@@ -233,7 +233,7 @@ export default function PecasAcessorios() {
 										<img
 											src={part.image}
 											alt={part.name}
-											onError={(e) => { e.target.src = './images/i10.png' }}
+											// onError={(e) => { e.target.src = './images/i10.png' }}
 											className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 										/>
 										{/* Badge de estoque */}
