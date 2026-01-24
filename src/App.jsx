@@ -10,6 +10,7 @@ import AluguelDeAutomoveis from './pages/servicos/AluguelDeAutomoveis'
 import VendaDePecas from './pages/servicos/VendaDePecas'
 import VendaSeuAutomovel from './pages/servicos/VendaSeuAutomovel'
 import Reboque from './pages/servicos/Reboque'
+import Aluguel from './pages/stand/Aluguel'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
 import NotFound from './pages/NotFound'
@@ -32,6 +33,9 @@ function App() {
 				<Route path="/servicos/venda-de-pecas" element={<VendaDePecas />} />
 				<Route path="/servicos/venda-seu-automovel" element={<VendaSeuAutomovel />} />
 				<Route path="/servicos/reboque" element={<Reboque />} />
+
+				{/* Stand routes */}
+				<Route path="/stand/aluguel" element={<Aluguel />} />
 
 				{/* 404 route - keep last */}
 				<Route path="*" element={<NotFound />} />

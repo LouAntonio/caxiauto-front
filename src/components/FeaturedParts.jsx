@@ -117,7 +117,7 @@ export default function FeaturedParts() {
 					{sampleParts.map((p) => (
 						<article key={p.id} className="flex-shrink-0 w-64 bg-white rounded-2xl shadow-lg overflow-hidden group">
 							<div className="relative h-36 overflow-hidden">
-								<img src={p.img} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+								<img src={p.img} alt={p.title} onError={(e) => { e.target.src = './images/i10.png' }} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
 								<div className="absolute top-3 left-3 flex gap-2">
 									{p.badges.map((b) => (
 										<span key={b} className="badge px-2 py-0.5 text-xs font-semibold rounded">{b}</span>

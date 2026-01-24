@@ -66,7 +66,7 @@ export default function RentACarSection() {
 							>
 								<span className="font-bold text-[#1a1a2e] mt-2">{cat.name}</span>
 								<div className="my-4 w-full aspect-video flex items-center justify-center">
-									<img src={cat.image} alt={cat.name} className="max-w-full max-h-full object-contain mix-blend-multiply" />
+								<img src={cat.image} alt={cat.name} onError={(e) => { e.target.src = './images/i10.png' }} className="max-w-full max-h-full object-contain mix-blend-multiply" />
 								</div>
 							</div>
 						))}

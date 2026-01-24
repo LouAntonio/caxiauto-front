@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 export default function Header() {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 	const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
+	const [mobileStandOpen, setMobileStandOpen] = useState(false);
 
 	return (
 		<header
@@ -74,6 +75,30 @@ export default function Header() {
 								</Link>
 								<Link to="/servicos/reboque" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
 									Reboque
+								</Link>
+							</div>
+						</div>
+
+						{/* Stand com submenu - Desktop */}
+						<div className="relative group">
+							<button className="flex items-center gap-2 text-gray-700 font-medium hover:text-[var(--primary)] transition-colors duration-200">
+								Stand
+								<svg className="w-4 h-4 transition-transform group-hover:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+									<path d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.356a.75.75 0 111.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z" />
+								</svg>
+							</button>
+							<div
+								style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)' }}
+								className="absolute left-0 mt-3 w-72 rounded-lg shadow-2xl py-3 border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transform translate-y-2 group-hover:translate-y-0 transition-all duration-200"
+							>
+								<Link to="/stand/aluguel" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
+									Aluguel
+								</Link>
+								<Link to="/stand/compra" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
+									Compra
+								</Link>
+								<Link to="/stand/pecas-acessorios" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
+									Peças e Acessórios
 								</Link>
 							</div>
 						</div>
@@ -198,6 +223,49 @@ export default function Header() {
 											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
 										>
 											Reboque
+										</Link>
+									</div>
+								)}
+							</div>
+
+							{/* Stand - Mobile */}
+							<div>
+								<button
+									onClick={() => setMobileStandOpen(!mobileStandOpen)}
+									className="w-full flex items-center justify-between px-4 py-3 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+								>
+									Stand
+									<svg
+										className={`w-4 h-4 transition-transform ${mobileStandOpen ? 'rotate-180' : ''}`}
+										viewBox="0 0 20 20"
+										fill="currentColor"
+									>
+										<path d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.356a.75.75 0 111.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z" />
+									</svg>
+								</button>
+
+								{mobileStandOpen && (
+									<div className="ml-4 mt-2 space-y-1">
+										<Link
+											to="/stand/aluguel"
+											onClick={() => setMobileMenuOpen(false)}
+											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+										>
+											Aluguel
+										</Link>
+										<Link
+											to="/stand/compra"
+											onClick={() => setMobileMenuOpen(false)}
+											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+										>
+											Compra
+										</Link>
+										<Link
+											to="/stand/pecas-acessorios"
+											onClick={() => setMobileMenuOpen(false)}
+											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+										>
+											Peças e Acessórios
 										</Link>
 									</div>
 								)}
