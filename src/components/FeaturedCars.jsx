@@ -67,7 +67,11 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 									<img
 										src={car.img}
 										alt={car.title}
-									onError={(e) => { e.target.src = './images/i10.png' }}
+										className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+									/>
+
+									{/* Badge de condição (Novo / Usado) */}
+									<div className="absolute top-4 left-4">
 										<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${car.condition === 'Novo' ? 'bg-blue-600 text-white' : 'bg-yellow-500 text-white'}`}>
 											{car.condition}
 										</span>

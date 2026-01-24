@@ -4,8 +4,8 @@ import VehicleFilter from '../../components/VehicleFilter'
 import Pagination from '../../components/Pagination'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 
-export default function Aluguel() {
-	useDocumentTitle('Aluguel de Veículos - Caxiauto')
+export default function Compra() {
+	useDocumentTitle('Compra de Veículos - Caxiauto')
 
 	const [filters, setFilters] = useState({})
 	const [currentPage, setCurrentPage] = useState(1)
@@ -25,25 +25,25 @@ export default function Aluguel() {
 
 	// Dados de exemplo dos veículos
 	const vehicles = [
-		{ id: 1, title: 'Toyota Corolla 2024', price: '150.000', image: './images/i10.jpg', km: '15.000 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 2, title: 'Honda CR-V 2023', price: '200.000', image: './images/i10.jpg', km: '28.500 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 3, title: 'Ford Ranger 2024', price: '250.000', image: './images/i10.jpg', km: '10.200 km', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
-		{ id: 4, title: 'Chevrolet Onix 2023', price: '120.000', image: './images/i10.jpg', km: '32.400 km', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 1, title: 'Toyota Corolla 2024', price: '18.500.000', image: './images/i10.jpg', km: '15.000 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 2, title: 'Honda CR-V 2023', price: '22.000.000', image: './images/i10.jpg', km: '28.500 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 3, title: 'Ford Ranger 2024', price: '28.500.000', image: './images/i10.jpg', km: '10.200 km', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
+		{ id: 4, title: 'Chevrolet Onix 2023', price: '12.800.000', image: './images/i10.jpg', km: '32.400 km', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
 
-		{ id: 5, title: 'Toyota RAV4 2024', price: '220.000', image: './images/i10.jpg', km: '8.900 km', year: 2024, location: 'Luanda', fuel: 'Híbrido', condition: 'Novo' },
-		{ id: 6, title: 'Nissan Kicks 2023', price: '140.000', image: './images/i10.jpg', km: '25.600 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 7, title: 'Hyundai Tucson 2024', price: '190.000', image: './images/i10.jpg', km: '12.300 km', year: 2024, location: 'Huambo', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 8, title: 'Ford EcoSport 2023', price: '160.000', image: './images/i10.jpg', km: '38.700 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 5, title: 'Toyota RAV4 2024', price: '25.000.000', image: './images/i10.jpg', km: '8.900 km', year: 2024, location: 'Luanda', fuel: 'Híbrido', condition: 'Novo' },
+		{ id: 6, title: 'Nissan Kicks 2023', price: '15.500.000', image: './images/i10.jpg', km: '25.600 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 7, title: 'Hyundai Tucson 2024', price: '21.000.000', image: './images/i10.jpg', km: '12.300 km', year: 2024, location: 'Huambo', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 8, title: 'Ford EcoSport 2023', price: '17.500.000', image: './images/i10.jpg', km: '38.700 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
 
-		{ id: 9, title: 'Mercedes-Benz Classe A', price: '280.000', image: './images/i10.jpg', km: '18.200 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 10, title: 'BMW X1 2024', price: '320.000', image: './images/i10.jpg', km: '5.400 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 11, title: 'Volkswagen T-Cross 2023', price: '170.000', image: './images/i10.jpg', km: '29.800 km', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 12, title: 'Kia Sportage 2024', price: '210.000', image: './images/i10.jpg', km: '11.500 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 9, title: 'Mercedes-Benz Classe A', price: '32.000.000', image: './images/i10.jpg', km: '18.200 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 10, title: 'BMW X1 2024', price: '38.000.000', image: './images/i10.jpg', km: '5.400 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 11, title: 'Volkswagen T-Cross 2023', price: '19.000.000', image: './images/i10.jpg', km: '29.800 km', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 12, title: 'Kia Sportage 2024', price: '23.500.000', image: './images/i10.jpg', km: '11.500 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
 
-		{ id: 13, title: 'Toyota Hilux 2024', price: '300.000', image: './images/i10.jpg', km: '7.800 km', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
-		{ id: 14, title: 'Honda Civic 2023', price: '180.000', image: './images/i10.jpg', km: '35.200 km', year: 2023, location: 'Huambo', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 15, title: 'Mazda CX-5 2024', price: '230.000', image: './images/i10.jpg', km: '14.600 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 16, title: 'Audi A3 2023', price: '290.000', image: './images/i10.jpg', km: '22.100 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' }
+		{ id: 13, title: 'Toyota Hilux 2024', price: '35.000.000', image: './images/i10.jpg', km: '7.800 km', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
+		{ id: 14, title: 'Honda Civic 2023', price: '20.000.000', image: './images/i10.jpg', km: '35.200 km', year: 2023, location: 'Huambo', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 15, title: 'Mazda CX-5 2024', price: '26.500.000', image: './images/i10.jpg', km: '14.600 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 16, title: 'Audi A3 2023', price: '33.000.000', image: './images/i10.jpg', km: '22.100 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' }
 	]
 
 	// Cálculos de paginação
@@ -65,10 +65,10 @@ export default function Aluguel() {
 				/>
 				<div className="relative max-w-7xl mx-auto px-6 py-16">
 					<h1 className="text-4xl sm:text-5xl font-extrabold leading-tight drop-shadow-md">
-						Aluguel de Veículos
+						Compra de Veículos
 					</h1>
 					<p className="mt-4 text-lg text-indigo-100 max-w-2xl">
-						Escolha o veículo perfeito para suas necessidades. Aluguel flexível com as melhores condições em Luanda.
+						Encontre o veículo dos seus sonhos. Ofertas exclusivas e as melhores condições de pagamento em Luanda.
 					</p>
 				</div>
 			</div>
@@ -88,32 +88,32 @@ export default function Aluguel() {
 									<svg className="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
 										<path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
 									</svg>
-									Por que alugar conosco?
+									Por que comprar conosco?
 								</h3>
 								<ul className="space-y-3">
 									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
 										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
 											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
 										</svg>
-										<span className="font-medium">Sem taxas ocultas</span>
+										<span className="font-medium">Veículos inspecionados</span>
 									</li>
 									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
 										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
 											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
 										</svg>
-										<span className="font-medium">Seguro incluso</span>
+										<span className="font-medium">Garantia de qualidade</span>
 									</li>
 									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
 										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
 											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
 										</svg>
-										<span className="font-medium">Quilometragem ilimitada</span>
+										<span className="font-medium">Documentação completa</span>
 									</li>
 									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
 										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
 											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
 										</svg>
-										<span className="font-medium">Entrega e recolha gratuitas</span>
+										<span className="font-medium">Financiamento facilitado</span>
 									</li>
 								</ul>
 							</div>
