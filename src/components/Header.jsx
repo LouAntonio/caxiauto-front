@@ -205,11 +205,11 @@ export default function Header() {
 											Seguro Automóvel
 										</Link>
 										<Link
-											to="/servicos/aluguel-de-viaturas"
+											to="/servicos/aluguel-de-automoveis"
 											onClick={() => setMobileMenuOpen(false)}
 											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
 										>
-											Aluguel de Viaturas
+											Aluguel de Automóveis
 										</Link>
 									</div>
 								)}

@@ -35,25 +35,25 @@ export default function AluguelDeAutomoveis() {
 
 	// Dados de exemplo dos veículos
 	const vehicles = [
-		{ id: 1, title: 'Toyota Corolla 2024', price: '150.000', image: './images/i10.jpg', km: '15.000 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 2, title: 'Honda CR-V 2023', price: '200.000', image: './images/i10.jpg', km: '28.500 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 3, title: 'Ford Ranger 2024', price: '250.000', image: './images/i10.jpg', km: '10.200 km', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
-		{ id: 4, title: 'Chevrolet Onix 2023', price: '120.000', image: './images/i10.jpg', km: '32.400 km', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 1, title: 'Toyota Corolla 2024', price: '150.000', image: './images/i10.jpg', km: '15.000', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 2, title: 'Honda CR-V 2023', price: '200.000', image: './images/i10.jpg', km: '28.500', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 3, title: 'Ford Ranger 2024', price: '250.000', image: './images/i10.jpg', km: '10.200', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
+		{ id: 4, title: 'Chevrolet Onix 2023', price: '120.000', image: './images/i10.jpg', km: '32.400', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
 
-		{ id: 5, title: 'Toyota RAV4 2024', price: '220.000', image: './images/i10.jpg', km: '8.900 km', year: 2024, location: 'Luanda', fuel: 'Híbrido', condition: 'Novo' },
-		{ id: 6, title: 'Nissan Kicks 2023', price: '140.000', image: './images/i10.jpg', km: '25.600 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 7, title: 'Hyundai Tucson 2024', price: '190.000', image: './images/i10.jpg', km: '12.300 km', year: 2024, location: 'Huambo', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 8, title: 'Ford EcoSport 2023', price: '160.000', image: './images/i10.jpg', km: '38.700 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 5, title: 'Toyota RAV4 2024', price: '220.000', image: './images/i10.jpg', km: '8.900', year: 2024, location: 'Luanda', fuel: 'Híbrido', condition: 'Novo' },
+		{ id: 6, title: 'Nissan Kicks 2023', price: '140.000', image: './images/i10.jpg', km: '25.600', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 7, title: 'Hyundai Tucson 2024', price: '190.000', image: './images/i10.jpg', km: '12.300', year: 2024, location: 'Huambo', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 8, title: 'Ford EcoSport 2023', price: '160.000', image: './images/i10.jpg', km: '38.700', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
 
-		{ id: 9, title: 'Mercedes-Benz Classe A', price: '280.000', image: './images/i10.jpg', km: '18.200 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 10, title: 'BMW X1 2024', price: '320.000', image: './images/i10.jpg', km: '5.400 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 11, title: 'Volkswagen T-Cross 2023', price: '170.000', image: './images/i10.jpg', km: '29.800 km', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 12, title: 'Kia Sportage 2024', price: '210.000', image: './images/i10.jpg', km: '11.500 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 9, title: 'Mercedes-Benz Classe A', price: '280.000', image: './images/i10.jpg', km: '18.200', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 10, title: 'BMW X1 2024', price: '320.000', image: './images/i10.jpg', km: '5.400', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 11, title: 'Volkswagen T-Cross 2023', price: '170.000', image: './images/i10.jpg', km: '29.800', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 12, title: 'Kia Sportage 2024', price: '210.000', image: './images/i10.jpg', km: '11.500', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
 
-		{ id: 13, title: 'Toyota Hilux 2024', price: '300.000', image: './images/i10.jpg', km: '7.800 km', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
-		{ id: 14, title: 'Honda Civic 2023', price: '180.000', image: './images/i10.jpg', km: '35.200 km', year: 2023, location: 'Huambo', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 15, title: 'Mazda CX-5 2024', price: '230.000', image: './images/i10.jpg', km: '14.600 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 16, title: 'Audi A3 2023', price: '290.000', image: './images/i10.jpg', km: '22.100 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' }
+		{ id: 13, title: 'Toyota Hilux 2024', price: '300.000', image: './images/i10.jpg', km: '7.800', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
+		{ id: 14, title: 'Honda Civic 2023', price: '180.000', image: './images/i10.jpg', km: '35.200', year: 2023, location: 'Huambo', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 15, title: 'Mazda CX-5 2024', price: '230.000', image: './images/i10.jpg', km: '14.600', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 16, title: 'Audi A3 2023', price: '290.000', image: './images/i10.jpg', km: '22.100', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' }
 	];
 
 	// Cálculos de paginação
@@ -221,14 +221,14 @@ export default function AluguelDeAutomoveis() {
 									</select>
 								</div>
 
-								<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+								<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 									{currentVehicles.map((car) => (
 										<article
 											key={car.id}
 											className="flex-shrink-0 w-full bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
 										>
 											{/* Imagem */}
-											<div className="relative h-40 overflow-hidden">
+											<div className="relative h-40 overflow-hidden" onclick={() => navigate(`/stand/aluguel/${car.id}`)}>
 												<img
 													src={car.image}
 													alt={car.title}
@@ -284,7 +284,7 @@ export default function AluguelDeAutomoveis() {
 												<button
 													onClick={() => navigate(`/stand/aluguel/${car.id}`)}
 													style={{ backgroundColor: 'var(--secondary)' }}
-													className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm"
+													className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
 												>
 													Ver Detalhes
 												</button>

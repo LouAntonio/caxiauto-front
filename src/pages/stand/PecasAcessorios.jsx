@@ -92,44 +92,35 @@ export default function PecasAcessorios() {
 				<div className="flex flex-col lg:flex-row gap-8">
 					{/* Sidebar - Filtros */}
 					<aside className="w-full lg:w-80 flex-shrink-0">
-						<div className="sticky top-6 space-y-6">
-							{/* Header de Filtros */}
-							<div className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-xl p-5 shadow-lg">
-								<div className="flex items-center gap-3 text-white">
-									<Filter className="w-6 h-6" />
-									<h2 className="text-xl font-bold">Filtrar Produtos</h2>
-								</div>
-							</div>
+						<div className="sticky top-6">
+							<div className="w-full bg-gradient-to-br from-white to-gray-50 text-gray-800 rounded-2xl p-6 shadow-xl border border-gray-100">
+								<div className="space-y-4">
+									{/* Pesquisa de Texto */}
+									<div className="space-y-2">
+										<label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+											<Search className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+											Pesquisar
+										</label>
+										<input
+											type="text"
+											value={searchTerm}
+											onChange={(e) => {
+												setSearchTerm(e.target.value)
+												setCurrentPage(1)
+											}}
+											placeholder="Ex: Filtro de óleo, pastilha..."
+											className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm placeholder:text-gray-400"
+										/>
+									</div>
 
-							{/* Busca */}
-							<div className="bg-white rounded-xl p-5 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-								<label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
-									<Search className="w-4 h-4 text-indigo-600" />
-									Buscar Peça
-								</label>
-								<div className="relative">
-									<input
-										type="text"
-										value={searchTerm}
-										onChange={(e) => {
-											setSearchTerm(e.target.value)
-											setCurrentPage(1)
-										}}
-										placeholder="Ex: Filtro de óleo..."
-										className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-gray-50 hover:bg-white"
-									/>
-									<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-								</div>
-							</div>
-
-							{/* Categorias */}
-							<div className="bg-white rounded-xl p-5 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-								<label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-4">
-									<Layers className="w-4 h-4 text-indigo-600" />
-									Categorias
-								</label>
-								<div className="flex flex-wrap gap-2">
-									{categories.map((category) => {
+									{/* Categorias */}
+									<div className="space-y-2">
+										<label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+											<Layers className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+											Categorias
+										</label>
+										<div className="flex flex-wrap gap-2">
+											{categories.map((category) => {
 										const getCategoryIcon = () => {
 											switch(category) {
 												case 'Motor': return <Settings className="w-4 h-4" />
@@ -166,43 +157,47 @@ export default function PecasAcessorios() {
 											</button>
 										)
 									})}
-								</div>
-							</div>
+										</div>
+									</div>
 
-							{/* Informações Adicionais */}
-							<div className="bg-gradient-to-br from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-xl p-5 shadow-lg hover:shadow-xl transition-all">
-								<h3 className="flex items-center gap-2 font-bold text-indigo-900 mb-4">
-									<svg className="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-										<path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-									</svg>
-									Por que comprar conosco?
-								</h3>
-								<ul className="space-y-3">
-									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
-										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-										</svg>
-										<span className="font-medium">Peças originais certificadas</span>
-									</li>
-									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
-										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-										</svg>
-										<span className="font-medium">Garantia de fábrica</span>
-									</li>
-									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
-										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-										</svg>
-										<span className="font-medium">Entrega expressa</span>
-									</li>
-									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
-										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-										</svg>
-										<span className="font-medium">Suporte especializado</span>
-									</li>
-								</ul>
+									{/* Informações Adicionais */}
+									<div className="space-y-2 pt-2">
+										<div className="bg-gradient-to-br from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-xl p-5">
+											<h3 className="flex items-center gap-2 font-bold text-indigo-900 mb-4 text-sm">
+												<svg className="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+													<path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+												</svg>
+												Por que comprar conosco?
+											</h3>
+											<ul className="space-y-2">
+												<li className="flex items-start gap-2 text-xs text-indigo-900 bg-white rounded-lg p-2">
+													<svg className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+														<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+													</svg>
+													<span className="font-medium">Peças originais certificadas</span>
+												</li>
+												<li className="flex items-start gap-2 text-xs text-indigo-900 bg-white rounded-lg p-2">
+													<svg className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+														<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+													</svg>
+													<span className="font-medium">Garantia de fábrica</span>
+												</li>
+												<li className="flex items-start gap-2 text-xs text-indigo-900 bg-white rounded-lg p-2">
+													<svg className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+														<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+													</svg>
+													<span className="font-medium">Entrega expressa</span>
+												</li>
+												<li className="flex items-start gap-2 text-xs text-indigo-900 bg-white rounded-lg p-2">
+													<svg className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+														<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+													</svg>
+													<span className="font-medium">Suporte especializado</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 					</aside>
