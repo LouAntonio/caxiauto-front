@@ -15,23 +15,23 @@ import {
 	Mail,
 	CheckCircle2,
 	X,
-	Upload,
-	FileText
+	FileText,
+	Wallet,
+	CreditCard
 } from 'lucide-react'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 
-export default function DetalhesAluguel() {
+export default function DetalhesCompra() {
 	const { id } = useParams()
 	const navigate = useNavigate()
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
-	const [selectedPeriod, setSelectedPeriod] = useState('diaria')
 	const [showContactModal, setShowContactModal] = useState(false)
 
 	// Dados do veículo (em produção, viria de uma API)
 	const vehicle = {
 		id: parseInt(id) || 1,
 		title: 'Toyota Corolla 2024',
-		price: 150000,
+		price: 18500000,
 		images: [
 			'/images/i10.jpg',
 			'/images/i10.jpg',
@@ -40,7 +40,7 @@ export default function DetalhesAluguel() {
 			'/images/i10.jpg'
 		],
 		condition: 'Novo',
-		description: 'Toyota Corolla 2024 em perfeito estado de conservação. Veículo completo, com todos os opcionais de fábrica. Ideal para viagens e uso diário. Manutenção em dia e documentação regular.',
+		description: 'Toyota Corolla 2024 em perfeito estado de conservação. Veículo completo, com todos os opcionais de fábrica. Ideal para viagens e uso diário. Manutenção em dia e documentação regular. Este veículo passou por rigorosa inspeção técnica e está pronto para ser seu.',
 		specs: {
 			km: '15.000 km',
 			year: 2024,
@@ -65,25 +65,25 @@ export default function DetalhesAluguel() {
 			'Controle de Tração',
 			'Bancos em Couro'
 		],
-		pricing: {
-			diaria: 15000,
-			semanal: 90000,
-			mensal: 320000
+		financing: {
+			entry: 5550000, // 30% de entrada
+			installments: 48,
+			monthlyPayment: 385000
 		},
 		included: [
-			'Seguro contra terceiros',
-			'Assistência 24h',
-			'Quilometragem ilimitada',
-			'Manutenção preventiva'
+			'Garantia de fábrica 3 anos',
+			'Transferência de documentação',
+			'Inspeção técnica completa',
+			'Assistência pós-venda'
 		],
 		requirements: [
 			'BI ou Passaporte válido',
-			'Carta de condução válida',
-			'Idade mínima 18 anos'
+			'Comprovativo de renda',
+			'Comprovativo de residência'
 		]
 	}
 
-	useDocumentTitle(`${vehicle.title} - Aluguel - Caxiauto`)
+	useDocumentTitle(`${vehicle.title} - Compra - Caxiauto`)
 
 	const nextImage = () => {
 		setCurrentImageIndex((prev) => (prev + 1) % vehicle.images.length)
@@ -109,7 +109,7 @@ export default function DetalhesAluguel() {
 					<nav className="flex items-center gap-2 text-sm text-gray-600">
 						<Link to="/" className="hover:text-indigo-600 transition-colors">Início</Link>
 						<ChevronRight className="w-4 h-4" />
-						<Link to="/stand/aluguel" className="hover:text-indigo-600 transition-colors">Aluguel</Link>
+						<Link to="/stand/compra" className="hover:text-indigo-600 transition-colors">Compra</Link>
 						<ChevronRight className="w-4 h-4" />
 						<span className="text-gray-900 font-medium">{vehicle.title}</span>
 					</nav>
@@ -275,7 +275,7 @@ export default function DetalhesAluguel() {
 						<div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
 							<h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
 								<div className="w-1 h-6 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full"></div>
-								Requisitos para Aluguel
+								Requisitos para Compra
 							</h2>
 							<div className="space-y-3">
 								{vehicle.requirements.map((req, index) => (
@@ -291,91 +291,34 @@ export default function DetalhesAluguel() {
 					{/* Sidebar - Card de Preço e Contato */}
 					<div className="lg:col-span-1">
 						<div className="sticky top-16 space-y-4">
-							{/* Card de Preços */}
+							{/* Card de Preço */}
 							<div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-								<h3 className="text-lg font-bold text-gray-900 mb-4">Planos de Aluguel</h3>
+								<h3 className="text-lg font-bold text-gray-900 mb-2">Preço de Venda</h3>
 
-								<div className="space-y-3 mb-6">
-									<button
-										onClick={() => setSelectedPeriod('diaria')}
-										className={`w-full p-4 rounded-xl border-2 transition-all text-left ${selectedPeriod === 'diaria'
-											? 'border-indigo-600 bg-indigo-50'
-											: 'border-gray-200 hover:border-indigo-300'
-											}`}
-									>
-										<div className="flex justify-between items-start">
-											<div>
-												<div className="font-semibold text-gray-900">Diária</div>
-												<div className="text-xs text-gray-600 mt-1">Até 24 horas</div>
-											</div>
-											<div className="text-right">
-												<div className="text-lg font-bold text-indigo-600">
-													{formatPrice(vehicle.pricing.diaria)}
-												</div>
-												<div className="text-xs text-gray-600">Kz/dia</div>
-											</div>
-										</div>
-									</button>
-
-									<button
-										onClick={() => setSelectedPeriod('semanal')}
-										className={`w-full p-4 rounded-xl border-2 transition-all text-left ${selectedPeriod === 'semanal'
-											? 'border-indigo-600 bg-indigo-50'
-											: 'border-gray-200 hover:border-indigo-300'
-											}`}
-									>
-										<div className="flex justify-between items-start">
-											<div>
-												<div className="font-semibold text-gray-900">Semanal</div>
-												<div className="text-xs text-gray-600 mt-1">7 dias</div>
-											</div>
-											<div className="text-right">
-												<div className="text-lg font-bold text-indigo-600">
-													{formatPrice(vehicle.pricing.semanal)}
-												</div>
-												<div className="text-xs text-gray-600">Kz/semana</div>
-											</div>
-										</div>
-										<div className="mt-2 text-xs text-green-600 font-medium">
-											Economize {formatPrice(vehicle.pricing.diaria * 7 - vehicle.pricing.semanal)} Kz
-										</div>
-									</button>
-
-									<button
-										onClick={() => setSelectedPeriod('mensal')}
-										className={`w-full p-4 rounded-xl border-2 transition-all text-left ${selectedPeriod === 'mensal'
-											? 'border-indigo-600 bg-indigo-50'
-											: 'border-gray-200 hover:border-indigo-300'
-											}`}
-									>
-										<div className="flex justify-between items-start">
-											<div>
-												<div className="font-semibold text-gray-900">Mensal</div>
-												<div className="text-xs text-gray-600 mt-1">30 dias</div>
-											</div>
-											<div className="text-right">
-												<div className="text-lg font-bold text-indigo-600">
-													{formatPrice(vehicle.pricing.mensal)}
-												</div>
-												<div className="text-xs text-gray-600">Kz/mês</div>
-											</div>
-										</div>
-										<div className="mt-2 text-xs text-green-600 font-medium">
-											Economize {formatPrice(vehicle.pricing.diaria * 30 - vehicle.pricing.mensal)} Kz
-										</div>
-									</button>
+								<div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-5 mb-6">
+									<div className="text-3xl font-bold text-indigo-600 mb-1">
+										{formatPrice(vehicle.price)}
+									</div>
+									<div className="text-sm text-gray-600">Kz (à vista)</div>
 								</div>
 
 								<button
 									onClick={handleContact}
-									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02]"
+									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02] mb-3"
 								>
-									Solicitar Aluguel
+									Fazer Proposta
+								</button>
+
+								<button
+									onClick={handleContact}
+									className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02]"
+								>
+									Agendar Visita
 								</button>
 
 								<div className="mt-4 pt-4 border-t border-gray-200">
 									<p className="text-xs text-gray-600 text-center">
-										Preços sujeitos a disponibilidade. Entre em contato para mais informações.
+										Preços sujeitos a alteração. Entre em contato para mais informações sobre financiamento.
 									</p>
 								</div>
 							</div>
@@ -398,12 +341,12 @@ export default function DetalhesAluguel() {
 										</div>
 									</a>
 									<a
-										href="mailto:aluguel@caxiauto.com"
+										href="mailto:vendas@caxiauto.com"
 										className="flex items-center gap-3 p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all"
 									>
 										<Mail className="w-5 h-5" />
 										<div className="text-sm">
-											<div className="font-medium">aluguel@caxiauto.com</div>
+											<div className="font-medium">vendas@caxiauto.com</div>
 											<div className="text-xs text-indigo-200">Enviar e-mail</div>
 										</div>
 									</a>
@@ -437,7 +380,7 @@ export default function DetalhesAluguel() {
 
 							<div className="pr-10">
 								<h3 className="text-xl sm:text-2xl font-bold text-white mb-1.5 sm:mb-2">
-									Solicitar Aluguel
+									Solicitar Compra
 								</h3>
 								<p className="text-indigo-100 text-xs sm:text-sm">
 									Preencha os dados e entraremos em contato em breve
@@ -503,80 +446,42 @@ export default function DetalhesAluguel() {
 								</div>
 							</div>
 
-							{/* Detalhes do Aluguel */}
+							{/* Interesse de Compra */}
 							<div className="pt-4 border-t border-gray-200">
 								<h4 className="text-sm sm:text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-									<Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
-									Detalhes do aluguel
+									<Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
+									Detalhes do interesse
 								</h4>
 
 								<div>
 									<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
 										<span className="flex items-center gap-1.5">
-											Período desejado
+											Forma de pagamento preferencial
 											<span className="text-red-500 text-base">*</span>
 										</span>
 									</label>
 									<select
 										required
 										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base font-medium"
-										defaultValue={selectedPeriod}
 									>
-										<option value="diaria">
-											Diária - {formatPrice(vehicle.pricing.diaria)} Kz/dia
-										</option>
-										<option value="semanal">
-											Semanal - {formatPrice(vehicle.pricing.semanal)} Kz
-										</option>
-										<option value="mensal">
-											Mensal - {formatPrice(vehicle.pricing.mensal)} Kz
-										</option>
+										<option value="">Selecione uma opção</option>
+										<option value="vista">À vista - {formatPrice(vehicle.price)} Kz</option>
+										<option value="financiamento">Financiamento - {vehicle.financing.installments}x de {formatPrice(vehicle.financing.monthlyPayment)} Kz</option>
+										<option value="retoma">Retoma de veículo</option>
 									</select>
-									<p className="mt-2 text-xs text-gray-500 flex items-center gap-1.5">
-										<Shield className="w-3.5 h-3.5" />
-										Seguro e assistência 24h inclusos
-									</p>
 								</div>
 
-								{/* Documentos */}
-								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-									<div>
-										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-											<span className="flex items-center gap-1.5">
-												<FileText className="w-4 h-4" />
-												BI ou Passaporte
-												<span className="text-red-500 text-base">*</span>
-											</span>
-										</label>
-										<div className="relative">
-											<input
-												type="file"
-												required
-												accept=".pdf,.jpg,.jpeg,.png"
-												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-											/>
-										</div>
-										<p className="mt-1.5 text-xs text-gray-500">PDF, JPG ou PNG (máx. 5MB)</p>
-									</div>
-
-									<div>
-										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-											<span className="flex items-center gap-1.5">
-												<FileText className="w-4 h-4" />
-												Carta de Condução
-												<span className="text-red-500 text-base">*</span>
-											</span>
-										</label>
-										<div className="relative">
-											<input
-												type="file"
-												required
-												accept=".pdf,.jpg,.jpeg,.png"
-												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-											/>
-										</div>
-										<p className="mt-1.5 text-xs text-gray-500">PDF, JPG ou PNG (máx. 5MB)</p>
-									</div>
+								{/* Checkbox para retoma */}
+								<div className="mt-4">
+									<label className="flex items-start gap-3 cursor-pointer group">
+										<input
+											type="checkbox"
+											className="mt-1 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+										/>
+										<span className="text-sm text-gray-700 group-hover:text-gray-900">
+											Tenho um veículo para retoma
+										</span>
+									</label>
 								</div>
 							</div>
 
@@ -588,7 +493,7 @@ export default function DetalhesAluguel() {
 								<textarea
 									rows="3"
 									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none transition-all hover:border-gray-400 text-sm sm:text-base"
-									placeholder="Conte-nos sobre suas necessidades, datas específicas ou dúvidas..."
+									placeholder="Conte-nos sobre suas dúvidas, preferências de financiamento ou outras informações..."
 								/>
 							</div>
 

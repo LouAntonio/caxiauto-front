@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Gauge, Calendar, MapPin, Droplet } from 'lucide-react'
 import VehicleFilter from '../../components/VehicleFilter'
 import Pagination from '../../components/Pagination'
@@ -6,6 +7,7 @@ import useDocumentTitle from '../../hooks/useDocumentTitle'
 
 export default function Compra() {
 	useDocumentTitle('Compra de Veículos - Caxiauto')
+	const navigate = useNavigate()
 
 	const [filters, setFilters] = useState({})
 	const [currentPage, setCurrentPage] = useState(1)
@@ -25,25 +27,25 @@ export default function Compra() {
 
 	// Dados de exemplo dos veículos
 	const vehicles = [
-		{ id: 1, title: 'Toyota Corolla 2024', price: '18.500.000', image: './images/i10.jpg', km: '15.000 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 2, title: 'Honda CR-V 2023', price: '22.000.000', image: './images/i10.jpg', km: '28.500 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 3, title: 'Ford Ranger 2024', price: '28.500.000', image: './images/i10.jpg', km: '10.200 km', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
-		{ id: 4, title: 'Chevrolet Onix 2023', price: '12.800.000', image: './images/i10.jpg', km: '32.400 km', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 1, title: 'Toyota Corolla 2024', price: '18.500.000', image: './images/i10.jpg', km: '15.000', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 2, title: 'Honda CR-V 2023', price: '22.000.000', image: './images/i10.jpg', km: '28.500', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 3, title: 'Ford Ranger 2024', price: '28.500.000', image: './images/i10.jpg', km: '10.200', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
+		{ id: 4, title: 'Chevrolet Onix 2023', price: '12.800.000', image: './images/i10.jpg', km: '32.400', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
 
-		{ id: 5, title: 'Toyota RAV4 2024', price: '25.000.000', image: './images/i10.jpg', km: '8.900 km', year: 2024, location: 'Luanda', fuel: 'Híbrido', condition: 'Novo' },
-		{ id: 6, title: 'Nissan Kicks 2023', price: '15.500.000', image: './images/i10.jpg', km: '25.600 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 7, title: 'Hyundai Tucson 2024', price: '21.000.000', image: './images/i10.jpg', km: '12.300 km', year: 2024, location: 'Huambo', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 8, title: 'Ford EcoSport 2023', price: '17.500.000', image: './images/i10.jpg', km: '38.700 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 5, title: 'Toyota RAV4 2024', price: '25.000.000', image: './images/i10.jpg', km: '8.900', year: 2024, location: 'Luanda', fuel: 'Híbrido', condition: 'Novo' },
+		{ id: 6, title: 'Nissan Kicks 2023', price: '15.500.000', image: './images/i10.jpg', km: '25.600', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 7, title: 'Hyundai Tucson 2024', price: '21.000.000', image: './images/i10.jpg', km: '12.300', year: 2024, location: 'Huambo', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 8, title: 'Ford EcoSport 2023', price: '17.500.000', image: './images/i10.jpg', km: '38.700', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
 
-		{ id: 9, title: 'Mercedes-Benz Classe A', price: '32.000.000', image: './images/i10.jpg', km: '18.200 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 10, title: 'BMW X1 2024', price: '38.000.000', image: './images/i10.jpg', km: '5.400 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 11, title: 'Volkswagen T-Cross 2023', price: '19.000.000', image: './images/i10.jpg', km: '29.800 km', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 12, title: 'Kia Sportage 2024', price: '23.500.000', image: './images/i10.jpg', km: '11.500 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 9, title: 'Mercedes-Benz Classe A', price: '32.000.000', image: './images/i10.jpg', km: '18.200', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 10, title: 'BMW X1 2024', price: '38.000.000', image: './images/i10.jpg', km: '5.400', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 11, title: 'Volkswagen T-Cross 2023', price: '19.000.000', image: './images/i10.jpg', km: '29.800', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 12, title: 'Kia Sportage 2024', price: '23.500.000', image: './images/i10.jpg', km: '11.500', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
 
-		{ id: 13, title: 'Toyota Hilux 2024', price: '35.000.000', image: './images/i10.jpg', km: '7.800 km', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
-		{ id: 14, title: 'Honda Civic 2023', price: '20.000.000', image: './images/i10.jpg', km: '35.200 km', year: 2023, location: 'Huambo', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 15, title: 'Mazda CX-5 2024', price: '26.500.000', image: './images/i10.jpg', km: '14.600 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 16, title: 'Audi A3 2023', price: '33.000.000', image: './images/i10.jpg', km: '22.100 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' }
+		{ id: 13, title: 'Toyota Hilux 2024', price: '35.000.000', image: './images/i10.jpg', km: '7.800', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
+		{ id: 14, title: 'Honda Civic 2023', price: '20.000.000', image: './images/i10.jpg', km: '35.200', year: 2023, location: 'Huambo', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 15, title: 'Mazda CX-5 2024', price: '26.500.000', image: './images/i10.jpg', km: '14.600', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 16, title: 'Audi A3 2023', price: '33.000.000', image: './images/i10.jpg', km: '22.100', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' }
 	]
 
 	// Cálculos de paginação
@@ -146,6 +148,7 @@ export default function Compra() {
 											src={car.image}
 											alt={car.title}
 											className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+											onError={(e) => { e.target.src = '/images/i10.jpg'; }}
 										/>
 
 										{/* Badge de condição (Novo / Usado) */}
@@ -196,8 +199,7 @@ export default function Compra() {
 										{/* Botão */}
 										<button
 											style={{ backgroundColor: 'var(--secondary)' }}
-											className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm"
-										>
+											className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"										onClick={() => navigate(`/stand/compra/${car.id}`)}										>
 											Ver Detalhes
 										</button>
 									</div>

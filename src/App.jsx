@@ -13,6 +13,7 @@ import Reboque from './pages/servicos/Reboque'
 import Aluguel from './pages/stand/Aluguel'
 import DetalhesAluguel from './pages/stand/DetalhesAluguel'
 import Compra from './pages/stand/Compra'
+import DetalhesCompra from './pages/stand/DetalhesCompra'
 import PecasAcessorios from './pages/stand/PecasAcessorios'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
@@ -41,6 +42,7 @@ function App() {
 				<Route path="/stand/aluguel" element={<Aluguel />} />
 				<Route path="/stand/aluguel/:id" element={<DetalhesAluguel />} />
 				<Route path="/stand/compra" element={<Compra />} />
+				<Route path="/stand/compra/:id" element={<DetalhesCompra />} />
 				<Route path="/stand/pecas-acessorios" element={<PecasAcessorios />} />
 
 				{/* 404 route - keep last */}

@@ -233,6 +233,7 @@ export default function AluguelDeAutomoveis() {
 													src={car.image}
 													alt={car.title}
 													className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+													onError={(e) => { e.target.src = '/images/i10.jpg'; }}
 												/>
 
 												{/* Badge de condição (Novo / Usado) */}
