@@ -1,22 +1,66 @@
-import React from 'react';
+import React, { useState } from 'react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import {
-	Car,
-	CalendarClock,
-	Wallet,
-	ShieldCheck,
 	Search,
 	GitCompare,
-	MessageCircle,
 	CheckCircle2,
-	Briefcase,
-	Users,
-	Key
+	Key,
+	Gauge,
+	Calendar,
+	MapPin,
+	Droplet
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import VehicleFilter from '../../components/VehicleFilter';
+import Pagination from '../../components/Pagination';
 
 export default function AluguelDeAutomoveis() {
 	useDocumentTitle('Aluguel de Automóveis - Caxiauto');
+	const navigate = useNavigate();
+
+	const [filters, setFilters] = useState({});
+	const [currentPage, setCurrentPage] = useState(1);
+	const vehiclesPerPage = 16;
+
+	const handleFilterChange = (newFilters) => {
+		setFilters(newFilters);
+		setCurrentPage(1);
+		console.log('Filtros aplicados:', newFilters);
+	};
+
+	const handlePageChange = (page) => {
+		setCurrentPage(page);
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	};
+
+	// Dados de exemplo dos veículos
+	const vehicles = [
+		{ id: 1, title: 'Toyota Corolla 2024', price: '150.000', image: './images/i10.jpg', km: '15.000 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 2, title: 'Honda CR-V 2023', price: '200.000', image: './images/i10.jpg', km: '28.500 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 3, title: 'Ford Ranger 2024', price: '250.000', image: './images/i10.jpg', km: '10.200 km', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
+		{ id: 4, title: 'Chevrolet Onix 2023', price: '120.000', image: './images/i10.jpg', km: '32.400 km', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
+
+		{ id: 5, title: 'Toyota RAV4 2024', price: '220.000', image: './images/i10.jpg', km: '8.900 km', year: 2024, location: 'Luanda', fuel: 'Híbrido', condition: 'Novo' },
+		{ id: 6, title: 'Nissan Kicks 2023', price: '140.000', image: './images/i10.jpg', km: '25.600 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 7, title: 'Hyundai Tucson 2024', price: '190.000', image: './images/i10.jpg', km: '12.300 km', year: 2024, location: 'Huambo', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 8, title: 'Ford EcoSport 2023', price: '160.000', image: './images/i10.jpg', km: '38.700 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
+
+		{ id: 9, title: 'Mercedes-Benz Classe A', price: '280.000', image: './images/i10.jpg', km: '18.200 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 10, title: 'BMW X1 2024', price: '320.000', image: './images/i10.jpg', km: '5.400 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 11, title: 'Volkswagen T-Cross 2023', price: '170.000', image: './images/i10.jpg', km: '29.800 km', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 12, title: 'Kia Sportage 2024', price: '210.000', image: './images/i10.jpg', km: '11.500 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+
+		{ id: 13, title: 'Toyota Hilux 2024', price: '300.000', image: './images/i10.jpg', km: '7.800 km', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
+		{ id: 14, title: 'Honda Civic 2023', price: '180.000', image: './images/i10.jpg', km: '35.200 km', year: 2023, location: 'Huambo', fuel: 'Gasolina', condition: 'Usado' },
+		{ id: 15, title: 'Mazda CX-5 2024', price: '230.000', image: './images/i10.jpg', km: '14.600 km', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+		{ id: 16, title: 'Audi A3 2023', price: '290.000', image: './images/i10.jpg', km: '22.100 km', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' }
+	];
+
+	// Cálculos de paginação
+	const totalPages = Math.ceil(vehicles.length / vehiclesPerPage);
+	const indexOfLastVehicle = currentPage * vehiclesPerPage;
+	const indexOfFirstVehicle = indexOfLastVehicle - vehiclesPerPage;
+	const currentVehicles = vehicles.slice(indexOfFirstVehicle, indexOfLastVehicle);
 
 	const steps = [
 		{
@@ -77,42 +121,191 @@ export default function AluguelDeAutomoveis() {
 				</div>
 			</section>
 
-			{/* Timeline Steps */}
-			<section className="pt-8 pb-4 px-6 overflow-hidden">
-				<div className="max-w-7xl mx-auto">
-					<div className="text-center mb-10">
-						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Como Funciona</span>
-						<h2 className="text-3xl font-bold text-gray-900">Alugar nunca foi tão fácil</h2>
-					</div>
+			<div className='max-w-7xl mx-auto'>
+				{/* Timeline Steps */}
+				<section className="pt-8 pb-4 px-6 overflow-hidden">
+					<div className="max-w-7xl mx-auto">
+						<div className="text-center mb-10">
+							<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Como Funciona</span>
+							<h2 className="text-3xl font-bold text-gray-900">Alugar nunca foi tão fácil</h2>
+						</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-						{steps.map((step, index) => (
-							<div key={step.number} className="relative group">
-								<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-8 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 hover:from-white hover:to-blue-50 transition-all duration-300 transform group-hover:-translate-y-2 relative overflow-hidden h-full flex flex-col">
-									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -m-10 opacity-40 group-hover:opacity-70 transition-opacity duration-500"></div>
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+							{steps.map((step, index) => (
+								<div key={step.number} className="relative group">
+									<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-8 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 hover:from-white hover:to-blue-50 transition-all duration-300 transform group-hover:-translate-y-2 relative overflow-hidden h-full flex flex-col">
+										<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -m-10 opacity-40 group-hover:opacity-70 transition-opacity duration-500"></div>
 
-									<div className="relative mb-6 flex flex-col items-center text-center">
-										<div className="w-20 h-20 bg-gradient-to-br from-white to-blue-50 rounded-full shadow-[0_4px_20px_rgba(21,76,154,0.25)] flex flex-col items-center justify-center border-[5px] border-[#154c9a] group-hover:border-[6px] group-hover:scale-110 group-hover:shadow-[0_6px_25px_rgba(21,76,154,0.35)] transition-all duration-300 mb-4">
-											<span className="text-[10px] font-bold text-[#154c9a] uppercase tracking-widest">{step.label}</span>
-											<span className="text-3xl font-black bg-gradient-to-br from-[#154c9a] to-blue-700 bg-clip-text text-transparent leading-none">{step.number}</span>
+										<div className="relative mb-6 flex flex-col items-center text-center">
+											<div className="w-20 h-20 bg-gradient-to-br from-white to-blue-50 rounded-full shadow-[0_4px_20px_rgba(21,76,154,0.25)] flex flex-col items-center justify-center border-[5px] border-[#154c9a] group-hover:border-[6px] group-hover:scale-110 group-hover:shadow-[0_6px_25px_rgba(21,76,154,0.35)] transition-all duration-300 mb-4">
+												<span className="text-[10px] font-bold text-[#154c9a] uppercase tracking-widest">{step.label}</span>
+												<span className="text-3xl font-black bg-gradient-to-br from-[#154c9a] to-blue-700 bg-clip-text text-transparent leading-none">{step.number}</span>
+											</div>
+
+											<div className="w-16 h-16 bg-gradient-to-br from-[#154c9a] to-blue-600 rounded-2xl flex items-center justify-center shadow-[0_4px_15px_rgba(21,76,154,0.3)] text-white transform group-hover:rotate-12 group-hover:scale-110 group-hover:shadow-[0_6px_20px_rgba(21,76,154,0.4)] transition-all duration-300 mb-5">
+												<step.icon size={30} strokeWidth={2.5} />
+											</div>
+
+											<h3 className="text-xl font-bold text-gray-800 group-hover:text-[#154c9a] transition-colors mb-1">{step.title}</h3>
 										</div>
 
-										<div className="w-16 h-16 bg-gradient-to-br from-[#154c9a] to-blue-600 rounded-2xl flex items-center justify-center shadow-[0_4px_15px_rgba(21,76,154,0.3)] text-white transform group-hover:rotate-12 group-hover:scale-110 group-hover:shadow-[0_6px_20px_rgba(21,76,154,0.4)] transition-all duration-300 mb-5">
-											<step.icon size={30} strokeWidth={2.5} />
-										</div>
-
-										<h3 className="text-xl font-bold text-gray-800 group-hover:text-[#154c9a] transition-colors mb-1">{step.title}</h3>
+										<p className="text-base text-gray-600 leading-relaxed font-medium text-center mt-auto">
+											{step.description}
+										</p>
 									</div>
-
-									<p className="text-base text-gray-600 leading-relaxed font-medium text-center mt-auto">
-										{step.description}
-									</p>
 								</div>
-							</div>
-						))}
+							))}
+						</div>
 					</div>
-				</div>
-			</section>
+				</section>
+
+				{/* Seção de Veículos com Sidebar Filter */}
+				<section className="py-8 px-6">
+					<div className="max-w-7xl mx-auto">
+						<div className="flex flex-col lg:flex-row gap-8">
+							{/* Sidebar - Filtros */}
+							<aside className="w-full lg:w-80 flex-shrink-0">
+								<div className="sticky top-6">
+									<h2 className="text-xl font-bold text-gray-800 mb-4">Filtrar Veículos</h2>
+									<VehicleFilter onFilterChange={handleFilterChange} />
+
+									{/* Informações Adicionais */}
+									<div className="mt-6 bg-gradient-to-br from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-xl p-5 shadow-lg hover:shadow-xl transition-all">
+										<h3 className="flex items-center gap-2 font-bold text-indigo-900 mb-4">
+											<svg className="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+												<path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+											</svg>
+											Por que alugar conosco?
+										</h3>
+										<ul className="space-y-3">
+											<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+												<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+													<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+												</svg>
+												<span className="font-medium">Sem taxas ocultas</span>
+											</li>
+											<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+												<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+													<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+												</svg>
+												<span className="font-medium">Seguro incluso</span>
+											</li>
+											<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+												<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+													<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+												</svg>
+												<span className="font-medium">Quilometragem ilimitada</span>
+											</li>
+											<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+												<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+													<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+												</svg>
+												<span className="font-medium">Entrega e recolha gratuitas</span>
+											</li>
+										</ul>
+									</div>
+								</div>
+							</aside>
+
+							{/* Main Content - Grid de Veículos */}
+							<main className="flex-1">
+								<div className="mb-6 flex items-center justify-between">
+									<p className="text-gray-600">
+										<span className="font-semibold text-gray-900">{vehicles.length} veículos</span> disponíveis
+									</p>
+									<select className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+										<option>Ordenar por: Relevância</option>
+										<option>Preço: Menor para Maior</option>
+										<option>Preço: Maior para Menor</option>
+										<option>Mais Recentes</option>
+									</select>
+								</div>
+
+								<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+									{currentVehicles.map((car) => (
+										<article
+											key={car.id}
+											className="flex-shrink-0 w-full bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
+										>
+											{/* Imagem */}
+											<div className="relative h-40 overflow-hidden">
+												<img
+													src={car.image}
+													alt={car.title}
+													className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+												/>
+
+												{/* Badge de condição (Novo / Usado) */}
+												<div className="absolute top-4 left-4">
+													<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${car.condition === 'Novo' ? 'bg-blue-600 text-white' : 'bg-yellow-500 text-white'}`}>
+														{car.condition}
+													</span>
+												</div>
+
+												{/* Gradiente inferior */}
+												<div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent"></div>
+											</div>
+
+											{/* Conteúdo */}
+											<div className="p-5">
+												<h3 className="text-1xl font-bold text-gray-900 mb-3 line-clamp-1 text-center">
+													{car.title}
+												</h3>
+
+												{/* Preço */}
+												<div
+													style={{ color: 'var(--primary)' }}
+													className="text-1xl font-bold mb-4 text-center"
+												>
+													{car.price},00 akz
+												</div>
+
+												{/* Especificações (duas colunas) */}
+												<div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+													<div className="flex items-center justify-end gap-2">
+														<span className="text-right">{car.km}</span>
+														<Gauge className="w-4 h-4 text-gray-400" />
+													</div>
+													<div className="flex items-center gap-2">
+														<Calendar className="w-4 h-4 text-gray-400" />
+														<span>{car.year}</span>
+													</div>
+													<div className="flex items-center justify-end gap-2">
+														<span className="text-right">{car.location}</span>
+														<MapPin className="w-4 h-4 text-gray-400" />
+													</div>
+													<div className="flex items-center gap-2">
+														<Droplet className="w-4 h-4 text-gray-400" />
+														<span>{car.fuel}</span>
+													</div>
+												</div>
+
+												{/* Botão */}
+												<button
+													onClick={() => navigate(`/stand/aluguel/${car.id}`)}
+													style={{ backgroundColor: 'var(--secondary)' }}
+													className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm"
+												>
+													Ver Detalhes
+												</button>
+											</div>
+										</article>
+									))}
+								</div>
+
+								{/* Pagination */}
+								<div className="mt-12">
+									<Pagination
+										currentPage={currentPage}
+										totalPages={totalPages}
+										onPageChange={handlePageChange}
+									/>
+								</div>
+							</main>
+						</div>
+					</div>
+				</section>
+			</div>
 
 		</main>
 	);
