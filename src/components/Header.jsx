@@ -61,20 +61,17 @@ export default function Header() {
 								style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)' }}
 								className="absolute left-0 mt-3 w-72 rounded-lg shadow-2xl py-3 border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transform translate-y-2 group-hover:translate-y-0 transition-all duration-200"
 							>
-								<Link to="/servicos/venda-de-automoveis" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
-									Venda de Automóveis
-								</Link>
-								<Link to="/servicos/aluguel-de-automoveis" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
-									Aluguel de Automóveis
-								</Link>
-								<Link to="/servicos/venda-de-pecas" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
-									Venda de Peças e Acessórios
-								</Link>
-								<Link to="/servicos/venda-seu-automovel" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
-									Venda seu Automóvel
+								<Link to="/servicos/gps" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
+									GPS
 								</Link>
 								<Link to="/servicos/reboque" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
 									Reboque
+								</Link>
+								<Link to="/servicos/seguro-automovel" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
+									Seguro Automóvel
+								</Link>
+								<Link to="/servicos/aluguel-de-automoveis" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
+									Aluguel de Automóveis
 								</Link>
 							</div>
 						</div>
@@ -91,9 +88,6 @@ export default function Header() {
 								style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)' }}
 								className="absolute left-0 mt-3 w-72 rounded-lg shadow-2xl py-3 border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transform translate-y-2 group-hover:translate-y-0 transition-all duration-200"
 							>
-								<Link to="/stand/aluguel" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
-									Aluguel
-								</Link>
 								<Link to="/stand/compra" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
 									Compra
 								</Link>
@@ -190,32 +184,11 @@ export default function Header() {
 								{mobileServicesOpen && (
 									<div className="ml-4 mt-2 space-y-1">
 										<Link
-											to="/servicos/venda-de-automoveis"
+											to="/servicos/gps"
 											onClick={() => setMobileMenuOpen(false)}
 											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
 										>
-											Venda de Automóveis
-										</Link>
-										<Link
-											to="/servicos/aluguel-de-automoveis"
-											onClick={() => setMobileMenuOpen(false)}
-											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-										>
-											Aluguel de Automóveis
-										</Link>
-										<Link
-											to="/servicos/venda-de-pecas"
-											onClick={() => setMobileMenuOpen(false)}
-											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-										>
-											Venda de Peças e Acessórios
-										</Link>
-										<Link
-											to="/servicos/venda-seu-automovel"
-											onClick={() => setMobileMenuOpen(false)}
-											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-										>
-											Venda seu Automóvel
+											GPS
 										</Link>
 										<Link
 											to="/servicos/reboque"
@@ -223,6 +196,20 @@ export default function Header() {
 											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
 										>
 											Reboque
+										</Link>
+										<Link
+											to="/servicos/seguro-automovel"
+											onClick={() => setMobileMenuOpen(false)}
+											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+										>
+											Seguro Automóvel
+										</Link>
+										<Link
+											to="/servicos/aluguel-de-viaturas"
+											onClick={() => setMobileMenuOpen(false)}
+											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+										>
+											Aluguel de Viaturas
 										</Link>
 									</div>
 								)}
@@ -246,13 +233,6 @@ export default function Header() {
 
 								{mobileStandOpen && (
 									<div className="ml-4 mt-2 space-y-1">
-										<Link
-											to="/stand/aluguel"
-											onClick={() => setMobileMenuOpen(false)}
-											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-										>
-											Aluguel
-										</Link>
 										<Link
 											to="/stand/compra"
 											onClick={() => setMobileMenuOpen(false)}

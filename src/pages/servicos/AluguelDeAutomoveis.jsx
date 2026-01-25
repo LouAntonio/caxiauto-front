@@ -49,36 +49,6 @@ export default function AluguelDeAutomoveis() {
 		}
 	];
 
-	const benefits = [
-		{
-			icon: CalendarClock,
-			title: 'Opções Flexíveis',
-			description: 'Escolha entre diferentes durações, desde diárias simples até contratos de aluguer de longa duração (renting).'
-		},
-		{
-			icon: Wallet,
-			title: 'Preços Competitivos',
-			description: 'Compare ofertas de múltiplos fornecedores numa única plataforma para garantir o melhor custo-benefício.'
-		},
-		{
-			icon: Briefcase,
-			title: 'Para Empresas',
-			description: 'Soluções corporativas completas para gestão de frotas e necessidades de mobilidade empresarial.'
-		},
-		{
-			icon: ShieldCheck,
-			title: 'Parceiros Verificados',
-			description: 'Trabalhamos apenas com empresas de aluguer e particulares devidamente validados.'
-		},
-	];
-
-	const categories = [
-		{ name: 'Económicos', desc: 'Ideais para a cidade e poupança de combustível', icon: Car },
-		{ name: 'SUVs & 4x4', desc: 'Perfeitos para aventuras e estradas difíceis', icon: Car },
-		{ name: 'Luxo', desc: 'Viaturas premium para eventos e ocasiões especiais', icon: Car },
-		{ name: 'Comerciais', desc: 'Carrinhas e furgões para transporte de carga', icon: Car },
-	];
-
 	return (
 		<main className="bg-gradient-to-b from-white to-gray-50 min-h-screen">
 			{/* Hero Section */}
@@ -108,44 +78,35 @@ export default function AluguelDeAutomoveis() {
 			</section>
 
 			{/* Timeline Steps */}
-			<section className="py-24 px-6 overflow-hidden">
-				<div className="max-w-5xl mx-auto relative">
-					<div className="text-center mb-20">
+			<section className="pt-8 pb-4 px-6 overflow-hidden">
+				<div className="max-w-7xl mx-auto">
+					<div className="text-center mb-10">
 						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Como Funciona</span>
-						<h2 className="text-4xl md:text-5xl font-bold text-gray-900">Alugar nunca foi tão fácil</h2>
+						<h2 className="text-3xl font-bold text-gray-900">Alugar nunca foi tão fácil</h2>
 					</div>
 
-					<div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-transparent via-gray-200 to-transparent hidden md:block top-32"></div>
-
-					<div className="space-y-24">
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
 						{steps.map((step, index) => (
 							<div key={step.number} className="relative group">
-								<div className={`flex flex-col md:flex-row items-center gap-12 ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
-									<div className={`flex-1 w-full md:w-auto ${index % 2 === 0 ? 'md:text-right' : 'md:text-left'}`}>
-										<div className="bg-white rounded-3xl shadow-xl p-8 md:p-10 border border-gray-100 hover:shadow-2xl hover:border-blue-200 transition-all duration-300 transform group-hover:-translate-y-2 relative overflow-hidden">
-											<div className={`absolute top-0 w-24 h-24 bg-blue-50 rounded-full -m-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${index % 2 === 0 ? 'right-0' : 'left-0'}`}></div>
+								<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-8 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 hover:from-white hover:to-blue-50 transition-all duration-300 transform group-hover:-translate-y-2 relative overflow-hidden h-full flex flex-col">
+									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -m-10 opacity-40 group-hover:opacity-70 transition-opacity duration-500"></div>
 
-											<div className={`relative flex items-center gap-4 mb-6 ${index % 2 === 0 ? 'md:flex-row-reverse' : 'md:flex-row'}`}>
-												<div className="w-14 h-14 bg-gradient-to-br from-[#154c9a] to-blue-600 rounded-2xl flex items-center justify-center shadow-lg text-white transform group-hover:rotate-12 transition-transform duration-300">
-													<step.icon size={28} />
-												</div>
-												<h3 className="text-2xl font-bold text-gray-900 group-hover:text-[#154c9a] transition-colors">{step.title}</h3>
-											</div>
-
-											<p className="text-lg text-gray-600 leading-relaxed font-medium">
-												{step.description}
-											</p>
+									<div className="relative mb-6 flex flex-col items-center text-center">
+										<div className="w-20 h-20 bg-gradient-to-br from-white to-blue-50 rounded-full shadow-[0_4px_20px_rgba(21,76,154,0.25)] flex flex-col items-center justify-center border-[5px] border-[#154c9a] group-hover:border-[6px] group-hover:scale-110 group-hover:shadow-[0_6px_25px_rgba(21,76,154,0.35)] transition-all duration-300 mb-4">
+											<span className="text-[10px] font-bold text-[#154c9a] uppercase tracking-widest">{step.label}</span>
+											<span className="text-3xl font-black bg-gradient-to-br from-[#154c9a] to-blue-700 bg-clip-text text-transparent leading-none">{step.number}</span>
 										</div>
-									</div>
 
-									<div className="relative z-10 flex-shrink-0">
-										<div className="w-28 h-28 bg-white rounded-full shadow-2xl flex flex-col items-center justify-center border-[6px] border-[#154c9a] group-hover:scale-110 transition-transform duration-300">
-											<span className="text-xs font-bold text-[#154c9a] uppercase tracking-widest">{step.label}</span>
-											<span className="text-4xl font-black text-gray-900 leading-none mt-1">{step.number}</span>
+										<div className="w-16 h-16 bg-gradient-to-br from-[#154c9a] to-blue-600 rounded-2xl flex items-center justify-center shadow-[0_4px_15px_rgba(21,76,154,0.3)] text-white transform group-hover:rotate-12 group-hover:scale-110 group-hover:shadow-[0_6px_20px_rgba(21,76,154,0.4)] transition-all duration-300 mb-5">
+											<step.icon size={30} strokeWidth={2.5} />
 										</div>
+
+										<h3 className="text-xl font-bold text-gray-800 group-hover:text-[#154c9a] transition-colors mb-1">{step.title}</h3>
 									</div>
 
-									<div className="flex-1 hidden md:block"></div>
+									<p className="text-base text-gray-600 leading-relaxed font-medium text-center mt-auto">
+										{step.description}
+									</p>
 								</div>
 							</div>
 						))}
@@ -153,75 +114,6 @@ export default function AluguelDeAutomoveis() {
 				</div>
 			</section>
 
-			{/* Benefits Grid */}
-			<section className="py-24 px-6 bg-white relative">
-				<div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
-
-				<div className="max-w-7xl mx-auto">
-					<div className="text-center mb-20">
-						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Vantagens</span>
-						<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Por que alugar com a Caxiauto?</h2>
-						<p className="text-xl text-gray-600 max-w-2xl mx-auto">
-							Oferecemos mais do que apenas carros. Oferecemos confiança e flexibilidade.
-						</p>
-					</div>
-
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-						{benefits.map((benefit, index) => (
-							<div
-								key={index}
-								className="group bg-gray-50 hover:bg-white p-8 rounded-3xl border border-transparent hover:border-gray-100 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-300"
-							>
-								<div className="flex items-start gap-6">
-									<div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm text-[#154c9a] group-hover:scale-110 group-hover:bg-[#154c9a] group-hover:text-white transition-all duration-300 border border-gray-100 flex-shrink-0">
-										<benefit.icon size={32} />
-									</div>
-									<div className="flex-1">
-										<h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#154c9a] transition-colors">
-											{benefit.title}
-										</h3>
-										<p className="text-lg text-gray-600 leading-relaxed">
-											{benefit.description}
-										</p>
-									</div>
-								</div>
-							</div>
-						))}
-					</div>
-				</div>
-			</section>
-
-			{/* Categories Preview */}
-			<section className="py-24 px-6 bg-slate-900 text-white relative overflow-hidden">
-				<div className="absolute inset-0 bg-[#154c9a] opacity-90"></div>
-				<div className="max-w-7xl mx-auto relative z-10">
-					<div className="text-center mb-16">
-						<h2 className="text-3xl md:text-4xl font-bold mb-4">Escolha a categoria ideal</h2>
-						<p className="text-blue-100/80">Dispomos de uma vasta gama de veículos para todas as necessidades</p>
-					</div>
-
-					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-						{categories.map((cat, idx) => (
-							<div key={idx} className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/10 hover:bg-white/20 transition-all text-center">
-								<div className="inline-flex p-3 rounded-full bg-[#154c9a] mb-4 shadow-lg">
-									<cat.icon className="w-6 h-6 text-white" />
-								</div>
-								<h3 className="text-xl font-bold mb-2">{cat.name}</h3>
-								<p className="text-sm text-blue-100">{cat.desc}</p>
-							</div>
-						))}
-					</div>
-
-					<div className="mt-16 text-center">
-						<Link
-							to="/search?type=rent"
-							className="inline-flex items-center justify-center px-10 py-5 text-lg font-bold text-[#154c9a] bg-white rounded-full hover:bg-blue-50 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-1 transform duration-200"
-						>
-							Ver Todas as Ofertas
-						</Link>
-					</div>
-				</div>
-			</section>
 		</main>
 	);
 }
