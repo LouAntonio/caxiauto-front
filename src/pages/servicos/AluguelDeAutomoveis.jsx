@@ -96,7 +96,7 @@ export default function AluguelDeAutomoveis() {
 	return (
 		<main className="bg-gradient-to-b from-white to-gray-50 min-h-screen">
 			{/* Hero Section */}
-			<section className="py-24 px-6 bg-[#154c9a] text-white relative overflow-hidden isolate">
+			<section className="px-6 bg-[#154c9a] text-white relative overflow-hidden isolate h-[calc(100vh-80px)] flex items-center">
 				<div
 					className="absolute inset-0 -z-10 opacity-10"
 					style={{
@@ -107,7 +107,7 @@ export default function AluguelDeAutomoveis() {
 				<div className="absolute top-0 right-0 -mr-20 -mt-20 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-3xl"></div>
 				<div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-3xl"></div>
 
-				<div className="max-w-4xl mx-auto text-center relative z-10">
+				<div className="max-w-4xl mx-auto text-center relative z-10 w-full">
 					<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-100 mb-6 backdrop-blur-sm">
 						<Key className="w-5 h-5" />
 						<span className="font-medium">Rent-a-Car Simplificado</span>

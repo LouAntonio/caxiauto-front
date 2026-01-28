@@ -1,6 +1,7 @@
 import React, { useRef } from 'react'
 import { ChevronLeft, ChevronRight, ArrowRight, Tag } from 'lucide-react'
 
+
 // Placeholder images for cars - in a real app these would be assets
 const CAR_PLACEHOLDER = "https://placehold.co/400x250/png?text=Carro"
 
@@ -39,8 +40,8 @@ export default function RentACarSection() {
 							Centenas de carros<br /> para alugar
 						</h3>
 
-						<button className="group/btn mt-3 flex items-center gap-2 text-[#1a1a2e] font-bold border-b-2 border-[#1a1a2e] pb-0.5 w-fit hover:opacity-75 transition-opacity">
-							<span className="text-lg">123 carros</span>
+						<button className="group/btn mt-3 flex items-center gap-2 text-[#1a1a2e] font-bold border-b-2 border-[#1a1a2e] pb-0.5 w-fit hover:opacity-75 transition-opacity cursor-pointer">
+							<span className="text-lg">Veja todos</span>
 							<ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
 						</button>
 					</div>

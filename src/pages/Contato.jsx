@@ -19,7 +19,7 @@ export default function Contato() {
 		{
 			icon: Phone,
 			title: 'Ligue-nos',
-			info: '+244 923 456 789',
+			info: '+244 930 723 503',
 			subInfo: 'Segunda a Sexta, 8h às 18h',
 			action: 'tel:+244923456789',
 			actionLabel: 'Ligar agora'
@@ -27,7 +27,7 @@ export default function Contato() {
 		{
 			icon: Mail,
 			title: 'Envie um Email',
-			info: 'geral@caxiauto.ao',
+			info: 'info@caxiauto.com',
 			subInfo: 'Respondemos em até 24 horas',
 			action: 'mailto:geral@caxiauto.ao',
 			actionLabel: 'Enviar email'
@@ -131,9 +131,8 @@ export default function Contato() {
 											<div>
 												<h4 className="font-semibold">Redes Sociais</h4>
 												<div className="flex gap-4 mt-2">
-													<SocialLink icon={Facebook} href="#" />
-													<SocialLink icon={Instagram} href="#" />
-													<SocialLink icon={Linkedin} href="#" />
+													<SocialLink icon={Facebook} href="https://www.facebook.com/TeamBuil.ea/" />
+													<SocialLink icon={Instagram} href="https://www.instagram.com/caxiauto.ao/" />
 												</div>
 											</div>
 										</div>

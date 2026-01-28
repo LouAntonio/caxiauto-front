@@ -49,7 +49,7 @@ export default function ComoFunciona() {
 	return (
 		<main className="bg-gradient-to-b from-white to-gray-50 min-h-screen">
 			{/* Hero Section */}
-			<section className="py-24 px-6 bg-[#154c9a] text-white relative overflow-hidden isolate">
+			<section className="px-6 bg-[#154c9a] text-white relative overflow-hidden isolate h-[calc(100vh-80px)] flex items-center">
 				<div
 					className="absolute inset-0 -z-10 opacity-10"
 					style={{
@@ -60,7 +60,7 @@ export default function ComoFunciona() {
 				<div className="absolute top-0 right-0 -mr-20 -mt-20 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-3xl"></div>
 				<div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-3xl"></div>
 
-				<div className="max-w-4xl mx-auto text-center relative z-10">
+				<div className="max-w-4xl mx-auto text-center relative z-10 w-full">
 					<h1 className="text-5xl md:text-6xl font-extrabold mb-8 tracking-tight">
 						Como Funciona a Caxiauto
 					</h1>
@@ -72,43 +72,34 @@ export default function ComoFunciona() {
 
 			{/* Timeline Steps */}
 			<section className="py-24 px-6 overflow-hidden">
-				<div className="max-w-5xl mx-auto relative">
-					{/* Central Line (Desktop) */}
-					<div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-transparent via-gray-200 to-transparent hidden md:block"></div>
+				<div className="max-w-7xl mx-auto">
+					<div className="text-center mb-10">
+						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Passo a Passo</span>
+						<h2 className="text-3xl font-bold text-gray-900">É simples e rápido</h2>
+					</div>
 
-					<div className="space-y-24">
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
 						{steps.map((step, index) => (
 							<div key={step.number} className="relative group">
-								<div className={`flex flex-col md:flex-row items-center gap-12 ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+								<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-8 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 hover:from-white hover:to-blue-50 transition-all duration-300 transform group-hover:-translate-y-2 relative overflow-hidden h-full flex flex-col">
+									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -m-10 opacity-40 group-hover:opacity-70 transition-opacity duration-500"></div>
 
-									{/* Content Card */}
-									<div className={`flex-1 w-full md:w-auto ${index % 2 === 0 ? 'md:text-right' : 'md:text-left'}`}>
-										<div className="bg-white rounded-3xl shadow-xl p-8 md:p-10 border border-gray-100 hover:shadow-2xl hover:border-blue-200 transition-all duration-300 transform group-hover:-translate-y-2 relative overflow-hidden">
-											<div className={`absolute top-0 w-24 h-24 bg-blue-50 rounded-full -m-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${index % 2 === 0 ? 'right-0' : 'left-0'}`}></div>
-
-											<div className={`relative flex items-center gap-4 mb-6 ${index % 2 === 0 ? 'md:flex-row-reverse' : 'md:flex-row'}`}>
-												<div className="w-14 h-14 bg-gradient-to-br from-[#154c9a] to-blue-600 rounded-2xl flex items-center justify-center shadow-lg text-white transform group-hover:rotate-12 transition-transform duration-300">
-													<step.icon size={28} />
-												</div>
-												<h3 className="text-2xl font-bold text-gray-900 group-hover:text-[#154c9a] transition-colors">{step.title}</h3>
-											</div>
-
-											<p className="text-lg text-gray-600 leading-relaxed font-medium">
-												{step.description}
-											</p>
+									<div className="relative mb-6 flex flex-col items-center text-center">
+										<div className="w-20 h-20 bg-gradient-to-br from-white to-blue-50 rounded-full shadow-[0_4px_20px_rgba(21,76,154,0.25)] flex flex-col items-center justify-center border-[5px] border-[#154c9a] group-hover:border-[6px] group-hover:scale-110 group-hover:shadow-[0_6px_25px_rgba(21,76,154,0.35)] transition-all duration-300 mb-4">
+											<span className="text-[10px] font-bold text-[#154c9a] uppercase tracking-widest">{step.label}</span>
+											<span className="text-3xl font-black bg-gradient-to-br from-[#154c9a] to-blue-700 bg-clip-text text-transparent leading-none">{step.number}</span>
 										</div>
+
+										<div className="w-16 h-16 bg-gradient-to-br from-[#154c9a] to-blue-600 rounded-2xl flex items-center justify-center shadow-[0_4px_15px_rgba(21,76,154,0.3)] text-white transform group-hover:rotate-12 group-hover:scale-110 group-hover:shadow-[0_6px_20px_rgba(21,76,154,0.4)] transition-all duration-300 mb-5">
+											<step.icon size={30} strokeWidth={2.5} />
+										</div>
+
+										<h3 className="text-xl font-bold text-gray-800 group-hover:text-[#154c9a] transition-colors mb-1">{step.title}</h3>
 									</div>
 
-									{/* Central Badge */}
-									<div className="relative z-10 flex-shrink-0">
-										<div className="w-28 h-28 bg-white rounded-full shadow-2xl flex flex-col items-center justify-center border-[6px] border-[#154c9a] group-hover:scale-110 transition-transform duration-300">
-											<span className="text-xs font-bold text-[#154c9a] uppercase tracking-widest">{step.label}</span>
-											<span className="text-4xl font-black text-gray-900 leading-none mt-1">{step.number}</span>
-										</div>
-									</div>
-
-									{/* Empty spacer for grid alignment */}
-									<div className="flex-1 hidden md:block"></div>
+									<p className="text-base text-gray-600 leading-relaxed font-medium text-center mt-auto">
+										{step.description}
+									</p>
 								</div>
 							</div>
 						))}

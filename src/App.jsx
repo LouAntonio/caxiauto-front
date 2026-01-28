@@ -19,6 +19,8 @@ import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
 import NotFound from './pages/NotFound'
 import Parceiros from './pages/Parceiros'
+import GPS from './pages/servicos/GPS'
+import SeguroAutomovel from './pages/servicos/SeguroAutomovel'
 
 function App() {
 	return (
@@ -37,6 +39,8 @@ function App() {
 				<Route path="/servicos/venda-de-pecas" element={<VendaDePecas />} />
 				<Route path="/servicos/venda-seu-automovel" element={<VendaSeuAutomovel />} />
 				<Route path="/servicos/reboque" element={<Reboque />} />
+				<Route path="/servicos/gps" element={<GPS />} />
+				<Route path="/servicos/seguro-automovel" element={<SeguroAutomovel />} />
 
 				{/* Stand routes */}
 				<Route path="/stand/aluguel" element={<Aluguel />} />

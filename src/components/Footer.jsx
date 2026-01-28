@@ -18,10 +18,10 @@ export default function Footer() {
 						<p className="mt-3 text-gray-300 text-sm">Compra, venda e serviços automóveis. Soluções fáceis e seguras para encontrar o seu próximo carro.</p>
 
 						<div className="mt-6 flex items-center gap-3">
-							<a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-9 h-9 bg-white/5 text-gray-200 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
+							<a href="https://www.facebook.com/TeamBuil.ea/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-9 h-9 bg-white/5 text-gray-200 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
 								<Facebook className="w-4 h-4" />
 							</a>
-							<a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-9 h-9 bg-white/5 text-gray-200 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
+							<a href="https://www.instagram.com/caxiauto.ao/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-9 h-9 bg-white/5 text-gray-200 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
 								<Instagram className="w-4 h-4" />
 							</a>
 						</div>
@@ -67,7 +67,7 @@ export default function Footer() {
 									<PhoneCall className="w-4 h-4 text-indigo-400" />
 								</div>
 								<div>
-									<a href="tel:+244912345678" className="text-sm hover:text-white">+244 912 345 678</a>
+									<a href="tel:+244930723503" className="text-sm hover:text-white">+244 930 723 503</a>
 								</div>
 							</div>
 

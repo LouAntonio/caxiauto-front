@@ -36,7 +36,7 @@ export default function Home() {
 					/>
 				</div>
 				<FeaturedParts />
-				<Publicidades />
+				{/* <Publicidades /> */}
 				<PartnersSlider />
 				<div className="my-2">
 					<img

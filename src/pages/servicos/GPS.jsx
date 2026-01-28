@@ -1,83 +1,85 @@
 import React from 'react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import {
-	Phone,
-	MapPin,
-	Clock,
-	AlertTriangle,
-	Wrench,
-	Truck,
+	Navigation,
 	Shield,
-	Zap,
-	ShieldCheck,
+	Headphones,
 	Map,
-	BadgeDollarSign,
-	Headphones
+	Bell,
+	Lock,
+	Clock,
+	Users,
+	ShieldCheck,
+	MapPin,
+	Smartphone,
+	Radio
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export default function Reboque() {
-	useDocumentTitle('Reboque - Caxiauto');
+export default function GPS() {
+	useDocumentTitle('Serviços GPS - Caxiauto');
 
 	const steps = [
 		{
 			number: '01',
 			label: 'PASSO',
-			title: 'Faça o Pedido',
-			description: 'Contacte a Caxiauto através da plataforma informando sua localização e tipo de problema.',
-			icon: Phone,
+			title: 'Escolha a Solução',
+			description: 'Selecione o sistema GPS ideal para o seu veículo com base nas suas necessidades de rastreamento e segurança.',
+			icon: Navigation,
 		},
 		{
 			number: '02',
 			label: 'PASSO',
-			title: 'Localização e Conexão',
-			description: 'O nosso sistema localiza a empresa de reboque mais próxima de si para garantir uma resposta imediata.',
-			icon: MapPin,
+			title: 'Instalação Profissional',
+			description: 'Nossa equipa técnica realiza a instalação do equipamento de forma rápida, segura e com garantia de qualidade.',
+			icon: Users,
 		},
 		{
 			number: '03',
 			label: 'PASSO',
-			title: 'Assistência a Caminho',
-			description: 'O parceiro de reboque desloca-se rapidamente até ao seu local para resolver a situação com profissionalismo.',
-			icon: Truck,
+			title: 'Ativação e Configuração',
+			description: 'Ativamos o sistema e configuramos alertas personalizados para manter você sempre informado sobre o seu veículo.',
+			icon: Smartphone,
+		},
+		{
+			number: '04',
+			label: 'PASSO',
+			title: 'Monitoramento Contínuo',
+			description: 'Acompanhe em tempo real através da aplicação móvel e conte com suporte técnico sempre que precisar.',
+			icon: Radio,
 		}
 	];
 
 	const services = [
 		{
-			icon: AlertTriangle,
-			title: 'Reboque de Emergência',
-			description: 'Serviço 24 horas para situações de avaria ou acidente na estrada.'
-		},
-		{
-			icon: Wrench,
-			title: 'Assistência Roadside',
-			description: 'Pequenos reparos e assistência na estrada para problemas menores como pneus ou bateria.'
-		},
-		{
-			icon: Truck,
-			title: 'Transporte de Viaturas',
-			description: 'Transporte seguro de veículos para oficinas, residências ou locais de destino.'
-		},
-		{
 			icon: Shield,
-			title: 'Cobertura Completa',
-			description: 'Serviços adaptados para todos os tipos de viaturas (ligeiros, pesados, motos) com equipamento adequado.'
+			title: 'Proteção & Controlo Inteligente',
+			description: 'Receba alertas em tempo real, acompanhe os seus veículos e bloqueie-os imediatamente sempre que notar qualquer irregularidade. Mais segurança, mais controlo, mais tranquilidade.'
+		},
+		{
+			icon: Headphones,
+			title: 'Suporte Técnico Especializado',
+			description: 'Conte com uma equipa qualificada e preparada para te apoiar sempre que precisares. Oferecemos o melhor serviço de suporte pós-venda, com atendimento rápido, eficiente e profissional.'
+		},
+		{
+			icon: MapPin,
+			title: 'Localização em Tempo Real',
+			description: 'Acompanhe o seu veículo no mapa, em tempo real, onde quer que esteja. Na Caxiauto, o seu veículo está sempre protegido e sob controlo.'
 		}
 	];
 
 	const benefits = [
-		{ icon: Zap, title: 'Resposta Rápida', description: 'Chegamos até si no menor tempo possível.' },
-		{ icon: ShieldCheck, title: 'Parceiros Verificados', description: 'Trabalhamos apenas com empresas certificadas.' },
-		{ icon: Map, title: 'Ampla Cobertura', description: 'Serviço disponível em diversas zonas.' },
-		{ icon: BadgeDollarSign, title: 'Preço Justo', description: 'Valores transparentes sem surpresas.' },
-		{ icon: Headphones, title: 'Suporte Dedicado', description: 'Acompanhamento do início ao fim.' },
+		{ icon: Bell, title: 'Alertas Instantâneos', description: 'Notificações em tempo real sobre o seu veículo.' },
+		{ icon: Lock, title: 'Bloqueio Remoto', description: 'Bloqueie o veículo à distância em caso de emergência.' },
+		{ icon: Clock, title: 'Histórico Completo', description: 'Acesso ao histórico de rotas e localizações.' },
+		{ icon: Map, title: 'Cobertura Nacional', description: 'Rastreamento eficaz em todo o território.' },
+		{ icon: ShieldCheck, title: 'Tecnologia Avançada', description: 'Sistemas modernos e confiáveis.' },
 	];
 
 	return (
 		<main className="bg-gradient-to-b from-white to-gray-50 min-h-screen">
 			{/* Hero Section */}
-			<section className="py-24 px-6 bg-[#154c9a] text-white relative overflow-hidden isolate">
+			<section className="min-h-[calc(100vh-80px)] px-6 bg-[#154c9a] text-white relative overflow-hidden isolate flex items-center justify-center">
 				<div
 					className="absolute inset-0 -z-10 opacity-10"
 					style={{
@@ -90,14 +92,14 @@ export default function Reboque() {
 
 				<div className="max-w-4xl mx-auto text-center relative z-10">
 					<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-100 mb-6 backdrop-blur-sm">
-						<Truck className="w-5 h-5" />
-						<span className="font-medium">Assistência 24/7</span>
+						<Navigation className="w-5 h-5" />
+						<span className="font-medium">Rastreamento Veicular</span>
 					</div>
 					<h1 className="text-5xl md:text-6xl font-extrabold mb-8 tracking-tight">
-						Serviço de Reboque Profissional
+						Serviços GPS
 					</h1>
 					<p className="text-xl md:text-2xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
-						Conectamos você rapidamente aos melhores serviços de reboque da sua zona. Eficiência e segurança quando mais precisa.
+						Proteção e controlo inteligente para o seu veículo. Receba alertas em tempo real e tenha total segurança e tranquilidade.
 					</p>
 				</div>
 			</section>
@@ -106,11 +108,11 @@ export default function Reboque() {
 			<section className="py-24 px-6 overflow-hidden">
 				<div className="max-w-7xl mx-auto">
 					<div className="text-center mb-10">
-						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Processo Simples</span>
-						<h2 className="text-3xl font-bold text-gray-900">Como Solicitar Ajuda</h2>
+						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Como Funciona</span>
+						<h2 className="text-3xl font-bold text-gray-900">Proteja o seu veículo em 4 passos</h2>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
 						{steps.map((step, index) => (
 							<div key={step.number} className="relative group">
 								<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-8 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 hover:from-white hover:to-blue-50 transition-all duration-300 transform group-hover:-translate-y-2 relative overflow-hidden h-full flex flex-col">
@@ -146,30 +148,28 @@ export default function Reboque() {
 				<div className="max-w-7xl mx-auto">
 					<div className="text-center mb-20">
 						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Nossos Serviços</span>
-						<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Assistência Completa</h2>
+						<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Soluções Completas de Rastreamento</h2>
 						<p className="text-xl text-gray-600 max-w-2xl mx-auto">
-							Soluções versáteis para qualquer imprevisto na estrada.
+							Tecnologia avançada para manter o seu veículo sempre protegido e monitorizado.
 						</p>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 						{services.map((service, index) => (
 							<div
 								key={index}
 								className="group bg-gray-50 hover:bg-white p-8 rounded-3xl border border-transparent hover:border-gray-100 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-300"
 							>
-								<div className="flex items-start gap-6">
-									<div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm text-[#154c9a] group-hover:scale-110 group-hover:bg-[#154c9a] group-hover:text-white transition-all duration-300 border border-gray-100 flex-shrink-0">
+								<div className="flex flex-col items-center text-center">
+									<div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 text-[#154c9a] group-hover:scale-110 group-hover:bg-[#154c9a] group-hover:text-white transition-all duration-300 border border-gray-100">
 										<service.icon size={32} />
 									</div>
-									<div className="flex-1">
-										<h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#154c9a] transition-colors">
-											{service.title}
-										</h3>
-										<p className="text-lg text-gray-600 leading-relaxed">
-											{service.description}
-										</p>
-									</div>
+									<h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-[#154c9a] transition-colors">
+										{service.title}
+									</h3>
+									<p className="text-lg text-gray-600 leading-relaxed">
+										{service.description}
+									</p>
 								</div>
 							</div>
 						))}
@@ -177,7 +177,31 @@ export default function Reboque() {
 				</div>
 			</section>
 
-			{/* Why Choose Us */}
+			{/* About Section */}
+			<section className="py-24 px-6 bg-gradient-to-br from-gray-50 to-blue-50/30 relative">
+				<div className="max-w-5xl mx-auto">
+					<div className="text-center mb-12">
+						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Sobre a Caxiauto</span>
+						<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+							Transformando a forma como você controla e protege os seus veículos
+						</h2>
+					</div>
+
+					<div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100">
+						<p className="text-lg text-gray-700 leading-relaxed mb-6">
+							Na Caxiauto, reunimos as melhores empresas e soluções avançadas de rastreamento veicular, garantindo segurança, controlo e monitoramento em tempo real.
+						</p>
+						<p className="text-lg text-gray-700 leading-relaxed mb-6">
+							A nossa missão é proporcionar tranquilidade a quem compra o seu carro connosco e a todos que se preocupam com a proteção do seu veículo, sabendo exatamente onde ele está a qualquer momento.
+						</p>
+						<p className="text-lg text-gray-700 leading-relaxed">
+							Com tecnologia moderna e atendimento de qualidade, a Caxiauto é o seu parceiro ideal em mobilidade e segurança automóvel.
+						</p>
+					</div>
+				</div>
+			</section>
+
+			{/* Why Choose Us / Benefits */}
 			<section className="py-24 px-6 bg-gray-900 text-white relative overflow-hidden">
 				<div className="absolute inset-0 bg-[#154c9a] opacity-90"></div>
 				<div className="absolute top-0 right-0 -mr-20 -mt-20 w-[600px] h-[600px] bg-blue-400/20 rounded-full blur-3xl"></div>
@@ -185,17 +209,20 @@ export default function Reboque() {
 				<div className="max-w-7xl mx-auto relative z-10">
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 						<div>
-							<h2 className="text-4xl md:text-5xl font-bold mb-8 text-white">Por que escolher o Reboque Caxiauto?</h2>
+							<h2 className="text-4xl md:text-5xl font-bold mb-8 text-white">Por que escolher os Serviços GPS da Caxiauto?</h2>
 							<p className="text-xl text-blue-100 mb-10 leading-relaxed">
-								Não somos apenas mais um serviço de reboque. Somos a sua garantia de tranquilidade quando algo inesperado acontece na estrada.
+								Oferecemos tecnologia de ponta aliada a um suporte técnico excepcional, garantindo que o seu veículo esteja sempre protegido e sob controlo total.
 							</p>
 							<div className="flex flex-col gap-4">
 								<Link
 									to="/contato"
 									className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-[#154c9a] bg-white rounded-full hover:bg-blue-50 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-1 transform duration-200 self-start w-full sm:w-auto"
 								>
-									Pedir Assistência Agora
+									Solicite o seu Orçamento
 								</Link>
+								<p className="text-blue-100 text-sm">
+									Acreditamos em oferecer o melhor atendimento possível a todos os nossos clientes e temos prazer em receber novos parceiros.
+								</p>
 							</div>
 						</div>
 
