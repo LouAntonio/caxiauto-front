@@ -20,7 +20,7 @@ export default function Home() {
 				<FeaturedCars title="Carros em Destaque" />
 				<div className="my-2">
 					<img
-						src="./images/ad/publi1.jpg"
+						src="./images/ad/Prancheta 1.png"
 						alt="Publicidade"
 						className="w-full h-auto rounded-lg shadow-md"
 					/>
@@ -30,7 +30,7 @@ export default function Home() {
 				<TowingSection />
 				<div className="my-2">
 					<img
-						src="./images/ad/publi3.jpg"
+						src="./images/ad/Prancheta 2.png"
 						alt="Publicidade"
 						className="w-full h-auto rounded-lg shadow-md"
 					/>
@@ -40,7 +40,7 @@ export default function Home() {
 				<PartnersSlider />
 				<div className="my-2">
 					<img
-						src="./images/ad/publi1.jpg"
+						src="./images/ad/Prancheta 3.png"
 						alt="Publicidade"
 						className="w-full h-auto rounded-lg shadow-md"
 					/>
