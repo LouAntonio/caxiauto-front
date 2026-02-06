@@ -77,9 +77,7 @@ export default function DetalhesCompra() {
 			'Assistência pós-venda'
 		],
 		requirements: [
-			'BI ou Passaporte válido',
-			'Comprovativo de renda',
-			'Comprovativo de residência'
+			'BI ou Passaporte válido'
 		]
 	}
 
@@ -259,7 +257,7 @@ export default function DetalhesCompra() {
 						<div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
 							<h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
 								<div className="w-1 h-6 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full"></div>
-								O que está incluído
+								O que está incluso
 							</h2>
 							<div className="space-y-3">
 								{vehicle.included.map((item, index) => (
@@ -299,7 +297,7 @@ export default function DetalhesCompra() {
 									<div className="text-3xl font-bold text-indigo-600 mb-1">
 										{formatPrice(vehicle.price)}
 									</div>
-									<div className="text-sm text-gray-600">Kz (à vista)</div>
+									<div className="text-sm text-gray-600">aKz</div>
 								</div>
 
 								<button
@@ -315,12 +313,6 @@ export default function DetalhesCompra() {
 								>
 									Agendar Visita
 								</button>
-
-								<div className="mt-4 pt-4 border-t border-gray-200">
-									<p className="text-xs text-gray-600 text-center">
-										Preços sujeitos a alteração. Entre em contato para mais informações sobre financiamento.
-									</p>
-								</div>
 							</div>
 
 							{/* Card de Contato */}
@@ -351,6 +343,42 @@ export default function DetalhesCompra() {
 										</div>
 									</a>
 								</div>
+							</div>
+
+							{/* Por que comprar conosco? */}
+							<div className="bg-gradient-to-br from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-xl p-5 shadow-lg hover:shadow-xl transition-all">
+								<h3 className="flex items-center gap-2 font-bold text-indigo-900 mb-4">
+									<svg className="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+										<path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+									</svg>
+									Por que comprar conosco?
+								</h3>
+								<ul className="space-y-3">
+									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+										</svg>
+										<span className="font-medium">Veículos inspecionados</span>
+									</li>
+									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+										</svg>
+										<span className="font-medium">Garantia de qualidade</span>
+									</li>
+									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+										</svg>
+										<span className="font-medium">Documentação completa</span>
+									</li>
+									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+										</svg>
+										<span className="font-medium">Financiamento facilitado</span>
+									</li>
+								</ul>
 							</div>
 						</div>
 					</div>
@@ -408,7 +436,7 @@ export default function DetalhesCompra() {
 									<input
 										type="text"
 										required
-										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 										placeholder="Digite seu nome completo"
 									/>
 								</div>
@@ -424,7 +452,7 @@ export default function DetalhesCompra() {
 										<input
 											type="tel"
 											required
-											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 											placeholder="+244 9XX XXX XXX"
 										/>
 									</div>
@@ -439,7 +467,7 @@ export default function DetalhesCompra() {
 										<input
 											type="email"
 											required
-											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 											placeholder="seu@email.com"
 										/>
 									</div>
@@ -462,12 +490,11 @@ export default function DetalhesCompra() {
 									</label>
 									<select
 										required
-										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base font-medium"
+										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base font-medium"
 									>
 										<option value="">Selecione uma opção</option>
-										<option value="vista">À vista - {formatPrice(vehicle.price)} Kz</option>
-										<option value="financiamento">Financiamento - {vehicle.financing.installments}x de {formatPrice(vehicle.financing.monthlyPayment)} Kz</option>
-										<option value="retoma">Retoma de veículo</option>
+										<option value="vista">Aceitar  Preço - {formatPrice(vehicle.price)} aKz</option>
+										<option value="financiamento">Fazer oferta (especificar na Mensagem)</option>
 									</select>
 								</div>
 
@@ -476,7 +503,7 @@ export default function DetalhesCompra() {
 									<label className="flex items-start gap-3 cursor-pointer group">
 										<input
 											type="checkbox"
-											className="mt-1 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+										className="mt-1 w-4 h-4 text-indigo-600 border-gray-300 rounded"
 										/>
 										<span className="text-sm text-gray-700 group-hover:text-gray-900">
 											Tenho um veículo para retoma
@@ -492,8 +519,8 @@ export default function DetalhesCompra() {
 								</label>
 								<textarea
 									rows="3"
-									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none transition-all hover:border-gray-400 text-sm sm:text-base"
-									placeholder="Conte-nos sobre suas dúvidas, preferências de financiamento ou outras informações..."
+								className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 text-sm sm:text-base"
+									placeholder="Conte-nos sobre suas dúvidas, forma de interesse ou outras informações..."
 								/>
 							</div>
 

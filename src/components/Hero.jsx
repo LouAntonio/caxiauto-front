@@ -22,9 +22,18 @@ export default function Hero() {
 
 				<div className="w-full max-w-xl bg-white/75 text-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
 					<form className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-3">
+						<div className="lg:col-span-3">
+							<label className="sr-only">Pesquisar</label>
+							<input 
+								type="text" 
+								placeholder="Pesquisar veículo..."
+								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all hover:bg-white"
+							/>
+						</div>
+
 						<div>
 							<label className="sr-only">Marca</label>
-							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:bg-white">
+							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white">
 								<option disabled selected>Marca</option>
 								<option>Toyota</option>
 								<option>Ford</option>
@@ -35,7 +44,7 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Combustível</label>
-							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:bg-white">
+							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white">
 								<option disabled selected>Combustível</option>
 								<option>Gasolina</option>
 								<option>Diesel</option>
@@ -45,7 +54,7 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Transmissão</label>
-							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:bg-white">
+							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white">
 								<option disabled selected>Transmissão</option>
 								<option>Manual</option>
 								<option>Automática</option>
@@ -54,7 +63,7 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Quilômetros até</label>
-							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:bg-white">
+							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white">
 								<option disabled selected>Quilômetros até</option>
 								<option>50.000 km</option>
 								<option>100.000 km</option>
@@ -64,7 +73,7 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Ano até</label>
-							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:bg-white">
+							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white">
 								<option disabled selected>Ano até</option>
 								<option>2024</option>
 								<option>2020</option>
@@ -74,7 +83,7 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Preço</label>
-							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:bg-white">
+							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white">
 								<option disabled selected>Preço até (Kz)</option>
 								<option>Até 5.000.000 Kz</option>
 								<option>Até 10.000.000 Kz</option>

@@ -16,8 +16,6 @@ export default function Home() {
 		<>
 			<Hero />
 			<main className="max-w-7xl mx-auto p-6">
-				<SellBuySection />
-				<FeaturedCars title="Carros em Destaque" />
 				<div className="my-2">
 					<img
 						src="./images/ad/Prancheta 1.png"
@@ -25,6 +23,8 @@ export default function Home() {
 						className="w-full h-auto rounded-lg shadow-md"
 					/>
 				</div>
+				<SellBuySection />
+				<FeaturedCars title="Carros em Destaque" />
 				<RentACarSection />
 				<FeaturedCars title="Adicionados Recentemente" />
 				<TowingSection />
