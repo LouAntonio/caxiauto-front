@@ -1,7 +1,9 @@
 import React from 'react'
 import { CheckCircle } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 
 export default function SellBuySection() {
+	const navigate = useNavigate()
 	return (
 		<section className="my-4">
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -11,7 +13,7 @@ export default function SellBuySection() {
 						<h2 className="text-2xl md:text-3xl font-bold mb-8 leading-tight">
 							Venda o seu carro mais rápido!
 						</h2>
-						<button className="bg-[#00E676] hover:bg-[#00c865] text-white font-bold px-8 py-3 rounded-lg transition-colors cursor-pointer">
+						<button onClick={() => navigate('/venda-seu-automovel')} className="bg-[#00E676] hover:bg-[#00c865] text-white font-bold px-8 py-3 rounded-lg transition-colors cursor-pointer">
 							Saber mais
 						</button>
 					</div>

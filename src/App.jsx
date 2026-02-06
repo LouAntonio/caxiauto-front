@@ -5,12 +5,9 @@ import Home from './pages/Home'
 import Sobre from './pages/Sobre'
 import ComoFunciona from './pages/ComoFunciona'
 import Contato from './pages/Contato'
-import VendaDeAutomoveis from './pages/servicos/VendaDeAutomoveis'
 import AluguelDeAutomoveis from './pages/servicos/AluguelDeAutomoveis'
-import VendaDePecas from './pages/servicos/VendaDePecas'
-import VendaSeuAutomovel from './pages/servicos/VendaSeuAutomovel'
+import VendaSeuAutomovel from './pages/VendaSeuAutomovel'
 import Reboque from './pages/servicos/Reboque'
-import Aluguel from './pages/stand/Aluguel'
 import DetalhesAluguel from './pages/servicos/DetalhesAluguel'
 import Compra from './pages/stand/Compra'
 import DetalhesCompra from './pages/stand/DetalhesCompra'
@@ -34,6 +31,7 @@ function App() {
 				<Route path="/como-funciona" element={<ComoFunciona />} />
 				<Route path="/contato" element={<Contato />} />
 				<Route path="/parceiros" element={<Parceiros />} />
+				<Route path="/venda-seu-automovel" element={<VendaSeuAutomovel />} />
 
 				{/* Peças e Acessórios routes */}
 				<Route path="/servicos/gps" element={<GPS />} />
@@ -41,7 +39,6 @@ function App() {
 				<Route path="/servicos/seguro-automovel" element={<SeguroAutomovel />} />
 				<Route path="/servicos/aluguel-de-automoveis" element={<AluguelDeAutomoveis />} />
 				<Route path="/servicos/aluguel-de-automoveis/:id" element={<DetalhesAluguel />} />
-				<Route path="/servicos/venda-seu-automovel" element={<VendaSeuAutomovel />} />
 
 				{/* Stand routes */}
 				<Route path="/stand/compra" element={<Compra />} />
