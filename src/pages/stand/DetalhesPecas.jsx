@@ -54,12 +54,6 @@ export default function DetalhesPecas() {
 			'Altura': '88mm',
 			'Garantia': '12 meses'
 		},
-		compatibility: [
-			'Toyota Corolla 2015-2024',
-			'Honda Civic 2016-2024',
-			'Nissan Sentra 2014-2023',
-			'Mazda 3 2014-2024'
-		],
 		features: [
 			'Filtragem superior',
 			'Maior durabilidade',
@@ -276,22 +270,6 @@ export default function DetalhesPecas() {
 								))}
 							</div>
 						</div>
-
-						{/* Compatibilidade */}
-						<div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-							<h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-								<div className="w-1 h-6 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full"></div>
-								Veículos Compatíveis
-							</h2>
-							<div className="space-y-2">
-								{part.compatibility.map((vehicle, index) => (
-									<div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-indigo-50 transition-colors">
-										<CheckCircle2 className="w-5 h-5 text-indigo-600 flex-shrink-0" />
-										<span className="text-gray-700">{vehicle}</span>
-									</div>
-								))}
-							</div>
-						</div>
 					</div>
 
 					{/* Sidebar - Compra */}
@@ -305,7 +283,7 @@ export default function DetalhesPecas() {
 									<div className="text-3xl font-bold text-indigo-600 mb-1">
 										{formatPrice(part.price)}
 									</div>
-									<div className="text-sm text-gray-600">Kz por unidade</div>
+									<div className="text-sm text-gray-600">akz por unidade</div>
 								</div>
 
 								{/* Quantidade */}
@@ -344,7 +322,7 @@ export default function DetalhesPecas() {
 									<div className="flex justify-between items-center">
 										<span className="text-gray-700 font-medium">Total:</span>
 										<span className="text-2xl font-bold text-indigo-600">
-											{formatPrice(part.price * quantity)} Kz
+											{formatPrice(part.price * quantity)} akz
 										</span>
 									</div>
 								</div>
@@ -468,7 +446,7 @@ export default function DetalhesPecas() {
 								<h4 className="font-bold text-indigo-900 mb-2">{part.name}</h4>
 								<div className="flex justify-between text-sm text-indigo-700">
 									<span>Quantidade: {quantity}</span>
-									<span className="font-bold">{formatPrice(part.price * quantity)} Kz</span>
+									<span className="font-bold">{formatPrice(part.price * quantity)} akz</span>
 								</div>
 							</div>
 

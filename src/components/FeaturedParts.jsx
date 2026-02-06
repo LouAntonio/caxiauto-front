@@ -79,6 +79,7 @@ const sampleParts = [
 
 export default function FeaturedParts() {
 	const railRef = useRef(null)
+	const navigate = useNavigate()
 
 	function scroll(dir = 1) {
 		const rail = railRef.current
@@ -138,6 +139,7 @@ export default function FeaturedParts() {
 									</div>
 								</div>
 								<button 
+									onClick={() => navigate(`/stand/pecas-acessorios/${p.id}`)}
 									style={{ backgroundColor: 'var(--secondary)' }} 
 									className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 mt-4 w-full cursor-pointer"
 								>

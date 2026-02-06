@@ -13,7 +13,7 @@ export default function TowingSection() {
 			type: 'Reboque ligeiro',
 			capacity: 'Até 3.5 Toneladas',
 			specs: ['Assistência rápida', 'Transporte de ligeiros'],
-			image: TOW_TRUCK_1,
+			image: './images/reboque/reboqueLigeiro.png',
 		},
 		{
 			id: 2,
@@ -21,7 +21,7 @@ export default function TowingSection() {
 			type: 'Reboque pesado',
 			capacity: 'Até 40 Toneladas',
 			specs: ['Plataforma pesada', 'Guincho hidráulico'],
-			image: TOW_TRUCK_2,
+			image: './images/reboque/reboquePesado.png',
 		},
 	]
 
@@ -75,7 +75,7 @@ export default function TowingSection() {
 							</div>
 						</div>
 						<div className="block">
-							<img src="./images/reboque.png" alt="Reboque Caxiauto"  />
+							<img src="./images/reboque/reboque.png" alt="Reboque Caxiauto"  />
 						</div>
 					</div>
 
@@ -87,7 +87,7 @@ export default function TowingSection() {
 								className="group bg-white border border-[#ccc] rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:border-[#e65100]/30 z-1"
 							>
 								{/* Image Area */}
-								<div className="relative h-48 overflow-hidden bg-gray-100">
+								<div className="relative h-48 overflow-hidden bg-gray-100 p-2">
 									<img
 										src={vehicle.image}
 										alt={vehicle.title}
