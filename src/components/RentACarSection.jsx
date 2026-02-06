@@ -1,19 +1,20 @@
 import React, { useRef } from 'react'
 import { ChevronLeft, ChevronRight, ArrowRight, Tag } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 
 
 // Placeholder images for cars - in a real app these would be assets
 const CAR_PLACEHOLDER = "https://placehold.co/400x250/png?text=Carro"
 
 const categories = [
-	{ id: 1, name: 'SUV', image: CAR_PLACEHOLDER },
-	{ id: 2, name: 'Family car', image: CAR_PLACEHOLDER },
-	{ id: 3, name: 'Estate', image: CAR_PLACEHOLDER },
-	{ id: 4, name: 'Hatchback', image: CAR_PLACEHOLDER },
+	{ id: 1, name: 'SUV', image: './images/rent/suv.png' },
+	{ id: 2, name: 'Carrinha', image: './images/rent/carrinha.png' },
+	{ id: 3, name: 'Sedan', image: './images/rent/sedan.png' },
 ]
 
 export default function RentACarSection() {
 	const carouselRef = useRef(null)
+	const navigate = useNavigate();
 
 	function handleScroll(direction = 'right') {
 		if (!carouselRef.current) return
@@ -40,7 +41,10 @@ export default function RentACarSection() {
 							Centenas de carros<br /> para alugar
 						</h3>
 
-						<button className="group/btn mt-3 flex items-center gap-2 text-[#1a1a2e] font-bold border-b-2 border-[#1a1a2e] pb-0.5 w-fit hover:opacity-75 transition-opacity cursor-pointer">
+						<button 
+							className="group/btn mt-3 flex items-center gap-2 text-[#1a1a2e] font-bold border-b-2 border-[#1a1a2e] pb-0.5 w-fit hover:opacity-75 transition-opacity cursor-pointer"
+							onClick={() => navigate('/servicos/aluguel-de-automoveis')}
+						>
 							<span className="text-lg">Veja todos</span>
 							<ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
 						</button>
@@ -73,7 +77,10 @@ export default function RentACarSection() {
 						))}
 						{/* Add an extra empty card or 'See all' if needed to fill space */}
 						<div className="min-w-[100px] flex items-center justify-center">
-							<button className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors">
+							<button 
+								className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors cursor-pointer"
+								onClick={() => navigate('/servicos/aluguel-de-automoveis')}
+							>
 								<ArrowRight size={24} />
 							</button>
 						</div>

@@ -168,42 +168,6 @@ export default function AluguelDeAutomoveis() {
 								<div className="sticky top-6">
 									<h2 className="text-xl font-bold text-gray-800 mb-4">Filtrar Veículos</h2>
 									<VehicleFilter onFilterChange={handleFilterChange} />
-
-									{/* Informações Adicionais */}
-									<div className="mt-6 bg-gradient-to-br from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-xl p-5 shadow-lg hover:shadow-xl transition-all">
-										<h3 className="flex items-center gap-2 font-bold text-indigo-900 mb-4">
-											<svg className="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-												<path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-											</svg>
-											Por que alugar conosco?
-										</h3>
-										<ul className="space-y-3">
-											<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
-												<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-													<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-												</svg>
-												<span className="font-medium">Sem taxas ocultas</span>
-											</li>
-											<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
-												<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-													<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-												</svg>
-												<span className="font-medium">Seguro incluso</span>
-											</li>
-											<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
-												<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-													<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-												</svg>
-												<span className="font-medium">Quilometragem ilimitada</span>
-											</li>
-											<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
-												<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-													<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-												</svg>
-												<span className="font-medium">Entrega e recolha gratuitas</span>
-											</li>
-										</ul>
-									</div>
 								</div>
 							</aside>
 
@@ -228,7 +192,7 @@ export default function AluguelDeAutomoveis() {
 											className="flex-shrink-0 w-full bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
 										>
 											{/* Imagem */}
-											<div className="relative h-40 overflow-hidden" onclick={() => navigate(`/stand/aluguel/${car.id}`)}>
+											<div className="relative h-40 overflow-hidden" onclick={() => navigate(`/servicos/aluguel-de-automoveis/${car.id}`)}>
 												<img
 													src={car.image}
 													alt={car.title}
@@ -283,7 +247,7 @@ export default function AluguelDeAutomoveis() {
 
 												{/* Botão */}
 												<button
-													onClick={() => navigate(`/stand/aluguel/${car.id}`)}
+													onClick={() => navigate(`/servicos/aluguel-de-automoveis/${car.id}`)}
 													style={{ backgroundColor: 'var(--secondary)' }}
 													className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
 												>

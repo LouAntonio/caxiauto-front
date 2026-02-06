@@ -1,5 +1,6 @@
 import React, { useRef } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 
 const sampleParts = [
 	{
@@ -93,14 +94,14 @@ export default function FeaturedParts() {
 					<div className="flex gap-3 items-baseline">
 						<h2 className="text-2xl font-semibold">Peças e Acessórios</h2>
 						<span className="text-gray-400 text-2xl">|</span>
-						<a
-							href="/pecas"
+						<Link
+							to="/stand/pecas-acessorios"
 							style={{ color: 'var(--primary)' }}
 							className="group flex items-center gap-1 text-lg font-medium hover:underline"
 						>
 							Ver todas
 							<ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-						</a>
+						</Link>
 					</div>
 
 					<div className="hidden md:flex gap-3">
@@ -136,7 +137,10 @@ export default function FeaturedParts() {
 										<span className="text-xs text-gray-500">{p.sub}</span>
 									</div>
 								</div>
-								<button style={{ backgroundColor: 'var(--secondary)' }} className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 mt-4 w-full">
+								<button 
+									style={{ backgroundColor: 'var(--secondary)' }} 
+									className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 mt-4 w-full cursor-pointer"
+								>
 									Ver Detalhes
 								</button>
 							</div>
