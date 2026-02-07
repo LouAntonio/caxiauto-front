@@ -8,6 +8,7 @@ import TowingSection from '../components/TowingSection'
 import SellBuySection from '../components/SellBuySection'
 import Publicidades from '../components/Publicidades'
 import PartnersSlider from '../components/PartnersSlider'
+import VehicleRequestSection from '../components/VehicleRequestSection'
 
 export default function Home() {
 	useDocumentTitle('Página Inicial - Caxiauto')
@@ -36,6 +37,7 @@ export default function Home() {
 					/>
 				</div>
 				<FeaturedParts />
+				<VehicleRequestSection />
 				{/* <Publicidades /> */}
 				<PartnersSlider />
 				<div className="my-2">

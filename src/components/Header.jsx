@@ -48,12 +48,6 @@ export default function Header() {
 						>
 							Parceiros
 						</Link>
-						<Link
-							to="/venda-seu-automovel"
-							className="text-gray-700 font-medium hover:text-[var(--primary)] transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-[var(--primary)] hover:after:w-full after:transition-all"
-						>
-							Venda a Sua Viatura
-						</Link>
 
 						{/* Serviços com submenu - Desktop */}
 						<div className="relative group">
@@ -78,6 +72,9 @@ export default function Header() {
 								</Link>
 								<Link to="/servicos/aluguel-de-automoveis" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
 									Aluguel de Automóveis
+								</Link>
+								<Link to="/venda-seu-automovel" className="block px-5 py-3 text-gray-700 hover:bg-[var(--primary)] hover:text-white transition-colors duration-150 font-medium">
+									Venda a Sua Viatura
 								</Link>
 							</div>
 						</div>
@@ -169,13 +166,7 @@ export default function Header() {
 								className="block px-4 py-3 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors"
 							>
 								Parceiros
-							</Link>						<Link
-							to="/venda-seu-automovel"
-							onClick={() => setMobileMenuOpen(false)}
-							className="block px-4 py-3 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors"
-						>
-							Venda a Sua Viatura
-						</Link>
+							</Link>
 							{/* Serviços - Mobile */}
 							<div>
 								<button
@@ -221,6 +212,13 @@ export default function Header() {
 											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
 										>
 											Aluguel de Automóveis
+										</Link>
+										<Link
+											to="/venda-seu-automovel"
+											onClick={() => setMobileMenuOpen(false)}
+											className="block px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+										>
+											Venda a Sua Viatura
 										</Link>
 									</div>
 								)}
