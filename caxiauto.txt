@@ -1,2 +1,28 @@
 Responsividade
 Facebook pixel
+
+
+
+
+proprietário
+id_proprietário
+
+
+Nome
+Descrição
+Marca
+Classe
+Combustivel
+transmissão
+Ano
+Kilometragem
+Preço original
+Negociavel
+Imagem
+Galeria
+Lugares
+Cor
+Província
+Localização
+Portas
+características

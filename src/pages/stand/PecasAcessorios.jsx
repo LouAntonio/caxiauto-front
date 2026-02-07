@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Package, Star, ShoppingCart, Search, Wrench, Zap, Lightbulb, Users, Box, Layers, Settings, Filter } from 'lucide-react'
 import Pagination from '../../components/Pagination'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
@@ -109,7 +110,7 @@ export default function PecasAcessorios() {
 												setCurrentPage(1)
 											}}
 											placeholder="Ex: Filtro de óleo, pastilha..."
-											className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm placeholder:text-gray-400"
+											className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 bg-white outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm placeholder:text-gray-400"
 										/>
 									</div>
 
@@ -159,44 +160,6 @@ export default function PecasAcessorios() {
 									})}
 										</div>
 									</div>
-
-									{/* Informações Adicionais */}
-									<div className="space-y-2 pt-2">
-										<div className="bg-gradient-to-br from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-xl p-5">
-											<h3 className="flex items-center gap-2 font-bold text-indigo-900 mb-4 text-sm">
-												<svg className="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-													<path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-												</svg>
-												Por que comprar conosco?
-											</h3>
-											<ul className="space-y-2">
-												<li className="flex items-start gap-2 text-xs text-indigo-900 bg-white rounded-lg p-2">
-													<svg className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-														<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-													</svg>
-													<span className="font-medium">Peças originais certificadas</span>
-												</li>
-												<li className="flex items-start gap-2 text-xs text-indigo-900 bg-white rounded-lg p-2">
-													<svg className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-														<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-													</svg>
-													<span className="font-medium">Garantia de fábrica</span>
-												</li>
-												<li className="flex items-start gap-2 text-xs text-indigo-900 bg-white rounded-lg p-2">
-													<svg className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-														<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-													</svg>
-													<span className="font-medium">Entrega expressa</span>
-												</li>
-												<li className="flex items-start gap-2 text-xs text-indigo-900 bg-white rounded-lg p-2">
-													<svg className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-														<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-													</svg>
-													<span className="font-medium">Suporte especializado</span>
-												</li>
-											</ul>
-										</div>
-									</div>
 								</div>
 							</div>
 						</div>
@@ -208,7 +171,7 @@ export default function PecasAcessorios() {
 							<p className="text-gray-600">
 								<span className="font-semibold text-gray-900">{filteredParts.length} produtos</span> encontrados
 							</p>
-							<select className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+							<select className="border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none cursor-pointer">
 								<option>Ordenar por: Relevância</option>
 								<option>Preço: Menor para Maior</option>
 								<option>Preço: Maior para Menor</option>
@@ -217,7 +180,7 @@ export default function PecasAcessorios() {
 							</select>
 						</div>
 
-						<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+						<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 							{currentItems.map((part) => (
 								<article
 									key={part.id}
@@ -269,12 +232,14 @@ export default function PecasAcessorios() {
 										</div>
 
 										{/* Botão */}
+									<Link to={`/stand/pecas-acessorios/${part.id}`}>
 										<button
 											style={{ backgroundColor: 'var(--secondary)' }}
-											className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 w-full"
+											className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 w-full cursor-pointer"
 										>
 											Ver Detalhes
 										</button>
+									</Link>
 									</div>
 								</article>
 							))}

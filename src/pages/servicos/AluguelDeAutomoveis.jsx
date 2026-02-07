@@ -177,7 +177,7 @@ export default function AluguelDeAutomoveis() {
 									<p className="text-gray-600">
 										<span className="font-semibold text-gray-900">{vehicles.length} veículos</span> disponíveis
 									</p>
-									<select className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+									<select className="border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none cursor-pointer">
 										<option>Ordenar por: Relevância</option>
 										<option>Preço: Menor para Maior</option>
 										<option>Preço: Maior para Menor</option>
@@ -246,13 +246,14 @@ export default function AluguelDeAutomoveis() {
 												</div>
 
 												{/* Botão */}
-												<button
-													onClick={() => navigate(`/servicos/aluguel-de-automoveis/${car.id}`)}
-													style={{ backgroundColor: 'var(--secondary)' }}
-													className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
-												>
-													Ver Detalhes
-												</button>
+												<Link to={`/servicos/aluguel-de-automoveis/${car.id}`}>
+													<button
+														style={{ backgroundColor: 'var(--secondary)' }}
+														className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
+													>
+														Ver Detalhes
+													</button>
+												</Link>
 											</div>
 										</article>
 									))}

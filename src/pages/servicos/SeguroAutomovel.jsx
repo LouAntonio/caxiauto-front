@@ -356,7 +356,7 @@ export default function SeguroAutomovel() {
 
 						<button
 							type="submit"
-							className="w-full bg-[#154c9a] text-white font-bold py-4 px-8 rounded-full hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+							className="w-full bg-[#154c9a] text-white font-bold py-4 px-8 rounded-full hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 cursor-pointer"
 						>
 							Solicitar Orçamento
 						</button>

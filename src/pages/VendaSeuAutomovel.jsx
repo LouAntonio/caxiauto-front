@@ -736,26 +736,6 @@ export default function VendaSeuAutomovel() {
 					</div>
 				</div>
 			</section>
-
-			{/* CTA Final */}
-			<section className="py-24 px-6 bg-gradient-to-br from-[#154c9a] to-blue-800 text-white relative overflow-hidden">
-				<div className="absolute top-0 right-0 -mr-20 -mt-20 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-3xl"></div>
-				<div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-3xl"></div>
-
-				<div className="max-w-4xl mx-auto text-center relative z-10">
-					<Star className="w-16 h-16 mx-auto mb-6 text-yellow-300" />
-					<h2 className="text-4xl md:text-5xl font-bold mb-6">Pronto para Vender?</h2>
-					<p className="text-xl text-blue-100 mb-8">
-						Registe agora a sua viatura e venda com tranquilidade e segurança.
-					</p>
-					<a
-						href="#formulario"
-						className="inline-block bg-white text-[#154c9a] font-bold py-4 px-10 rounded-full hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-					>
-						REGISTAR AGORA
-					</a>
-				</div>
-			</section>
 		</main>
 	)
 }

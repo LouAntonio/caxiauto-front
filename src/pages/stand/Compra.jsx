@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { Gauge, Calendar, MapPin, Droplet } from 'lucide-react'
 import VehicleFilter from '../../components/VehicleFilter'
 import Pagination from '../../components/Pagination'
@@ -92,7 +92,7 @@ export default function Compra() {
 							<p className="text-gray-600">
 								<span className="font-semibold text-gray-900">{vehicles.length} veículos</span> disponíveis
 							</p>
-							<select className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+							<select className="border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none cursor-pointer">
 								<option>Ordenar por: Relevância</option>
 								<option>Preço: Menor para Maior</option>
 								<option>Preço: Maior para Menor</option>
@@ -100,7 +100,7 @@ export default function Compra() {
 							</select>
 						</div>
 
-						<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+						<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 							{currentVehicles.map((car) => (
 								<article
 									key={car.id}
@@ -161,11 +161,14 @@ export default function Compra() {
 										</div>
 
 										{/* Botão */}
+									<Link to={`/stand/compra/${car.id}`}>
 										<button
 											style={{ backgroundColor: 'var(--secondary)' }}
-											className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"										onClick={() => navigate(`/stand/compra/${car.id}`)}										>
+											className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
+										>
 											Ver Detalhes
 										</button>
+									</Link>
 									</div>
 								</article>
 							))}

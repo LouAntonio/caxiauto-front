@@ -41,13 +41,14 @@ export default function RentACarSection() {
 							Centenas de carros<br /> para alugar
 						</h3>
 
-						<button 
-							className="group/btn mt-3 flex items-center gap-2 text-[#1a1a2e] font-bold border-b-2 border-[#1a1a2e] pb-0.5 w-fit hover:opacity-75 transition-opacity cursor-pointer"
-							onClick={() => navigate('/servicos/aluguel-de-automoveis')}
-						>
-							<span className="text-lg">Veja todos</span>
-							<ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
-						</button>
+						<Link to="/servicos/aluguel-de-automoveis">
+							<button
+								className="group/btn mt-3 flex items-center gap-2 text-[#1a1a2e] font-bold border-b-2 border-[#1a1a2e] pb-0.5 w-fit hover:opacity-75 transition-opacity cursor-pointer"
+							>
+								<span className="text-lg">Veja todos</span>
+								<ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
+							</button>
+						</Link>
 					</div>
 
 					{/* Car Image Overlay - mimicking the two cars in the reference */}
@@ -56,7 +57,7 @@ export default function RentACarSection() {
 						<img
 							src="./images/rent/rent.webp"
 							alt="Discounted Cars"
-							className="w-full object-right object-contain drop-shadow-xl transform group-hover:scale-105 transition-transform duration-500 ease-out max-h-[160px]"
+							className="w-full object-right object-contain drop-shadow-xl transform group-hover:scale-105 transition-transform duration-500 ease-out max-h-[220px]"
 						/>
 					</div>
 				</div>
@@ -71,18 +72,19 @@ export default function RentACarSection() {
 							>
 								<span className="font-bold text-[#1a1a2e] mt-2">{cat.name}</span>
 								<div className="my-4 w-full aspect-video flex items-center justify-center">
-								<img src={cat.image} alt={cat.name} onError={(e) => { e.target.src = './images/i10.png' }} className="max-w-full max-h-full object-contain mix-blend-multiply" />
+									<img src={cat.image} alt={cat.name} onError={(e) => { e.target.src = './images/i10.png' }} className="max-w-full max-h-full object-contain mix-blend-multiply" />
 								</div>
 							</div>
 						))}
 						{/* Add an extra empty card or 'See all' if needed to fill space */}
 						<div className="min-w-[100px] flex items-center justify-center">
-							<button 
-								className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors cursor-pointer"
-								onClick={() => navigate('/servicos/aluguel-de-automoveis')}
-							>
-								<ArrowRight size={24} />
-							</button>
+							<Link to="/servicos/aluguel-de-automoveis">
+								<button
+									className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors cursor-pointer"
+								>
+									<ArrowRight size={24} />
+								</button>
+							</Link>
 						</div>
 					</div>
 				</div>

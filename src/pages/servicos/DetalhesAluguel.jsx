@@ -27,6 +27,36 @@ export default function DetalhesAluguel() {
 	const [selectedPeriod, setSelectedPeriod] = useState('diaria')
 	const [showContactModal, setShowContactModal] = useState(false)
 
+	// Planos de aluguel (em produção, viria de uma API)
+	const rentalPlans = [
+		{
+			id: 'diaria',
+			name: 'Diária',
+			duration: 'Até 24 horas',
+			price: 15000,
+			unit: 'Kz/dia',
+			daysCount: 1
+		},
+		{
+			id: 'semanal',
+			name: 'Semanal',
+			duration: '7 dias',
+			price: 90000,
+			unit: 'Kz/semana',
+			daysCount: 7,
+			showSavings: true
+		},
+		{
+			id: 'mensal',
+			name: 'Mensal',
+			duration: '30 dias',
+			price: 320000,
+			unit: 'Kz/mês',
+			daysCount: 30,
+			showSavings: true
+		}
+	]
+
 	// Dados do veículo (em produção, viria de uma API)
 	const vehicle = {
 		id: parseInt(id) || 1,
@@ -140,14 +170,14 @@ export default function DetalhesAluguel() {
 								{/* Navegação de Imagens */}
 								<button
 									onClick={prevImage}
-									className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/95 hover:bg-white backdrop-blur-sm rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all hover:scale-110"
+									className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/95 hover:bg-white backdrop-blur-sm rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all hover:scale-110 cursor-pointer"
 									aria-label="Imagem anterior"
 								>
 									<ChevronLeft className="w-6 h-6 text-gray-700" />
 								</button>
 								<button
 									onClick={nextImage}
-									className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/95 hover:bg-white backdrop-blur-sm rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all hover:scale-110"
+									className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/95 hover:bg-white backdrop-blur-sm rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all hover:scale-110 cursor-pointer"
 									aria-label="Próxima imagem"
 								>
 									<ChevronRight className="w-6 h-6 text-gray-700" />
@@ -174,7 +204,7 @@ export default function DetalhesAluguel() {
 										key={index}
 										onClick={() => setCurrentImageIndex(index)}
 										className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex ? 'border-indigo-600 ring-2 ring-indigo-200' : 'border-gray-200'
-											}`}
+											} cursor-pointer`}
 									>
 										<img src={image} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover" />
 									</button>
@@ -187,42 +217,42 @@ export default function DetalhesAluguel() {
 							<h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-900 to-indigo-900 bg-clip-text text-transparent mb-6">{vehicle.title}</h1>
 
 							<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group">
+								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
 									<Gauge className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
 									<span className="text-xs text-gray-600 mb-1">Quilometragem</span>
 									<span className="font-semibold text-gray-900">{vehicle.specs.km}</span>
 								</div>
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group">
+								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
 									<Calendar className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
 									<span className="text-xs text-gray-600 mb-1">Ano</span>
 									<span className="font-semibold text-gray-900">{vehicle.specs.year}</span>
 								</div>
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group">
+								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
 									<Droplet className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
 									<span className="text-xs text-gray-600 mb-1">Combustível</span>
 									<span className="font-semibold text-gray-900">{vehicle.specs.fuel}</span>
 								</div>
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group">
+								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
 									<Cog className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
 									<span className="text-xs text-gray-600 mb-1">Transmissão</span>
 									<span className="font-semibold text-gray-900">{vehicle.specs.transmission}</span>
 								</div>
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group">
+								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
 									<Users className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
 									<span className="text-xs text-gray-600 mb-1">Passageiros</span>
 									<span className="font-semibold text-gray-900">{vehicle.specs.passengers}</span>
 								</div>
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group">
+								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
 									<Car className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
 									<span className="text-xs text-gray-600 mb-1">Cor</span>
 									<span className="font-semibold text-gray-900">{vehicle.specs.color}</span>
 								</div>
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group">
+								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
 									<MapPin className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
 									<span className="text-xs text-gray-600 mb-1">Localização</span>
 									<span className="font-semibold text-gray-900">{vehicle.specs.location}</span>
 								</div>
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group">
+								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
 									<Car className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
 									<span className="text-xs text-gray-600 mb-1">Portas</span>
 									<span className="font-semibold text-gray-900">{vehicle.specs.doors}</span>
@@ -247,7 +277,7 @@ export default function DetalhesAluguel() {
 							</h2>
 							<div className="grid grid-cols-2 md:grid-cols-3 gap-3">
 								{vehicle.features.map((feature, index) => (
-									<div key={index} className="flex items-center gap-2 text-gray-700 p-2 rounded-lg hover:bg-green-50 transition-colors group">
+									<div key={index} className="flex items-center gap-2 text-gray-700 p-2 rounded-lg hover:bg-green-50 transition-colors group cursor-pointer">
 										<CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 group-hover:scale-110 transition-transform" />
 										<span className="text-sm">{feature}</span>
 									</div>
@@ -263,7 +293,7 @@ export default function DetalhesAluguel() {
 							</h2>
 							<div className="space-y-3">
 								{vehicle.included.map((item, index) => (
-									<div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-indigo-50 transition-colors group">
+									<div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-indigo-50 transition-colors group cursor-pointer">
 										<Shield className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
 										<span className="text-gray-700">{item}</span>
 									</div>
@@ -279,7 +309,7 @@ export default function DetalhesAluguel() {
 							</h2>
 							<div className="space-y-3">
 								{vehicle.requirements.map((req, index) => (
-									<div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-indigo-50 transition-colors group">
+									<div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-indigo-50 transition-colors group cursor-pointer">
 										<CheckCircle2 className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
 										<span className="text-gray-700">{req}</span>
 									</div>
@@ -296,79 +326,39 @@ export default function DetalhesAluguel() {
 								<h3 className="text-lg font-bold text-gray-900 mb-4">Planos de Aluguel</h3>
 
 								<div className="space-y-3 mb-6">
-									<button
-										onClick={() => setSelectedPeriod('diaria')}
-										className={`w-full p-4 rounded-xl border-2 transition-all text-left ${selectedPeriod === 'diaria'
-											? 'border-indigo-600 bg-indigo-50'
-											: 'border-gray-200 hover:border-indigo-300'
-											}`}
-									>
-										<div className="flex justify-between items-start">
-											<div>
-												<div className="font-semibold text-gray-900">Diária</div>
-												<div className="text-xs text-gray-600 mt-1">Até 24 horas</div>
-											</div>
-											<div className="text-right">
-												<div className="text-lg font-bold text-indigo-600">
-													{formatPrice(vehicle.pricing.diaria)}
+									{rentalPlans.map((plan) => (
+										<button
+											key={plan.id}
+											onClick={() => setSelectedPeriod(plan.id)}
+											className={`w-full p-4 rounded-xl border-2 transition-all text-left cursor-pointer ${selectedPeriod === plan.id
+												? 'border-indigo-600 bg-indigo-50'
+												: 'border-gray-200 hover:border-indigo-300'
+												}`}
+										>
+											<div className="flex justify-between items-start">
+												<div>
+													<div className="font-semibold text-gray-900">{plan.name}</div>
+													<div className="text-xs text-gray-600 mt-1">{plan.duration}</div>
 												</div>
-												<div className="text-xs text-gray-600">Kz/dia</div>
-											</div>
-										</div>
-									</button>
-
-									<button
-										onClick={() => setSelectedPeriod('semanal')}
-										className={`w-full p-4 rounded-xl border-2 transition-all text-left ${selectedPeriod === 'semanal'
-											? 'border-indigo-600 bg-indigo-50'
-											: 'border-gray-200 hover:border-indigo-300'
-											}`}
-									>
-										<div className="flex justify-between items-start">
-											<div>
-												<div className="font-semibold text-gray-900">Semanal</div>
-												<div className="text-xs text-gray-600 mt-1">7 dias</div>
-											</div>
-											<div className="text-right">
-												<div className="text-lg font-bold text-indigo-600">
-													{formatPrice(vehicle.pricing.semanal)}
+												<div className="text-right">
+													<div className="text-lg font-bold text-indigo-600">
+														{formatPrice(plan.price)}
+													</div>
+													<div className="text-xs text-gray-600">{plan.unit}</div>
 												</div>
-												<div className="text-xs text-gray-600">Kz/semana</div>
 											</div>
-										</div>
-										<div className="mt-2 text-xs text-green-600 font-medium">
-											Economize {formatPrice(vehicle.pricing.diaria * 7 - vehicle.pricing.semanal)} Kz
-										</div>
-									</button>
-
-									<button
-										onClick={() => setSelectedPeriod('mensal')}
-										className={`w-full p-4 rounded-xl border-2 transition-all text-left ${selectedPeriod === 'mensal'
-											? 'border-indigo-600 bg-indigo-50'
-											: 'border-gray-200 hover:border-indigo-300'
-											}`}
-									>
-										<div className="flex justify-between items-start">
-											<div>
-												<div className="font-semibold text-gray-900">Mensal</div>
-												<div className="text-xs text-gray-600 mt-1">30 dias</div>
-											</div>
-											<div className="text-right">
-												<div className="text-lg font-bold text-indigo-600">
-													{formatPrice(vehicle.pricing.mensal)}
+											{plan.showSavings && (
+												<div className="mt-2 text-xs text-green-600 font-medium">
+													Economize {formatPrice(vehicle.pricing.diaria * plan.daysCount - plan.price)} Kz
 												</div>
-												<div className="text-xs text-gray-600">Kz/mês</div>
-											</div>
-										</div>
-										<div className="mt-2 text-xs text-green-600 font-medium">
-											Economize {formatPrice(vehicle.pricing.diaria * 30 - vehicle.pricing.mensal)} Kz
-										</div>
-									</button>
+											)}
+										</button>
+									))}
 								</div>
 
 								<button
 									onClick={handleContact}
-									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02]"
+									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02] cursor-pointer"
 								>
 									Solicitar Aluguel
 								</button>
@@ -501,7 +491,7 @@ export default function DetalhesAluguel() {
 									<input
 										type="text"
 										required
-										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 										placeholder="Digite seu nome completo"
 									/>
 								</div>
@@ -517,7 +507,7 @@ export default function DetalhesAluguel() {
 										<input
 											type="tel"
 											required
-											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 											placeholder="+244 9XX XXX XXX"
 										/>
 									</div>
@@ -532,7 +522,7 @@ export default function DetalhesAluguel() {
 										<input
 											type="email"
 											required
-											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 											placeholder="seu@email.com"
 										/>
 									</div>
@@ -555,7 +545,7 @@ export default function DetalhesAluguel() {
 									</label>
 									<select
 										required
-										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base font-medium"
+									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base font-medium"
 										defaultValue={selectedPeriod}
 									>
 										<option value="diaria">
@@ -589,7 +579,7 @@ export default function DetalhesAluguel() {
 												type="file"
 												required
 												accept=".pdf,.jpg,.jpeg,.png"
-												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
 											/>
 										</div>
 										<p className="mt-1.5 text-xs text-gray-500">PDF, JPG ou PNG (máx. 5MB)</p>
@@ -608,7 +598,7 @@ export default function DetalhesAluguel() {
 												type="file"
 												required
 												accept=".pdf,.jpg,.jpeg,.png"
-												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
 											/>
 										</div>
 										<p className="mt-1.5 text-xs text-gray-500">PDF, JPG ou PNG (máx. 5MB)</p>
@@ -623,7 +613,7 @@ export default function DetalhesAluguel() {
 								</label>
 								<textarea
 									rows="3"
-									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none transition-all hover:border-gray-400 text-sm sm:text-base"
+									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 text-sm sm:text-base"
 									placeholder="Conte-nos sobre suas necessidades, datas específicas ou dúvidas..."
 								/>
 							</div>
@@ -632,7 +622,7 @@ export default function DetalhesAluguel() {
 							<div className="pt-4 sm:pt-5 border-t border-gray-200 space-y-2.5 sm:space-y-3">
 								<button
 									type="submit"
-									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base"
+									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
 								>
 									<Mail className="w-4 h-4 sm:w-5 sm:h-5" />
 									Enviar Solicitação
@@ -640,7 +630,7 @@ export default function DetalhesAluguel() {
 								<button
 									type="button"
 									onClick={() => setShowContactModal(false)}
-									className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 sm:py-3 rounded-xl transition-all active:scale-[0.98] text-sm sm:text-base"
+									className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 sm:py-3 rounded-xl transition-all active:scale-[0.98] text-sm sm:text-base cursor-pointer"
 								>
 									Cancelar
 								</button>

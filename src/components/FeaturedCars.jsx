@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight, Gauge, Calendar, MapPin, Droplet } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 const sampleCars = [
 	{ id: 1, title: 'Toyota Corolla Altis', price: '7.500.000', km: '48.000 km', year: 2019, location: 'Luanda', img: './images/i10.jpg', fuel: 'Gasolina', condition: 'Usado' },
@@ -15,7 +15,6 @@ const sampleCars = [
 
 export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 	const railRef = useRef(null);
-	const navigate = useNavigate();
 
 	function scroll(dir = 1) {
 		const rail = railRef.current;
@@ -118,13 +117,14 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 									</div>
 
 									{/* Botão */}
-									<button
-										style={{ backgroundColor: 'var(--secondary)' }}
-										className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
-										onClick={() => navigate(`/stand/compra/${car.id}`)}
-									>
-										Ver Detalhes
-									</button>
+									<Link to={`/stand/compra/${car.id}`}>
+										<button
+											style={{ backgroundColor: 'var(--secondary)' }}
+											className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
+										>
+											Ver Detalhes
+										</button>
+									</Link>
 								</div>
 							</article>
 						))}

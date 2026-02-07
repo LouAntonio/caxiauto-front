@@ -31,10 +31,10 @@ export default function Footer() {
 					<div>
 						<h5 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Serviços</h5>
 						<ul className="mt-4 space-y-2 text-sm">
+							<li><Link to="/servicos/gps" className="text-gray-300 hover:text-white transition-colors">GPS</Link></li>
 							<li><Link to="/servicos/reboque" className="text-gray-300 hover:text-white transition-colors">Reboque</Link></li>
-							<li><Link to="/servicos/venda-de-pecas" className="text-gray-300 hover:text-white transition-colors">Venda de Peças</Link></li>
-							<li><Link to="/servicos/aluguel-de-automoveis" className="text-gray-300 hover:text-white transition-colors">Aluguel de automóveis</Link></li>
-							<li><Link to="/servicos/venda-seu-automovel" className="text-gray-300 hover:text-white transition-colors">Venda o seu automóvel</Link></li>
+							<li><Link to="/servicos/seguro-automovel" className="text-gray-300 hover:text-white transition-colors">Seguro Automóvel</Link></li>
+							<li><Link to="/servicos/aluguel-de-automoveis" className="text-gray-300 hover:text-white transition-colors">Aluguel de Automóveis</Link></li>
 						</ul>
 					</div>
 

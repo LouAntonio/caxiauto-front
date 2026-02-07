@@ -62,7 +62,7 @@ export default function VehicleFilter({ onFilterChange }) {
 						value={filters.pesquisa}
 						onChange={(e) => handleChange('pesquisa', e.target.value)}
 						placeholder="Ex: Toyota Corolla, Honda..."
-						className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm placeholder:text-gray-400"
+						className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 bg-white outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm placeholder:text-gray-400"
 					/>
 				</div>
 
@@ -76,7 +76,7 @@ export default function VehicleFilter({ onFilterChange }) {
 						<select
 							value={filters.marca}
 							onChange={(e) => handleChange('marca', e.target.value)}
-							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
+							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todas</option>
 							<option>Toyota</option>
@@ -102,7 +102,7 @@ export default function VehicleFilter({ onFilterChange }) {
 						<select
 							value={filters.classe}
 							onChange={(e) => handleChange('classe', e.target.value)}
-							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
+							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todas</option>
 							<option>SUV</option>
@@ -127,7 +127,7 @@ export default function VehicleFilter({ onFilterChange }) {
 						<select
 							value={filters.combustivel}
 							onChange={(e) => handleChange('combustivel', e.target.value)}
-							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
+							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todos</option>
 							<option>Gasolina</option>
@@ -145,7 +145,7 @@ export default function VehicleFilter({ onFilterChange }) {
 						<select
 							value={filters.transmissao}
 							onChange={(e) => handleChange('transmissao', e.target.value)}
-							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
+							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todas</option>
 							<option>Manual</option>
@@ -164,7 +164,7 @@ export default function VehicleFilter({ onFilterChange }) {
 						<select
 							value={filters.ano}
 							onChange={(e) => handleChange('ano', e.target.value)}
-							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
+							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Qualquer</option>
 							<option>2026</option>
@@ -185,7 +185,7 @@ export default function VehicleFilter({ onFilterChange }) {
 						<select
 							value={filters.quilometros}
 							onChange={(e) => handleChange('quilometros', e.target.value)}
-							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
+							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Qualquer</option>
 							<option>Até 50k</option>
@@ -206,7 +206,7 @@ export default function VehicleFilter({ onFilterChange }) {
 					<select
 						value={filters.preco}
 						onChange={(e) => handleChange('preco', e.target.value)}
-						className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
+						className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 					>
 						<option value="">Sem limite</option>
 						<option>Até 5M Kz</option>
@@ -214,7 +214,6 @@ export default function VehicleFilter({ onFilterChange }) {
 						<option>Até 15M Kz</option>
 						<option>Até 20M Kz</option>
 						<option>Até 30M Kz</option>
-						<option>+30M Kz</option>
 					</select>
 				</div>
 
@@ -226,7 +225,7 @@ export default function VehicleFilter({ onFilterChange }) {
 					<button
 						type="submit"
 						style={{ backgroundColor: 'var(--secondary)' }}
-						className="w-full hover:opacity-90 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group transform active:scale-[0.98]"
+						className="w-full hover:opacity-90 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group transform active:scale-[0.98] cursor-pointer"
 					>
 						<Search className="w-5 h-5 group-hover:scale-110 transition-transform" />
 						Buscar Veículos
@@ -235,7 +234,7 @@ export default function VehicleFilter({ onFilterChange }) {
 					<button
 						type="button"
 						onClick={handleReset}
-						className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 transform active:scale-[0.98]"
+						className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 transform active:scale-[0.98] cursor-pointer"
 					>
 						<RotateCcw className="w-4 h-4" />
 						Limpar Filtros

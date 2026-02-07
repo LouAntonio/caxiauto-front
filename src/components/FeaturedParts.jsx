@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 const sampleParts = [
 	{
@@ -79,7 +79,6 @@ const sampleParts = [
 
 export default function FeaturedParts() {
 	const railRef = useRef(null)
-	const navigate = useNavigate()
 
 	function scroll(dir = 1) {
 		const rail = railRef.current
@@ -138,13 +137,14 @@ export default function FeaturedParts() {
 										<span className="text-xs text-gray-500">{p.sub}</span>
 									</div>
 								</div>
+							<Link to={`/stand/pecas-acessorios/${p.id}`}>
 								<button 
-									onClick={() => navigate(`/stand/pecas-acessorios/${p.id}`)}
 									style={{ backgroundColor: 'var(--secondary)' }} 
 									className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 mt-4 w-full cursor-pointer"
 								>
 									Ver Detalhes
 								</button>
+							</Link>
 							</div>
 						</article>
 					))}

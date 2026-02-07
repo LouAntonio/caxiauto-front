@@ -1,5 +1,6 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { pageview } from './analytics'
 import Header from './components/Header'
 import Home from './pages/Home'
 import Sobre from './pages/Sobre'
@@ -20,9 +21,20 @@ import Parceiros from './pages/Parceiros'
 import GPS from './pages/servicos/GPS'
 import SeguroAutomovel from './pages/servicos/SeguroAutomovel'
 
+function Analytics() {
+	const location = useLocation();
+	
+	useEffect(() => {
+		pageview(location.pathname + location.search);
+	}, [location]);
+	
+	return null;
+}
+
 function App() {
 	return (
 		<Router>
+			<Analytics />
 			<ScrollToTop />
 			<Header />
 			<Routes>
