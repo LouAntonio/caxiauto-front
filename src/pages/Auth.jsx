@@ -518,7 +518,7 @@ const Auth = () => {
 						)}
 
 						{/* Login Password or Step 3 Password */}
-						{(isLogin || (!isForgotPassword && registrationStep === 3)) && (
+						{!isForgotPassword && (isLogin || registrationStep === 3) && (
 							<div>
 								<label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
 									Senha
