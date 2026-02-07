@@ -84,7 +84,7 @@ export default function NotFound() {
 							<div className="flex flex-wrap gap-3 lg:justify-start justify-center">
 								<Link to="/sobre" className="text-sm text-indigo-600 hover:underline">Sobre nós</Link>
 								<span className="text-gray-300">•</span>
-								<Link to="/servicos/venda-de-automoveis" className="text-sm text-indigo-600 hover:underline">Comprar veículos</Link>
+								<Link to="/stand/compra" className="text-sm text-indigo-600 hover:underline">Comprar veículos</Link>
 								<span className="text-gray-300">•</span>
 								<Link to="/como-funciona" className="text-sm text-indigo-600 hover:underline">Como funciona</Link>
 								<span className="text-gray-300">•</span>
