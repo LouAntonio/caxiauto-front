@@ -1,18 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { User, Mail, Lock, Phone, AlertCircle, Eye, EyeOff, Check, X } from 'lucide-react';
+import { User, Mail, Lock, Phone, Eye, EyeOff, Check, X } from 'lucide-react';
 import useDocumentTitle from '../hooks/useDocumentTitle';
+import { Notyf } from 'notyf';
+import 'notyf/notyf.min.css';
 
 const Auth = () => {
 	useDocumentTitle('Entrar ou Cadastrar - CaxiAuto');
+
+	// Inicializar Notyf
+	const [notyf] = useState(() => new Notyf({
+		duration: 4000,
+		position: { x: 'right', y: 'top' },
+		dismissible: true,
+	}));
 
 	const [isLogin, setIsLogin] = useState(true);
 	const [isForgotPassword, setIsForgotPassword] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-	const [error, setError] = useState('');
-	const [success, setSuccess] = useState('');
 	const [loading, setLoading] = useState(false);
 
 	// Multi-step Registration State
@@ -25,7 +32,6 @@ const Auth = () => {
 		const newOtp = [...otp];
 		newOtp[index] = value.slice(-1); // Only keep last digit
 		setOtp(newOtp);
-		setError('');
 		// Auto-focus next input
 		if (value && index < 5) {
 			const nextInput = document.getElementById(`otp-${index + 1}`);
@@ -84,7 +90,7 @@ const Auth = () => {
 		phone: '',
 	});
 
-	const { login, register } = useAuth();
+	const { login, checkEmail, verifyOTP, resendOTP, completeRegistration } = useAuth();
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -95,14 +101,12 @@ const Auth = () => {
 			...formData,
 			[e.target.name]: e.target.value,
 		});
-		setError('');
-		setSuccess('');
 	};
 
 	const validateForm = () => {
 		if (isForgotPassword) {
 			if (!formData.email.includes('@')) {
-				setError('Digite um email válido');
+				notyf.error('Digite um email válido');
 				return false;
 			}
 			return true;
@@ -110,11 +114,11 @@ const Auth = () => {
 
 		if (isLogin) {
 			if (!formData.email.includes('@')) {
-				setError('Digite um email válido');
+				notyf.error('Digite um email válido');
 				return false;
 			}
 			if (!formData.password) {
-				setError('Digite sua senha');
+				notyf.error('Digite sua senha');
 				return false;
 			}
 			return true;
@@ -123,7 +127,7 @@ const Auth = () => {
 		// Registration Steps Validation
 		if (registrationStep === 1) {
 			if (!formData.email.includes('@')) {
-				setError('Digite um email válido');
+				notyf.error('Digite um email válido');
 				return false;
 			}
 			return true;
@@ -132,7 +136,7 @@ const Auth = () => {
 		if (registrationStep === 2) {
 			const otpString = otp.join('');
 			if (otpString.length !== 6) { // Assuming 6-digit OTP
-				setError('O código deve ter 6 dígitos');
+				notyf.error('O código deve ter 6 dígitos');
 				return false;
 			}
 			return true;
@@ -140,22 +144,22 @@ const Auth = () => {
 
 		if (registrationStep === 3) {
 			if (!formData.firstName.trim()) {
-				setError('Digite seu nome');
+				notyf.error('Digite seu nome');
 				return false;
 			}
 			if (!formData.lastName.trim()) {
-				setError('Digite seu sobrenome');
+				notyf.error('Digite seu sobrenome');
 				return false;
 			}
 			if (formData.password !== formData.confirmPassword) {
-				setError('As senhas não coincidem');
+				notyf.error('As senhas não coincidem');
 				return false;
 			}
 			// Secure password policy
 			const passwordChecks = getPasswordRequirements(formData.password);
 			const allPassed = Object.values(passwordChecks).every(v => v);
 			if (!allPassed) {
-				setError('A senha não atende aos requisitos de segurança');
+				notyf.error('A senha não atende aos requisitos de segurança');
 				return false;
 			}
 			return true;
@@ -166,20 +170,18 @@ const Auth = () => {
 
 	const handleForgotPassword = async (e) => {
 		e.preventDefault();
-		setError('');
-		setSuccess('');
 
 		if (!validateForm()) return;
 
 		setLoading(true);
 
 		try {
-			// Simula envio de email de recuperação
+			// Simula envio de email de recuperação (TODO: implementar no backend)
 			await new Promise(resolve => setTimeout(resolve, 1500));
-			setSuccess('Enviamos um link de recuperação para seu email. Verifique sua caixa de entrada.');
+			notyf.success('Enviamos um link de recuperação para seu email. Verifique sua caixa de entrada.');
 			setFormData({ ...formData, email: '' });
 		} catch (err) {
-			setError('Ocorreu um erro. Tente novamente.');
+			notyf.error('Ocorreu um erro. Tente novamente.');
 		} finally {
 			setLoading(false);
 		}
@@ -188,12 +190,31 @@ const Auth = () => {
 	const handleSendOTP = async () => {
 		setLoading(true);
 		try {
-			// Simulate API call to send OTP
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			setSuccess(`Código enviado para ${formData.email}`);
-			setRegistrationStep(2);
+			const result = await checkEmail(formData.email);
+			if (result.success) {
+				notyf.success(result.message);
+				setRegistrationStep(2);
+			} else {
+				notyf.error(result.message);
+			}
 		} catch (err) {
-			setError('Erro ao enviar código. Tente novamente.');
+			notyf.error('Erro ao enviar código. Tente novamente.');
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleResendOTP = async () => {
+		setLoading(true);
+		try {
+			const result = await resendOTP(formData.email);
+			if (result.success) {
+				notyf.success(result.message);
+			} else {
+				notyf.error(result.message);
+			}
+		} catch (err) {
+			notyf.error('Erro ao reenviar código. Tente novamente.');
 		} finally {
 			setLoading(false);
 		}
@@ -202,17 +223,16 @@ const Auth = () => {
 	const handleVerifyOTP = async () => {
 		setLoading(true);
 		try {
-			// Simulate API call to verify OTP
-			await new Promise(resolve => setTimeout(resolve, 1000));
 			const otpString = otp.join('');
-			if (otpString === '123456') { // Mock OTP
-				setSuccess('');
+			const result = await verifyOTP(formData.email, otpString);
+			if (result.success) {
+				notyf.success(result.message);
 				setRegistrationStep(3);
 			} else {
-				setError('Código inválido (Use 123456)');
+				notyf.error(result.message);
 			}
 		} catch (err) {
-			setError('Erro ao verificar código.');
+			notyf.error('Erro ao verificar código.');
 		} finally {
 			setLoading(false);
 		}
@@ -220,8 +240,6 @@ const Auth = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		setError('');
-		setSuccess('');
 
 		if (isForgotPassword) {
 			return handleForgotPassword(e);
@@ -250,25 +268,34 @@ const Auth = () => {
 			if (isLogin) {
 				const result = await login(formData.email, formData.password);
 				if (result.success) {
+					notyf.success(result.message);
 					navigate(from, { replace: true });
 				} else {
-					setError(result.error);
+					notyf.error(result.message);
 				}
 			} else {
-				// Combine first and last name for the backend
-				const completionData = {
-					...formData,
-					name: `${formData.firstName} ${formData.lastName}`.trim()
-				};
-				const result = await register(completionData);
+				// Complete registration (step 3)
+				const result = await completeRegistration(formData);
 				if (result.success) {
-					navigate(from, { replace: true });
+					notyf.success(result.message + ' Agora você pode fazer login!');
+					// Limpar formulário e mostrar tela de login
+					setFormData({
+						firstName: '',
+						lastName: '',
+						email: '',
+						password: '',
+						confirmPassword: '',
+						phone: '',
+					});
+					setOtp(['', '', '', '', '', '']);
+					setRegistrationStep(1);
+					setIsLogin(true);
 				} else {
-					setError(result.error);
+					notyf.error(result.message);
 				}
 			}
 		} catch (err) {
-			setError('Ocorreu um erro. Tente novamente.');
+			notyf.error('Ocorreu um erro. Tente novamente.');
 		} finally {
 			setLoading(false);
 		}
@@ -279,8 +306,6 @@ const Auth = () => {
 		setIsForgotPassword(false);
 		setRegistrationStep(1); // Reset step
 		setOtp(['', '', '', '', '', '']);
-		setError('');
-		setSuccess('');
 		setFormData({
 			firstName: '',
 			lastName: '',
@@ -293,8 +318,6 @@ const Auth = () => {
 
 	const toggleForgotPassword = () => {
 		setIsForgotPassword(!isForgotPassword);
-		setError('');
-		setSuccess('');
 		setRegistrationStep(1);
 	};
 
@@ -378,22 +401,6 @@ const Auth = () => {
 					)}
 
 					<form onSubmit={handleSubmit} className="space-y-5">
-						{/* Mensagem de erro */}
-						{error && (
-							<div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start gap-2 animate-shake">
-								<AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-								<span className="text-sm">{error}</span>
-							</div>
-						)}
-
-						{/* Mensagem de sucesso */}
-						{success && (
-							<div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-start gap-2">
-								<AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-								<span className="text-sm">{success}</span>
-							</div>
-						)}
-
 						{/* Login or Step 1: Email */}
 						{(isLogin || isForgotPassword || registrationStep === 1) && (
 							<div>
@@ -443,7 +450,7 @@ const Auth = () => {
 									))}
 								</div>
 								<p className="mt-4 text-xs text-center text-gray-500">
-									Não recebeu? <button type="button" onClick={handleSendOTP} className="text-blue-600 hover:underline">Reenviar</button>
+									Não recebeu? <button type="button" onClick={handleResendOTP} className="text-blue-600 hover:underline">Reenviar</button>
 								</p>
 							</div>
 						)}
