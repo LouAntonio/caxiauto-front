@@ -38,11 +38,11 @@ export const AuthProvider = ({ children }) => {
 
 			const data = await response.json();
 			
-			if (!response.success) {
-				throw new Error(data.msg || 'Erro ao verificar email');
+			if (!data.success) {
+				return { success: false, message: data.msg || 'Erro ao verificar email' };
 			}
 
-			return { success: data.success, message: data.msg };
+			return { success: true, message: data.msg };
 		} catch (error) {
 			return { success: false, message: error.message };
 		}
@@ -61,11 +61,11 @@ export const AuthProvider = ({ children }) => {
 
 			const data = await response.json();
 			
-			if (!response.success) {
-				throw new Error(data.msg || 'Erro ao verificar código');
+			if (!data.success) {
+				return { success: false, message: data.msg || 'Erro ao verificar código' };
 			}
 
-			return { success: data.success, message: data.msg };
+			return { success: true, message: data.msg };
 		} catch (error) {
 			return { success: false, message: error.message };
 		}
@@ -84,11 +84,11 @@ export const AuthProvider = ({ children }) => {
 
 			const data = await response.json();
 			
-			if (!response.success) {
-				throw new Error(data.msg || 'Erro ao reenviar código');
+			if (!data.success) {
+				return { success: false, message: data.msg || 'Erro ao reenviar código' };
 			}
 
-			return { success: data.success, message: data.msg };
+			return { success: true, message: data.msg };
 		} catch (error) {
 			return { success: false, message: error.message };
 		}
@@ -113,11 +113,11 @@ export const AuthProvider = ({ children }) => {
 
 			const data = await response.json();
 			
-			if (!response.success) {
-				throw new Error(data.msg || 'Erro ao completar registro');
+			if (!data.success) {
+				return { success: false, message: data.msg || 'Erro ao completar registro' };
 			}
 
-			return { success: data.success, message: data.msg };
+			return { success: true, message: data.msg };
 		} catch (error) {
 			return { success: false, message: error.message };
 		}
@@ -136,8 +136,8 @@ export const AuthProvider = ({ children }) => {
 
 			const data = await response.json();
 			
-			if (!response.success) {
-				throw new Error(data.msg || 'Erro ao fazer login');
+			if (!data.success) {
+				return { success: false, message: data.msg || 'Erro ao fazer login' };
 			}
 
 			// Armazenar token e dados do usuário
