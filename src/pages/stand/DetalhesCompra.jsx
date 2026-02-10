@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
 	Gauge,
@@ -17,78 +17,106 @@ import {
 	X,
 	FileText,
 	Wallet,
-	CreditCard
+	CreditCard,
+	Loader2
 } from 'lucide-react'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
+import api from '../../services/api'
 
 export default function DetalhesCompra() {
 	const { id } = useParams()
 	const navigate = useNavigate()
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [showContactModal, setShowContactModal] = useState(false)
+	const [vehicle, setVehicle] = useState(null)
+	const [loading, setLoading] = useState(true)
+	const [error, setError] = useState(null)
 
-	// Dados do veículo (em produção, viria de uma API)
-	const vehicle = {
-		id: parseInt(id) || 1,
-		title: 'Toyota Corolla 2024',
-		price: 18500000,
-		images: [
-			'/images/i10.jpg',
-			'/images/i10.jpg',
-			'/images/i10.jpg',
-			'/images/i10.jpg',
-			'/images/i10.jpg'
-		],
-		condition: 'Novo',
-		description: 'Toyota Corolla 2024 em perfeito estado de conservação. Veículo completo, com todos os opcionais de fábrica. Ideal para viagens e uso diário. Manutenção em dia e documentação regular. Este veículo passou por rigorosa inspeção técnica e está pronto para ser seu.',
-		specs: {
-			km: '15.000 km',
-			year: 2024,
-			location: 'Luanda',
-			fuel: 'Gasolina',
-			transmission: 'Automática',
-			passengers: '5 lugares',
-			color: 'Branco Pérola',
-			doors: '4 portas'
-		},
-		features: [
-			'Ar Condicionado',
-			'Direção Elétrica',
-			'Vidros Elétricos',
-			'Travas Elétricas',
-			'Alarme',
-			'Som com Bluetooth',
-			'Câmera de Ré',
-			'Sensor de Estacionamento',
-			'Airbag Duplo',
-			'Freios ABS',
-			'Controle de Tração',
-			'Bancos em Couro'
-		],
-		financing: {
-			entry: 5550000, // 30% de entrada
-			installments: 48,
-			monthlyPayment: 385000
-		},
-		included: [
-			'Garantia de fábrica 3 anos',
-			'Transferência de documentação',
-			'Inspeção técnica completa',
-			'Assistência pós-venda'
-		],
-		requirements: [
-			'BI ou Passaporte válido'
-		]
-	}
+	// Buscar dados do veículo
+	useEffect(() => {
+		const fetchVehicle = async () => {
+			try {
+				setLoading(true)
+				setError(null)
+				const response = await api.get(`/compraveiculos/${id}`)
+				
+				if (response.success && response.data) {
+					// Mapear os dados da API para a estrutura esperada pelo componente
+					const vehicleData = response.data
+					setVehicle({
+						id: vehicleData._id || id,
+						title: vehicleData.name || 'Veículo sem título',
+						price: vehicleData.price || 0,
+						images: vehicleData.mainImage 
+							? [vehicleData.mainImage, ...(vehicleData.images || [])]
+							: ['/images/i10.jpg'],
+						condition: vehicleData.year >= new Date().getFullYear() ? 'Novo' : 'Usado',
+						description: vehicleData.description || 'Sem descrição disponível',
+						specs: {
+							km: vehicleData.kilometers 
+								? `${vehicleData.kilometers.toLocaleString('pt-AO')} km` 
+								: 'N/A',
+							year: vehicleData.year || 'N/A',
+							location: vehicleData.location || 'N/A',
+							fuel: vehicleData.fuelType 
+								? vehicleData.fuelType.charAt(0).toUpperCase() + vehicleData.fuelType.slice(1)
+								: 'N/A',
+							transmission: vehicleData.transmission 
+								? vehicleData.transmission.charAt(0).toUpperCase() + vehicleData.transmission.slice(1)
+								: 'N/A',
+							passengers: vehicleData.passangers 
+								? `${vehicleData.passangers} ${vehicleData.passangers === 1 ? 'lugar' : 'lugares'}`
+								: 'N/A',
+							color: vehicleData.color || 'N/A',
+							doors: vehicleData.door 
+								? `${vehicleData.door} ${vehicleData.door === 1 ? 'porta' : 'portas'}`
+								: 'N/A'
+						},
+						features: vehicleData.characteristics || [],
+						financing: {
+							entry: (vehicleData.price || 0) * 0.3,
+							installments: 48,
+							monthlyPayment: ((vehicleData.price || 0) * 0.7) / 48
+						},
+						included: [
+							'Garantia de fábrica 3 anos',
+							'Transferência de documentação',
+							'Inspeção técnica completa',
+							'Assistência pós-venda'
+						],
+						requirements: [
+							'BI ou Passaporte válido'
+						],
+						owner: vehicleData.owner
+					})
+				} else {
+					setError('Veículo não encontrado')
+				}
+			} catch (err) {
+				console.error('Erro ao buscar veículo:', err)
+				setError('Erro ao carregar os dados do veículo. Tente novamente.')
+			} finally {
+				setLoading(false)
+			}
+		}
 
-	useDocumentTitle(`${vehicle.title} - Compra - Caxiauto`)
+		if (id) {
+			fetchVehicle()
+		}
+	}, [id])
+
+	useDocumentTitle(vehicle ? `${vehicle.title} - Compra - Caxiauto` : 'Carregando... - Caxiauto')
 
 	const nextImage = () => {
-		setCurrentImageIndex((prev) => (prev + 1) % vehicle.images.length)
+		if (vehicle && vehicle.images) {
+			setCurrentImageIndex((prev) => (prev + 1) % vehicle.images.length)
+		}
 	}
 
 	const prevImage = () => {
-		setCurrentImageIndex((prev) => (prev - 1 + vehicle.images.length) % vehicle.images.length)
+		if (vehicle && vehicle.images) {
+			setCurrentImageIndex((prev) => (prev - 1 + vehicle.images.length) % vehicle.images.length)
+		}
 	}
 
 	const handleContact = () => {
@@ -96,7 +124,43 @@ export default function DetalhesCompra() {
 	}
 
 	const formatPrice = (price) => {
+		if (price === null || price === undefined || isNaN(price) || price === 0) {
+			return 'Preço sob consulta'
+		}
 		return new Intl.NumberFormat('pt-AO').format(price)
+	}
+
+	// Estado de loading
+	if (loading) {
+		return (
+			<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex items-center justify-center">
+				<div className="text-center">
+					<Loader2 className="w-12 h-12 text-indigo-600 animate-spin mx-auto mb-4" />
+					<p className="text-gray-600 text-lg">Carregando detalhes do veículo...</p>
+				</div>
+			</div>
+		)
+	}
+
+	// Estado de erro
+	if (error || !vehicle) {
+		return (
+			<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex items-center justify-center px-4">
+				<div className="text-center max-w-md">
+					<div className="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+						<X className="w-8 h-8 text-red-600" />
+					</div>
+					<h2 className="text-2xl font-bold text-gray-900 mb-2">Veículo não encontrado</h2>
+					<p className="text-gray-600 mb-6">{error || 'O veículo solicitado não está disponível.'}</p>
+					<button
+						onClick={() => navigate('/stand/compra')}
+						className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition-all"
+					>
+						Voltar para Compra
+					</button>
+				</div>
+			</div>
+		)
 	}
 
 	return (
@@ -136,48 +200,56 @@ export default function DetalhesCompra() {
 								</div>
 
 								{/* Navegação de Imagens */}
-								<button
-									onClick={prevImage}
-									className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/95 hover:bg-white backdrop-blur-sm rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all hover:scale-110 cursor-pointer"
-									aria-label="Imagem anterior"
-								>
-									<ChevronLeft className="w-6 h-6 text-gray-700" />
-								</button>
-								<button
-									onClick={nextImage}
-									className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/95 hover:bg-white backdrop-blur-sm rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all hover:scale-110 cursor-pointer"
-									aria-label="Próxima imagem"
-								>
-									<ChevronRight className="w-6 h-6 text-gray-700" />
-								</button>
+								{vehicle.images && vehicle.images.length > 1 && (
+									<>
+										<button
+											onClick={prevImage}
+											className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/95 hover:bg-white backdrop-blur-sm rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all hover:scale-110 cursor-pointer"
+											aria-label="Imagem anterior"
+										>
+											<ChevronLeft className="w-6 h-6 text-gray-700" />
+										</button>
+										<button
+											onClick={nextImage}
+											className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/95 hover:bg-white backdrop-blur-sm rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all hover:scale-110 cursor-pointer"
+											aria-label="Próxima imagem"
+										>
+											<ChevronRight className="w-6 h-6 text-gray-700" />
+										</button>
+									</>
+								)}
 
 								{/* Indicadores */}
-								<div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-									{vehicle.images.map((_, index) => (
-										<button
-											key={index}
-											onClick={() => setCurrentImageIndex(index)}
-											className={`w-2 h-2 rounded-full transition-all ${index === currentImageIndex ? 'bg-white w-8' : 'bg-white/50'
-												}`}
-											aria-label={`Ir para imagem ${index + 1}`}
-										/>
-									))}
-								</div>
+								{vehicle.images && vehicle.images.length > 1 && (
+									<div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+										{vehicle.images.map((_, index) => (
+											<button
+												key={index}
+												onClick={() => setCurrentImageIndex(index)}
+												className={`w-2 h-2 rounded-full transition-all ${index === currentImageIndex ? 'bg-white w-8' : 'bg-white/50'
+													}`}
+												aria-label={`Ir para imagem ${index + 1}`}
+											/>
+										))}
+									</div>
+								)}
 							</div>
 
 							{/* Miniaturas */}
-							<div className="p-4 flex gap-2 overflow-x-auto">
-								{vehicle.images.map((image, index) => (
-									<button
-										key={index}
-										onClick={() => setCurrentImageIndex(index)}
-										className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex ? 'border-indigo-600 ring-2 ring-indigo-200' : 'border-gray-200'
-										} cursor-pointer`}
-									>
-										<img src={image} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover" />
-									</button>
-								))}
-							</div>
+							{vehicle.images && vehicle.images.length > 1 && (
+								<div className="p-4 flex gap-2 overflow-x-auto">
+									{vehicle.images.map((image, index) => (
+										<button
+											key={index}
+											onClick={() => setCurrentImageIndex(index)}
+											className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex ? 'border-indigo-600 ring-2 ring-indigo-200' : 'border-gray-200'
+											} cursor-pointer`}
+										>
+											<img src={image} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover" />
+										</button>
+									))}
+								</div>
+							)}
 						</div>
 
 						{/* Título e Especificações Principais */}
@@ -243,14 +315,18 @@ export default function DetalhesCompra() {
 								<div className="w-1 h-6 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full"></div>
 								Características e Equipamentos
 							</h2>
-							<div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-								{vehicle.features.map((feature, index) => (
-									<div key={index} className="flex items-center gap-2 text-gray-700 p-2 rounded-lg hover:bg-green-50 transition-colors group cursor-pointer">
-										<CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 group-hover:scale-110 transition-transform" />
-										<span className="text-sm">{feature}</span>
-									</div>
-								))}
-							</div>
+							{vehicle.features && vehicle.features.length > 0 ? (
+								<div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+									{vehicle.features.map((feature, index) => (
+										<div key={index} className="flex items-center gap-2 text-gray-700 p-2 rounded-lg hover:bg-green-50 transition-colors group cursor-pointer">
+											<CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 group-hover:scale-110 transition-transform" />
+											<span className="text-sm">{feature}</span>
+										</div>
+									))}
+								</div>
+							) : (
+								<p className="text-gray-500 italic">Nenhuma característica específica informada.</p>
+							)}
 						</div>
 
 						{/* O que está Incluído */}
@@ -297,7 +373,9 @@ export default function DetalhesCompra() {
 									<div className="text-3xl font-bold text-indigo-600 mb-1">
 										{formatPrice(vehicle.price)}
 									</div>
-									<div className="text-sm text-gray-600">aKz</div>
+									{vehicle.price > 0 && (
+										<div className="text-sm text-gray-600">aKz</div>
+									)}
 								</div>
 
 								<button

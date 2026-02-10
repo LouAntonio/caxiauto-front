@@ -120,7 +120,7 @@ export default function Header() {
 						<div className="hidden md:flex items-center gap-3">
 							{user ? (
 								<div className="relative group">
-									<button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition-colors">
+									<button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition-colors cursor-pointer">
 										<User className="w-5 h-5" />
 										<span>Olá, {user.name.split(' ')[0]}</span>
 										<svg className="w-4 h-4 transition-transform group-hover:rotate-180" viewBox="0 0 20 20" fill="currentColor">
@@ -140,7 +140,7 @@ export default function Header() {
 										</Link>
 										<button
 											onClick={handleLogout}
-											className="w-full text-left px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors font-medium flex items-center gap-2"
+											className="w-full text-left px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors font-medium flex items-center gap-2 cursor-pointer"
 										>
 											<LogOut className="w-4 h-4" />
 											Sair
@@ -325,7 +325,7 @@ export default function Header() {
 									</Link>
 									<button
 										onClick={handleLogout}
-										className="w-full text-center px-4 py-3 rounded-lg bg-red-50 text-red-600 font-semibold mt-2 flex items-center justify-center gap-2 hover:bg-red-100 transition-colors"
+										className="w-full text-center px-4 py-3 rounded-lg bg-red-50 text-red-600 font-semibold mt-2 flex items-center justify-center gap-2 hover:bg-red-100 transition-colors cursor-pointer"
 									>
 										<LogOut className="w-5 h-5" />
 										Sair

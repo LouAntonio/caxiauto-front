@@ -12,9 +12,12 @@ import {
 	Settings,
 	MapPin,
 	DollarSign,
-	AlertCircle
+	AlertCircle,
+	Upload,
+	FileText
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import api, { API_URL } from '../../services/api';
 
 const Veiculos = () => {
 	useDocumentTitle('Meus Veículos - CaxiAuto');
@@ -24,30 +27,46 @@ const Veiculos = () => {
 	const [showModal, setShowModal] = useState(false);
 	const [editingVehicle, setEditingVehicle] = useState(null);
 	const [message, setMessage] = useState({ type: '', text: '' });
+	const [loading, setLoading] = useState(false);
+	const [mediaFiles, setMediaFiles] = useState([]);
+	const [livreteFile, setLivreteFile] = useState(null);
 	const [formData, setFormData] = useState({
-		brand: '',
-		model: '',
-		year: '',
-		color: '',
-		plate: '',
-		mileage: '',
-		fuel: 'gasolina',
-		transmission: 'manual',
-		price: '',
+		name: '',
 		description: '',
-		imageUrl: '',
+		manufacturer: '',
+		class: '',
+		fuelType: 'gasolina',
+		transmission: 'manual',
+		year: '',
+		kilometers: '',
+		price: '',
+		sellingPrice: '',
+		passangers: '',
+		color: '',
 		location: '',
-		status: 'ativo'
+		door: '',
+		characteristics: []
 	});
 
 	// Carregar veículos do usuário
 	useEffect(() => {
 		if (user) {
-			const allVehicles = JSON.parse(localStorage.getItem('caxiauto_vehicles') || '[]');
-			const userVehicles = allVehicles.filter(v => v.userId === user.id);
-			setVehicles(userVehicles);
+			loadVehicles();
 		}
 	}, [user]);
+
+	const loadVehicles = async () => {
+		try {
+			const response = await api.get('/compraveiculos');
+			if (response.success) {
+				// Filtrar apenas veículos do usuário
+				const userVehicles = response.data.filter(v => v.owner._id === user.id || v.owner === user.id);
+				setVehicles(userVehicles);
+			}
+		} catch (error) {
+			console.error('Erro ao carregar veículos:', error);
+		}
+	};
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -57,22 +76,36 @@ const Veiculos = () => {
 		}));
 	};
 
+	const handleMediaChange = (e) => {
+		const files = Array.from(e.target.files);
+		setMediaFiles(files);
+	};
+
+	const handleLivreteChange = (e) => {
+		const file = e.target.files[0];
+		setLivreteFile(file);
+	};
+
 	const resetForm = () => {
 		setFormData({
-			brand: '',
-			model: '',
-			year: '',
-			color: '',
-			plate: '',
-			mileage: '',
-			fuel: 'gasolina',
-			transmission: 'manual',
-			price: '',
+			name: '',
 			description: '',
-			imageUrl: '',
+			manufacturer: '',
+			class: '',
+			fuelType: 'gasolina',
+			transmission: 'manual',
+			year: '',
+			kilometers: '',
+			price: '',
+			sellingPrice: '',
+			passangers: '',
+			color: '',
 			location: '',
-			status: 'ativo'
+			door: '',
+			characteristics: []
 		});
+		setMediaFiles([]);
+		setLivreteFile(null);
 		setEditingVehicle(null);
 	};
 
@@ -93,53 +126,89 @@ const Veiculos = () => {
 		setMessage({ type: '', text: '' });
 	};
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
 
 		// Validação básica
-		if (!formData.brand || !formData.model || !formData.year) {
-			setMessage({ type: 'error', text: 'Por favor, preencha os campos obrigatórios.' });
+		if (!formData.name || !formData.description || !formData.manufacturer || 
+			!formData.class || !formData.year || !formData.kilometers || 
+			!formData.price || !formData.passangers || !formData.color || 
+			!formData.location || !formData.door) {
+			setMessage({ type: 'error', text: 'Por favor, preencha todos os campos obrigatórios.' });
 			return;
 		}
 
-		const allVehicles = JSON.parse(localStorage.getItem('caxiauto_vehicles') || '[]');
-
-		if (editingVehicle) {
-			// Editar veículo existente
-			const updatedVehicles = allVehicles.map(v => 
-				v.id === editingVehicle.id ? { ...formData, id: v.id, userId: user.id, updatedAt: new Date().toISOString() } : v
-			);
-			localStorage.setItem('caxiauto_vehicles', JSON.stringify(updatedVehicles));
-			setVehicles(updatedVehicles.filter(v => v.userId === user.id));
-			setMessage({ type: 'success', text: 'Veículo atualizado com sucesso!' });
-		} else {
-			// Adicionar novo veículo
-			const newVehicle = {
-				id: Date.now().toString(),
-				...formData,
-				userId: user.id,
-				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString()
-			};
-			allVehicles.push(newVehicle);
-			localStorage.setItem('caxiauto_vehicles', JSON.stringify(allVehicles));
-			setVehicles([...vehicles, newVehicle]);
-			setMessage({ type: 'success', text: 'Veículo adicionado com sucesso!' });
+		if (mediaFiles.length === 0 && !editingVehicle) {
+			setMessage({ type: 'error', text: 'É necessário enviar pelo menos uma imagem do veículo.' });
+			return;
 		}
 
-		setTimeout(() => {
-			handleCloseModal();
-		}, 1500);
+		setLoading(true);
+
+		try {
+			const formDataToSend = new FormData();
+			
+			// Adicionar campos do formulário
+			formDataToSend.append('name', formData.name);
+			formDataToSend.append('description', formData.description);
+			formDataToSend.append('manufacturer', formData.manufacturer);
+			formDataToSend.append('class', formData.class);
+			formDataToSend.append('fuelType', formData.fuelType);
+			formDataToSend.append('transmission', formData.transmission);
+			formDataToSend.append('year', formData.year);
+			formDataToSend.append('kilometers', formData.kilometers);
+			formDataToSend.append('price', formData.price);
+			if (formData.sellingPrice) formDataToSend.append('sellingPrice', formData.sellingPrice);
+			formDataToSend.append('passangers', formData.passangers);
+			formDataToSend.append('color', formData.color);
+			formDataToSend.append('location', formData.location);
+			formDataToSend.append('door', formData.door);
+			formDataToSend.append('characteristics', JSON.stringify(formData.characteristics));
+
+			// Adicionar arquivos de mídia
+			mediaFiles.forEach(file => {
+				formDataToSend.append('media', file);
+			});
+
+			// Adicionar livrete se houver
+			if (livreteFile) {
+				formDataToSend.append('livreto', livreteFile);
+			}
+
+			const response = await api.upload('/compraveiculos', formDataToSend);
+
+			if (response.success) {
+				setMessage({ type: 'success', text: response.message || 'Veículo cadastrado com sucesso!' });
+				await loadVehicles();
+				setTimeout(() => {
+					handleCloseModal();
+				}, 2000);
+			} else {
+				setMessage({ type: 'error', text: response.message || 'Erro ao cadastrar veículo.' });
+			}
+		} catch (error) {
+			console.error('Erro ao cadastrar veículo:', error);
+			setMessage({ type: 'error', text: 'Erro ao cadastrar veículo. Tente novamente.' });
+		} finally {
+			setLoading(false);
+		}
 	};
 
-	const handleDelete = (vehicleId) => {
+	const handleDelete = async (vehicleId) => {
 		if (window.confirm('Tem certeza que deseja excluir este veículo?')) {
-			const allVehicles = JSON.parse(localStorage.getItem('caxiauto_vehicles') || '[]');
-			const updatedVehicles = allVehicles.filter(v => v.id !== vehicleId);
-			localStorage.setItem('caxiauto_vehicles', JSON.stringify(updatedVehicles));
-			setVehicles(updatedVehicles.filter(v => v.userId === user.id));
-			setMessage({ type: 'success', text: 'Veículo excluído com sucesso!' });
-			setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+			try {
+				const response = await api.delete(`/compraveiculos/${vehicleId}`);
+				if (response.success) {
+					setMessage({ type: 'success', text: 'Veículo excluído com sucesso!' });
+					await loadVehicles();
+					setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+				} else {
+					setMessage({ type: 'error', text: response.message || 'Erro ao excluir veículo.' });
+				}
+			} catch (error) {
+				console.error('Erro ao excluir veículo:', error);
+				setMessage({ type: 'error', text: 'Erro ao excluir veículo.' });
+			}
 		}
 	};
 
@@ -198,13 +267,13 @@ const Veiculos = () => {
 			) : (
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 					{vehicles.map(vehicle => (
-						<div key={vehicle.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+						<div key={vehicle._id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
 							{/* Imagem do veículo */}
 							<div className="h-48 bg-gray-200 relative">
-								{vehicle.imageUrl ? (
+								{vehicle.mainImage ? (
 									<img
-										src={vehicle.imageUrl}
-										alt={`${vehicle.brand} ${vehicle.model}`}
+										src={`${API_URL}${vehicle.mainImage}`}
+										alt={vehicle.name}
 										className="w-full h-full object-cover"
 									/>
 								) : (
@@ -213,29 +282,29 @@ const Veiculos = () => {
 									</div>
 								)}
 								<div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold ${
-									vehicle.status === 'ativo' ? 'bg-green-500 text-white' : 'bg-gray-500 text-white'
+									vehicle.aproved ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
 								}`}>
-									{vehicle.status === 'ativo' ? 'Ativo' : 'Inativo'}
+									{vehicle.aproved ? 'Aprovado' : 'Pendente'}
 								</div>
 							</div>
 
 							{/* Informações do veículo */}
 							<div className="p-5">
 								<h3 className="text-xl font-bold text-gray-900 mb-1">
-									{vehicle.brand} {vehicle.model}
+									{vehicle.name}
 								</h3>
 								<p className="text-gray-600 mb-4 text-sm">
-									{vehicle.year} • {vehicle.color}
+									{vehicle.manufacturer} • {vehicle.year} • {vehicle.color}
 								</p>
 
 								<div className="space-y-2 mb-4">
 									<div className="flex items-center gap-2 text-sm text-gray-600">
 										<Gauge className="w-4 h-4 text-[#154c9a]" />
-										<span>{vehicle.mileage ? `${vehicle.mileage} km` : 'Não informado'}</span>
+										<span>{vehicle.kilometers ? `${vehicle.kilometers.toLocaleString()} km` : 'Não informado'}</span>
 									</div>
 									<div className="flex items-center gap-2 text-sm text-gray-600">
 										<Fuel className="w-4 h-4 text-[#154c9a]" />
-										<span className="capitalize">{vehicle.fuel}</span>
+										<span className="capitalize">{vehicle.fuelType}</span>
 									</div>
 									<div className="flex items-center gap-2 text-sm text-gray-600">
 										<Settings className="w-4 h-4 text-[#154c9a]" />
@@ -250,7 +319,7 @@ const Veiculos = () => {
 									{vehicle.price && (
 										<div className="flex items-center gap-2 text-sm font-semibold text-[#154c9a]">
 											<DollarSign className="w-4 h-4" />
-											<span>akz {vehicle.price}</span>
+											<span>{vehicle.price.toLocaleString()} Kz</span>
 										</div>
 									)}
 								</div>
@@ -265,7 +334,7 @@ const Veiculos = () => {
 										Editar
 									</button>
 									<button
-										onClick={() => handleDelete(vehicle.id)}
+										onClick={() => handleDelete(vehicle._id)}
 										className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
 									>
 										<Trash2 className="w-4 h-4" />
@@ -279,9 +348,9 @@ const Veiculos = () => {
 
 			{/* Modal de formulário */}
 			{showModal && (
-				<div className="fixed inset-0 bg-black bg-opacity-0 flex items-center justify-center p-4 z-50">
+				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
 					<div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-						<div className="sticky top-0 bg-gradient-to-r from-[#154c9a] to-blue-600 px-8 py-6 flex items-center justify-between">
+						<div className="sticky top-0 bg-gradient-to-r from-[#154c9a] to-blue-600 px-8 py-6 flex items-center justify-between z-10">
 							<h2 className="text-2xl font-bold text-white flex items-center gap-3">
 								<div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
 									<Car className="w-6 h-6 text-white" />
@@ -316,7 +385,10 @@ const Veiculos = () => {
 									</label>
 									<input
 										type="text"
-										name="title"
+										name="name"
+										value={formData.name}
+										onChange={handleChange}
+										required
 										placeholder="Ex: Toyota Corolla 2020 XEI Automático"
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
 									/>
@@ -330,8 +402,8 @@ const Veiculos = () => {
 									</label>
 									<input
 										type="text"
-										name="brand"
-										value={formData.brand}
+										name="manufacturer"
+										value={formData.manufacturer}
 										onChange={handleChange}
 										required
 										placeholder="Ex: Toyota, Ford, Volkswagen"
@@ -339,20 +411,27 @@ const Veiculos = () => {
 									/>
 								</div>
 
-								{/* Modelo */}
+								{/* Classe/Tipo */}
 								<div>
 									<label className="block text-gray-700 font-semibold mb-2">
-										Modelo <span className="text-red-500">*</span>
+										Tipo/Classe <span className="text-red-500">*</span>
 									</label>
-									<input
-										type="text"
-										name="model"
-										value={formData.model}
+									<select
+										name="class"
+										value={formData.class}
 										onChange={handleChange}
 										required
-										placeholder="Ex: Corolla, Fiesta, Gol"
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
-									/>
+									>
+										<option value="">Selecione o tipo</option>
+										<option value="Sedan">Sedan</option>
+										<option value="Hatchback">Hatchback</option>
+										<option value="SUV">SUV</option>
+										<option value="Pickup">Pickup</option>
+										<option value="Van">Van</option>
+										<option value="Coupe">Coupé</option>
+										<option value="Conversivel">Conversível</option>
+									</select>
 								</div>
 
 								{/* Ano */}
@@ -367,7 +446,7 @@ const Veiculos = () => {
 										onChange={handleChange}
 										required
 										placeholder="Ex: 2020"
-										min="1900"
+										min="1990"
 										max={new Date().getFullYear() + 1}
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
 									/>
@@ -376,29 +455,53 @@ const Veiculos = () => {
 								{/* Cor */}
 								<div>
 									<label className="block text-gray-700 font-semibold mb-2">
-										Cor
+										Cor <span className="text-red-500">*</span>
 									</label>
 									<input
 										type="text"
 										name="color"
 										value={formData.color}
 										onChange={handleChange}
+										required
 										placeholder="Ex: Preto, Branco, Prata"
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
 									/>
 								</div>
 
-								{/* Placa */}
+								{/* Número de Portas */}
 								<div>
 									<label className="block text-gray-700 font-semibold mb-2">
-										Placa / Matrícula
+										Número de Portas <span className="text-red-500">*</span>
+									</label>
+									<select
+										name="door"
+										value={formData.door}
+										onChange={handleChange}
+										required
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+									>
+										<option value="">Selecione</option>
+										<option value="2">2 portas</option>
+										<option value="3">3 portas</option>
+										<option value="4">4 portas</option>
+										<option value="5">5 portas</option>
+									</select>
+								</div>
+
+								{/* Número de Passageiros */}
+								<div>
+									<label className="block text-gray-700 font-semibold mb-2">
+										Número de Passageiros <span className="text-red-500">*</span>
 									</label>
 									<input
-										type="text"
-										name="plate"
-										value={formData.plate}
+										type="number"
+										name="passangers"
+										value={formData.passangers}
 										onChange={handleChange}
-										placeholder="Ex: ABC-1234"
+										required
+										placeholder="Ex: 5"
+										min="1"
+										max="50"
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
 									/>
 								</div>
@@ -406,14 +509,16 @@ const Veiculos = () => {
 								{/* Quilometragem */}
 								<div>
 									<label className="block text-gray-700 font-semibold mb-2">
-										Quilometragem (km)
+										Quilometragem (km) <span className="text-red-500">*</span>
 									</label>
 									<input
 										type="number"
-										name="mileage"
-										value={formData.mileage}
+										name="kilometers"
+										value={formData.kilometers}
 										onChange={handleChange}
+										required
 										placeholder="Ex: 50000"
+										min="0"
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
 									/>
 								</div>
@@ -421,131 +526,150 @@ const Veiculos = () => {
 								{/* Combustível */}
 								<div>
 									<label className="block text-gray-700 font-semibold mb-2">
-										Tipo de Combustível
+										Tipo de Combustível <span className="text-red-500">*</span>
 									</label>
 									<select
-										name="fuel"
-										value={formData.fuel}
+										name="fuelType"
+										value={formData.fuelType}
 										onChange={handleChange}
+										required
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
 									>
 										<option value="gasolina">Gasolina</option>
-										<option value="etanol">Etanol</option>
-										<option value="flex">Flex</option>
 										<option value="diesel">Diesel</option>
-										<option value="eletrico">Elétrico</option>
-										<option value="hibrido">Híbrido</option>
-										<option value="gas">Gás</option>
+										<option value="elétrico">Elétrico</option>
+										<option value="híbrido">Híbrido</option>
 									</select>
 								</div>
 
 								{/* Câmbio */}
 								<div>
 									<label className="block text-gray-700 font-semibold mb-2">
-										Transmissão / Caixa
+										Transmissão <span className="text-red-500">*</span>
 									</label>
 									<select
 										name="transmission"
 										value={formData.transmission}
 										onChange={handleChange}
+										required
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
 									>
 										<option value="manual">Manual</option>
-										<option value="automatico">Automático</option>
-										<option value="automatizado">Automatizado</option>
-										<option value="cvt">CVT</option>
+										<option value="automática">Automática</option>
 									</select>
 								</div>
 
 								{/* Preço */}
 								<div>
 									<label className="block text-gray-700 font-semibold mb-2">
-										Preço (Kz)
+										Preço (Kz) <span className="text-red-500">*</span>
 									</label>
 									<input
-										type="text"
+										type="number"
 										name="price"
 										value={formData.price}
 										onChange={handleChange}
-										placeholder="Ex: 15.000.000"
+										required
+										placeholder="Ex: 15000000"
+										min="0"
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
 									/>
 								</div>
 
-								{/* Localização */}
+								{/* Preço de Venda (Opcional) */}
 								<div>
 									<label className="block text-gray-700 font-semibold mb-2">
-										Localização
+										Preço de Venda (opcional)
+									</label>
+									<input
+										type="number"
+										name="sellingPrice"
+										value={formData.sellingPrice}
+										onChange={handleChange}
+										placeholder="Ex: 14000000"
+										min="0"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+									/>
+									<p className="text-sm text-gray-500 mt-2">Preço promocional ou de venda rápida</p>
+								</div>
+
+								{/* Localização */}
+								<div className="md:col-span-2">
+									<label className="block text-gray-700 font-semibold mb-2">
+										Localização <span className="text-red-500">*</span>
 									</label>
 									<input
 										type="text"
 										name="location"
 										value={formData.location}
 										onChange={handleChange}
+										required
 										placeholder="Ex: Luanda, Angola"
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
 									/>
 								</div>
 
-								{/* Status */}
-								<div>
-									<label className="block text-gray-700 font-semibold mb-2">
-										Status
-									</label>
-									<select
-										name="status"
-										value={formData.status}
-										onChange={handleChange}
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
-									>
-										<option value="ativo">Ativo</option>
-										<option value="inativo">Inativo</option>
-									</select>
-								</div>
-
-								{/* Imagem Principal */}
+								{/* Imagens/Mídias */}
 								<div className="md:col-span-2">
 									<label className="block text-gray-700 font-semibold mb-2">
-										Imagem Principal <span className="text-red-500">*</span>
+										<Upload className="w-5 h-5 inline mr-2" />
+										Imagens e Vídeos do Veículo <span className="text-red-500">* (mínimo 1)</span>
 									</label>
 									<input
 										type="file"
-										name="mainImage"
-										accept="image/*"
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#154c9a] file:text-white file:font-semibold file:cursor-pointer hover:file:bg-blue-700"
-									/>
-									<p className="text-sm text-gray-500 mt-2">Selecione a imagem principal do veículo (formato: JPG, PNG, WEBP)</p>
-								</div>
-
-								{/* Galeria de Imagens */}
-								<div className="md:col-span-2">
-									<label className="block text-gray-700 font-semibold mb-2">
-										Galeria de Imagens (mínimo 4) <span className="text-red-500">*</span>
-									</label>
-									<input
-										type="file"
-										name="gallery"
-										accept="image/*"
+										name="media"
+										accept="image/*,video/*"
 										multiple
+										onChange={handleMediaChange}
+										required={!editingVehicle}
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#154c9a] file:text-white file:font-semibold file:cursor-pointer hover:file:bg-blue-700"
 									/>
-									<p className="text-sm text-gray-500 mt-2">Selecione no mínimo 4 imagens do veículo (formato: JPG, PNG, WEBP)</p>
+									<p className="text-sm text-gray-500 mt-2">
+										Selecione até 10 arquivos (imagens: JPG, PNG, WEBP, GIF | vídeos: MP4, MPEG, MOV). A primeira imagem será a principal.
+									</p>
+									{mediaFiles.length > 0 && (
+										<p className="text-sm text-green-600 mt-2 font-semibold">
+											{mediaFiles.length} arquivo(s) selecionado(s)
+										</p>
+									)}
+								</div>
+
+								{/* Livrete (PDF) */}
+								<div className="md:col-span-2">
+									<label className="block text-gray-700 font-semibold mb-2">
+										<FileText className="w-5 h-5 inline mr-2" />
+										Livrete / Documento do Veículo (PDF)
+									</label>
+									<input
+										type="file"
+										name="livreto"
+										accept="application/pdf"
+										onChange={handleLivreteChange}
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-green-600 file:text-white file:font-semibold file:cursor-pointer hover:file:bg-green-700"
+									/>
+									<p className="text-sm text-gray-500 mt-2">Opcional: Upload do livrete ou documento do veículo em PDF</p>
+									{livreteFile && (
+										<p className="text-sm text-green-600 mt-2 font-semibold">
+											Arquivo selecionado: {livreteFile.name}
+										</p>
+									)}
 								</div>
 
 								{/* Descrição */}
 								<div className="md:col-span-2">
 									<label className="block text-gray-700 font-semibold mb-2">
-										Descrição / Observações
+										Descrição <span className="text-red-500">*</span>
 									</label>
 									<textarea
 										name="description"
 										value={formData.description}
 										onChange={handleChange}
+										required
 										rows="4"
 										placeholder="Descreva as características, condições e diferenciais do veículo..."
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all resize-none"
 									/>
-									<p className="text-sm text-gray-500 mt-2">Informações adicionais que possam interessar aos compradores</p>
+									<p className="text-sm text-gray-500 mt-2">Informações adicionais que possam interessar aos compradores (mínimo 10 caracteres)</p>
 								</div>
 							</div>
 
@@ -560,10 +684,11 @@ const Veiculos = () => {
 								</button>
 								<button
 									type="submit"
-									className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[#154c9a] to-blue-600 text-white font-semibold rounded-xl hover:from-[#123f80] hover:to-blue-700 shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+									disabled={loading}
+									className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[#154c9a] to-blue-600 text-white font-semibold rounded-xl hover:from-[#123f80] hover:to-blue-700 shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 								>
 									<Save className="w-5 h-5" />
-									{editingVehicle ? 'Salvar Alterações' : 'Adicionar Veículo'}
+									{loading ? 'Enviando...' : (editingVehicle ? 'Salvar Alterações' : 'Adicionar Veículo')}
 								</button>
 							</div>
 						</form>

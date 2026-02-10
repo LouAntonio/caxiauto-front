@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Gauge, Calendar, MapPin, Droplet } from 'lucide-react'
+import { Gauge, Calendar, MapPin, Droplet, Loader2 } from 'lucide-react'
 import VehicleFilter from '../../components/VehicleFilter'
 import Pagination from '../../components/Pagination'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
+import api, { API_URL, notyf } from '../../services/api'
 
 export default function Compra() {
 	useDocumentTitle('Compra de Veículos - Caxiauto')
@@ -11,13 +12,106 @@ export default function Compra() {
 
 	const [filters, setFilters] = useState({})
 	const [currentPage, setCurrentPage] = useState(1)
+	const [vehicles, setVehicles] = useState([])
+	const [loading, setLoading] = useState(true)
+	const [totalPages, setTotalPages] = useState(1)
+	const [totalVehicles, setTotalVehicles] = useState(0)
+	const [sortBy, setSortBy] = useState('recent')
 	const vehiclesPerPage = 16
+
+	// Função para buscar veículos do backend
+	const fetchVehicles = async () => {
+		try {
+			setLoading(true)
+			
+			// Construir query params
+			const params = new URLSearchParams({
+				page: currentPage,
+				limit: vehiclesPerPage,
+			})
+
+			// Mapear filtros do português para inglês e adicionar à query
+			if (filters.marca) params.append('manufacturer', filters.marca)
+			if (filters.classe) params.append('class', filters.classe)
+			if (filters.combustivel) {
+				// Normalizar o combustível para lowercase
+				params.append('fuelType', filters.combustivel.toLowerCase())
+			}
+			if (filters.transmissao) {
+				// Normalizar a transmissão para lowercase
+				params.append('transmission', filters.transmissao.toLowerCase())
+			}
+			
+			// Processar faixa de preço
+			if (filters.preco) {
+				const priceRanges = {
+					'Até 5M Kz': { max: 5000000 },
+					'Até 10M Kz': { max: 10000000 },
+					'Até 15M Kz': { max: 15000000 },
+					'Até 20M Kz': { max: 20000000 },
+					'Até 30M Kz': { max: 30000000 }
+				}
+				const range = priceRanges[filters.preco]
+				if (range) {
+					if (range.min) params.append('minPrice', range.min)
+					if (range.max) params.append('maxPrice', range.max)
+				}
+			}
+
+			// Processar ano
+			if (filters.ano && filters.ano !== '') {
+				const year = parseInt(filters.ano)
+				if (!isNaN(year)) {
+					params.append('minYear', year)
+				}
+			}
+
+			// Processar quilometragem
+			if (filters.quilometros) {
+				const kmRanges = {
+					'Até 50k': 50000,
+					'Até 100k': 100000,
+					'Até 150k': 150000,
+					'Até 200k': 200000,
+					'+200k': null
+				}
+				const maxKm = kmRanges[filters.quilometros]
+				if (maxKm) {
+					// Note: o backend não tem filtro de km, mas você pode adicionar se necessário
+					// params.append('maxKilometers', maxKm)
+				}
+			}
+
+			// Processar pesquisa de texto (busca no nome e descrição)
+			if (filters.pesquisa) {
+				params.append('search', filters.pesquisa)
+			}
+
+			const response = await api.get(`/compraveiculos?${params.toString()}`)
+
+			if (response.success) {
+				setVehicles(response.data)
+				setTotalPages(response.pagination.totalPages)
+				setTotalVehicles(response.pagination.total)
+			} else {
+				notyf.error(response.message || 'Erro ao carregar veículos')
+			}
+		} catch (error) {
+			console.error('Erro ao buscar veículos:', error)
+			notyf.error('Erro ao carregar veículos')
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	// Carregar veículos quando a página ou filtros mudarem
+	useEffect(() => {
+		fetchVehicles()
+	}, [currentPage, filters])
 
 	const handleFilterChange = (newFilters) => {
 		setFilters(newFilters)
 		setCurrentPage(1) // Reset para primeira página ao filtrar
-		console.log('Filtros aplicados:', newFilters)
-		// Aqui você pode aplicar a lógica de filtragem dos veículos
 	}
 
 	const handlePageChange = (page) => {
@@ -25,34 +119,25 @@ export default function Compra() {
 		window.scrollTo({ top: 0, behavior: 'smooth' })
 	}
 
-	// Dados de exemplo dos veículos
-	const vehicles = [
-		{ id: 1, title: 'Toyota Corolla 2024', price: '18.500.000', image: './images/i10.jpg', km: '15.000', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 2, title: 'Honda CR-V 2023', price: '22.000.000', image: './images/i10.jpg', km: '28.500', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 3, title: 'Ford Ranger 2024', price: '28.500.000', image: './images/i10.jpg', km: '10.200', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
-		{ id: 4, title: 'Chevrolet Onix 2023', price: '12.800.000', image: './images/i10.jpg', km: '32.400', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
+	const handleSortChange = (e) => {
+		setSortBy(e.target.value)
+		// TODO: Implementar ordenação no backend se necessário
+	}
 
-		{ id: 5, title: 'Toyota RAV4 2024', price: '25.000.000', image: './images/i10.jpg', km: '8.900', year: 2024, location: 'Luanda', fuel: 'Híbrido', condition: 'Novo' },
-		{ id: 6, title: 'Nissan Kicks 2023', price: '15.500.000', image: './images/i10.jpg', km: '25.600', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 7, title: 'Hyundai Tucson 2024', price: '21.000.000', image: './images/i10.jpg', km: '12.300', year: 2024, location: 'Huambo', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 8, title: 'Ford EcoSport 2023', price: '17.500.000', image: './images/i10.jpg', km: '38.700', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
+	// Formatar preço
+	const formatPrice = (price) => {
+		return new Intl.NumberFormat('pt-AO').format(price)
+	}
 
-		{ id: 9, title: 'Mercedes-Benz Classe A', price: '32.000.000', image: './images/i10.jpg', km: '18.200', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 10, title: 'BMW X1 2024', price: '38.000.000', image: './images/i10.jpg', km: '5.400', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 11, title: 'Volkswagen T-Cross 2023', price: '19.000.000', image: './images/i10.jpg', km: '29.800', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 12, title: 'Kia Sportage 2024', price: '23.500.000', image: './images/i10.jpg', km: '11.500', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
+	// Formatar quilometragem
+	const formatKm = (km) => {
+		return new Intl.NumberFormat('pt-AO').format(km)
+	}
 
-		{ id: 13, title: 'Toyota Hilux 2024', price: '35.000.000', image: './images/i10.jpg', km: '7.800', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
-		{ id: 14, title: 'Honda Civic 2023', price: '20.000.000', image: './images/i10.jpg', km: '35.200', year: 2023, location: 'Huambo', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 15, title: 'Mazda CX-5 2024', price: '26.500.000', image: './images/i10.jpg', km: '14.600', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 16, title: 'Audi A3 2023', price: '33.000.000', image: './images/i10.jpg', km: '22.100', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' }
-	]
-
-	// Cálculos de paginação
-	const totalPages = Math.ceil(vehicles.length / vehiclesPerPage)
-	const indexOfLastVehicle = currentPage * vehiclesPerPage
-	const indexOfFirstVehicle = indexOfLastVehicle - vehiclesPerPage
-	const currentVehicles = vehicles.slice(indexOfFirstVehicle, indexOfLastVehicle)
+	// Capitalizar primeira letra
+	const capitalize = (str) => {
+		return str.charAt(0).toUpperCase() + str.slice(1)
+	}
 
 	return (
 		<div className="min-h-screen bg-gray-50">
@@ -90,98 +175,116 @@ export default function Compra() {
 					<main className="flex-1">
 						<div className="mb-6 flex items-center justify-between">
 							<p className="text-gray-600">
-								<span className="font-semibold text-gray-900">{vehicles.length} veículos</span> disponíveis
+								<span className="font-semibold text-gray-900">{totalVehicles} veículos</span> disponíveis
 							</p>
-							<select className="border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none cursor-pointer">
-								<option>Ordenar por: Relevância</option>
-								<option>Preço: Menor para Maior</option>
-								<option>Preço: Maior para Menor</option>
-								<option>Mais Recentes</option>
+							<select 
+								className="border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none cursor-pointer"
+								value={sortBy}
+								onChange={handleSortChange}
+							>
+								<option value="recent">Mais Recentes</option>
+								<option value="price-asc">Preço: Menor para Maior</option>
+								<option value="price-desc">Preço: Maior para Menor</option>
+								<option value="relevance">Ordenar por: Relevância</option>
 							</select>
 						</div>
 
-						<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-							{currentVehicles.map((car) => (
-								<article
-									key={car.id}
-									className="flex-shrink-0 w-full bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
-								>
-									{/* Imagem */}
-									<div className="relative h-40 overflow-hidden">
-										<img
-											src={car.image}
-											alt={car.title}
-											className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-											onError={(e) => { e.target.src = '/images/i10.jpg'; }}
-										/>
-
-										{/* Badge de condição (Novo / Usado) */}
-										<div className="absolute top-4 left-4">
-											<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${car.condition === 'Novo' ? 'bg-blue-600 text-white' : 'bg-yellow-500 text-white'}`}>
-												{car.condition}
-											</span>
-										</div>
-
-										{/* Gradiente inferior */}
-										<div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent"></div>
-									</div>
-
-									{/* Conteúdo */}
-									<div className="p-5">
-										<h3 className="text-1xl font-bold text-gray-900 mb-3 line-clamp-1 text-center">
-											{car.title}
-										</h3>
-
-										{/* Preço */}
-										<div
-											style={{ color: 'var(--primary)' }}
-											className="text-1xl font-bold mb-4 text-center"
+						{/* Loading State */}
+						{loading ? (
+							<div className="flex justify-center items-center py-20">
+								<Loader2 className="w-12 h-12 animate-spin text-indigo-600" />
+							</div>
+						) : vehicles.length === 0 ? (
+							<div className="text-center py-20">
+								<p className="text-xl text-gray-600">Nenhum veículo encontrado</p>
+								<p className="text-gray-500 mt-2">Tente ajustar os filtros de busca</p>
+							</div>
+						) : (
+							<>
+								<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+									{vehicles.map((car) => (
+										<article
+											key={car._id}
+											className="flex-shrink-0 w-full bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
 										>
-											{car.price},00 akz
-										</div>
+											{/* Imagem */}
+											<div className="relative h-40 overflow-hidden">
+												<img
+													src={car.mainImage ? `${API_URL}${car.mainImage}` : '/images/i10.jpg'}
+													alt={car.name}
+													className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+													onError={(e) => { e.target.src = '/images/i10.jpg'; }}
+												/>
 
-										{/* Especificações (duas colunas) */}
-										<div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-											<div className="flex items-center justify-end gap-2">
-												<span className="text-right">{car.km}</span>
-												<Gauge className="w-4 h-4 text-gray-400" />
-											</div>
-											<div className="flex items-center gap-2">
-												<Calendar className="w-4 h-4 text-gray-400" />
-												<span>{car.year}</span>
-											</div>
-											<div className="flex items-center justify-end gap-2">
-												<span className="text-right">{car.location}</span>
-												<MapPin className="w-4 h-4 text-gray-400" />
-											</div>
-											<div className="flex items-center gap-2">
-												<Droplet className="w-4 h-4 text-gray-400" />
-												<span>{car.fuel}</span>
-											</div>
-										</div>
+												{/* Badge de condição (Novo / Usado) */}
+												<div className="absolute top-4 left-4">
+													<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${car.kilometers > 0 ? 'bg-blue-600 text-white' : 'bg-yellow-500 text-white'}`}>
+														{car.kilometers > 0 ? 'Usado' : 'Novo'}
+													</span>
+												</div>
 
-										{/* Botão */}
-									<Link to={`/stand/compra/${car.id}`}>
-										<button
-											style={{ backgroundColor: 'var(--secondary)' }}
-											className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
-										>
-											Ver Detalhes
-										</button>
-									</Link>
-									</div>
-								</article>
-							))}
-						</div>
+												{/* Gradiente inferior */}
+												<div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent"></div>
+											</div>
 
-						{/* Pagination */}
-						<div className="mt-12">
-							<Pagination
-								currentPage={currentPage}
-								totalPages={totalPages}
-								onPageChange={handlePageChange}
-							/>
-						</div>
+											{/* Conteúdo */}
+											<div className="p-5">
+												<h3 className="text-1xl font-bold text-gray-900 mb-3 line-clamp-1 text-center">
+													{car.name}
+												</h3>
+
+												{/* Preço */}
+												<div
+													style={{ color: 'var(--primary)' }}
+													className="text-1xl font-bold mb-4 text-center"
+												>
+													{formatPrice(car.price)},00 akz
+												</div>
+
+												{/* Especificações (duas colunas) */}
+												<div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+													<div className="flex items-center justify-end gap-2">
+														<span className="text-right">{formatKm(car.kilometers)}</span>
+														<Gauge className="w-4 h-4 text-gray-400" />
+													</div>
+													<div className="flex items-center gap-2">
+														<Calendar className="w-4 h-4 text-gray-400" />
+														<span>{car.year}</span>
+													</div>
+													<div className="flex items-center justify-end gap-2">
+														<span className="text-right">{car.location}</span>
+														<MapPin className="w-4 h-4 text-gray-400" />
+													</div>
+													<div className="flex items-center gap-2">
+														<Droplet className="w-4 h-4 text-gray-400" />
+														<span>{capitalize(car.fuelType)}</span>
+													</div>
+												</div>
+
+												{/* Botão */}
+											<Link to={`/stand/compra/${car._id}`}>
+												<button
+													style={{ backgroundColor: 'var(--secondary)' }}
+													className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
+												>
+													Ver Detalhes
+												</button>
+											</Link>
+											</div>
+										</article>
+											))}
+								</div>
+
+								{/* Pagination */}
+								<div className="mt-12">
+									<Pagination
+										currentPage={currentPage}
+										totalPages={totalPages}
+										onPageChange={handlePageChange}
+									/>
+								</div>
+							</>
+						)}
 					</main>
 				</div>
 			</div>
