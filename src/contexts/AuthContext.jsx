@@ -1,9 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import api from '../services/api';
 
 const AuthContext = createContext(null);
-
-// URL da API - ajuste conforme necessário
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:20262';
 
 export const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(null);
@@ -28,16 +26,8 @@ export const AuthProvider = ({ children }) => {
 	// Função para verificar email e enviar OTP
 	const checkEmail = async (email) => {
 		try {
-			const response = await fetch(`${API_URL}/users/check-email`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ email }),
-			});
+			const data = await api.post('/users/check-email', { email });
 
-			const data = await response.json();
-			
 			if (!data.success) {
 				return { success: false, message: data.msg || 'Erro ao verificar email' };
 			}
@@ -51,16 +41,8 @@ export const AuthProvider = ({ children }) => {
 	// Função para verificar código OTP
 	const verifyOTP = async (email, code) => {
 		try {
-			const response = await fetch(`${API_URL}/users/verify-otp`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ email, code }),
-			});
+			const data = await api.post('/users/verify-otp', { email, code });
 
-			const data = await response.json();
-			
 			if (!data.success) {
 				return { success: false, message: data.msg || 'Erro ao verificar código' };
 			}
@@ -74,16 +56,8 @@ export const AuthProvider = ({ children }) => {
 	// Função para reenviar código OTP
 	const resendOTP = async (email) => {
 		try {
-			const response = await fetch(`${API_URL}/users/resend-otp`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ email }),
-			});
+			const data = await api.post('/users/resend-otp', { email });
 
-			const data = await response.json();
-			
 			if (!data.success) {
 				return { success: false, message: data.msg || 'Erro ao reenviar código' };
 			}
@@ -97,22 +71,14 @@ export const AuthProvider = ({ children }) => {
 	// Função para completar o registro
 	const completeRegistration = async (userData) => {
 		try {
-			const response = await fetch(`${API_URL}/users/complete-registration`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					name: userData.firstName,
-					surname: userData.lastName,
-					email: userData.email,
-					phone: userData.phone || '',
-					password: userData.password,
-				}),
+			const data = await api.post('/users/complete-registration', {
+				name: userData.firstName,
+				surname: userData.lastName,
+				email: userData.email,
+				phone: userData.phone || '',
+				password: userData.password,
 			});
 
-			const data = await response.json();
-			
 			if (!data.success) {
 				return { success: false, message: data.msg || 'Erro ao completar registro' };
 			}
@@ -126,16 +92,8 @@ export const AuthProvider = ({ children }) => {
 	// Função de login
 	const login = async (email, password) => {
 		try {
-			const response = await fetch(`${API_URL}/users/login`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ email, password }),
-			});
+			const data = await api.post('/users/login', { email, password });
 
-			const data = await response.json();
-			
 			if (!data.success) {
 				return { success: false, message: data.msg || 'Erro ao fazer login' };
 			}
@@ -168,16 +126,8 @@ export const AuthProvider = ({ children }) => {
 	// Função para solicitar recuperação de senha
 	const requestPasswordReset = async (email) => {
 		try {
-			const response = await fetch(`${API_URL}/users/request-password-reset`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ email }),
-			});
+			const data = await api.post('/users/request-password-reset', { email });
 
-			const data = await response.json();
-			
 			if (!data.success) {
 				return { success: false, message: data.msg || 'Erro ao solicitar recuperação de senha' };
 			}
@@ -191,16 +141,8 @@ export const AuthProvider = ({ children }) => {
 	// Função para resetar a senha
 	const resetPassword = async (email, token, newPassword) => {
 		try {
-			const response = await fetch(`${API_URL}/users/reset-password`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ email, token, newPassword }),
-			});
+			const data = await api.post('/users/reset-password', { email, token, newPassword });
 
-			const data = await response.json();
-			
 			if (!data.success) {
 				return { success: false, message: data.msg || 'Erro ao resetar senha' };
 			}
@@ -216,7 +158,7 @@ export const AuthProvider = ({ children }) => {
 		try {
 			// Esta função precisará ser implementada no backend
 			const token = localStorage.getItem('caxiauto_token');
-			
+
 			if (!token) {
 				throw new Error('Usuário não autenticado');
 			}
