@@ -104,6 +104,7 @@ export const AuthProvider = ({ children }) => {
 				surname: data.data.surname,
 				email: data.data.email,
 				phone: data.data.phone,
+				createdAt: data.data.createdAt,
 			};
 
 			localStorage.setItem('caxiauto_token', data.data.token);

@@ -26,6 +26,7 @@ const Dashboard = () => {
 	const [message, setMessage] = useState('');
 	const [formData, setFormData] = useState({
 		name: user?.name || '',
+		surname: user?.surname || '',
 		email: user?.email || '',
 		phone: user?.phone || '',
 	});
@@ -57,6 +58,7 @@ const Dashboard = () => {
 	const handleCancel = () => {
 		setFormData({
 			name: user?.name || '',
+			surname: user?.surname || '',
 			email: user?.email || '',
 			phone: user?.phone || '',
 		});
@@ -109,8 +111,8 @@ const Dashboard = () => {
 			{/* Mensagem de feedback */}
 			{message && (
 				<div className={`p-4 rounded-lg ${message.includes('sucesso')
-						? 'bg-green-50 border border-green-200 text-green-700'
-						: 'bg-red-50 border border-red-200 text-red-700'
+					? 'bg-green-50 border border-green-200 text-green-700'
+					: 'bg-red-50 border border-red-200 text-red-700'
 					}`}>
 					{message}
 				</div>
@@ -125,7 +127,7 @@ const Dashboard = () => {
 							<User className="w-10 h-10 text-[#154c9a]" />
 						</div>
 						<div>
-							<h2 className="text-2xl font-bold">{user?.name}</h2>
+							<h2 className="text-2xl font-bold">{user?.name} {user?.surname}</h2>
 							<p className="text-blue-100">{user?.email}</p>
 						</div>
 					</div>
@@ -137,12 +139,25 @@ const Dashboard = () => {
 						<div className="space-y-4">
 							<div>
 								<label className="block text-sm font-medium text-gray-700 mb-1">
-									Nome Completo
+									Nome
 								</label>
 								<input
 									type="text"
 									name="name"
 									value={formData.name}
+									onChange={handleChange}
+									className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+								/>
+							</div>
+
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-1">
+									Sobrenome
+								</label>
+								<input
+									type="text"
+									name="surname"
+									value={formData.surname}
 									onChange={handleChange}
 									className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
 								/>
@@ -193,7 +208,15 @@ const Dashboard = () => {
 						</div>
 					) : (
 						<div className="space-y-4">
-							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div className="flex items-start gap-3">
+									<User className="w-5 h-5 text-gray-400 mt-0.5" />
+									<div>
+										<p className="text-xs text-gray-500">Nome Completo</p>
+										<p className="text-sm font-medium text-gray-900">{user?.name} {user?.surname}</p>
+									</div>
+								</div>
+
 								<div className="flex items-start gap-3">
 									<Mail className="w-5 h-5 text-gray-400 mt-0.5" />
 									<div>
@@ -234,14 +257,14 @@ const Dashboard = () => {
 							<div className="flex gap-3 pt-4 border-t">
 								<button
 									onClick={() => setIsEditing(true)}
-									className="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+									className="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 cursor-pointer"
 								>
 									<Edit2 className="w-4 h-4" />
 									Editar Perfil
 								</button>
 								<button
 									onClick={handleLogout}
-									className="flex-1 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-2 font-medium"
+									className="flex-1 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-2 font-medium cursor-pointer"
 								>
 									<LogOut className="w-4 h-4" />
 									Sair
@@ -261,7 +284,7 @@ const Dashboard = () => {
 
 				{/* Cards de Estatísticas Gerais */}
 				<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-					<div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+					<div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200 cursor-pointer">
 						<div className="flex items-center justify-between mb-2">
 							<Eye className="w-5 h-5 text-blue-600" />
 							<span className="text-xs font-medium text-blue-600">Total</span>
@@ -270,7 +293,7 @@ const Dashboard = () => {
 						<p className="text-xs text-gray-600 mt-1">Visualizações totais</p>
 					</div>
 
-					<div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+					<div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200 cursor-pointer">
 						<div className="flex items-center justify-between mb-2">
 							<BarChart3 className="w-5 h-5 text-purple-600" />
 							<span className="text-xs font-medium text-green-600">Hoje</span>
@@ -279,7 +302,7 @@ const Dashboard = () => {
 						<p className="text-xs text-gray-600 mt-1">Visualizações hoje</p>
 					</div>
 
-					<div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
+					<div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200 cursor-pointer">
 						<div className="flex items-center justify-between mb-2">
 							<Car className="w-5 h-5 text-orange-600" />
 							<span className="text-xs font-medium text-orange-600">Mais Visto</span>
