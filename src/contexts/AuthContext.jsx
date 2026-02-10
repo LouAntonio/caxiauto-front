@@ -165,6 +165,52 @@ export const AuthProvider = ({ children }) => {
 		localStorage.removeItem('caxiauto_token');
 	};
 
+	// Função para solicitar recuperação de senha
+	const requestPasswordReset = async (email) => {
+		try {
+			const response = await fetch(`${API_URL}/users/request-password-reset`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ email }),
+			});
+
+			const data = await response.json();
+			
+			if (!data.success) {
+				return { success: false, message: data.msg || 'Erro ao solicitar recuperação de senha' };
+			}
+
+			return { success: true, message: data.msg };
+		} catch (error) {
+			return { success: false, message: error.message };
+		}
+	};
+
+	// Função para resetar a senha
+	const resetPassword = async (email, token, newPassword) => {
+		try {
+			const response = await fetch(`${API_URL}/users/reset-password`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ email, token, newPassword }),
+			});
+
+			const data = await response.json();
+			
+			if (!data.success) {
+				return { success: false, message: data.msg || 'Erro ao resetar senha' };
+			}
+
+			return { success: true, message: data.msg };
+		} catch (error) {
+			return { success: false, message: error.message };
+		}
+	};
+
 	// Função para atualizar dados do usuário
 	const updateUser = async (updatedData) => {
 		try {
@@ -201,6 +247,8 @@ export const AuthProvider = ({ children }) => {
 		resendOTP,
 		completeRegistration,
 		logout,
+		requestPasswordReset,
+		resetPassword,
 		updateUser,
 		getAuthToken,
 		isAuthenticated: !!user,

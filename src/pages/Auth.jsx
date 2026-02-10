@@ -90,7 +90,7 @@ const Auth = () => {
 		phone: '',
 	});
 
-	const { login, checkEmail, verifyOTP, resendOTP, completeRegistration } = useAuth();
+	const { login, checkEmail, verifyOTP, resendOTP, completeRegistration, requestPasswordReset } = useAuth();
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -176,10 +176,17 @@ const Auth = () => {
 		setLoading(true);
 
 		try {
-			// Simula envio de email de recuperação (TODO: implementar no backend)
-			await new Promise(resolve => setTimeout(resolve, 1500));
-			notyf.success('Enviamos um link de recuperação para seu email. Verifique sua caixa de entrada.');
-			setFormData({ ...formData, email: '' });
+			const result = await requestPasswordReset(formData.email);
+			if (result.success) {
+				notyf.success(result.message || 'Enviamos um link de recuperação para seu email. Verifique sua caixa de entrada.');
+				setFormData({ ...formData, email: '' });
+				// Voltar para o login após 3 segundos
+				setTimeout(() => {
+					setIsForgotPassword(false);
+				}, 3000);
+			} else {
+				notyf.error(result.message || 'Erro ao enviar link de recuperação. Tente novamente.');
+			}
 		} catch (err) {
 			notyf.error('Ocorreu um erro. Tente novamente.');
 		} finally {

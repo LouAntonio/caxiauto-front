@@ -22,6 +22,7 @@ import Parceiros from './pages/Parceiros'
 import GPS from './pages/servicos/GPS'
 import SeguroAutomovel from './pages/servicos/SeguroAutomovel'
 import Auth from './pages/Auth'
+import RecuperarSenha from './pages/RecuperarSenha'
 import ContaLayout from './pages/conta/Layout'
 import Dashboard from './pages/conta/Dashboard'
 import Veiculos from './pages/conta/Veiculos'
@@ -68,8 +69,8 @@ function App() {
 					<Route path="/stand/pecas-acessorios/:id" element={<DetalhesPecas />} />
 
 					{/* Auth routes */}
-					<Route path="/auth" element={<Auth />} />
-					
+				<Route path="/auth" element={<Auth />} />
+				<Route path="/recuperar-senha" element={<RecuperarSenha />} />
 					{/* Protected routes - Painel de Conta */}
 					<Route 
 						path="/minha-conta" 
