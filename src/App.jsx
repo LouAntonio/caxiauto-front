@@ -26,6 +26,7 @@ import RecuperarSenha from './pages/RecuperarSenha'
 import ContaLayout from './pages/conta/Layout'
 import Dashboard from './pages/conta/Dashboard'
 import Veiculos from './pages/conta/Veiculos'
+import VeiculosAluguel from './pages/conta/VeiculosAluguel'
 import Favoritos from './pages/conta/Favoritos'
 import Documentos from './pages/conta/Documentos'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -81,8 +82,7 @@ function App() {
 						}
 					>
 						<Route index element={<Dashboard />} />
-						<Route path="veiculos" element={<Veiculos />} />
-						<Route path="favoritos" element={<Favoritos />} />
+						<Route path="veiculos" element={<Veiculos />} />					<Route path="veiculos-aluguel" element={<VeiculosAluguel />} />						<Route path="favoritos" element={<Favoritos />} />
 						<Route path="documentos" element={<Documentos />} />
 					</Route>
 

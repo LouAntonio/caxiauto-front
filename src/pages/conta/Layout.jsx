@@ -26,6 +26,11 @@ const ContaLayout = () => {
 			path: '/minha-conta/veiculos',
 		},
 		{
+			icon: Car,
+			title: 'Veículos Aluguel',
+			path: '/minha-conta/veiculos-aluguel',
+		},
+		{
 			icon: Heart,
 			title: 'Favoritos',
 			path: '/minha-conta/favoritos',
@@ -38,10 +43,8 @@ const ContaLayout = () => {
 	];
 
 	const isActive = (path) => {
-		if (path === '/minha-conta') {
-			return location.pathname === path;
-		}
-		return location.pathname.startsWith(path);
+		// Comparação exata do pathname
+		return location.pathname === path;
 	};
 
 	return (

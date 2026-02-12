@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import {
 	Search,
@@ -8,24 +8,77 @@ import {
 	Gauge,
 	Calendar,
 	MapPin,
-	Droplet
+	Droplet,
+	AlertCircle,
+	Loader2
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import VehicleFilter from '../../components/VehicleFilter';
 import Pagination from '../../components/Pagination';
+import api, { API_URL } from '../../services/api';
 
 export default function AluguelDeAutomoveis() {
 	useDocumentTitle('Aluguel de Automóveis - Caxiauto');
 	const navigate = useNavigate();
 
+	const [vehicles, setVehicles] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
 	const [filters, setFilters] = useState({});
 	const [currentPage, setCurrentPage] = useState(1);
+	const [totalPages, setTotalPages] = useState(1);
+	const [totalVehicles, setTotalVehicles] = useState(0);
+	const [sortBy, setSortBy] = useState('createdAt');
 	const vehiclesPerPage = 16;
+
+	useEffect(() => {
+		loadVehicles();
+	}, [currentPage, filters, sortBy]);
+
+	const loadVehicles = async () => {
+		try {
+			setLoading(true);
+			setError(null);
+
+			// Construir query params
+			const params = new URLSearchParams({
+				page: currentPage,
+				limit: vehiclesPerPage
+			});
+
+			// Adicionar filtros
+			if (filters.search) params.append('search', filters.search);
+			if (filters.manufacturer) params.append('manufacturer', filters.manufacturer);
+			if (filters.class) params.append('class', filters.class);
+			if (filters.fuelType) params.append('fuelType', filters.fuelType);
+			if (filters.transmission) params.append('transmission', filters.transmission);
+			if (filters.minPrice) params.append('minPrice', filters.minPrice);
+			if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
+			if (filters.minYear) params.append('minYear', filters.minYear);
+			if (filters.maxYear) params.append('maxYear', filters.maxYear);
+			if (filters.location) params.append('location', filters.location);
+			if (filters.period) params.append('period', filters.period);
+
+			const response = await api.get(`/aluguelveiculos?${params.toString()}`);
+
+			if (response.success) {
+				setVehicles(response.data || []);
+				setTotalVehicles(response.pagination?.total || 0);
+				setTotalPages(response.pagination?.totalPages || 1);
+			} else {
+				setError(response.message || 'Erro ao carregar veículos');
+			}
+		} catch (err) {
+			console.error('Erro ao buscar veículos:', err);
+			setError('Erro ao conectar com o servidor');
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	const handleFilterChange = (newFilters) => {
 		setFilters(newFilters);
 		setCurrentPage(1);
-		console.log('Filtros aplicados:', newFilters);
 	};
 
 	const handlePageChange = (page) => {
@@ -33,34 +86,28 @@ export default function AluguelDeAutomoveis() {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	};
 
-	// Dados de exemplo dos veículos
-	const vehicles = [
-		{ id: 1, title: 'Toyota Corolla 2024', price: '150.000', image: './images/i10.jpg', km: '15.000', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 2, title: 'Honda CR-V 2023', price: '200.000', image: './images/i10.jpg', km: '28.500', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 3, title: 'Ford Ranger 2024', price: '250.000', image: './images/i10.jpg', km: '10.200', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
-		{ id: 4, title: 'Chevrolet Onix 2023', price: '120.000', image: './images/i10.jpg', km: '32.400', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
+	const handleSortChange = (e) => {
+		setSortBy(e.target.value);
+		setCurrentPage(1);
+	};
 
-		{ id: 5, title: 'Toyota RAV4 2024', price: '220.000', image: './images/i10.jpg', km: '8.900', year: 2024, location: 'Luanda', fuel: 'Híbrido', condition: 'Novo' },
-		{ id: 6, title: 'Nissan Kicks 2023', price: '140.000', image: './images/i10.jpg', km: '25.600', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 7, title: 'Hyundai Tucson 2024', price: '190.000', image: './images/i10.jpg', km: '12.300', year: 2024, location: 'Huambo', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 8, title: 'Ford EcoSport 2023', price: '160.000', image: './images/i10.jpg', km: '38.700', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' },
+	const getLowestPrice = (rentalPrices) => {
+		if (!rentalPrices || rentalPrices.length === 0) return null;
+		const prices = rentalPrices.map(rp => rp.price);
+		return Math.min(...prices);
+	};
 
-		{ id: 9, title: 'Mercedes-Benz Classe A', price: '280.000', image: './images/i10.jpg', km: '18.200', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 10, title: 'BMW X1 2024', price: '320.000', image: './images/i10.jpg', km: '5.400', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 11, title: 'Volkswagen T-Cross 2023', price: '170.000', image: './images/i10.jpg', km: '29.800', year: 2023, location: 'Benguela', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 12, title: 'Kia Sportage 2024', price: '210.000', image: './images/i10.jpg', km: '11.500', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-
-		{ id: 13, title: 'Toyota Hilux 2024', price: '300.000', image: './images/i10.jpg', km: '7.800', year: 2024, location: 'Luanda', fuel: 'Diesel', condition: 'Novo' },
-		{ id: 14, title: 'Honda Civic 2023', price: '180.000', image: './images/i10.jpg', km: '35.200', year: 2023, location: 'Huambo', fuel: 'Gasolina', condition: 'Usado' },
-		{ id: 15, title: 'Mazda CX-5 2024', price: '230.000', image: './images/i10.jpg', km: '14.600', year: 2024, location: 'Luanda', fuel: 'Gasolina', condition: 'Novo' },
-		{ id: 16, title: 'Audi A3 2023', price: '290.000', image: './images/i10.jpg', km: '22.100', year: 2023, location: 'Luanda', fuel: 'Gasolina', condition: 'Usado' }
-	];
-
-	// Cálculos de paginação
-	const totalPages = Math.ceil(vehicles.length / vehiclesPerPage);
-	const indexOfLastVehicle = currentPage * vehiclesPerPage;
-	const indexOfFirstVehicle = indexOfLastVehicle - vehiclesPerPage;
-	const currentVehicles = vehicles.slice(indexOfFirstVehicle, indexOfLastVehicle);
+	const getPeriodLabel = (period) => {
+		const labels = {
+			'diário': '/dia',
+			'semanal': '/semana',
+			'mensal': '/mês',
+			'trimestral': '/trimestre',
+			'semestral': '/semestre',
+			'anual': '/ano'
+		};
+		return labels[period] || '';
+	};
 
 	const steps = [
 		{
@@ -175,98 +222,158 @@ export default function AluguelDeAutomoveis() {
 							<main className="flex-1">
 								<div className="mb-6 flex items-center justify-between">
 									<p className="text-gray-600">
-										<span className="font-semibold text-gray-900">{vehicles.length} veículos</span> disponíveis
-									</p>
-									<select className="border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none cursor-pointer">
-										<option>Ordenar por: Relevância</option>
-										<option>Preço: Menor para Maior</option>
-										<option>Preço: Maior para Menor</option>
-										<option>Mais Recentes</option>
-									</select>
+								<span className="font-semibold text-gray-900">{totalVehicles} veículos</span> disponíveis
+							</p>
+							<select 
+								value={sortBy}
+								onChange={handleSortChange}
+								className="border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none cursor-pointer"
+							>
+								<option value="createdAt">Mais Recentes</option>
+								<option value="price-asc">Preço: Menor para Maior</option>
+								<option value="price-desc">Preço: Maior para Menor</option>
+								<option value="year-desc">Ano: Mais Novo</option>
+								<option value="year-asc">Ano: Mais Antigo</option>
+							</select>
+						</div>
+
+						{/* Loading State */}
+						{loading && (
+							<div className="flex flex-col items-center justify-center py-20">
+								<Loader2 className="w-12 h-12 text-[#154c9a] animate-spin mb-4" />
+								<p className="text-gray-600 font-medium">Carregando veículos...</p>
+							</div>
+						)}
+
+						{/* Error State */}
+						{error && !loading && (
+							<div className="bg-red-50 border-2 border-red-200 rounded-xl p-6 flex items-center gap-3">
+								<AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
+								<div>
+									<h3 className="font-semibold text-red-900 mb-1">Erro ao carregar veículos</h3>
+									<p className="text-red-700">{error}</p>
 								</div>
+							</div>
+						)}
 
+						{/* Empty State */}
+						{!loading && !error && vehicles.length === 0 && (
+							<div className="text-center py-20">
+								<Key className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+								<h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhum veículo encontrado</h3>
+								<p className="text-gray-600">Tente ajustar os filtros para ver mais resultados</p>
+							</div>
+						)}
+
+						{/* Grid de Veículos */}
+						{!loading && !error && vehicles.length > 0 && (
+							<>
 								<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-									{currentVehicles.map((car) => (
-										<article
-											key={car.id}
-											className="flex-shrink-0 w-full bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
-										>
-											{/* Imagem */}
-											<div className="relative h-40 overflow-hidden" onclick={() => navigate(`/servicos/aluguel-de-automoveis/${car.id}`)}>
-												<img
-													src={car.image}
-													alt={car.title}
-													className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-													onError={(e) => { e.target.src = '/images/i10.jpg'; }}
-												/>
+									{vehicles.map((car) => {
+										const lowestPrice = getLowestPrice(car.rentalPrices);
+										const lowestPriceObj = car.rentalPrices?.find(rp => rp.price === lowestPrice);
+										return (
+											<article
+												key={car._id}
+												className="flex-shrink-0 w-full bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
+											>
+												{/* Imagem */}
+												<div className="relative h-40 overflow-hidden cursor-pointer" onClick={() => navigate(`/servicos/aluguel-de-automoveis/${car._id}`)}>
+													<img
+														src={car.mainImage ? `${API_URL}${car.mainImage}` : '/images/i10.jpg'}
+														alt={car.name}
+														className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+														onError={(e) => { e.target.src = '/images/i10.jpg'; }}
+													/>
 
-												{/* Badge de condição (Novo / Usado) */}
-												<div className="absolute top-4 left-4">
-													<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${car.condition === 'Novo' ? 'bg-blue-600 text-white' : 'bg-yellow-500 text-white'}`}>
-														{car.condition}
-													</span>
+													{/* Badge de disponibilidade */}
+													<div className="absolute top-4 left-4">
+														<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${
+															car.available ? 'bg-green-600 text-white' : 'bg-orange-500 text-white'
+														}`}>
+															{car.available ? 'Disponível' : 'Indisponível'}
+														</span>
+													</div>
+
+													{/* Badge de seguro */}
+													{car.insurance && (
+														<div className="absolute top-4 right-4">
+															<span className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg bg-blue-600 text-white">
+																Seguro
+															</span>
+														</div>
+													)}
+
+													{/* Gradiente inferior */}
+													<div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent"></div>
 												</div>
 
-												{/* Gradiente inferior */}
-												<div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent"></div>
-											</div>
+												{/* Conteúdo */}
+												<div className="p-5">
+													<h3 className="text-1xl font-bold text-gray-900 mb-3 line-clamp-1 text-center">
+														{car.name}
+													</h3>
 
-											{/* Conteúdo */}
-											<div className="p-5">
-												<h3 className="text-1xl font-bold text-gray-900 mb-3 line-clamp-1 text-center">
-													{car.title}
-												</h3>
+													{/* Preço */}
+													{lowestPrice && (
+														<div className="text-center mb-4">
+															<div className="text-xs text-gray-500 mb-1">A partir de</div>
+															<div
+																style={{ color: 'var(--primary)' }}
+																className="text-xl font-bold"
+															>
+																{lowestPrice.toLocaleString()} Kz{lowestPriceObj ? getPeriodLabel(lowestPriceObj.period) : ''}
+															</div>
+														</div>
+													)}
 
-												{/* Preço */}
-												<div
-													style={{ color: 'var(--primary)' }}
-													className="text-1xl font-bold mb-4 text-center"
-												>
-													{car.price},00 akz
+													{/* Especificações (duas colunas) */}
+													<div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+														<div className="flex items-center justify-end gap-2">
+															<span className="text-right">{car.kilometers?.toLocaleString()} km</span>
+															<Gauge className="w-4 h-4 text-gray-400" />
+														</div>
+														<div className="flex items-center gap-2">
+															<Calendar className="w-4 h-4 text-gray-400" />
+															<span>{car.year}</span>
+														</div>
+														<div className="flex items-center justify-end gap-2">
+															<span className="text-right capitalize">{car.location}</span>
+															<MapPin className="w-4 h-4 text-gray-400" />
+														</div>
+														<div className="flex items-center gap-2">
+															<Droplet className="w-4 h-4 text-gray-400" />
+															<span className="capitalize">{car.fuelType}</span>
+														</div>
+													</div>
+
+													{/* Botão */}
+													<Link to={`/servicos/aluguel-de-automoveis/${car._id}`}>
+														<button
+															style={{ backgroundColor: 'var(--secondary)' }}
+															className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
+														>
+															Ver Detalhes
+														</button>
+													</Link>
 												</div>
-
-												{/* Especificações (duas colunas) */}
-												<div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-													<div className="flex items-center justify-end gap-2">
-														<span className="text-right">{car.km}</span>
-														<Gauge className="w-4 h-4 text-gray-400" />
-													</div>
-													<div className="flex items-center gap-2">
-														<Calendar className="w-4 h-4 text-gray-400" />
-														<span>{car.year}</span>
-													</div>
-													<div className="flex items-center justify-end gap-2">
-														<span className="text-right">{car.location}</span>
-														<MapPin className="w-4 h-4 text-gray-400" />
-													</div>
-													<div className="flex items-center gap-2">
-														<Droplet className="w-4 h-4 text-gray-400" />
-														<span>{car.fuel}</span>
-													</div>
-												</div>
-
-												{/* Botão */}
-												<Link to={`/servicos/aluguel-de-automoveis/${car.id}`}>
-													<button
-														style={{ backgroundColor: 'var(--secondary)' }}
-														className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
-													>
-														Ver Detalhes
-													</button>
-												</Link>
-											</div>
-										</article>
-									))}
+											</article>
+										);
+									})}
 								</div>
 
 								{/* Pagination */}
-								<div className="mt-12">
-									<Pagination
-										currentPage={currentPage}
-										totalPages={totalPages}
-										onPageChange={handlePageChange}
-									/>
-								</div>
+								{totalPages > 1 && (
+									<div className="mt-12">
+										<Pagination
+											currentPage={currentPage}
+											totalPages={totalPages}
+											onPageChange={handlePageChange}
+										/>
+									</div>
+								)}
+							</>
+						)}
 							</main>
 						</div>
 					</div>

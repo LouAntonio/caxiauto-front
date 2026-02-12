@@ -18,13 +18,16 @@ import {
 	Power,
 	Eye,
 	EyeOff,
-	AlertTriangle
+	AlertTriangle,
+	Calendar,
+	Shield,
+	Clock
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import api, { API_URL } from '../../services/api';
 
-const Veiculos = () => {
-	useDocumentTitle('Meus Veículos - CaxiAuto');
+const VeiculosAluguel = () => {
+	useDocumentTitle('Meus Veículos para Aluguel - CaxiAuto');
 
 	const { user } = useAuth();
 	const [vehicles, setVehicles] = useState([]);
@@ -40,6 +43,7 @@ const Veiculos = () => {
 	const [confirmMessage, setConfirmMessage] = useState('');
 	const [confirmTitle, setConfirmTitle] = useState('');
 	const [confirmType, setConfirmType] = useState('danger');
+	
 	const [formData, setFormData] = useState({
 		name: '',
 		description: '',
@@ -49,12 +53,20 @@ const Veiculos = () => {
 		transmission: 'manual',
 		year: '',
 		kilometers: '',
-		price: '',
 		passangers: '',
 		color: '',
 		location: '',
 		door: '',
-		characteristics: []
+		characteristics: [],
+		rentalPrices: [
+			{ period: 'diário', price: '' }
+		],
+		minRentalPeriod: 'diário',
+		deposit: '',
+		insurance: false,
+		insuranceCost: '',
+		available: true,
+		availableFrom: ''
 	});
 
 	// Carregar veículos do usuário
@@ -66,7 +78,7 @@ const Veiculos = () => {
 
 	const loadVehicles = async () => {
 		try {
-			const response = await api.get('/compraveiculos?myVehicles=true');
+			const response = await api.get('/aluguelveiculos?myVehicles=true');
 			if (response.success) {
 				setVehicles(response.data);
 			}
@@ -76,11 +88,36 @@ const Veiculos = () => {
 	};
 
 	const handleChange = (e) => {
-		const { name, value } = e.target;
+		const { name, value, type, checked } = e.target;
 		setFormData(prev => ({
 			...prev,
-			[name]: value
+			[name]: type === 'checkbox' ? checked : value
 		}));
+	};
+
+	const handleRentalPriceChange = (index, field, value) => {
+		setFormData(prev => ({
+			...prev,
+			rentalPrices: prev.rentalPrices.map((price, i) => 
+				i === index ? { ...price, [field]: value } : price
+			)
+		}));
+	};
+
+	const addRentalPrice = () => {
+		setFormData(prev => ({
+			...prev,
+			rentalPrices: [...prev.rentalPrices, { period: 'semanal', price: '' }]
+		}));
+	};
+
+	const removeRentalPrice = (index) => {
+		if (formData.rentalPrices.length > 1) {
+			setFormData(prev => ({
+				...prev,
+				rentalPrices: prev.rentalPrices.filter((_, i) => i !== index)
+			}));
+		}
 	};
 
 	const handleMediaChange = (e) => {
@@ -120,12 +157,20 @@ const Veiculos = () => {
 			transmission: 'manual',
 			year: '',
 			kilometers: '',
-			price: '',
 			passangers: '',
 			color: '',
 			location: '',
 			door: '',
-			characteristics: []
+			characteristics: [],
+			rentalPrices: [
+				{ period: 'diário', price: '' }
+			],
+			minRentalPeriod: 'diário',
+			deposit: '',
+			insurance: false,
+			insuranceCost: '',
+			available: true,
+			availableFrom: ''
 		});
 		setMediaFiles([]);
 		setLivreteFile(null);
@@ -145,12 +190,18 @@ const Veiculos = () => {
 				transmission: vehicle.transmission || 'manual',
 				year: vehicle.year || '',
 				kilometers: vehicle.kilometers || '',
-				price: vehicle.price || '',
 				passangers: vehicle.passangers || '',
 				color: vehicle.color || '',
 				location: vehicle.location || '',
 				door: vehicle.door || '',
-				characteristics: vehicle.characteristics || []
+				characteristics: vehicle.characteristics || [],
+				rentalPrices: vehicle.rentalPrices && vehicle.rentalPrices.length > 0 ? vehicle.rentalPrices : [{ period: 'diário', price: '' }],
+				minRentalPeriod: vehicle.minRentalPeriod || 'diário',
+				deposit: vehicle.deposit || '',
+				insurance: vehicle.insurance || false,
+				insuranceCost: vehicle.insuranceCost || '',
+				available: vehicle.available !== undefined ? vehicle.available : true,
+				availableFrom: vehicle.availableFrom ? new Date(vehicle.availableFrom).toISOString().split('T')[0] : ''
 			});
 		} else {
 			resetForm();
@@ -171,9 +222,16 @@ const Veiculos = () => {
 		// Validação básica
 		if (!formData.name || !formData.description || !formData.manufacturer ||
 			!formData.class || !formData.year || !formData.kilometers ||
-			!formData.price || !formData.passangers || !formData.color ||
+			!formData.passangers || !formData.color ||
 			!formData.location || !formData.door) {
 			setMessage({ type: 'error', text: 'Por favor, preencha todos os campos obrigatórios.' });
+			return;
+		}
+
+		// Validar preços de aluguel
+		const hasValidPrice = formData.rentalPrices.some(rp => rp.period && rp.price && parseFloat(rp.price) > 0);
+		if (!hasValidPrice) {
+			setMessage({ type: 'error', text: 'É necessário definir pelo menos um preço de aluguel.' });
 			return;
 		}
 
@@ -196,17 +254,30 @@ const Veiculos = () => {
 			formDataToSend.append('name', formData.name);
 			formDataToSend.append('description', formData.description);
 			formDataToSend.append('manufacturer', formData.manufacturer);
-			formDataToSend.append('vehicleClass', formData.class);
+			formDataToSend.append('class', formData.class);
 			formDataToSend.append('fuelType', formData.fuelType);
 			formDataToSend.append('transmission', formData.transmission);
 			formDataToSend.append('year', formData.year);
 			formDataToSend.append('kilometers', formData.kilometers);
-			formDataToSend.append('price', formData.price);
 			formDataToSend.append('passangers', formData.passangers);
 			formDataToSend.append('color', formData.color);
 			formDataToSend.append('location', formData.location);
 			formDataToSend.append('door', formData.door);
 			formDataToSend.append('characteristics', JSON.stringify(formData.characteristics));
+
+			// Filtrar e adicionar preços de aluguel válidos
+			const validPrices = formData.rentalPrices.filter(rp => rp.period && rp.price && parseFloat(rp.price) > 0);
+			formDataToSend.append('rentalPrices', JSON.stringify(validPrices));
+
+			// Campos específicos de aluguel
+			formDataToSend.append('minRentalPeriod', formData.minRentalPeriod);
+			formDataToSend.append('deposit', formData.deposit || 0);
+			formDataToSend.append('insurance', formData.insurance);
+			formDataToSend.append('insuranceCost', formData.insuranceCost || 0);
+			formDataToSend.append('available', formData.available);
+			if (formData.availableFrom) {
+				formDataToSend.append('availableFrom', formData.availableFrom);
+			}
 
 			// Adicionar arquivos de mídia se houver
 			if (mediaFiles.length > 0) {
@@ -223,10 +294,10 @@ const Veiculos = () => {
 			let response;
 			if (editingVehicle) {
 				// Edição - envia para rota de edição com aprovação
-				response = await api.uploadPut(`/compraveiculos/${editingVehicle._id}/edit`, formDataToSend);
+				response = await api.uploadPut(`/aluguelveiculos/${editingVehicle._id}/edit`, formDataToSend);
 			} else {
 				// Criação - envia normalmente
-				response = await api.upload('/compraveiculos', formDataToSend);
+				response = await api.upload('/aluguelveiculos', formDataToSend);
 			}
 
 			if (response.success) {
@@ -261,7 +332,7 @@ const Veiculos = () => {
 		setConfirmType('danger');
 		setConfirmAction(() => async () => {
 			try {
-				const response = await api.delete(`/compraveiculos/${vehicleId}`);
+				const response = await api.delete(`/aluguelveiculos/${vehicleId}`);
 				if (response.success) {
 					setMessage({ type: 'success', text: 'Veículo excluído com sucesso!' });
 					await loadVehicles();
@@ -284,7 +355,7 @@ const Veiculos = () => {
 		setConfirmType(currentStatus === 'active' ? 'warning' : 'success');
 		setConfirmAction(() => async () => {
 			try {
-				const response = await api.put(`/compraveiculos/${vehicleId}/toggle-status`);
+				const response = await api.put(`/aluguelveiculos/${vehicleId}/toggle-status`);
 				if (response.success) {
 					setMessage({ type: 'success', text: response.message || 'Status alterado com sucesso!' });
 					await loadVehicles();
@@ -300,6 +371,51 @@ const Veiculos = () => {
 		setShowConfirmModal(true);
 	};
 
+	const handleToggleDisponibilidade = (vehicleId, currentAvailability) => {
+		const newStatus = currentAvailability ? 'indisponível' : 'disponível';
+		setConfirmTitle('Alterar Disponibilidade');
+		setConfirmMessage(`Tem certeza que deseja tornar este veículo ${newStatus} para aluguel?`);
+		setConfirmType(currentAvailability ? 'warning' : 'success');
+		setConfirmAction(() => async () => {
+			try {
+				const response = await api.put(`/aluguelveiculos/${vehicleId}/toggle-disponibilidade`);
+				if (response.success) {
+					setMessage({ type: 'success', text: response.message || 'Disponibilidade alterada com sucesso!' });
+					await loadVehicles();
+					setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+				} else {
+					setMessage({ type: 'error', text: response.message || 'Erro ao alterar disponibilidade.' });
+				}
+			} catch (error) {
+				console.error('Erro ao alterar disponibilidade:', error);
+				setMessage({ type: 'error', text: 'Erro ao alterar disponibilidade do veículo.' });
+			}
+		});
+		setShowConfirmModal(true);
+	};
+
+	const getStatusBadge = (status) => {
+		const statusMap = {
+			'active': { label: 'Ativo', color: 'bg-green-500' },
+			'inactive': { label: 'Inativo', color: 'bg-gray-500' },
+			'suspended': { label: 'Suspenso', color: 'bg-red-500' },
+			'rented': { label: 'Alugado', color: 'bg-purple-500' }
+		};
+		return statusMap[status] || { label: status, color: 'bg-gray-500' };
+	};
+
+	const getPeriodLabel = (period) => {
+		const periodMap = {
+			'diário': 'Dia',
+			'semanal': 'Semana',
+			'mensal': 'Mês',
+			'trimestral': 'Trimestre',
+			'semestral': 'Semestre',
+			'anual': 'Ano'
+		};
+		return periodMap[period] || period;
+	};
+
 	return (
 		<div className="space-y-6">
 			{/* Header */}
@@ -308,10 +424,10 @@ const Veiculos = () => {
 					<div>
 						<h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
 							<Car className="w-7 h-7 text-[#154c9a]" />
-							Meus Veículos
+							Meus Veículos para Aluguel
 						</h2>
 						<p className="mt-1 text-gray-600">
-							Gerencie seus veículos cadastrados
+							Gerencie seus veículos cadastrados para aluguel
 						</p>
 					</div>
 					<button
@@ -341,7 +457,7 @@ const Veiculos = () => {
 						Nenhum veículo cadastrado
 					</h3>
 					<p className="text-gray-600 mb-6">
-						Comece adicionando seu primeiro veículo
+						Comece adicionando seu primeiro veículo para aluguel
 					</p>
 					<button
 						onClick={() => handleOpenModal()}
@@ -353,121 +469,164 @@ const Veiculos = () => {
 				</div>
 			) : (
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-					{vehicles.map(vehicle => (
-						<div key={vehicle._id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
-							{/* Imagem do veículo */}
-							<div className="h-48 bg-gray-200 relative">
-								{vehicle.mainImage ? (
-									<img
-										src={`${API_URL}${vehicle.mainImage}`}
-										alt={vehicle.name}
-										className="w-full h-full object-cover"
-									/>
-								) : (
-									<div className="w-full h-full flex items-center justify-center">
-										<Car className="w-16 h-16 text-gray-400" />
-									</div>
-								)}
-								<div className="absolute top-3 right-3 flex gap-2">
-									<div className={`px-3 py-1 rounded-full text-xs font-semibold ${
-										vehicle.aproved ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
-									}`}>
-										{vehicle.aproved ? 'Aprovado' : 'Pendente'}
-									</div>
-									<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${
-										vehicle.status === 'active' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
-									}`}>
-										{vehicle.status === 'active' ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-										{vehicle.status === 'active' ? 'Visível' : 'Oculto'}
+					{vehicles.map(vehicle => {
+						const statusInfo = getStatusBadge(vehicle.status);
+						return (
+							<div key={vehicle._id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+								{/* Imagem do veículo */}
+								<div className="h-48 bg-gray-200 relative">
+									{vehicle.mainImage ? (
+										<img
+											src={`${API_URL}${vehicle.mainImage}`}
+											alt={vehicle.name}
+											className="w-full h-full object-cover"
+										/>
+									) : (
+										<div className="w-full h-full flex items-center justify-center">
+											<Car className="w-16 h-16 text-gray-400" />
+										</div>
+									)}
+									<div className="absolute top-3 right-3 flex flex-col gap-2">
+										<div className={`px-3 py-1 rounded-full text-xs font-semibold ${
+											vehicle.aproved ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
+										}`}>
+											{vehicle.aproved ? 'Aprovado' : 'Pendente'}
+										</div>
+										<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${statusInfo.color} text-white`}>
+											{statusInfo.label}
+										</div>
+										{vehicle.available ? (
+											<div className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-500 text-white flex items-center gap-1">
+												<Eye className="w-3 h-3" />
+												Disponível
+											</div>
+										) : (
+											<div className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-500 text-white flex items-center gap-1">
+												<EyeOff className="w-3 h-3" />
+												Indisponível
+											</div>
+										)}
 									</div>
 								</div>
-							</div>
 
-							{/* Informações do veículo */}
-							<div className="p-5">
-								<h3 className="text-xl font-bold text-gray-900 mb-1">
-									{vehicle.name}
-								</h3>
-								<p className="text-gray-600 mb-4 text-sm">
-									{vehicle.manufacturer} • {vehicle.year} • {vehicle.color}
-								</p>
+								{/* Informações do veículo */}
+								<div className="p-5">
+									<h3 className="text-xl font-bold text-gray-900 mb-1">
+										{vehicle.name}
+									</h3>
+									<p className="text-gray-600 mb-4 text-sm">
+										{vehicle.manufacturer} • {vehicle.year} • {vehicle.color}
+									</p>
 
-								<div className="space-y-2 mb-4">
-									<div className="flex items-center gap-2 text-sm text-gray-600">
-										<Gauge className="w-4 h-4 text-[#154c9a]" />
-										<span>{vehicle.kilometers ? `${vehicle.kilometers.toLocaleString()} km` : 'Não informado'}</span>
-									</div>
-									<div className="flex items-center gap-2 text-sm text-gray-600">
-										<Fuel className="w-4 h-4 text-[#154c9a]" />
-										<span className="capitalize">{vehicle.fuelType}</span>
-									</div>
-									<div className="flex items-center gap-2 text-sm text-gray-600">
-										<Settings className="w-4 h-4 text-[#154c9a]" />
-										<span className="capitalize">{vehicle.transmission}</span>
-									</div>
-									{vehicle.location && (
+									<div className="space-y-2 mb-4">
 										<div className="flex items-center gap-2 text-sm text-gray-600">
-											<MapPin className="w-4 h-4 text-[#154c9a]" />
-											<span>{vehicle.location}</span>
+											<Gauge className="w-4 h-4 text-[#154c9a]" />
+											<span>{vehicle.kilometers ? `${vehicle.kilometers.toLocaleString()} km` : 'Não informado'}</span>
+										</div>
+										<div className="flex items-center gap-2 text-sm text-gray-600">
+											<Fuel className="w-4 h-4 text-[#154c9a]" />
+											<span className="capitalize">{vehicle.fuelType}</span>
+										</div>
+										<div className="flex items-center gap-2 text-sm text-gray-600">
+											<Settings className="w-4 h-4 text-[#154c9a]" />
+											<span className="capitalize">{vehicle.transmission}</span>
+										</div>
+										{vehicle.location && (
+											<div className="flex items-center gap-2 text-sm text-gray-600">
+												<MapPin className="w-4 h-4 text-[#154c9a]" />
+												<span>{vehicle.location}</span>
+											</div>
+										)}
+										{vehicle.minRentalPeriod && (
+											<div className="flex items-center gap-2 text-sm text-gray-600">
+												<Clock className="w-4 h-4 text-[#154c9a]" />
+												<span>Período mínimo: {vehicle.minRentalPeriod}</span>
+											</div>
+										)}
+										{vehicle.insurance && (
+											<div className="flex items-center gap-2 text-sm text-green-600">
+												<Shield className="w-4 h-4" />
+												<span>Seguro incluído</span>
+											</div>
+										)}
+									</div>
+
+									{/* Preços de aluguel */}
+									{vehicle.rentalPrices && vehicle.rentalPrices.length > 0 && (
+										<div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+											<p className="text-xs font-semibold text-gray-700 mb-2">Preços de Aluguel:</p>
+											<div className="space-y-1">
+												{vehicle.rentalPrices.map((rp, idx) => (
+													<div key={idx} className="flex items-center justify-between text-sm">
+														<span className="text-gray-600 capitalize">{getPeriodLabel(rp.period)}:</span>
+														<span className="font-semibold text-[#154c9a]">{rp.price.toLocaleString()} Kz</span>
+													</div>
+												))}
+											</div>
 										</div>
 									)}
-									{vehicle.price && (
-										<div className="flex items-center gap-2 text-sm font-semibold text-[#154c9a]">
-											<DollarSign className="w-4 h-4" />
-											<span>{vehicle.price.toLocaleString()} Kz</span>
+
+									{/* Estatísticas de visualizações */}
+									<div className="flex items-center justify-between pt-3 border-t">
+										<div className="flex items-center gap-2 text-sm">
+											<Eye className="w-4 h-4 text-purple-500" />
+											<span className="font-medium text-purple-600">
+												{vehicle.viewCount || 0}
+											</span>
+											<span className="text-gray-500">total</span>
 										</div>
-									)}
-								</div>
-
-								{/* Estatísticas de visualizações */}
-								<div className="flex items-center justify-between pt-3 border-t">
-									<div className="flex items-center gap-2 text-sm">
-										<Eye className="w-4 h-4 text-purple-500" />
-										<span className="font-medium text-purple-600">
-											{vehicle.viewCount || 0}
-										</span>
-										<span className="text-gray-500">total</span>
+										<div className="flex items-center gap-2 text-sm">
+											<Eye className="w-4 h-4 text-blue-500" />
+											<span className="font-medium text-blue-600">
+												{vehicle.todaaysViewCount || 0}
+											</span>
+											<span className="text-gray-500">hoje</span>
+										</div>
 									</div>
-									<div className="flex items-center gap-2 text-sm">
-										<Eye className="w-4 h-4 text-blue-500" />
-										<span className="font-medium text-blue-600">
-											{vehicle.todaaysViewCount || 0}
-										</span>
-										<span className="text-gray-500">hoje</span>
-									</div>
-								</div>
 
-								{/* Botões de ação */}
-								<div className="flex gap-2 pt-4 border-t">
-									<button
-										onClick={() => handleOpenModal(vehicle)}
-										className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#154c9a] text-white rounded-lg hover:bg-[#123f80] transition-colors cursor-pointer"
-									>
-										<Edit2 className="w-4 h-4" />
-										Editar
-									</button>
-									<button
-										onClick={() => handleToggleStatus(vehicle._id, vehicle.status)}
-										className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors cursor-pointer ${
-											vehicle.status === 'active' 
-												? 'bg-orange-500 text-white hover:bg-orange-600' 
-												: 'bg-green-500 text-white hover:bg-green-600'
-										}`}
-										title={vehicle.status === 'active' ? 'Desativar veículo' : 'Ativar veículo'}
-									>
-										<Power className="w-4 h-4" />
-									</button>
-									<button
-										onClick={() => handleDelete(vehicle._id)}
-										className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
-										title="Excluir veículo"
-									>
-										<Trash2 className="w-4 h-4" />
-									</button>
+									{/* Botões de ação */}
+									<div className="flex gap-2 pt-4 border-t">
+										<button
+											onClick={() => handleOpenModal(vehicle)}
+											className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#154c9a] text-white rounded-lg hover:bg-[#123f80] transition-colors cursor-pointer"
+										>
+											<Edit2 className="w-4 h-4" />
+											Editar
+										</button>
+										<button
+											onClick={() => handleToggleDisponibilidade(vehicle._id, vehicle.available)}
+											className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors cursor-pointer ${
+												vehicle.available 
+													? 'bg-orange-500 text-white hover:bg-orange-600' 
+													: 'bg-green-500 text-white hover:bg-green-600'
+											}`}
+											title={vehicle.available ? 'Marcar como indisponível' : 'Marcar como disponível'}
+										>
+											{vehicle.available ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+										</button>
+										<button
+											onClick={() => handleToggleStatus(vehicle._id, vehicle.status)}
+											className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors cursor-pointer ${
+												vehicle.status === 'active' 
+													? 'bg-gray-500 text-white hover:bg-gray-600' 
+													: 'bg-blue-500 text-white hover:bg-blue-600'
+											}`}
+											title={vehicle.status === 'active' ? 'Desativar veículo' : 'Ativar veículo'}
+										>
+											<Power className="w-4 h-4" />
+										</button>
+										<button
+											onClick={() => handleDelete(vehicle._id)}
+											className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
+											title="Excluir veículo"
+										>
+											<Trash2 className="w-4 h-4" />
+										</button>
+									</div>
 								</div>
 							</div>
-						</div>
-					))}
+						);
+					})}
 				</div>
 			)}
 
@@ -683,23 +842,6 @@ const Veiculos = () => {
 									</select>
 								</div>
 
-								{/* Preço */}
-								<div>
-									<label className="block text-gray-700 font-semibold mb-2">
-										Preço (Kz) <span className="text-red-500">*</span>
-									</label>
-									<input
-										type="number"
-										name="price"
-										value={formData.price}
-										onChange={handleChange}
-										required
-										placeholder="Ex: 15000000"
-										min="0"
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
-									/>
-								</div>
-
 								{/* Localização */}
 								<div className="md:col-span-2">
 									<label className="block text-gray-700 font-semibold mb-2">
@@ -716,6 +858,156 @@ const Veiculos = () => {
 									/>
 								</div>
 
+								{/* Seção de Preços de Aluguel */}
+								<div className="md:col-span-2 border-t-2 border-gray-200 pt-6 mt-4">
+									<h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+										<DollarSign className="w-5 h-5 text-[#154c9a]" />
+										Preços de Aluguel
+									</h3>
+									
+									{formData.rentalPrices.map((rentalPrice, index) => (
+										<div key={index} className="flex gap-3 mb-3">
+											<select
+												value={rentalPrice.period}
+												onChange={(e) => handleRentalPriceChange(index, 'period', e.target.value)}
+												className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+											>
+												<option value="diário">Diário</option>
+												<option value="semanal">Semanal</option>
+												<option value="mensal">Mensal</option>
+												<option value="trimestral">Trimestral</option>
+												<option value="semestral">Semestral</option>
+												<option value="anual">Anual</option>
+											</select>
+											<input
+												type="number"
+												value={rentalPrice.price}
+												onChange={(e) => handleRentalPriceChange(index, 'price', e.target.value)}
+												placeholder="Preço (Kz)"
+												min="0"
+												className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+											/>
+											{formData.rentalPrices.length > 1 && (
+												<button
+													type="button"
+													onClick={() => removeRentalPrice(index)}
+													className="px-4 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors"
+												>
+													<X className="w-5 h-5" />
+												</button>
+											)}
+										</div>
+									))}
+									
+									<button
+										type="button"
+										onClick={addRentalPrice}
+										className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-colors"
+									>
+										<Plus className="w-4 h-4" />
+										Adicionar Período
+									</button>
+									<p className="text-sm text-gray-500 mt-2">Define preços diferentes para períodos de aluguel variados</p>
+								</div>
+
+								{/* Período Mínimo de Aluguel */}
+								<div>
+									<label className="block text-gray-700 font-semibold mb-2">
+										Período Mínimo de Aluguel
+									</label>
+									<select
+										name="minRentalPeriod"
+										value={formData.minRentalPeriod}
+										onChange={handleChange}
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+									>
+										<option value="diário">Diário</option>
+										<option value="semanal">Semanal</option>
+										<option value="mensal">Mensal</option>
+									</select>
+								</div>
+
+								{/* Depósito */}
+								<div>
+									<label className="block text-gray-700 font-semibold mb-2">
+										Depósito/Caução (Kz)
+									</label>
+									<input
+										type="number"
+										name="deposit"
+										value={formData.deposit}
+										onChange={handleChange}
+										placeholder="Ex: 50000"
+										min="0"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+									/>
+								</div>
+
+								{/* Seguro */}
+								<div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+									<input
+										type="checkbox"
+										id="insurance"
+										name="insurance"
+										checked={formData.insurance}
+										onChange={handleChange}
+										className="w-5 h-5 text-[#154c9a] border-gray-300 rounded focus:ring-[#154c9a]"
+									/>
+									<label htmlFor="insurance" className="flex items-center gap-2 text-gray-700 font-semibold cursor-pointer">
+										<Shield className="w-5 h-5 text-[#154c9a]" />
+										Seguro Incluído
+									</label>
+								</div>
+
+								{/* Custo do Seguro (se incluído) */}
+								{formData.insurance && (
+									<div>
+										<label className="block text-gray-700 font-semibold mb-2">
+											Custo do Seguro (Kz/dia)
+										</label>
+										<input
+											type="number"
+											name="insuranceCost"
+											value={formData.insuranceCost}
+											onChange={handleChange}
+											placeholder="Ex: 5000"
+											min="0"
+											className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										/>
+									</div>
+								)}
+
+								{/* Disponibilidade */}
+								<div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+									<input
+										type="checkbox"
+										id="available"
+										name="available"
+										checked={formData.available}
+										onChange={handleChange}
+										className="w-5 h-5 text-[#154c9a] border-gray-300 rounded focus:ring-[#154c9a]"
+									/>
+									<label htmlFor="available" className="flex items-center gap-2 text-gray-700 font-semibold cursor-pointer">
+										<Eye className="w-5 h-5 text-[#154c9a]" />
+										Disponível para Aluguel
+									</label>
+								</div>
+
+								{/* Disponível A Partir De */}
+								<div>
+									<label className="block text-gray-700 font-semibold mb-2">
+										<Calendar className="w-4 h-4 inline mr-2" />
+										Disponível A Partir De
+									</label>
+									<input
+										type="date"
+										name="availableFrom"
+										value={formData.availableFrom}
+										onChange={handleChange}
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+									/>
+								</div>
+
 								{/* Características */}
 								<div className="md:col-span-2">
 									<label className="block text-gray-700 font-semibold mb-2">
@@ -727,7 +1019,7 @@ const Veiculos = () => {
 											value={newCharacteristic}
 											onChange={(e) => setNewCharacteristic(e.target.value)}
 											onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCharacteristic())}
-											placeholder="Ex: Ar Condicionado, Vidro Elétrico..."
+											placeholder="Ex: Ar Condicionado, GPS, Bluetooth..."
 											className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
 										/>
 										<button
@@ -825,10 +1117,10 @@ const Veiculos = () => {
 										onChange={handleChange}
 										required
 										rows="4"
-										placeholder="Descreva as características, condições e diferenciais do veículo..."
+										placeholder="Descreva as características, condições e diferenciais do veículo para aluguel..."
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all resize-none"
 									/>
-									<p className="text-sm text-gray-500 mt-2">Informações adicionais que possam interessar aos compradores (mínimo 10 caracteres)</p>
+									<p className="text-sm text-gray-500 mt-2">Informações adicionais que possam interessar aos clientes (mínimo 10 caracteres)</p>
 								</div>
 							</div>
 
@@ -916,4 +1208,4 @@ const Veiculos = () => {
 	);
 };
 
-export default Veiculos;
+export default VeiculosAluguel;

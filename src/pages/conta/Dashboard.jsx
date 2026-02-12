@@ -208,7 +208,7 @@ const Dashboard = () => {
 						</div>
 					) : (
 						<div className="space-y-4">
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 								<div className="flex items-start gap-3">
 									<User className="w-5 h-5 text-gray-400 mt-0.5" />
 									<div>
@@ -242,14 +242,6 @@ const Dashboard = () => {
 										<p className="text-sm font-medium text-gray-900">
 											{user?.createdAt ? formatDate(user.createdAt) : 'N/A'}
 										</p>
-									</div>
-								</div>
-
-								<div className="flex items-start gap-3">
-									<Car className="w-5 h-5 text-gray-400 mt-0.5" />
-									<div>
-										<p className="text-xs text-gray-500">Veículos cadastrados</p>
-										<p className="text-sm font-medium text-gray-900">{userVehicles.length}</p>
 									</div>
 								</div>
 							</div>

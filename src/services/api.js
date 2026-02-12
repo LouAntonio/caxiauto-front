@@ -40,9 +40,13 @@ const apiRequest = async (endpoint, options = {}) => {
 	try {
 		// Configurar headers padrão
 		const headers = {
-			'Content-Type': 'application/json',
 			...options.headers,
 		};
+
+		// Adicionar Content-Type apenas se não for FormData
+		if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+			headers['Content-Type'] = 'application/json';
+		}
 
 		// Adicionar token de autorização se existir
 		const token = localStorage.getItem('caxiauto_token');
@@ -172,21 +176,24 @@ const api = {
 	 * @param {object} options - Opções adicionais
 	 */
 	upload: (endpoint, formData, options = {}) => {
-		// Para upload, não definir Content-Type (o browser define automaticamente com boundary)
-		const token = localStorage.getItem('caxiauto_token');
-		const headers = {};
-		
-		if (token) {
-			headers['Authorization'] = `Bearer ${token}`;
-		}
-
 		return apiRequest(endpoint, {
 			method: 'POST',
 			body: formData,
-			headers: {
-				...headers,
-				...options.headers,
-			},
+			...options,
+		});
+	},
+
+	/**
+	 * Upload de arquivo com método PUT (multipart/form-data)
+	 * @param {string} endpoint - Endpoint da API
+	 * @param {FormData} formData - FormData com os arquivos
+	 * @param {object} options - Opções adicionais
+	 */
+	uploadPut: (endpoint, formData, options = {}) => {
+		return apiRequest(endpoint, {
+			method: 'PUT',
+			body: formData,
+			...options,
 		});
 	},
 };
