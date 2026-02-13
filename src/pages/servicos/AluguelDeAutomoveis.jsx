@@ -13,9 +13,9 @@ import {
 	Loader2
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import VehicleFilter from '../../components/VehicleFilter';
+import RentalVehicleFilter from '../../components/RentalVehicleFilter';
 import Pagination from '../../components/Pagination';
-import api, { API_URL } from '../../services/api';
+import api, { API_URL, getImageUrl } from '../../services/api';
 
 export default function AluguelDeAutomoveis() {
 	useDocumentTitle('Aluguel de Automóveis - Caxiauto');
@@ -31,43 +31,56 @@ export default function AluguelDeAutomoveis() {
 	const [sortBy, setSortBy] = useState('createdAt');
 	const vehiclesPerPage = 16;
 
+	// Carrega veículos apenas na primeira renderização
 	useEffect(() => {
 		loadVehicles();
-	}, [currentPage, filters, sortBy]);
+	}, []);
+
+	// Recarrega apenas quando a página muda
+	useEffect(() => {
+		if (currentPage !== 1) {
+			loadVehicles();
+		}
+	}, [currentPage]);
 
 	const loadVehicles = async () => {
+		await loadVehiclesWithFilters(filters, currentPage, sortBy);
+	};
+
+	const loadVehiclesWithFilters = async (appliedFilters, page, sort) => {
 		try {
 			setLoading(true);
 			setError(null);
 
 			// Construir query params
 			const params = new URLSearchParams({
-				page: currentPage,
-				limit: vehiclesPerPage
+				page: page,
+				limit: vehiclesPerPage,
+				sort: sort
 			});
 
 			// Adicionar filtros
-			if (filters.search) params.append('search', filters.search);
-			if (filters.manufacturer) params.append('manufacturer', filters.manufacturer);
-			if (filters.class) params.append('class', filters.class);
-			if (filters.fuelType) params.append('fuelType', filters.fuelType);
-			if (filters.transmission) params.append('transmission', filters.transmission);
-			if (filters.minPrice) params.append('minPrice', filters.minPrice);
-			if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
-			if (filters.minYear) params.append('minYear', filters.minYear);
-			if (filters.maxYear) params.append('maxYear', filters.maxYear);
-			if (filters.location) params.append('location', filters.location);
-			if (filters.period) params.append('period', filters.period);
+			if (appliedFilters.search) params.append('search', appliedFilters.search);
+			if (appliedFilters.manufacturer) params.append('manufacturer', appliedFilters.manufacturer);
+			if (appliedFilters.class) params.append('class', appliedFilters.class);
+			if (appliedFilters.fuelType) params.append('fuelType', appliedFilters.fuelType);
+			if (appliedFilters.transmission) params.append('transmission', appliedFilters.transmission);
+			if (appliedFilters.minPrice) params.append('minPrice', appliedFilters.minPrice);
+			if (appliedFilters.maxPrice) params.append('maxPrice', appliedFilters.maxPrice);
+			if (appliedFilters.minYear) params.append('minYear', appliedFilters.minYear);
+			if (appliedFilters.maxYear) params.append('maxYear', appliedFilters.maxYear);
 
+			// Fazer a requisição para a API
 			const response = await api.get(`/aluguelveiculos?${params.toString()}`);
 
 			if (response.success) {
 				setVehicles(response.data || []);
-				setTotalVehicles(response.pagination?.total || 0);
 				setTotalPages(response.pagination?.totalPages || 1);
+				setTotalVehicles(response.pagination?.total || 0);
 			} else {
-				setError(response.message || 'Erro ao carregar veículos');
+				setError('Erro ao carregar veículos');
 			}
+
 		} catch (err) {
 			console.error('Erro ao buscar veículos:', err);
 			setError('Erro ao conectar com o servidor');
@@ -79,6 +92,9 @@ export default function AluguelDeAutomoveis() {
 	const handleFilterChange = (newFilters) => {
 		setFilters(newFilters);
 		setCurrentPage(1);
+		// Realiza a busca imediatamente após aplicar os filtros
+		setLoading(true);
+		loadVehiclesWithFilters(newFilters, 1, sortBy);
 	};
 
 	const handlePageChange = (page) => {
@@ -87,8 +103,12 @@ export default function AluguelDeAutomoveis() {
 	};
 
 	const handleSortChange = (e) => {
-		setSortBy(e.target.value);
+		const newSortBy = e.target.value;
+		setSortBy(newSortBy);
 		setCurrentPage(1);
+		// Realiza nova busca com a ordenação alterada
+		setLoading(true);
+		loadVehiclesWithFilters(filters, 1, newSortBy);
 	};
 
 	const getLowestPrice = (rentalPrices) => {
@@ -214,7 +234,7 @@ export default function AluguelDeAutomoveis() {
 							<aside className="w-full lg:w-80 flex-shrink-0">
 								<div className="sticky top-6">
 									<h2 className="text-xl font-bold text-gray-800 mb-4">Filtrar Veículos</h2>
-									<VehicleFilter onFilterChange={handleFilterChange} />
+									<RentalVehicleFilter onFilterChange={handleFilterChange} />
 								</div>
 							</aside>
 
@@ -280,7 +300,7 @@ export default function AluguelDeAutomoveis() {
 												{/* Imagem */}
 												<div className="relative h-40 overflow-hidden cursor-pointer" onClick={() => navigate(`/servicos/aluguel-de-automoveis/${car._id}`)}>
 													<img
-														src={car.mainImage ? `${API_URL}${car.mainImage}` : '/images/i10.jpg'}
+														src={getImageUrl(car.mainImage, '/images/i10.jpg')}
 														alt={car.name}
 														className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
 														onError={(e) => { e.target.src = '/images/i10.jpg'; }}
@@ -330,7 +350,7 @@ export default function AluguelDeAutomoveis() {
 													{/* Especificações (duas colunas) */}
 													<div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
 														<div className="flex items-center justify-end gap-2">
-															<span className="text-right">{car.kilometers?.toLocaleString()} km</span>
+															<span className="text-right">{car.kilometers?.toLocaleString()}</span>
 															<Gauge className="w-4 h-4 text-gray-400" />
 														</div>
 														<div className="flex items-center gap-2">

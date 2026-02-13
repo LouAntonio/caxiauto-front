@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
 	Gauge,
@@ -16,111 +16,197 @@ import {
 	CheckCircle2,
 	X,
 	Upload,
-	FileText
+	FileText,
+	Loader2
 } from 'lucide-react'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
+import api, { API_URL, getImageUrl } from '../../services/api'
 
 export default function DetalhesAluguel() {
 	const { id } = useParams()
 	const navigate = useNavigate()
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
-	const [selectedPeriod, setSelectedPeriod] = useState('diaria')
+	const [selectedPeriod, setSelectedPeriod] = useState('diária')
 	const [showContactModal, setShowContactModal] = useState(false)
+	const [vehicle, setVehicle] = useState(null)
+	const [loading, setLoading] = useState(true)
+	const [error, setError] = useState(null)
 
-	// Planos de aluguel (em produção, viria de uma API)
-	const rentalPlans = [
-		{
-			id: 'diaria',
+	// Planos de aluguel baseados nos dados do veículo  
+	const rentalPlans = vehicle ? [
+		vehicle.pricing.diaria && {
+			id: 'diária',
 			name: 'Diária',
 			duration: 'Até 24 horas',
-			price: 15000,
+			price: vehicle.pricing.diaria,
 			unit: 'Kz/dia',
 			daysCount: 1
 		},
-		{
+		vehicle.pricing.semanal && {
 			id: 'semanal',
 			name: 'Semanal',
 			duration: '7 dias',
-			price: 90000,
+			price: vehicle.pricing.semanal,
 			unit: 'Kz/semana',
 			daysCount: 7,
-			showSavings: true
+			showSavings: vehicle.pricing.diaria && vehicle.pricing.semanal < (vehicle.pricing.diaria * 7)
 		},
-		{
+		vehicle.pricing.mensal && {
 			id: 'mensal',
 			name: 'Mensal',
 			duration: '30 dias',
-			price: 320000,
+			price: vehicle.pricing.mensal,
 			unit: 'Kz/mês',
 			daysCount: 30,
-			showSavings: true
+			showSavings: vehicle.pricing.diaria && vehicle.pricing.mensal < (vehicle.pricing.diaria * 30)
 		}
-	]
+	].filter(Boolean) : []
 
-	// Dados do veículo (em produção, viria de uma API)
-	const vehicle = {
-		id: parseInt(id) || 1,
-		title: 'Toyota Corolla 2024',
-		price: 150000,
-		images: [
-			'/images/i10.jpg',
-			'/images/i10.jpg',
-			'/images/i10.jpg',
-			'/images/i10.jpg',
-			'/images/i10.jpg'
-		],
-		condition: 'Novo',
-		description: 'Toyota Corolla 2024 em perfeito estado de conservação. Veículo completo, com todos os opcionais de fábrica. Ideal para viagens e uso diário. Manutenção em dia e documentação regular.',
-		specs: {
-			km: '15.000 km',
-			year: 2024,
-			location: 'Luanda',
-			fuel: 'Gasolina',
-			transmission: 'Automática',
-			passengers: '5 lugares',
-			color: 'Branco Pérola',
-			doors: '4 portas'
-		},
-		features: [
-			'Ar Condicionado',
-			'Direção Elétrica',
-			'Vidros Elétricos',
-			'Travas Elétricas',
-			'Alarme',
-			'Som com Bluetooth',
-			'Câmera de Ré',
-			'Sensor de Estacionamento',
-			'Airbag Duplo',
-			'Freios ABS',
-			'Controle de Tração',
-			'Bancos em Couro'
-		],
-		pricing: {
-			diaria: 15000,
-			semanal: 90000,
-			mensal: 320000
-		},
-		included: [
-			'Seguro contra terceiros',
-			'Assistência 24h',
-			'Quilometragem ilimitada',
-			'Manutenção preventiva'
-		],
-		requirements: [
-			'BI ou Passaporte válido',
-			'Carta de condução válida',
-			'Idade mínima 18 anos'
-		]
+	// Mapear dados da API para formato do componente
+	const mapVehicleData = (apiVehicle) => {
+		const images = apiVehicle.images && apiVehicle.images.length > 0
+			? apiVehicle.images.map(img => getImageUrl(img, '/images/placeholder-car.jpg'))
+			: [getImageUrl(apiVehicle.mainImage, '/images/placeholder-car.jpg')]
+
+		return {
+			id: apiVehicle._id,
+			title: `${apiVehicle.manufacturer} ${apiVehicle.name} ${apiVehicle.year}`,
+			price: apiVehicle.rentalPrices?.find(p => p.period === 'diário')?.price,
+			images,
+			condition: apiVehicle.kilometers === 0 ? 'Novo' : 'Usado',
+			description: apiVehicle.description,
+			specs: {
+				km: `${new Intl.NumberFormat('pt-AO').format(apiVehicle.kilometers)} km`,
+				year: apiVehicle.year,
+				location: apiVehicle.location,
+				fuel: apiVehicle.fuelType === 'gasolina' ? 'Gasolina' :
+					apiVehicle.fuelType === 'diesel' ? 'Diesel' :
+						apiVehicle.fuelType === 'elétrico' ? 'Elétrico' : 'Híbrido',
+				transmission: apiVehicle.transmission === 'automática' ? 'Automática' : 'Manual',
+				passengers: `${apiVehicle.passangers} lugares`,
+				color: apiVehicle.color,
+				doors: `${apiVehicle.door} portas`
+			},
+			features: apiVehicle.characteristics || [],
+			pricing: {
+				diaria: apiVehicle.rentalPrices?.find(p => p.period === 'diário')?.price,
+				semanal: apiVehicle.rentalPrices?.find(p => p.period === 'semanal')?.price,
+				mensal: apiVehicle.rentalPrices?.find(p => p.period === 'mensal')?.price
+			},
+			included: [
+				'Seguro contra terceiros',
+				'Assistência 24h',
+				'Quilometragem ilimitada',
+				'Manutenção preventiva'
+			],
+			requirements: [
+				'BI ou Passaporte válido',
+				'Carta de condução válida',
+				'Idade mínima 18 anos'
+			],
+			owner: apiVehicle.owner
+		}
 	}
 
-	useDocumentTitle(`${vehicle.title} - Aluguel - Caxiauto`)
+	// Buscar dados do veículo
+	useEffect(() => {
+		const fetchVehicle = async () => {
+			if (!id) {
+				setError('ID do veículo não fornecido')
+				setLoading(false)
+				return
+			}
+
+			try {
+				setLoading(true)
+				setError(null)
+				const response = await api.getVeiculoAluguel(id)
+
+				if (response.success && response.data) {
+					const mappedVehicle = mapVehicleData(response.data)
+					setVehicle(mappedVehicle)
+					// Reset currentImageIndex se necessário
+					setCurrentImageIndex(0)
+				} else {
+					setError(response.message || 'Veículo não encontrado')
+				}
+			} catch (err) {
+				console.error('Erro ao buscar veículo:', err)
+				if (err.message && err.message.includes('404')) {
+					setError('Veículo não encontrado')
+				} else if (err.message && err.message.includes('403')) {
+					setError('Veículo não está disponível no momento')
+				} else {
+					setError('Erro ao carregar dados do veículo. Tente novamente em alguns instantes.')
+				}
+			} finally {
+				setLoading(false)
+			}
+		}
+
+		fetchVehicle()
+	}, [id])
+
+	// Atualizar período selecionado quando os planos mudarem
+	useEffect(() => {
+		if (rentalPlans.length > 0) {
+			// Se o período atual não estiver disponível, selecionar o primeiro disponível
+			if (!rentalPlans.find(plan => plan.id === selectedPeriod)) {
+				setSelectedPeriod(rentalPlans[0].id)
+			}
+		}
+	}, [rentalPlans, selectedPeriod])
+
+	// Atualizar título da página
+	useDocumentTitle(
+		vehicle ? `${vehicle.title} - Aluguel - Caxiauto` : 'Detalhes do Veículo - Caxiauto'
+	)
+
+	// Loading state
+	if (loading) {
+		return (
+			<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex items-center justify-center">
+				<div className="text-center">
+					<Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-600 mb-4" />
+					<p className="text-gray-600">Carregando dados do veículo...</p>
+				</div>
+			</div>
+		)
+	}
+
+	// Error state
+	if (error || !vehicle) {
+		return (
+			<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex items-center justify-center">
+				<div className="text-center max-w-md mx-auto px-6">
+					<Car className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+					<h1 className="text-2xl font-bold text-gray-900 mb-2">
+						Veículo não encontrado
+					</h1>
+					<p className="text-gray-600 mb-6">
+						{error || 'O veículo que você está procurando não foi encontrado ou não está disponível.'}
+					</p>
+					<button
+						onClick={() => navigate('/servicos/aluguel-de-automoveis')}
+						className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+					>
+						Ver outros veículos
+					</button>
+				</div>
+			</div>
+		)
+	}
 
 	const nextImage = () => {
-		setCurrentImageIndex((prev) => (prev + 1) % vehicle.images.length)
+		if (vehicle && vehicle.images && vehicle.images.length > 0) {
+			setCurrentImageIndex((prev) => (prev + 1) % vehicle.images.length)
+		}
 	}
 
 	const prevImage = () => {
-		setCurrentImageIndex((prev) => (prev - 1 + vehicle.images.length) % vehicle.images.length)
+		if (vehicle && vehicle.images && vehicle.images.length > 0) {
+			setCurrentImageIndex((prev) => (prev - 1 + vehicle.images.length) % vehicle.images.length)
+		}
 	}
 
 	const handleContact = () => {
@@ -141,7 +227,7 @@ export default function DetalhesAluguel() {
 						<ChevronRight className="w-4 h-4" />
 						<Link to="/servicos/aluguel-de-automoveis" className="hover:text-indigo-600 transition-colors">Aluguel</Link>
 						<ChevronRight className="w-4 h-4" />
-						<span className="text-gray-900 font-medium">{vehicle.title}</span>
+						<span className="text-gray-900 font-medium">{vehicle?.title || 'Detalhes do Veículo'}</span>
 					</nav>
 				</div>
 			</div>
@@ -154,9 +240,16 @@ export default function DetalhesAluguel() {
 						<div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
 							<div className="relative h-96 bg-gradient-to-br from-gray-100 to-gray-200">
 								<img
-									src={vehicle.images[currentImageIndex]}
+									src={`${API_URL}${vehicle.images[currentImageIndex]}`}
+									key={currentImageIndex}
+									loading="lazy"
 									alt={`${vehicle.title} - Imagem ${currentImageIndex + 1}`}
 									className="w-full h-full object-cover transition-opacity duration-500"
+									onError={(e) => {
+										// Fallback para imagem padrão em caso de erro
+										e.target.src = '/images/i10.jpg'
+										console.warn(`Erro ao carregar imagem: ${e.target.src}`)
+									}}
 								/>
 
 								{/* Badge de Condição */}
@@ -206,7 +299,7 @@ export default function DetalhesAluguel() {
 										className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex ? 'border-indigo-600 ring-2 ring-indigo-200' : 'border-gray-200'
 											} cursor-pointer`}
 									>
-										<img src={image} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover" />
+										<img src={`${API_URL}${image}`} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover" />
 									</button>
 								))}
 							</div>
@@ -325,42 +418,61 @@ export default function DetalhesAluguel() {
 							<div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
 								<h3 className="text-lg font-bold text-gray-900 mb-4">Planos de Aluguel</h3>
 
-								<div className="space-y-3 mb-6">
-									{rentalPlans.map((plan) => (
-										<button
-											key={plan.id}
-											onClick={() => setSelectedPeriod(plan.id)}
-											className={`w-full p-4 rounded-xl border-2 transition-all text-left cursor-pointer ${selectedPeriod === plan.id
-												? 'border-indigo-600 bg-indigo-50'
-												: 'border-gray-200 hover:border-indigo-300'
-												}`}
-										>
-											<div className="flex justify-between items-start">
-												<div>
-													<div className="font-semibold text-gray-900">{plan.name}</div>
-													<div className="text-xs text-gray-600 mt-1">{plan.duration}</div>
-												</div>
-												<div className="text-right">
-													<div className="text-lg font-bold text-indigo-600">
-														{formatPrice(plan.price)}
+								{rentalPlans.length > 0 ? (
+									<>
+										<div className="space-y-3 mb-6">
+											{rentalPlans.map((plan) => (
+												<button
+													key={plan.id}
+													onClick={() => setSelectedPeriod(plan.id)}
+													className={`w-full p-4 rounded-xl border-2 transition-all text-left cursor-pointer ${selectedPeriod === plan.id
+														? 'border-indigo-600 bg-indigo-50'
+														: 'border-gray-200 hover:border-indigo-300'
+														}`}
+												>
+													<div className="flex justify-between items-start">
+														<div>
+															<div className="font-semibold text-gray-900">{plan.name}</div>
+															<div className="text-xs text-gray-600 mt-1">{plan.duration}</div>
+														</div>
+														<div className="text-right">
+															<div className="text-lg font-bold text-indigo-600">
+																{formatPrice(plan.price)}
+															</div>
+															<div className="text-xs text-gray-600">{plan.unit}</div>
+														</div>
 													</div>
-													<div className="text-xs text-gray-600">{plan.unit}</div>
-												</div>
-											</div>
-											{plan.showSavings && (
-												<div className="mt-2 text-xs text-green-600 font-medium">
-													Economize {formatPrice(vehicle.pricing.diaria * plan.daysCount - plan.price)} Kz
-												</div>
-											)}
-										</button>
-									))}
-								</div>
+													{plan.showSavings && (
+														<div className="mt-2 text-xs text-green-600 font-medium">
+															Economize {formatPrice(vehicle.pricing.diaria * plan.daysCount - plan.price)} Kz
+														</div>
+													)}
+												</button>
+											))}
+										</div>
+									</>
+								) : (
+									<div className="text-center py-8">
+										<div className="text-gray-400 mb-2">
+											<Car className="w-12 h-12 mx-auto" />
+										</div>
+										<p className="text-gray-600 text-sm">
+											Preços não disponíveis no momento.
+										</p>
+										<p className="text-gray-500 text-xs mt-1">
+											Entre em contato para mais informações.
+										</p>
+									</div>
+								)}
 
 								<button
 									onClick={handleContact}
-									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02] cursor-pointer"
+									className={`w-full font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02] cursor-pointer ${rentalPlans.length > 0
+											? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white'
+											: 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white'
+										}`}
 								>
-									Solicitar Aluguel
+									{rentalPlans.length > 0 ? 'Solicitar Aluguel' : 'Entre em Contato'}
 								</button>
 
 								<div className="mt-4 pt-4 border-t border-gray-200">
@@ -491,7 +603,7 @@ export default function DetalhesAluguel() {
 									<input
 										type="text"
 										required
-									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 										placeholder="Digite seu nome completo"
 									/>
 								</div>
@@ -507,7 +619,7 @@ export default function DetalhesAluguel() {
 										<input
 											type="tel"
 											required
-										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 											placeholder="+244 9XX XXX XXX"
 										/>
 									</div>
@@ -522,7 +634,7 @@ export default function DetalhesAluguel() {
 										<input
 											type="email"
 											required
-										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 											placeholder="seu@email.com"
 										/>
 									</div>
@@ -545,18 +657,19 @@ export default function DetalhesAluguel() {
 									</label>
 									<select
 										required
-									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base font-medium"
+										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base font-medium"
 										defaultValue={selectedPeriod}
 									>
-										<option value="diaria">
-											Diária - {formatPrice(vehicle.pricing.diaria)} Kz/dia
-										</option>
-										<option value="semanal">
-											Semanal - {formatPrice(vehicle.pricing.semanal)} Kz
-										</option>
-										<option value="mensal">
-											Mensal - {formatPrice(vehicle.pricing.mensal)} Kz
-										</option>
+										{rentalPlans.map((plan) => (
+											<option key={plan.id} value={plan.id}>
+												{plan.name} - {formatPrice(plan.price)} {plan.unit}
+											</option>
+										))}
+										{rentalPlans.length === 0 && (
+											<option value="">
+												Nenhum plano disponível
+											</option>
+										)}
 									</select>
 									<p className="mt-2 text-xs text-gray-500 flex items-center gap-1.5">
 										<Shield className="w-3.5 h-3.5" />

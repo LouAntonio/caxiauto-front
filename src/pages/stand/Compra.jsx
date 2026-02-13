@@ -4,7 +4,7 @@ import { Gauge, Calendar, MapPin, Droplet, Loader2 } from 'lucide-react'
 import VehicleFilter from '../../components/VehicleFilter'
 import Pagination from '../../components/Pagination'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
-import api, { API_URL, notyf } from '../../services/api'
+import api, { API_URL, getImageUrl, notyf } from '../../services/api'
 
 export default function Compra() {
 	useDocumentTitle('Compra de Veículos - Caxiauto')
@@ -20,9 +20,12 @@ export default function Compra() {
 	const vehiclesPerPage = 16
 
 	// Função para buscar veículos do backend
-	const fetchVehicles = async () => {
+	const fetchVehicles = async (customFilters = null) => {
 		try {
 			setLoading(true)
+			
+			// Usar filtros customizados se fornecidos, caso contrário usar os filtros do estado
+			const activeFilters = customFilters || filters
 			
 			// Construir query params
 			const params = new URLSearchParams({
@@ -31,19 +34,19 @@ export default function Compra() {
 			})
 
 			// Mapear filtros do português para inglês e adicionar à query
-			if (filters.marca) params.append('manufacturer', filters.marca)
-			if (filters.classe) params.append('class', filters.classe)
-			if (filters.combustivel) {
+			if (activeFilters.marca) params.append('manufacturer', activeFilters.marca)
+			if (activeFilters.classe) params.append('class', activeFilters.classe)
+			if (activeFilters.combustivel) {
 				// Normalizar o combustível para lowercase
-				params.append('fuelType', filters.combustivel.toLowerCase())
+				params.append('fuelType', activeFilters.combustivel.toLowerCase())
 			}
-			if (filters.transmissao) {
+			if (activeFilters.transmissao) {
 				// Normalizar a transmissão para lowercase
-				params.append('transmission', filters.transmissao.toLowerCase())
+				params.append('transmission', activeFilters.transmissao.toLowerCase())
 			}
 			
 			// Processar faixa de preço
-			if (filters.preco) {
+			if (activeFilters.preco) {
 				const priceRanges = {
 					'Até 5M Kz': { max: 5000000 },
 					'Até 10M Kz': { max: 10000000 },
@@ -51,7 +54,7 @@ export default function Compra() {
 					'Até 20M Kz': { max: 20000000 },
 					'Até 30M Kz': { max: 30000000 }
 				}
-				const range = priceRanges[filters.preco]
+				const range = priceRanges[activeFilters.preco]
 				if (range) {
 					if (range.min) params.append('minPrice', range.min)
 					if (range.max) params.append('maxPrice', range.max)
@@ -59,15 +62,15 @@ export default function Compra() {
 			}
 
 			// Processar ano
-			if (filters.ano && filters.ano !== '') {
-				const year = parseInt(filters.ano)
+			if (activeFilters.ano && activeFilters.ano !== '') {
+				const year = parseInt(activeFilters.ano)
 				if (!isNaN(year)) {
 					params.append('minYear', year)
 				}
 			}
 
 			// Processar quilometragem
-			if (filters.quilometros) {
+			if (activeFilters.quilometros) {
 				const kmRanges = {
 					'Até 50k': 50000,
 					'Até 100k': 100000,
@@ -75,7 +78,7 @@ export default function Compra() {
 					'Até 200k': 200000,
 					'+200k': null
 				}
-				const maxKm = kmRanges[filters.quilometros]
+				const maxKm = kmRanges[activeFilters.quilometros]
 				if (maxKm) {
 					// Note: o backend não tem filtro de km, mas você pode adicionar se necessário
 					// params.append('maxKilometers', maxKm)
@@ -83,8 +86,8 @@ export default function Compra() {
 			}
 
 			// Processar pesquisa de texto (busca no nome e descrição)
-			if (filters.pesquisa) {
-				params.append('search', filters.pesquisa)
+			if (activeFilters.pesquisa) {
+				params.append('search', activeFilters.pesquisa)
 			}
 
 			const response = await api.get(`/compraveiculos?${params.toString()}`)
@@ -104,14 +107,21 @@ export default function Compra() {
 		}
 	}
 
-	// Carregar veículos quando a página ou filtros mudarem
+	// Carregar veículos inicialmente e quando a página mudar
 	useEffect(() => {
 		fetchVehicles()
-	}, [currentPage, filters])
+	}, [currentPage])
+
+	// Carregar veículos na primeira renderização
+	useEffect(() => {
+		fetchVehicles()
+	}, [])
 
 	const handleFilterChange = (newFilters) => {
 		setFilters(newFilters)
 		setCurrentPage(1) // Reset para primeira página ao filtrar
+		// Executa a busca imediatamente com os novos filtros
+		fetchVehicles(newFilters)
 	}
 
 	const handlePageChange = (page) => {
@@ -210,8 +220,7 @@ export default function Compra() {
 											{/* Imagem */}
 											<div className="relative h-40 overflow-hidden">
 												<img
-													src={car.mainImage ? `${API_URL}${car.mainImage}` : '/images/i10.jpg'}
-													alt={car.name}
+												src={getImageUrl(car.mainImage, '/images/i10.jpg')}
 													className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
 													onError={(e) => { e.target.src = '/images/i10.jpg'; }}
 												/>

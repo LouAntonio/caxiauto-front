@@ -1,16 +1,17 @@
 import React, { useState } from 'react'
-import { Search, RotateCcw, Car, Fuel, Settings, Gauge, Calendar, Wallet } from 'lucide-react'
+import { Search, RotateCcw, Car, Fuel, Settings, Calendar, Wallet } from 'lucide-react'
 
-export default function VehicleFilter({ onFilterChange }) {
+export default function RentalVehicleFilter({ onFilterChange }) {
 	const [filters, setFilters] = useState({
-		pesquisa: '',
-		marca: '',
-		classe: '',
-		combustivel: '',
-		transmissao: '',
-		quilometros: '',
-		ano: '',
-		preco: ''
+		search: '',
+		manufacturer: '',
+		class: '',
+		fuelType: '',
+		transmission: '',
+		minPrice: '',
+		maxPrice: '',
+		minYear: '',
+		maxYear: ''
 	})
 
 	const handleChange = (field, value) => {
@@ -19,7 +20,7 @@ export default function VehicleFilter({ onFilterChange }) {
 			[field]: value
 		}
 		setFilters(newFilters)
-		// Não executa busca automática - aguarda clique nos botões
+		// Não chama onFilterChange automaticamente
 	}
 
 	const handleSearch = (e) => {
@@ -31,20 +32,24 @@ export default function VehicleFilter({ onFilterChange }) {
 
 	const handleReset = () => {
 		const resetFilters = {
-			pesquisa: '',
-			marca: '',
-			classe: '',
-			combustivel: '',
-			transmissao: '',
-			quilometros: '',
-			ano: '',
-			preco: ''
+			search: '',
+			manufacturer: '',
+			class: '',
+			fuelType: '',
+			transmission: '',
+			minPrice: '',
+			maxPrice: '',
+			minYear: '',
+			maxYear: ''
 		}
 		setFilters(resetFilters)
 		if (onFilterChange) {
 			onFilterChange(resetFilters)
 		}
 	}
+
+	const currentYear = new Date().getFullYear()
+	const years = Array.from({ length: 15 }, (_, i) => currentYear - i)
 
 	return (
 		<div className="w-full bg-gradient-to-br from-white to-gray-50 text-gray-800 rounded-2xl p-6 shadow-xl border border-gray-100">
@@ -57,8 +62,8 @@ export default function VehicleFilter({ onFilterChange }) {
 					</label>
 					<input
 						type="text"
-						value={filters.pesquisa}
-						onChange={(e) => handleChange('pesquisa', e.target.value)}
+						value={filters.search}
+						onChange={(e) => handleChange('search', e.target.value)}
 						placeholder="Ex: Toyota Corolla, Honda..."
 						className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 bg-white outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm placeholder:text-gray-400"
 					/>
@@ -72,23 +77,25 @@ export default function VehicleFilter({ onFilterChange }) {
 							Marca
 						</label>
 						<select
-							value={filters.marca}
-							onChange={(e) => handleChange('marca', e.target.value)}
+							value={filters.manufacturer}
+							onChange={(e) => handleChange('manufacturer', e.target.value)}
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todas</option>
-							<option>Toyota</option>
-							<option>Ford</option>
-							<option>Chevrolet</option>
-							<option>Honda</option>
-							<option>Nissan</option>
-							<option>Mercedes-Benz</option>
-							<option>BMW</option>
-							<option>Audi</option>
-							<option>Volkswagen</option>
-							<option>Hyundai</option>
-							<option>Kia</option>
-							<option>Mazda</option>
+							<option value="Toyota">Toyota</option>
+							<option value="Ford">Ford</option>
+							<option value="Chevrolet">Chevrolet</option>
+							<option value="Honda">Honda</option>
+							<option value="Nissan">Nissan</option>
+							<option value="Mercedes-Benz">Mercedes-Benz</option>
+							<option value="BMW">BMW</option>
+							<option value="Audi">Audi</option>
+							<option value="Volkswagen">Volkswagen</option>
+							<option value="Hyundai">Hyundai</option>
+							<option value="Kia">Kia</option>
+							<option value="Mazda">Mazda</option>
+							<option value="Renault">Renault</option>
+							<option value="Peugeot">Peugeot</option>
 						</select>
 					</div>
 
@@ -98,19 +105,21 @@ export default function VehicleFilter({ onFilterChange }) {
 							Classe
 						</label>
 						<select
-							value={filters.classe}
-							onChange={(e) => handleChange('classe', e.target.value)}
+							value={filters.class}
+							onChange={(e) => handleChange('class', e.target.value)}
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todas</option>
-							<option>SUV</option>
-							<option>Sedan</option>
-							<option>Hatchback</option>
-							<option>Pickup</option>
-							<option>Van</option>
-							<option>Coupé</option>
-							<option>Minivan</option>
-							<option>Crossover</option>
+							<option value="SUV">SUV</option>
+							<option value="Sedan">Sedan</option>
+							<option value="Hatchback">Hatchback</option>
+							<option value="Pickup">Pickup</option>
+							<option value="Van">Van</option>
+							<option value="Coupé">Coupé</option>
+							<option value="Minivan">Minivan</option>
+							<option value="Crossover">Crossover</option>
+							<option value="Compacto">Compacto</option>
+							<option value="Executivo">Executivo</option>
 						</select>
 					</div>
 				</div>
@@ -123,15 +132,15 @@ export default function VehicleFilter({ onFilterChange }) {
 							Combustível
 						</label>
 						<select
-							value={filters.combustivel}
-							onChange={(e) => handleChange('combustivel', e.target.value)}
+							value={filters.fuelType}
+							onChange={(e) => handleChange('fuelType', e.target.value)}
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todos</option>
-							<option>Gasolina</option>
-							<option>Diesel</option>
-							<option>Elétrico</option>
-							<option>Híbrido</option>
+							<option value="Gasolina">Gasolina</option>
+							<option value="Diesel">Diesel</option>
+							<option value="Elétrico">Elétrico</option>
+							<option value="Híbrido">Híbrido</option>
 						</select>
 					</div>
 
@@ -141,78 +150,85 @@ export default function VehicleFilter({ onFilterChange }) {
 							Transmissão
 						</label>
 						<select
-							value={filters.transmissao}
-							onChange={(e) => handleChange('transmissao', e.target.value)}
+							value={filters.transmission}
+							onChange={(e) => handleChange('transmission', e.target.value)}
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todas</option>
-							<option>Manual</option>
-							<option>Automática</option>
+							<option value="Manual">Manual</option>
+							<option value="Automática">Automática</option>
 						</select>
 					</div>
 				</div>
 
-				{/* Ano e Quilometragem (Grid 2 colunas) */}
+				{/* Faixa de Ano (Grid 2 colunas) */}
 				<div className="grid grid-cols-2 gap-3">
 					<div className="space-y-2">
 						<label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
 							<Calendar className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />
-							Ano
+							Ano Mín.
 						</label>
 						<select
-							value={filters.ano}
-							onChange={(e) => handleChange('ano', e.target.value)}
+							value={filters.minYear}
+							onChange={(e) => handleChange('minYear', e.target.value)}
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Qualquer</option>
-							<option>2026</option>
-							<option>2024</option>
-							<option>2022</option>
-							<option>2020</option>
-							<option>2018</option>
-							<option>2015</option>
-							<option>2010</option>
+							{years.map(year => (
+								<option key={year} value={year}>{year}</option>
+							))}
 						</select>
 					</div>
 
 					<div className="space-y-2">
 						<label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
-							<Gauge className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />
-							Km
+							<Calendar className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />
+							Ano Máx.
 						</label>
 						<select
-							value={filters.quilometros}
-							onChange={(e) => handleChange('quilometros', e.target.value)}
+							value={filters.maxYear}
+							onChange={(e) => handleChange('maxYear', e.target.value)}
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Qualquer</option>
-							<option>Até 50k</option>
-							<option>Até 100k</option>
-							<option>Até 150k</option>
-							<option>Até 200k</option>
-							<option>+200k</option>
+							{years.map(year => (
+								<option key={year} value={year}>{year}</option>
+							))}
 						</select>
 					</div>
 				</div>
 
-				{/* Preço (largura completa) */}
-				<div className="space-y-2">
-					<label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
-						<Wallet className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />
-						Preço Máximo
-					</label>
-					<select
-						value={filters.preco}
-						onChange={(e) => handleChange('preco', e.target.value)}
-						className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
-					>
-						<option value="">Sem limite</option>
-						<option>Até 5M Kz</option>
-						<option>Até 10M Kz</option>
-						<option>Até 15M Kz</option>
-						<option>Até 20M Kz</option>
-						<option>Até 30M Kz</option>
-					</select>
+				{/* Faixa de Preço (Grid 2 colunas) */}
+				<div className="grid grid-cols-2 gap-3">
+					<div className="space-y-2">
+						<label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
+							<Wallet className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />
+							Preço Mín.
+						</label>
+						<input
+							type="number"
+							value={filters.minPrice}
+							onChange={(e) => handleChange('minPrice', e.target.value)}
+							placeholder="0 Kz"
+							min="0"
+							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm placeholder:text-gray-400"
+						/>
+					</div>
+
+					<div className="space-y-2">
+						<label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
+							<Wallet className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />
+							Preço Máx.
+						</label>
+						<input
+							type="number"
+							value={filters.maxPrice}
+							onChange={(e) => handleChange('maxPrice', e.target.value)}
+							placeholder="Sem limite"
+							min="0"
+							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm placeholder:text-gray-400"
+						/>
+					</div>
 				</div>
 
 				{/* Divider */}

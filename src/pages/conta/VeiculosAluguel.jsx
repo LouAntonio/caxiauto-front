@@ -24,7 +24,7 @@ import {
 	Clock
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
-import api, { API_URL } from '../../services/api';
+import api, { API_URL, getImageUrl } from '../../services/api';
 
 const VeiculosAluguel = () => {
 	useDocumentTitle('Meus Veículos para Aluguel - CaxiAuto');
@@ -477,7 +477,7 @@ const VeiculosAluguel = () => {
 								<div className="h-48 bg-gray-200 relative">
 									{vehicle.mainImage ? (
 										<img
-											src={`${API_URL}${vehicle.mainImage}`}
+											src={getImageUrl(vehicle.mainImage)}
 											alt={vehicle.name}
 											className="w-full h-full object-cover"
 										/>

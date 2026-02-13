@@ -13,6 +13,20 @@ const notyf = new Notyf({
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:20262';
 
 /**
+ * Constrói URL completa para imagens de veículos
+ * @param {string|null} imagePath - Caminho da imagem (ex: "/uploads/veiculos/image.jpg")
+ * @param {string} fallback - Imagem padrão a ser usada se não houver imagem
+ * @returns {string} - URL completa da imagem
+ */
+const getImageUrl = (imagePath, fallback = '/images/i10.jpg') => {
+	if (!imagePath) return fallback;
+	if (imagePath.startsWith('http')) return imagePath;
+	// Remove barra inicial para evitar barras duplas na URL final
+	const cleanPath = imagePath.replace(/^\//, '');
+	return `${API_URL}/${cleanPath}`;
+};
+
+/**
  * Faz logout do usuário limpando o localStorage e redirecionando para login
  */
 const handleSessionExpired = () => {
@@ -196,7 +210,29 @@ const api = {
 			...options,
 		});
 	},
+
+	/**
+	 * Buscar veículo de aluguel por ID
+	 * @param {string} id - ID do veículo
+	 */
+	getVeiculoAluguel: (id) => {
+		return apiRequest(`/aluguelveiculos/${id}`, {
+			method: 'GET',
+		});
+	},
+
+	/**
+	 * Listar veículos de aluguel
+	 * @param {object} params - Parâmetros de busca (page, limit, search, etc.)
+	 */
+	listVeiculosAluguel: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		const endpoint = queryString ? `/aluguelveiculos?${queryString}` : '/aluguelveiculos';
+		return apiRequest(endpoint, {
+			method: 'GET',
+		});
+	},
 };
 
 export default api;
-export { API_URL, notyf };
+export { API_URL, getImageUrl, notyf };
