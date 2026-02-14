@@ -568,7 +568,7 @@ export default function DetalhesCompra() {
 									</label>
 									<select
 										required
-									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-indigo-500 bg-white cursor-pointer text-sm sm:text-base font-medium"
+									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  bg-white cursor-pointer text-sm sm:text-base font-medium"
 									>
 										<option value="">Selecione uma opção</option>
 										<option value="vista">Aceitar  Preço - {formatPrice(vehicle.price)} aKz</option>

@@ -70,6 +70,11 @@ export default function AluguelDeAutomoveis() {
 			if (appliedFilters.minYear) params.append('minYear', appliedFilters.minYear);
 			if (appliedFilters.maxYear) params.append('maxYear', appliedFilters.maxYear);
 
+			// Filtro de destaque
+			if (appliedFilters.featured) {
+				params.append('featured', 'true');
+			}
+
 			// Fazer a requisição para a API
 			const response = await api.get(`/aluguelveiculos?${params.toString()}`);
 

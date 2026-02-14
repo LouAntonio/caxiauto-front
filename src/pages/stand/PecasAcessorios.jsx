@@ -1,15 +1,28 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Package, Star, ShoppingCart, Search, Wrench, Zap, Lightbulb, Users, Box, Layers, Settings, Filter } from 'lucide-react'
+import { Package, Star, Search, Layers, Filter, Loader, X } from 'lucide-react'
 import Pagination from '../../components/Pagination'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
+import api, { getImageUrl } from '../../services/api'
 
 export default function PecasAcessorios() {
 	useDocumentTitle('Peças e Acessórios - Caxiauto')
 
 	const [searchTerm, setSearchTerm] = useState('')
-	const [selectedCategory, setSelectedCategory] = useState('Todas')
+	const [selectedCategory, setSelectedCategory] = useState('')
+	const [featuredOnly, setFeaturedOnly] = useState(false)
+
+	// Estados para filtros aplicados (usados na API)
+	const [appliedSearchTerm, setAppliedSearchTerm] = useState('')
+	const [appliedCategory, setAppliedCategory] = useState('')
+	const [appliedFeaturedOnly, setAppliedFeaturedOnly] = useState(false)
+
 	const [currentPage, setCurrentPage] = useState(1)
+	const [loading, setLoading] = useState(true)
+	const [categories, setCategories] = useState([])
+	const [parts, setParts] = useState([])
+	const [pagination, setPagination] = useState({})
+	const [sortBy, setSortBy] = useState('')
 	const itemsPerPage = 16
 
 	const handlePageChange = (page) => {
@@ -17,55 +30,108 @@ export default function PecasAcessorios() {
 		window.scrollTo({ top: 0, behavior: 'smooth' })
 	}
 
-	// Categorias
-	const categories = [
-		'Todas',
-		'Motor',
-		'Transmissão',
-		'Suspensão',
-		'Freios',
-		'Elétrica',
-		'Iluminação',
-		'Interior',
-		'Exterior',
-		'Acessórios'
-	]
+	// Aplicar filtros
+	const handleApplyFilters = () => {
+		setAppliedSearchTerm(searchTerm)
+		setAppliedCategory(selectedCategory)
+		setAppliedFeaturedOnly(featuredOnly)
+		setCurrentPage(1)
+	}
 
-	// Dados de exemplo das peças
-	const parts = [
-		{ id: 1, name: 'Filtro de Óleo', category: 'Motor', price: '3.500', image: './images/i10.jpg', rating: 4.5, stock: 25 },
-		{ id: 2, name: 'Pastilha de Freio', category: 'Freios', price: '8.500', image: './images/i10.jpg', rating: 4.8, stock: 15 },
-		{ id: 3, name: 'Bateria 60Ah', category: 'Elétrica', price: '45.000', image: './images/i10.jpg', rating: 4.7, stock: 8 },
-		{ id: 4, name: 'Amortecedor Dianteiro', category: 'Suspensão', price: '35.000', image: './images/i10.jpg', rating: 4.6, stock: 12 },
+	// Limpar filtros
+	const handleClearFilters = () => {
+		setSearchTerm('')
+		setSelectedCategory('')
+		setFeaturedOnly(false)
+		setAppliedSearchTerm('')
+		setAppliedCategory('')
+		setAppliedFeaturedOnly(false)
+		setCurrentPage(1)
+	}
 
-		{ id: 5, name: 'Disco de Freio', category: 'Freios', price: '15.000', image: './images/i10.jpg', rating: 4.5, stock: 20 },
-		{ id: 6, name: 'Farol LED', category: 'Iluminação', price: '28.000', image: './images/i10.jpg', rating: 4.9, stock: 10 },
-		{ id: 7, name: 'Correia Dentada', category: 'Motor', price: '12.500', image: './images/i10.jpg', rating: 4.4, stock: 18 },
-		{ id: 8, name: 'Tapete Automotivo', category: 'Interior', price: '6.500', image: './images/i10.jpg', rating: 4.3, stock: 30 },
+	// Carregar categorias
+	useEffect(() => {
+		const fetchCategories = async () => {
+			try {
+				const response = await api.listCategoriasPecas({ limit: 50 })
+				if (response.success) {
+					setCategories(response.data || [])
+				}
+			} catch (error) {
+				console.error('Erro ao carregar categorias:', error)
+			}
+		}
+		fetchCategories()
+	}, [])
 
-		{ id: 9, name: 'Velas de Ignição', category: 'Motor', price: '4.200', image: './images/i10.jpg', rating: 4.6, stock: 40 },
-		{ id: 10, name: 'Embreagem Kit', category: 'Transmissão', price: '65.000', image: './images/i10.jpg', rating: 4.7, stock: 6 },
-		{ id: 11, name: 'Retrovisor Elétrico', category: 'Exterior', price: '18.500', image: './images/i10.jpg', rating: 4.5, stock: 14 },
-		{ id: 12, name: 'Central Multimídia', category: 'Acessórios', price: '85.000', image: './images/i10.jpg', rating: 4.8, stock: 5 },
+	// Carregar peças inicialmente
+	useEffect(() => {
+		const fetchParts = async () => {
+			setLoading(true)
+			try {
+				const params = {
+					page: 1,
+					limit: itemsPerPage
+				}
 
-		{ id: 13, name: 'Filtro de Ar', category: 'Motor', price: '5.500', image: './images/i10.jpg', rating: 4.4, stock: 35 },
-		{ id: 14, name: 'Sensor de Estacionamento', category: 'Acessórios', price: '32.000', image: './images/i10.jpg', rating: 4.6, stock: 11 },
-		{ id: 15, name: 'Lâmpada LED H7', category: 'Iluminação', price: '7.800', image: './images/i10.jpg', rating: 4.5, stock: 22 },
-		{ id: 16, name: 'Capa de Volante', category: 'Interior', price: '2.500', image: './images/i10.jpg', rating: 4.2, stock: 50 }
-	]
+				const response = await api.listPecas(params)
+				if (response.success) {
+					setParts(response.data || [])
+					setPagination(response.pagination || {})
+				}
+			} catch (error) {
+				console.error('Erro ao carregar peças:', error)
+			} finally {
+				setLoading(false)
+			}
+		}
+		fetchParts()
+	}, [])
 
-	// Filtrar peças
-	const filteredParts = parts.filter(part => {
-		const matchesSearch = part.name.toLowerCase().includes(searchTerm.toLowerCase())
-		const matchesCategory = selectedCategory === 'Todas' || part.category === selectedCategory
-		return matchesSearch && matchesCategory
-	})
+	// Carregar peças
+	useEffect(() => {
+		const fetchParts = async () => {
+			setLoading(true)
+			try {
+				const params = {
+					page: currentPage,
+					limit: itemsPerPage
+				}
 
-	// Cálculos de paginação
-	const totalPages = Math.ceil(filteredParts.length / itemsPerPage)
-	const indexOfLastItem = currentPage * itemsPerPage
-	const indexOfFirstItem = indexOfLastItem - itemsPerPage
-	const currentItems = filteredParts.slice(indexOfFirstItem, indexOfLastItem)
+				if (appliedSearchTerm) {
+					params.search = appliedSearchTerm
+				}
+
+				if (appliedCategory) {
+					params.categoria = appliedCategory
+				}
+
+				if (appliedFeaturedOnly) {
+					params.destaque = true
+				}
+
+				const response = await api.listPecas(params)
+				if (response.success) {
+					setParts(response.data || [])
+					setPagination(response.pagination || {})
+				}
+			} catch (error) {
+				console.error('Erro ao carregar peças:', error)
+			} finally {
+				setLoading(false)
+			}
+		}
+		fetchParts()
+	}, [currentPage, appliedSearchTerm, appliedCategory, appliedFeaturedOnly, sortBy])
+
+	// Funções auxiliares
+	const getRating = (spechs) => {
+		// Se não tem avaliação no spechs, retorna uma padrão entre 4.0 e 4.9
+		if (spechs && spechs.rating) {
+			return parseFloat(spechs.rating)
+		}
+		return 4.0 + Math.random() * 0.9
+	}
 
 	return (
 		<div className="min-h-screen bg-gray-50">
@@ -105,10 +171,7 @@ export default function PecasAcessorios() {
 										<input
 											type="text"
 											value={searchTerm}
-											onChange={(e) => {
-												setSearchTerm(e.target.value)
-												setCurrentPage(1)
-											}}
+											onChange={(e) => setSearchTerm(e.target.value)}
 											placeholder="Ex: Filtro de óleo, pastilha..."
 											className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 bg-white outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm placeholder:text-gray-400"
 										/>
@@ -121,44 +184,76 @@ export default function PecasAcessorios() {
 											Categorias
 										</label>
 										<div className="flex flex-wrap gap-2">
-											{categories.map((category) => {
-										const getCategoryIcon = () => {
-											switch(category) {
-												case 'Motor': return <Settings className="w-4 h-4" />
-												case 'Transmissão': return <Box className="w-4 h-4" />
-												case 'Suspensão': return <Wrench className="w-4 h-4" />
-												case 'Freios': return <Package className="w-4 h-4" />
-												case 'Elétrica': return <Zap className="w-4 h-4" />
-												case 'Iluminação': return <Lightbulb className="w-4 h-4" />
-												case 'Interior': return <Users className="w-4 h-4" />
-												case 'Exterior': return <Box className="w-4 h-4" />
-												case 'Acessórios': return <Star className="w-4 h-4" />
-												default: return <Layers className="w-4 h-4" />
-											}
-										}
-										return (
 											<button
-												key={category}
-												onClick={() => {
-													setSelectedCategory(category)
-													setCurrentPage(1)
-												}}
-												className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${selectedCategory === category
-														? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md'
-														: 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-sm'
+												onClick={() => setSelectedCategory('')}
+												className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${selectedCategory === ''
+													? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md'
+													: 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-sm'
 													}`}
 											>
-												{getCategoryIcon()}
-												<span>{category}</span>
-												{selectedCategory === category && (
+												<Layers className="w-4 h-4" />
+												<span>Todas</span>
+												{selectedCategory === '' && (
 													<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
 														<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
 													</svg>
 												)}
 											</button>
-										)
-									})}
+
+											{/* Categorias da API */}
+											{categories.map((category) => (
+												<button
+													key={category._id}
+													onClick={() => setSelectedCategory(category._id)}
+													className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${selectedCategory === category._id
+														? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md'
+														: 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-sm'
+														}`}
+												>
+
+													<span className="capitalize">{category.nome}</span>
+													{selectedCategory === category._id && (
+														<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+															<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+														</svg>
+													)}
+												</button>
+											))}
 										</div>
+									</div>
+
+									{/* Filtro Em Destaque */}
+									<div className="space-y-2">
+										<label className="flex items-center gap-3 cursor-pointer">
+											<input
+												type="checkbox"
+												checked={featuredOnly}
+												onChange={(e) => setFeaturedOnly(e.target.checked)}
+												className="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded"
+											/>
+											<span className="text-sm text-gray-700">
+												Mostrar apenas peças em destaque
+											</span>
+										</label>
+									</div>
+
+									{/* Bot\u00f5es de A\u00e7\u00e3o */}
+									<div className="flex gap-2 pt-2">
+										<button
+											onClick={handleApplyFilters}
+											style={{ backgroundColor: 'var(--primary)' }}
+											className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity  cursor-pointer"
+										>
+											<Search className="w-4 h-4" />
+											Pesquisar
+										</button>
+										<button
+											onClick={handleClearFilters}
+											className="px-3 py-2.5 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors cursor-pointer"
+											title="Limpar filtros"
+										>
+											<X className="w-4 h-4" />
+										</button>
 									</div>
 								</div>
 							</div>
@@ -169,88 +264,106 @@ export default function PecasAcessorios() {
 					<main className="flex-1">
 						<div className="mb-6 flex items-center justify-between">
 							<p className="text-gray-600">
-								<span className="font-semibold text-gray-900">{filteredParts.length} produtos</span> encontrados
+								<span className="font-semibold text-gray-900">{pagination.totalItems || 0} produtos</span> encontrados
 							</p>
-							<select className="border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none cursor-pointer">
-								<option>Ordenar por: Relevância</option>
-								<option>Preço: Menor para Maior</option>
-								<option>Preço: Maior para Menor</option>
-								<option>Mais Vendidos</option>
-								<option>Melhor Avaliados</option>
+							<select
+								value={sortBy}
+								onChange={(e) => setSortBy(e.target.value)}
+								className="border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none cursor-pointer"
+							>
+								<option value="">Ordenar por: Relevância</option>
+								<option value="price_asc">Preço: Menor para Maior</option>
+								<option value="price_desc">Preço: Maior para Menor</option>
+								<option value="newest">Mais Recentes</option>
+								<option value="name_asc">Nome: A-Z</option>
 							</select>
 						</div>
 
-						<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-							{currentItems.map((part) => (
-								<article
-									key={part.id}
-									className="flex-shrink-0 w-full bg-white rounded-2xl shadow-lg overflow-hidden group"
-								>
-									{/* Imagem */}
-									<div className="relative h-36 overflow-hidden">
-										<img
-											src={part.image}
-											alt={part.name}
-											//onError={(e) => { e.target.src = '/images/i10.png' }}
-											className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-											onError={(e) => { e.target.src = '/images/parts.jpg'; }}
-										/>
-										{/* Badge de estoque */}
-										<div className="absolute top-3 left-3">
-											<span className={`badge px-2 py-0.5 text-xs font-semibold rounded ${part.stock > 20 ? 'bg-green-600 text-white' : part.stock > 10 ? 'bg-yellow-500 text-white' : 'bg-red-500 text-white'
-												}`}>
-												{part.stock} em estoque
-											</span>
-										</div>
-									</div>
-
-									{/* Conteúdo */}
-									<div className="p-4">
-										<h3 className="text-sm font-semibold line-clamp-2">
-											{part.name}
-										</h3>
-
-										{/* Preço */}
-										<div className="text-primary font-bold mt-2 mb-3">
-											{parseInt(part.price).toFixed(2)} akz
-										</div>
-
-										{/* Categoria e Rating */}
-										<div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-											<span className="text-xs bg-gray-100 px-2 py-0.5 rounded">{part.category}</span>
-											<div className="flex items-center gap-1">
-												{[...Array(5)].map((_, i) => (
-													<Star
-														key={i}
-														className={`w-3 h-3 ${i < Math.floor(part.rating)
-																? 'fill-yellow-400 text-yellow-400'
-																: 'fill-gray-200 text-gray-200'
-															}`}
-													/>
-												))}
-											</div>
-										</div>
-
-										{/* Botão */}
-									<Link to={`/stand/pecas-acessorios/${part.id}`}>
-										<button
-											style={{ backgroundColor: 'var(--secondary)' }}
-											className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 w-full cursor-pointer"
+						{loading ? (
+							<div className="flex justify-center items-center py-12">
+								<Loader className="w-8 h-8 animate-spin" style={{ color: 'var(--primary)' }} />
+								<span className="ml-2 text-gray-600">Carregando peças...</span>
+							</div>
+						) : parts.length === 0 ? (
+							<div className="text-center py-12">
+								<Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+								<p className="text-gray-500 text-lg">Nenhuma peça encontrada</p>
+								<p className="text-gray-400 text-sm mt-2">Tente ajustar os filtros de busca</p>
+							</div>
+						) : (
+							<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+								{parts.map((part) => {
+									const rating = getRating(part.spechs)
+									return (
+										<article
+											key={part._id}
+											className="flex flex-col w-full bg-white rounded-2xl shadow-lg overflow-hidden group h-full"
 										>
-											Ver Detalhes
-										</button>
-									</Link>
-									</div>
-								</article>
-							))}
-						</div>
+											{/* Imagem */}
+											<div className="relative h-36 overflow-hidden">
+												<img
+													src={getImageUrl(part.image, '/images/parts.jpg')}
+													alt={part.nome}
+													className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+													onError={(e) => { e.target.src = '/images/parts.jpg'; }}
+												/>
+												{/* Badge de estoque */}
+												<div className="absolute top-3 left-3">
+													<span className={`badge px-2 py-0.5 text-xs font-semibold rounded ${part.stock > 20 ? 'bg-green-600 text-white' : part.stock > 10 ? 'bg-yellow-500 text-white' : 'bg-red-500 text-white'
+														}`}>
+														{part.stock || 0} em estoque
+													</span>
+												</div>
+												{/* Badge de condição */}
+												<div className="absolute top-3 right-3">
+													<span className={`badge px-2 py-0.5 text-xs font-semibold rounded capitalize ${part.condition === 'new' ? 'bg-blue-600 text-white' : 'bg-orange-600 text-white'
+														}`}>
+														{part.condition === 'new' ? 'Novo' : 'Usado'}
+													</span>
+												</div>
+											</div>
 
+											{/* Conteúdo */}
+											<div className="flex flex-col flex-grow p-4">
+												<h3 className="text-sm font-semibold line-clamp-2 capitalize">
+													{part.nome}
+												</h3>
+
+												{/* Preço */}
+												<div className="text-primary font-bold mt-2 mb-3">
+													{part.price?.toFixed(2)} akz
+												</div>
+
+												{/* Categoria e Rating */}
+												<div className="flex items-center justify-between text-sm text-gray-600 mb-3">
+													<span className="text-xs bg-gray-100 px-2 py-0.5 rounded capitalize">
+														{part.categoria?.nome || 'Sem categoria'}
+													</span>
+												</div>
+
+												{/* Botão - no fundo do card */}
+												<div className="mt-auto">
+													<Link to={`/stand/pecas-acessorios/${part._id}`}>
+														<button
+															style={{ backgroundColor: 'var(--secondary)' }}
+															className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 w-full cursor-pointer"
+														>
+															Ver Detalhes
+														</button>
+													</Link>
+												</div>
+											</div>
+										</article>
+									)
+								})}
+							</div>
+						)}
 						{/* Pagination */}
-						{totalPages > 1 && (
+						{pagination.totalPages > 1 && (
 							<div className="mt-12">
 								<Pagination
 									currentPage={currentPage}
-									totalPages={totalPages}
+									totalPages={pagination.totalPages}
 									onPageChange={handlePageChange}
 								/>
 							</div>

@@ -232,7 +232,39 @@ const api = {
 			method: 'GET',
 		});
 	},
-};
+	/**
+	 * Listar categorias de peças
+	 * @param {object} params - Parâmetros de busca (page, limit, search)
+	 */
+	listCategoriasPecas: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		const endpoint = queryString ? `/categoriaspecas?${queryString}` : '/categoriaspecas';
+		return apiRequest(endpoint, {
+			method: 'GET',
+		});
+	},
+
+	/**
+	 * Listar peças
+	 * @param {object} params - Parâmetros de busca (page, limit, search, categoria, condition, minPrice, maxPrice)
+	 */
+	listPecas: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		const endpoint = queryString ? `/pecas?${queryString}` : '/pecas';
+		return apiRequest(endpoint, {
+			method: 'GET',
+		});
+	},
+
+	/**
+	 * Buscar peça por ID
+	 * @param {string} id - ID da peça
+	 */
+	getPeca: (id) => {
+		return apiRequest(`/pecas/${id}`, {
+			method: 'GET',
+		});
+	},};
 
 export default api;
 export { API_URL, getImageUrl, notyf };

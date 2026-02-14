@@ -11,7 +11,8 @@ export default function RentalVehicleFilter({ onFilterChange }) {
 		minPrice: '',
 		maxPrice: '',
 		minYear: '',
-		maxYear: ''
+		maxYear: '',
+		featured: false
 	})
 
 	const handleChange = (field, value) => {
@@ -40,7 +41,8 @@ export default function RentalVehicleFilter({ onFilterChange }) {
 			minPrice: '',
 			maxPrice: '',
 			minYear: '',
-			maxYear: ''
+			maxYear: '',
+			featured: false
 		}
 		setFilters(resetFilters)
 		if (onFilterChange) {
@@ -228,6 +230,22 @@ export default function RentalVehicleFilter({ onFilterChange }) {
 							min="0"
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm placeholder:text-gray-400"
 						/>
+					</div>
+				</div>
+
+				{/* Filtro de Destaque */}
+				<div className="space-y-2">
+					<div className="flex items-center gap-2">
+						<input
+							id="featured"
+							type="checkbox"
+							checked={filters.featured}
+							onChange={(e) => handleChange('featured', e.target.checked)}
+							className="w-4 h-4 text-yellow-500 border-2 border-gray-300 rounded"
+						/>
+						<label htmlFor="featured" className="text-sm text-gray-700 cursor-pointer">
+							Apenas veículos em destaque
+						</label>
 					</div>
 				</div>
 

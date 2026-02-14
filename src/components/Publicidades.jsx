@@ -112,7 +112,7 @@ export default function Publicidades() {
 					{/* Botão Anterior */}
 					<button
 						onClick={handlePrev}
-						className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+						className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition-colors "
 						aria-label="Slide anterior"
 					>
 						<svg
@@ -163,7 +163,7 @@ export default function Publicidades() {
 					{/* Botão Próximo */}
 					<button
 						onClick={handleNext}
-						className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+						className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition-colors "
 						aria-label="Próximo slide"
 					>
 						<svg

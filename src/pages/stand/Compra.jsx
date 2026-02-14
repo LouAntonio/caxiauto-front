@@ -23,10 +23,10 @@ export default function Compra() {
 	const fetchVehicles = async (customFilters = null) => {
 		try {
 			setLoading(true)
-			
+
 			// Usar filtros customizados se fornecidos, caso contrário usar os filtros do estado
 			const activeFilters = customFilters || filters
-			
+
 			// Construir query params
 			const params = new URLSearchParams({
 				page: currentPage,
@@ -44,7 +44,7 @@ export default function Compra() {
 				// Normalizar a transmissão para lowercase
 				params.append('transmission', activeFilters.transmissao.toLowerCase())
 			}
-			
+
 			// Processar faixa de preço
 			if (activeFilters.preco) {
 				const priceRanges = {
@@ -88,6 +88,11 @@ export default function Compra() {
 			// Processar pesquisa de texto (busca no nome e descrição)
 			if (activeFilters.pesquisa) {
 				params.append('search', activeFilters.pesquisa)
+			}
+
+			// Filtro de destaque
+			if (activeFilters.destaque) {
+				params.append('featured', 'true')
 			}
 
 			const response = await api.get(`/compraveiculos?${params.toString()}`)
@@ -187,7 +192,7 @@ export default function Compra() {
 							<p className="text-gray-600">
 								<span className="font-semibold text-gray-900">{totalVehicles} veículos</span> disponíveis
 							</p>
-							<select 
+							<select
 								className="border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none cursor-pointer"
 								value={sortBy}
 								onChange={handleSortChange}
@@ -220,7 +225,7 @@ export default function Compra() {
 											{/* Imagem */}
 											<div className="relative h-40 overflow-hidden">
 												<img
-												src={getImageUrl(car.mainImage, '/images/i10.jpg')}
+													src={getImageUrl(car.mainImage, '/images/i10.jpg')}
 													className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
 													onError={(e) => { e.target.src = '/images/i10.jpg'; }}
 												/>
@@ -271,17 +276,17 @@ export default function Compra() {
 												</div>
 
 												{/* Botão */}
-											<Link to={`/stand/compra/${car._id}`}>
-												<button
-													style={{ backgroundColor: 'var(--secondary)' }}
-													className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
-												>
-													Ver Detalhes
-												</button>
-											</Link>
+												<Link to={`/stand/compra/${car._id}`}>
+													<button
+														style={{ backgroundColor: 'var(--secondary)' }}
+														className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
+													>
+														Ver Detalhes
+													</button>
+												</Link>
 											</div>
 										</article>
-											))}
+									))}
 								</div>
 
 								{/* Pagination */}

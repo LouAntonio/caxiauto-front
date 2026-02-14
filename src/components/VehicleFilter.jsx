@@ -10,7 +10,8 @@ export default function VehicleFilter({ onFilterChange }) {
 		transmissao: '',
 		quilometros: '',
 		ano: '',
-		preco: ''
+		preco: '',
+		destaque: false
 	})
 
 	const handleChange = (field, value) => {
@@ -38,7 +39,8 @@ export default function VehicleFilter({ onFilterChange }) {
 			transmissao: '',
 			quilometros: '',
 			ano: '',
-			preco: ''
+			preco: '',
+			destaque: false
 		}
 		setFilters(resetFilters)
 		if (onFilterChange) {
@@ -213,6 +215,22 @@ export default function VehicleFilter({ onFilterChange }) {
 						<option>Até 20M Kz</option>
 						<option>Até 30M Kz</option>
 					</select>
+				</div>
+
+				{/* Filtro de Destaque */}
+				<div className="space-y-2">
+					<div className="flex items-center gap-2">
+						<input
+							id="destaque"
+							type="checkbox"
+							checked={filters.destaque}
+							onChange={(e) => handleChange('destaque', e.target.checked)}
+							className="w-4 h-4 text-yellow-500 border-2 border-gray-300 rounded"
+						/>
+						<label htmlFor="destaque" className="text-sm text-gray-700 cursor-pointer">
+							Apenas veículos em destaque
+						</label>
+					</div>
 				</div>
 
 				{/* Divider */}

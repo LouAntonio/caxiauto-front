@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
 	Package,
@@ -12,9 +12,12 @@ import {
 	Shield,
 	Truck,
 	RefreshCcw,
-	Award
+	Award,
+	Loader,
+	AlertCircle
 } from 'lucide-react'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
+import api, { getImageUrl } from '../../services/api'
 
 export default function DetalhesPecas() {
 	const { id } = useParams()
@@ -22,56 +25,110 @@ export default function DetalhesPecas() {
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [showContactModal, setShowContactModal] = useState(false)
 	const [quantity, setQuantity] = useState(1)
+	const [part, setPart] = useState(null)
+	const [loading, setLoading] = useState(true)
+	const [error, setError] = useState(null)
 
-	// Dados da peça (em produção, viria de uma API)
-	const part = {
-		id: parseInt(id) || 1,
-		name: 'Filtro de Óleo Bosch',
-		price: 3200,
-		category: 'Motor',
-		subcategory: 'Filtros',
-		brand: 'Bosch',
-		code: 'BOF-3200-A',
-		stock: 25,
-		rating: 4.7,
-		reviews: 132,
-		images: [
-			'/images/parts.jpg',
-			'/images/parts.jpg',
-			'/images/parts.jpg',
-			'/images/parts.jpg'
-		],
-		condition: 'Novo',
-		warranty: '12 meses',
-		description: 'Filtro de óleo original Bosch de alta qualidade, projetado para garantir máxima proteção ao motor do seu veículo. Fabricado com materiais de primeira linha, oferece excelente filtragem e durabilidade superior. Compatível com diversos modelos de veículos.',
-		specifications: {
-			'Marca': 'Bosch',
-			'Código': 'BOF-3200-A',
-			'Aplicação': 'Motor',
-			'Material': 'Celulose sintética',
-			'Rosca': '3/4-16 UNF',
-			'Diâmetro': '76mm',
-			'Altura': '88mm',
-			'Garantia': '12 meses'
-		},
-		features: [
-			'Filtragem superior',
-			'Maior durabilidade',
-			'Fácil instalação',
-			'Testado em laboratório',
-			'Certificação ISO 9001',
-			'Compatibilidade garantida'
-		],
-		badges: ['Original', 'Promoção', 'Mais Vendida']
+	// Função para formatar dados da API para o formato do componente
+	const formatPartData = (apiData) => {
+		const pecaData = apiData.data
+		
+		// Formar lista de imagens
+		let images = []
+		if (pecaData.image) {
+			images.push(getImageUrl(pecaData.image, '/images/parts.jpg'))
+		}
+		if (pecaData.gallery && pecaData.gallery.length > 0) {
+			images = [
+				...images,
+				...pecaData.gallery.map(img => getImageUrl(img, '/images/parts.jpg'))
+			]
+		}
+		if (images.length === 0) {
+			images = ['/images/parts.jpg']
+		}
+
+		// Mapear especificações (se existirem)
+		const specs = pecaData.spechs || {}
+		const specifications = {
+			'Categoria': pecaData.categoria?.nome || 'N/A',
+			'Condição': pecaData.condition === 'new' ? 'Novo' : 'Usado',
+			'Stock': `${pecaData.stock || 0} unidades`,
+			...specs
+		}
+
+		// Mapear características
+		const features = Array.isArray(pecaData.characteristics) 
+			? pecaData.characteristics 
+			: pecaData.characteristics 
+				? [pecaData.characteristics] 
+				: ['Peça de qualidade', 'Garantia de funcionamento']
+
+		// Definir badges baseados nos dados
+		const badges = []
+		if (pecaData.condition === 'new') badges.push('Novo')
+		if (pecaData.featured) badges.push('Destaque')
+		if (pecaData.stock && pecaData.stock > 0) badges.push('Em Stock')
+		if (badges.length === 0) badges.push('Disponível')
+
+		return {
+			id: pecaData._id,
+			name: pecaData.nome?.charAt(0).toUpperCase() + pecaData.nome?.slice(1) || 'Peça sem nome',
+			price: pecaData.price || 0,
+			category: pecaData.categoria?.nome || 'Não categorizada',
+			subcategory: pecaData.categoria?.descricao || '',
+			brand: specs.marca || specs.Marca || 'Marca não informada',
+			code: specs.codigo || specs.Código || pecaData._id?.slice(-8) || 'N/A',
+			stock: pecaData.stock || 0,
+			rating: 4.5, // Valor padrão por enquanto
+			reviews: Math.floor(Math.random() * 200) + 50, // Valor simulado
+			images,
+			condition: pecaData.condition === 'new' ? 'Novo' : 'Usado',
+			warranty: specs.garantia || specs.Garantia || '6 meses',
+			description: pecaData.descricao || 'Peça de alta qualidade para o seu veículo.',
+			specifications,
+			features,
+			badges
+		}
 	}
 
-	useDocumentTitle(`${part.name} - Peças - Caxiauto`)
+	// Buscar dados da peça na API
+	useEffect(() => {
+		const fetchPart = async () => {
+			try {
+				setLoading(true)
+				setError(null)
+				
+				const response = await api.getPeca(id)
+				
+				if (response.success && response.data) {
+					const formattedPart = formatPartData(response)
+					setPart(formattedPart)
+				} else {
+					setError('Peça não encontrada')
+				}
+			} catch (err) {
+				console.error('Erro ao buscar peça:', err)
+				setError('Erro ao carregar os dados da peça')
+			} finally {
+				setLoading(false)
+			}
+		}
+
+		if (id) {
+			fetchPart()
+		}
+	}, [id])
+
+	useDocumentTitle(part ? `${part.name} - Peças - Caxiauto` : 'Carregando peça - Caxiauto')
 
 	const nextImage = () => {
+		if (!part || !part.images) return
 		setCurrentImageIndex((prev) => (prev + 1) % part.images.length)
 	}
 
 	const prevImage = () => {
+		if (!part || !part.images) return
 		setCurrentImageIndex((prev) => (prev - 1 + part.images.length) % part.images.length)
 	}
 
@@ -84,10 +141,55 @@ export default function DetalhesPecas() {
 	}
 
 	const handleQuantityChange = (delta) => {
+		if (!part) return
 		const newQuantity = quantity + delta
 		if (newQuantity >= 1 && newQuantity <= part.stock) {
 			setQuantity(newQuantity)
 		}
+	}
+
+	// Estado de carregamento
+	if (loading) {
+		return (
+			<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex items-center justify-center">
+				<div className="text-center">
+					<Loader className="w-12 h-12 text-indigo-600 animate-spin mx-auto mb-4" />
+					<h2 className="text-xl font-semibold text-gray-700 mb-2">Carregando detalhes da peça...</h2>
+					<p className="text-gray-500">Por favor, aguarde um momento.</p>
+				</div>
+			</div>
+		)
+	}
+
+	// Estado de erro
+	if (error || !part) {
+		return (
+			<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex items-center justify-center">
+				<div className="text-center max-w-md mx-auto px-6">
+					<AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+					<h2 className="text-2xl font-bold text-gray-900 mb-4">
+						{error || 'Peça não encontrada'}
+					</h2>
+					<p className="text-gray-600 mb-6">
+						A peça que você está procurando não foi encontrada ou ocorreu um erro ao carregá-la.
+					</p>
+					<div className="flex gap-4 justify-center">
+						<button
+							onClick={() => navigate(-1)}
+							className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+						>
+							Voltar
+						</button>
+						<button
+							onClick={() => window.location.reload()}
+							className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+						>
+							Tentar Novamente
+						</button>
+					</div>
+				</div>
+			</div>
+		)
 	}
 
 	return (
@@ -100,7 +202,7 @@ export default function DetalhesPecas() {
 						<ChevronRight className="w-4 h-4" />
 						<Link to="/stand/pecas-acessorios" className="hover:text-indigo-600 transition-colors">Peças e Acessórios</Link>
 						<ChevronRight className="w-4 h-4" />
-						<span className="text-gray-900 font-medium">{part.name}</span>
+						<span className="text-gray-900 font-medium">{part?.name || 'Peça'}</span>
 					</nav>
 				</div>
 			</div>
@@ -113,14 +215,14 @@ export default function DetalhesPecas() {
 						<div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
 							<div className="relative h-96 bg-gradient-to-br from-gray-100 to-gray-200">
 								<img
-									src={part.images[currentImageIndex]}
-									alt={`${part.name} - Imagem ${currentImageIndex + 1}`}
+									src={part.images?.[currentImageIndex] || '/images/parts.jpg'}
+									alt={`${part?.name || 'Peça'} - Imagem ${currentImageIndex + 1}`}
 									className="w-full h-full object-contain p-8 transition-opacity duration-500"
 								/>
 
 								{/* Badges */}
 								<div className="absolute top-4 left-4 flex gap-2 flex-wrap">
-									{part.badges.map((badge, index) => (
+									{part?.badges?.map((badge, index) => (
 										<span
 											key={index}
 											className={`px-4 py-2 text-xs font-bold rounded-full shadow-lg backdrop-blur-sm ${
@@ -135,7 +237,7 @@ export default function DetalhesPecas() {
 								</div>
 
 								{/* Navegação de Imagens */}
-								{part.images.length > 1 && (
+								{part?.images && part.images.length > 1 && (
 									<>
 										<button
 											onClick={prevImage}
@@ -171,7 +273,7 @@ export default function DetalhesPecas() {
 
 							{/* Miniaturas */}
 							<div className="p-4 flex gap-2 overflow-x-auto">
-								{part.images.map((image, index) => (
+							{part?.images?.map((image, index) => (
 									<button
 										key={index}
 										onClick={() => setCurrentImageIndex(index)}
@@ -236,7 +338,7 @@ export default function DetalhesPecas() {
 								<div className="w-1 h-6 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full"></div>
 								Descrição
 							</h2>
-							<p className="text-gray-700 leading-relaxed">{part.description}</p>
+							<p className="text-gray-700 leading-relaxed">{part?.description || 'Descrição não disponível.'}</p>
 						</div>
 
 						{/* Especificações Técnicas */}
@@ -246,7 +348,7 @@ export default function DetalhesPecas() {
 								Especificações Técnicas
 							</h2>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-								{Object.entries(part.specifications).map(([key, value]) => (
+								{part?.specifications && Object.entries(part.specifications).map(([key, value]) => (
 								<div key={key} className="flex justify-between p-3 bg-gray-50 rounded-lg hover:bg-indigo-50 transition-colors cursor-pointer">
 										<span className="font-medium text-gray-700">{key}:</span>
 										<span className="text-gray-900">{value}</span>
@@ -262,7 +364,7 @@ export default function DetalhesPecas() {
 								Características
 							</h2>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-								{part.features.map((feature, index) => (
+								{part?.features?.map((feature, index) => (
 								<div key={index} className="flex items-center gap-2 text-gray-700 p-2 rounded-lg hover:bg-green-50 transition-colors group cursor-pointer">
 										<CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 group-hover:scale-110 transition-transform" />
 										<span className="text-sm">{feature}</span>
@@ -302,25 +404,25 @@ export default function DetalhesPecas() {
 									value={quantity}
 									onChange={(e) => {
 										const val = parseInt(e.target.value) || 1
-										if (val >= 1 && val <= part.stock) setQuantity(val)
+										if (val >= 1 && val <= (part?.stock || 0)) setQuantity(val)
 									}}
-									className="w-20 text-center border-2 border-gray-300 rounded-lg py-2 outline-none focus:border-indigo-500"
+									className="w-20 text-center border-2 border-gray-300 rounded-lg py-2 outline-none "
 								/>
 								<button
 									onClick={() => handleQuantityChange(1)}
 									className="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-									disabled={quantity >= part.stock}
+									disabled={quantity >= (part?.stock || 0)}
 								>
 									+
 								</button>
 							</div>
-							<p className="text-xs text-gray-500 mt-2">{part.stock} unidades disponíveis</p>
+							<p className="text-xs text-gray-500 mt-2">{part?.stock || 0} unidades disponíveis</p>
 						</div>
 								<div className="bg-gray-50 rounded-xl p-4 mb-4">
 									<div className="flex justify-between items-center">
 										<span className="text-gray-700 font-medium">Total:</span>
 										<span className="text-2xl font-bold text-indigo-600">
-											{formatPrice(part.price * quantity)} akz
+											{formatPrice((part?.price || 0) * quantity)} akz
 										</span>
 									</div>
 								</div>
@@ -457,7 +559,7 @@ export default function DetalhesPecas() {
 									<input
 										type="text"
 										required
-									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-indigo-500 text-sm sm:text-base"
+									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  text-sm sm:text-base"
 										placeholder="Digite seu nome completo"
 									/>
 								</div>

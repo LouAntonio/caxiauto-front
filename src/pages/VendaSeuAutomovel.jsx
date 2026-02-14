@@ -353,7 +353,7 @@ export default function VendaSeuAutomovel() {
 												value={formData.nomeCompleto}
 												onChange={handleInputChange}
 												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											/>
 										</div>
 										<div>
@@ -364,7 +364,7 @@ export default function VendaSeuAutomovel() {
 												value={formData.documento}
 												onChange={handleInputChange}
 												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											/>
 										</div>
 										<div>
@@ -375,7 +375,7 @@ export default function VendaSeuAutomovel() {
 												value={formData.telefone}
 												onChange={handleInputChange}
 												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											/>
 										</div>
 										<div>
@@ -386,7 +386,7 @@ export default function VendaSeuAutomovel() {
 												value={formData.email}
 												onChange={handleInputChange}
 												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											/>
 										</div>
 										<div className="md:col-span-2">
@@ -396,7 +396,7 @@ export default function VendaSeuAutomovel() {
 												value={formData.tipoVendedor}
 												onChange={handleInputChange}
 												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											>
 												<option value="">Selecione...</option>
 												<option value="proprietario">Proprietário</option>
@@ -425,7 +425,7 @@ export default function VendaSeuAutomovel() {
 												value={formData.marca}
 												onChange={handleInputChange}
 												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											/>
 										</div>
 										<div>
@@ -436,7 +436,7 @@ export default function VendaSeuAutomovel() {
 												value={formData.modelo}
 												onChange={handleInputChange}
 												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											/>
 										</div>
 										<div>
@@ -449,7 +449,7 @@ export default function VendaSeuAutomovel() {
 												required
 												min="1900"
 												max={new Date().getFullYear() + 1}
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											/>
 										</div>
 										<div>
@@ -459,7 +459,7 @@ export default function VendaSeuAutomovel() {
 												name="versao"
 												value={formData.versao}
 												onChange={handleInputChange}
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											/>
 										</div>
 										<div>
@@ -469,7 +469,7 @@ export default function VendaSeuAutomovel() {
 												value={formData.combustivel}
 												onChange={handleInputChange}
 												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											>
 												<option value="">Selecione...</option>
 												<option value="gasolina">Gasolina</option>
@@ -486,7 +486,7 @@ export default function VendaSeuAutomovel() {
 												value={formData.caixa}
 												onChange={handleInputChange}
 												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											>
 												<option value="">Selecione...</option>
 												<option value="manual">Manual</option>
@@ -501,7 +501,7 @@ export default function VendaSeuAutomovel() {
 												value={formData.quilometragem}
 												onChange={handleInputChange}
 												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											/>
 										</div>
 										<div>
@@ -512,7 +512,7 @@ export default function VendaSeuAutomovel() {
 												value={formData.cor}
 												onChange={handleInputChange}
 												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											/>
 										</div>
 										<div>
@@ -522,7 +522,7 @@ export default function VendaSeuAutomovel() {
 												value={formData.portas}
 												onChange={handleInputChange}
 												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											>
 												<option value="">Selecione...</option>
 												<option value="2">2 Portas</option>
@@ -537,7 +537,7 @@ export default function VendaSeuAutomovel() {
 												name="tracao"
 												value={formData.tracao}
 												onChange={handleInputChange}
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											>
 												<option value="">Selecione...</option>
 												<option value="dianteira">Tração Dianteira</option>
@@ -552,7 +552,7 @@ export default function VendaSeuAutomovel() {
 												value={formData.estado}
 												onChange={handleInputChange}
 												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											>
 												<option value="">Selecione...</option>
 												<option value="novo">Novo</option>
@@ -568,7 +568,7 @@ export default function VendaSeuAutomovel() {
 												value={formData.preco}
 												onChange={handleInputChange}
 												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											/>
 										</div>
 									</div>
@@ -595,7 +595,7 @@ export default function VendaSeuAutomovel() {
 												onChange={handleFileChange}
 												required
 												accept="image/*,.pdf"
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#154c9a] file:text-white file:cursor-pointer hover:file:bg-blue-700"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#154c9a] file:text-white file:cursor-pointer hover:file:bg-blue-700"
 											/>
 											<p className="text-sm text-gray-500 mt-2">Formatos aceitos: PDF ou imagem</p>
 											{formData.livrete && <p className="text-sm text-green-600 mt-1 font-medium">✓ Ficheiro selecionado: {formData.livrete.name}</p>}
@@ -611,7 +611,7 @@ export default function VendaSeuAutomovel() {
 												required
 												multiple
 												accept="image/*"
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#154c9a] file:text-white file:cursor-pointer hover:file:bg-blue-700"
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#154c9a] file:text-white file:cursor-pointer hover:file:bg-blue-700"
 											/>
 											<p className="text-sm text-gray-500 mt-2">
 												Tire fotos de diferentes ângulos: frente, traseira, laterais, interior e motor
@@ -691,7 +691,7 @@ export default function VendaSeuAutomovel() {
 												checked={formData.aceitaTermos}
 												onChange={handleInputChange}
 												required
-												className="mt-1 h-5 w-5 text-[#154c9a] focus:ring-[#154c9a] border-gray-300 rounded cursor-pointer"
+												className="mt-1 h-5 w-5 text-[#154c9a] border-gray-300 rounded cursor-pointer"
 											/>
 											<label className="text-gray-700 font-medium cursor-pointer">
 												Declaro que li e aceito os Termos e Condições da Caxiauto. *

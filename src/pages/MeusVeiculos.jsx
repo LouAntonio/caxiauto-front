@@ -323,7 +323,7 @@ const MeusVeiculos = () => {
 										onChange={handleChange}
 										required
 										placeholder="Ex: Toyota, Ford, Volkswagen"
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 									/>
 								</div>
 
@@ -339,7 +339,7 @@ const MeusVeiculos = () => {
 										onChange={handleChange}
 										required
 										placeholder="Ex: Corolla, Fiesta, Gol"
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 									/>
 								</div>
 
@@ -355,7 +355,7 @@ const MeusVeiculos = () => {
 										onChange={handleChange}
 										required
 										placeholder="Ex: 2020"
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 									/>
 								</div>
 
@@ -370,7 +370,7 @@ const MeusVeiculos = () => {
 										value={formData.color}
 										onChange={handleChange}
 										placeholder="Ex: Preto, Branco, Prata"
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 									/>
 								</div>
 
@@ -385,7 +385,7 @@ const MeusVeiculos = () => {
 										value={formData.plate}
 										onChange={handleChange}
 										placeholder="Ex: ABC-1234"
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 									/>
 								</div>
 
@@ -400,7 +400,7 @@ const MeusVeiculos = () => {
 										value={formData.mileage}
 										onChange={handleChange}
 										placeholder="Ex: 50000"
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 									/>
 								</div>
 
@@ -413,7 +413,7 @@ const MeusVeiculos = () => {
 										name="fuel"
 										value={formData.fuel}
 										onChange={handleChange}
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 									>
 										<option value="gasolina">Gasolina</option>
 										<option value="etanol">Etanol</option>
@@ -433,7 +433,7 @@ const MeusVeiculos = () => {
 										name="transmission"
 										value={formData.transmission}
 										onChange={handleChange}
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 									>
 										<option value="manual">Manual</option>
 										<option value="automatico">Automático</option>
@@ -453,7 +453,7 @@ const MeusVeiculos = () => {
 										value={formData.price}
 										onChange={handleChange}
 										placeholder="Ex: 45000"
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 									/>
 								</div>
 
@@ -468,7 +468,7 @@ const MeusVeiculos = () => {
 										value={formData.location}
 										onChange={handleChange}
 										placeholder="Ex: São Paulo, SP"
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 									/>
 								</div>
 
@@ -481,7 +481,7 @@ const MeusVeiculos = () => {
 										name="status"
 										value={formData.status}
 										onChange={handleChange}
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 									>
 										<option value="ativo">Ativo</option>
 										<option value="inativo">Inativo</option>
@@ -499,7 +499,7 @@ const MeusVeiculos = () => {
 										value={formData.imageUrl}
 										onChange={handleChange}
 										placeholder="https://exemplo.com/imagem.jpg"
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 									/>
 								</div>
 
@@ -514,7 +514,7 @@ const MeusVeiculos = () => {
 										onChange={handleChange}
 										rows="4"
 										placeholder="Descreva as características e condições do veículo..."
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent resize-none"
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg resize-none"
 									/>
 								</div>
 							</div>

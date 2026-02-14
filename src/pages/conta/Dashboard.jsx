@@ -146,7 +146,7 @@ const Dashboard = () => {
 									name="name"
 									value={formData.name}
 									onChange={handleChange}
-									className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+									className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 								/>
 							</div>
 
@@ -159,7 +159,7 @@ const Dashboard = () => {
 									name="surname"
 									value={formData.surname}
 									onChange={handleChange}
-									className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+									className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 								/>
 							</div>
 
@@ -172,7 +172,7 @@ const Dashboard = () => {
 									name="email"
 									value={formData.email}
 									onChange={handleChange}
-									className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+									className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 								/>
 							</div>
 
@@ -185,7 +185,7 @@ const Dashboard = () => {
 									name="phone"
 									value={formData.phone}
 									onChange={handleChange}
-									className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+									className="w-full px-4 py-2 border border-gray-300 rounded-lg"
 								/>
 							</div>
 

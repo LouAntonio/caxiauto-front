@@ -673,7 +673,7 @@ const VeiculosAluguel = () => {
 										onChange={handleChange}
 										required
 										placeholder="Ex: Toyota Corolla 2020 XEI Automático"
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									/>
 									<p className="text-sm text-gray-500 mt-2">Título que aparecerá no anúncio do veículo</p>
 								</div>
@@ -690,7 +690,7 @@ const VeiculosAluguel = () => {
 										onChange={handleChange}
 										required
 										placeholder="Ex: Toyota, Ford, Volkswagen"
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									/>
 								</div>
 
@@ -704,7 +704,7 @@ const VeiculosAluguel = () => {
 										value={formData.class}
 										onChange={handleChange}
 										required
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									>
 										<option value="">Selecione o tipo</option>
 										<option value="Sedan">Sedan</option>
@@ -731,7 +731,7 @@ const VeiculosAluguel = () => {
 										placeholder="Ex: 2020"
 										min="1990"
 										max={new Date().getFullYear() + 1}
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									/>
 								</div>
 
@@ -747,7 +747,7 @@ const VeiculosAluguel = () => {
 										onChange={handleChange}
 										required
 										placeholder="Ex: Preto, Branco, Prata"
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									/>
 								</div>
 
@@ -761,7 +761,7 @@ const VeiculosAluguel = () => {
 										value={formData.door}
 										onChange={handleChange}
 										required
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									>
 										<option value="">Selecione</option>
 										<option value="2">2 portas</option>
@@ -785,7 +785,7 @@ const VeiculosAluguel = () => {
 										placeholder="Ex: 5"
 										min="1"
 										max="50"
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									/>
 								</div>
 
@@ -802,7 +802,7 @@ const VeiculosAluguel = () => {
 										required
 										placeholder="Ex: 50000"
 										min="0"
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									/>
 								</div>
 
@@ -816,7 +816,7 @@ const VeiculosAluguel = () => {
 										value={formData.fuelType}
 										onChange={handleChange}
 										required
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									>
 										<option value="gasolina">Gasolina</option>
 										<option value="diesel">Diesel</option>
@@ -835,7 +835,7 @@ const VeiculosAluguel = () => {
 										value={formData.transmission}
 										onChange={handleChange}
 										required
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									>
 										<option value="manual">Manual</option>
 										<option value="automática">Automática</option>
@@ -854,7 +854,7 @@ const VeiculosAluguel = () => {
 										onChange={handleChange}
 										required
 										placeholder="Ex: Luanda, Angola"
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									/>
 								</div>
 
@@ -870,7 +870,7 @@ const VeiculosAluguel = () => {
 											<select
 												value={rentalPrice.period}
 												onChange={(e) => handleRentalPriceChange(index, 'period', e.target.value)}
-												className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											>
 												<option value="diário">Diário</option>
 												<option value="semanal">Semanal</option>
@@ -885,7 +885,7 @@ const VeiculosAluguel = () => {
 												onChange={(e) => handleRentalPriceChange(index, 'price', e.target.value)}
 												placeholder="Preço (Kz)"
 												min="0"
-												className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+												className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 											/>
 											{formData.rentalPrices.length > 1 && (
 												<button
@@ -919,7 +919,7 @@ const VeiculosAluguel = () => {
 										name="minRentalPeriod"
 										value={formData.minRentalPeriod}
 										onChange={handleChange}
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									>
 										<option value="diário">Diário</option>
 										<option value="semanal">Semanal</option>
@@ -939,7 +939,7 @@ const VeiculosAluguel = () => {
 										onChange={handleChange}
 										placeholder="Ex: 50000"
 										min="0"
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									/>
 								</div>
 
@@ -951,7 +951,7 @@ const VeiculosAluguel = () => {
 										name="insurance"
 										checked={formData.insurance}
 										onChange={handleChange}
-										className="w-5 h-5 text-[#154c9a] border-gray-300 rounded focus:ring-[#154c9a]"
+										className="w-5 h-5 text-[#154c9a] border-gray-300 rounded"
 									/>
 									<label htmlFor="insurance" className="flex items-center gap-2 text-gray-700 font-semibold cursor-pointer">
 										<Shield className="w-5 h-5 text-[#154c9a]" />
@@ -972,7 +972,7 @@ const VeiculosAluguel = () => {
 											onChange={handleChange}
 											placeholder="Ex: 5000"
 											min="0"
-											className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+											className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 										/>
 									</div>
 								)}
@@ -985,7 +985,7 @@ const VeiculosAluguel = () => {
 										name="available"
 										checked={formData.available}
 										onChange={handleChange}
-										className="w-5 h-5 text-[#154c9a] border-gray-300 rounded focus:ring-[#154c9a]"
+										className="w-5 h-5 text-[#154c9a] border-gray-300 rounded"
 									/>
 									<label htmlFor="available" className="flex items-center gap-2 text-gray-700 font-semibold cursor-pointer">
 										<Eye className="w-5 h-5 text-[#154c9a]" />
@@ -1004,7 +1004,7 @@ const VeiculosAluguel = () => {
 										name="availableFrom"
 										value={formData.availableFrom}
 										onChange={handleChange}
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									/>
 								</div>
 
@@ -1020,7 +1020,7 @@ const VeiculosAluguel = () => {
 											onChange={(e) => setNewCharacteristic(e.target.value)}
 											onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCharacteristic())}
 											placeholder="Ex: Ar Condicionado, GPS, Bluetooth..."
-											className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all"
+											className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 										/>
 										<button
 											type="button"
@@ -1066,7 +1066,7 @@ const VeiculosAluguel = () => {
 										multiple
 										onChange={handleMediaChange}
 										required={!editingVehicle}
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#154c9a] file:text-white file:font-semibold file:cursor-pointer hover:file:bg-blue-700"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#154c9a] file:text-white file:font-semibold file:cursor-pointer hover:file:bg-blue-700"
 									/>
 									<p className="text-sm text-gray-500 mt-2">
 										{editingVehicle 
@@ -1092,7 +1092,7 @@ const VeiculosAluguel = () => {
 										accept="application/pdf"
 										onChange={handleLivreteChange}
 										required={!editingVehicle}
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-green-600 file:text-white file:font-semibold file:cursor-pointer hover:file:bg-green-700"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-green-600 file:text-white file:font-semibold file:cursor-pointer hover:file:bg-green-700"
 									/>
 									<p className="text-sm text-gray-500 mt-2">
 										{editingVehicle 
@@ -1118,7 +1118,7 @@ const VeiculosAluguel = () => {
 										required
 										rows="4"
 										placeholder="Descreva as características, condições e diferenciais do veículo para aluguel..."
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-transparent transition-all resize-none"
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all resize-none"
 									/>
 									<p className="text-sm text-gray-500 mt-2">Informações adicionais que possam interessar aos clientes (mínimo 10 caracteres)</p>
 								</div>

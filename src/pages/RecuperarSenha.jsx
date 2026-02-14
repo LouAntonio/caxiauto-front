@@ -166,7 +166,7 @@ const RecuperarSenha = () => {
 								name="password"
 								value={formData.password}
 								onChange={handleChange}
-								className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+								className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg transition-colors"
 								placeholder="Digite sua nova senha"
 								required
 							/>
@@ -273,7 +273,7 @@ const RecuperarSenha = () => {
 								name="confirmPassword"
 								value={formData.confirmPassword}
 								onChange={handleChange}
-								className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+								className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg transition-colors"
 								placeholder="Confirme sua nova senha"
 								required
 							/>

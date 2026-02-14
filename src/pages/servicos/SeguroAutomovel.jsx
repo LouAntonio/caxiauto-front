@@ -259,7 +259,7 @@ export default function SeguroAutomovel() {
 									value={formData.nome}
 									onChange={handleChange}
 									required
-									className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-[#154c9a] outline-none transition-all"
+									className="w-full px-4 py-3 border border-gray-300 rounded-xl  outline-none transition-all"
 									placeholder="Seu nome"
 								/>
 							</div>
@@ -275,7 +275,7 @@ export default function SeguroAutomovel() {
 									value={formData.telefone}
 									onChange={handleChange}
 									required
-									className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-[#154c9a] outline-none transition-all"
+									className="w-full px-4 py-3 border border-gray-300 rounded-xl  outline-none transition-all"
 									placeholder="+244"
 								/>
 							</div>
@@ -292,7 +292,7 @@ export default function SeguroAutomovel() {
 								value={formData.email}
 								onChange={handleChange}
 								required
-								className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-[#154c9a] outline-none transition-all"
+								className="w-full px-4 py-3 border border-gray-300 rounded-xl  outline-none transition-all"
 								placeholder="seu@email.com"
 							/>
 						</div>
@@ -308,7 +308,7 @@ export default function SeguroAutomovel() {
 									value={formData.tipoSeguro}
 									onChange={handleChange}
 									required
-									className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-[#154c9a] outline-none transition-all cursor-pointer"
+									className="w-full px-4 py-3 border border-gray-300 rounded-xl  outline-none transition-all cursor-pointer"
 								>
 									<option value="">Selecione</option>
 									<option value="obrigatorio">Seguro Obrigatório</option>
@@ -327,7 +327,7 @@ export default function SeguroAutomovel() {
 									value={formData.tipoViatura}
 									onChange={handleChange}
 									required
-									className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-[#154c9a] outline-none transition-all cursor-pointer"
+									className="w-full px-4 py-3 border border-gray-300 rounded-xl  outline-none transition-all cursor-pointer"
 								>
 									<option value="">Selecione</option>
 									<option value="ligeiro">Ligeiro</option>
@@ -349,7 +349,7 @@ export default function SeguroAutomovel() {
 								value={formData.mensagem}
 								onChange={handleChange}
 								rows="4"
-								className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#154c9a] focus:border-[#154c9a] outline-none transition-all resize-none"
+								className="w-full px-4 py-3 border border-gray-300 rounded-xl  outline-none transition-all resize-none"
 								placeholder="Descreva outras informações relevantes sobre a viatura ou necessidades específicas..."
 							></textarea>
 						</div>

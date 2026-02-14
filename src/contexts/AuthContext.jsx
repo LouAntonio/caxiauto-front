@@ -181,6 +181,17 @@ export const AuthProvider = ({ children }) => {
 		return localStorage.getItem('caxiauto_token');
 	};
 
+	// Função para verificar se o usuário está realmente logado no servidor
+	const checkIsLoggedIn = async () => {
+		try {
+			const data = await api.get('/users/is-logged-in');
+			return data.success === true;
+		} catch (error) {
+			console.error('Erro ao verificar login:', error);
+			return false;
+		}
+	};
+
 	const value = {
 		user,
 		loading,
@@ -194,6 +205,7 @@ export const AuthProvider = ({ children }) => {
 		resetPassword,
 		updateUser,
 		getAuthToken,
+		checkIsLoggedIn,
 		isAuthenticated: !!user,
 	};
 

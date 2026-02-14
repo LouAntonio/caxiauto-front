@@ -95,7 +95,7 @@ export default function VehicleRequestSection() {
 									<input
 										type="text"
 										required
-										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-indigo-500 text-sm sm:text-base"
+										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  text-sm sm:text-base"
 										placeholder="Digite seu nome completo"
 									/>
 								</div>
@@ -111,7 +111,7 @@ export default function VehicleRequestSection() {
 										<input
 											type="tel"
 											required
-											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-indigo-500 text-sm sm:text-base"
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  text-sm sm:text-base"
 											placeholder="+244 9XX XXX XXX"
 										/>
 									</div>
@@ -126,7 +126,7 @@ export default function VehicleRequestSection() {
 										<input
 											type="email"
 											required
-											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-indigo-500 text-sm sm:text-base"
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  text-sm sm:text-base"
 											placeholder="seu@email.com"
 										/>
 									</div>
@@ -151,7 +151,7 @@ export default function VehicleRequestSection() {
 										<input
 											type="text"
 											required
-											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-indigo-500 text-sm sm:text-base"
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  text-sm sm:text-base"
 											placeholder="Ex: Toyota, Honda..."
 										/>
 									</div>
@@ -166,7 +166,7 @@ export default function VehicleRequestSection() {
 										<input
 											type="text"
 											required
-											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-indigo-500 text-sm sm:text-base"
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  text-sm sm:text-base"
 											placeholder="Ex: Corolla, Civic..."
 										/>
 									</div>
@@ -185,7 +185,7 @@ export default function VehicleRequestSection() {
 												type="number"
 												min="1990"
 												max="2026"
-												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-indigo-500 text-sm sm:text-base"
+												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  text-sm sm:text-base"
 												placeholder="2020"
 											/>
 											<span className="text-gray-500">-</span>
@@ -193,7 +193,7 @@ export default function VehicleRequestSection() {
 												type="number"
 												min="1990"
 												max="2026"
-												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-indigo-500 text-sm sm:text-base"
+												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  text-sm sm:text-base"
 												placeholder="2024"
 											/>
 										</div>
@@ -208,7 +208,7 @@ export default function VehicleRequestSection() {
 										</label>
 										<input
 											type="text"
-											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-indigo-500 text-sm sm:text-base"
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  text-sm sm:text-base"
 											placeholder="Ex: 5.000.000"
 										/>
 									</div>
@@ -222,7 +222,7 @@ export default function VehicleRequestSection() {
 										</span>
 									</label>
 									<select
-										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-indigo-500 bg-white cursor-pointer text-sm sm:text-base"
+										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  bg-white cursor-pointer text-sm sm:text-base"
 									>
 										<option value="">Selecione uma província</option>
 										<option value="luanda">Luanda</option>
@@ -240,7 +240,7 @@ export default function VehicleRequestSection() {
 									</label>
 									<textarea
 										rows="3"
-										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 focus:border-indigo-500 text-sm sm:text-base"
+										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400  text-sm sm:text-base"
 										placeholder="Ex: Prefiro cor preta, com ar condicionado, câmbio automático..."
 									/>
 								</div>

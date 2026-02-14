@@ -67,6 +67,14 @@ export default function Header() {
 							</div>
 						</div>
 
+						<Link
+							to="/venda-seu-automovel"
+							onClick={() => setMobileMenuOpen(false)}
+							className="block px-4 py-3 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+						>
+							Venda Sua Viatura
+						</Link>
+
 
 						{/* Serviços com submenu - Desktop */}
 						<div className="relative group">

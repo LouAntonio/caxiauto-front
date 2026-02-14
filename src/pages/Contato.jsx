@@ -146,22 +146,22 @@ export default function Contato() {
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 										<div>
 											<label className="block text-sm font-medium text-gray-700 mb-2">Nome Completo</label>
-											<input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#154c9a] focus:ring-2 focus:ring-blue-100 outline-none transition-all cursor-pointer bg-gray-50 focus:bg-white" placeholder="Seu nome" />
+											<input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none transition-all  bg-gray-50 " placeholder="Seu nome" />
 										</div>
 										<div>
 											<label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-											<input type="email" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#154c9a] focus:ring-2 focus:ring-blue-100 outline-none transition-all cursor-pointer bg-gray-50 focus:bg-white" placeholder="seu@email.com" />
+											<input type="email" className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none transition-all  bg-gray-50 " placeholder="seu@email.com" />
 										</div>
 									</div>
 
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 										<div>
 											<label className="block text-sm font-medium text-gray-700 mb-2">Telefone</label>
-											<input type="tel" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#154c9a] focus:ring-2 focus:ring-blue-100 outline-none transition-all cursor-pointer bg-gray-50 focus:bg-white" placeholder="+244 912 345 678." />
+											<input type="tel" className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none transition-all  bg-gray-50 " placeholder="+244 912 345 678." />
 										</div>
 										<div>
 											<label className="block text-sm font-medium text-gray-700 mb-2">Assunto</label>
-											<select className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#154c9a] focus:ring-2 focus:ring-blue-100 outline-none transition-all cursor-pointer bg-gray-50 focus:bg-white text-gray-600">
+											<select className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none transition-all  bg-gray-50  text-gray-600">
 												<option value="">Selecione um assunto</option>
 												<option value="vendas">Comprar Viatura</option>
 												<option value="aluguel">Aluguer</option>
@@ -174,10 +174,10 @@ export default function Contato() {
 
 									<div>
 										<label className="block text-sm font-medium text-gray-700 mb-2">Mensagem</label>
-										<textarea rows="4" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#154c9a] focus:ring-2 focus:ring-blue-100 outline-none transition-all cursor-pointer bg-gray-50 focus:bg-white resize-none" placeholder="Como podemos ajudar?"></textarea>
+										<textarea rows="4" className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none transition-all  bg-gray-50  resize-none" placeholder="Como podemos ajudar?"></textarea>
 									</div>
 
-									<button type="submit" className="w-full py-4 bg-[#154c9a] text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:bg-blue-800 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
+									<button type="submit" className="w-full py-4 bg-[#154c9a] text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:bg-blue-800 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 cursor-pointer">
 										<Send className="w-5 h-5" />
 										Enviar Mensagem
 									</button>
