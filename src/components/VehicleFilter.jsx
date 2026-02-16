@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Search, RotateCcw, Car, Fuel, Settings, Gauge, Calendar, Wallet } from 'lucide-react'
 
-export default function VehicleFilter({ onFilterChange }) {
+export default function VehicleFilter({ onFilterChange, initialFilters = {} }) {
 	const [filters, setFilters] = useState({
 		pesquisa: '',
 		marca: '',
@@ -11,8 +11,19 @@ export default function VehicleFilter({ onFilterChange }) {
 		quilometros: '',
 		ano: '',
 		preco: '',
-		destaque: false
+		destaque: false,
+		...initialFilters
 	})
+
+	// Atualizar filtros quando initialFilters mudar
+	useEffect(() => {
+		if (Object.keys(initialFilters).length > 0) {
+			setFilters(prev => ({
+				...prev,
+				...initialFilters
+			}))
+		}
+	}, [initialFilters])
 
 	const handleChange = (field, value) => {
 		const newFilters = {

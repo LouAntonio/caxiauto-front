@@ -240,7 +240,7 @@ export default function DetalhesAluguel() {
 						<div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
 							<div className="relative h-96 bg-gradient-to-br from-gray-100 to-gray-200">
 								<img
-									src={`${API_URL}${vehicle.images[currentImageIndex]}`}
+									src={`${vehicle.images[currentImageIndex]}`}
 									key={currentImageIndex}
 									loading="lazy"
 									alt={`${vehicle.title} - Imagem ${currentImageIndex + 1}`}
@@ -299,7 +299,7 @@ export default function DetalhesAluguel() {
 										className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex ? 'border-indigo-600 ring-2 ring-indigo-200' : 'border-gray-200'
 											} cursor-pointer`}
 									>
-										<img src={`${API_URL}${image}`} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover" />
+										<img src={`${image}`} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover" />
 									</button>
 								))}
 							</div>
@@ -468,8 +468,8 @@ export default function DetalhesAluguel() {
 								<button
 									onClick={handleContact}
 									className={`w-full font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02] cursor-pointer ${rentalPlans.length > 0
-											? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white'
-											: 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white'
+										? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white'
+										: 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white'
 										}`}
 								>
 									{rentalPlans.length > 0 ? 'Solicitar Aluguel' : 'Entre em Contato'}

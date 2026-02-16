@@ -1,20 +1,44 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Gauge, Calendar, MapPin, Droplet } from 'lucide-react';
 import { Link } from 'react-router-dom'
-
-const sampleCars = [
-	{ id: 1, title: 'Toyota Corolla Altis', price: '7.500.000', km: '48.000 km', year: 2019, location: 'Luanda', img: './images/i10.jpg', fuel: 'Gasolina', condition: 'Usado' },
-	{ id: 2, title: 'Honda Civic Touring', price: '9.250.000', km: '35.200 km', year: 2020, location: 'Luanda', img: './images/i10.jpg', fuel: 'Gasolina', condition: 'Usado' },
-	{ id: 3, title: 'Volkswagen Polo', price: '5.890.000', km: '62.000 km', year: 2018, location: 'Benguela', img: './images/i10.jpg', fuel: 'Gasolina', condition: 'Usado' },
-	{ id: 4, title: 'Hyundai HB20', price: '4.990.000', km: '74.500 km', year: 2017, location: 'Huambo', img: './images/i10.jpg', fuel: 'Gasolina', condition: 'Usado' },
-	{ id: 5, title: 'Chevrolet Onix', price: '6.430.000', km: '41.100 km', year: 2019, location: 'Luanda', img: './images/i10.jpg', fuel: 'Gasolina', condition: 'Usado' },
-	{ id: 6, title: 'Nissan Kicks', price: '8.200.000', km: '28.500 km', year: 2021, location: 'Luanda', img: './images/i10.jpg', fuel: 'Gasolina', condition: 'Novo' },
-	{ id: 7, title: 'Ford Ranger', price: '12.500.000', km: '55.000 km', year: 2020, location: 'Benguela', img: './images/i10.jpg', fuel: 'Diesel', condition: 'Usado' },
-	{ id: 8, title: 'Jeep Compass', price: '9.850.000', km: '32.800 km', year: 2021, location: 'Luanda', img: './images/i10.jpg', fuel: 'Gasolina', condition: 'Novo' },
-];
+import api, { getImageUrl } from '../services/api';
 
 export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 	const railRef = useRef(null);
+	const [cars, setCars] = useState([]);
+	const [loading, setLoading] = useState(true);
+	
+	// Determinar se deve buscar destacados ou recentes baseado no título
+	const isFeatured = title.toLowerCase().includes('destaque');
+
+	useEffect(() => {
+		const fetchCars = async () => {
+			try {
+				setLoading(true);
+				const params = {
+					limit: 10,
+					page: 1,
+				};
+				
+				// Adicionar filtro de featured se for carros em destaque
+				if (isFeatured) {
+					params.featured = 'true';
+				}
+				
+				const response = await api.listVeiculosCompra(params);
+				
+				if (response.success && response.data) {
+					setCars(response.data);
+				}
+			} catch (error) {
+				console.error('Erro ao buscar carros:', error);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchCars();
+	}, [isFeatured]);
 
 	function scroll(dir = 1) {
 		const rail = railRef.current;
@@ -32,7 +56,7 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 						<h2 className="text-2xl font-bold text-gray-900">{title}</h2>
 						<span className="text-gray-400 text-2xl">|</span>
 						<Link
-							to="/stand/compra"
+							to={isFeatured ? "/stand/compra?featured=true" : "/stand/compra"}
 							style={{ color: 'var(--primary)' }}
 							className="group flex items-center gap-1 text-lg font-medium hover:underline"
 						>
@@ -41,104 +65,134 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 						</Link>
 					</div>
 
-					<div className="hidden md:flex gap-3">
-						<button onClick={() => scroll(-1)} aria-label="Anterior" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
-							<ChevronLeft className="w-5 h-5 text-gray-700" />
-						</button>
-						<button onClick={() => scroll(1)} aria-label="Próximo" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
-							<ChevronRight className="w-5 h-5 text-gray-700" />
-						</button>
-					</div>
+					{!loading && cars.length > 0 && (
+						<div className="hidden md:flex gap-3">
+							<button onClick={() => scroll(-1)} aria-label="Anterior" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
+								<ChevronLeft className="w-5 h-5 text-gray-700" />
+							</button>
+							<button onClick={() => scroll(1)} aria-label="Próximo" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
+								<ChevronRight className="w-5 h-5 text-gray-700" />
+							</button>
+						</div>
+					)}
 				</div>
 
 				{/* Carousel */}
 				<div className="relative">
-					<div
-						ref={railRef}
-						className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
-						style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-					>
-						{sampleCars.map((car) => (
-							<article
-								key={car.id}
-								className="flex-shrink-0 w-64 bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
-							>
-								{/* Imagem */}
-								<div className="relative h-40 overflow-hidden">
-									<img
-										src={car.img}
-										alt={car.title}
-										className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-									/>
-
-									{/* Badge de condição (Novo / Usado) */}
-									<div className="absolute top-4 left-4">
-										<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${car.condition === 'Novo' ? 'bg-blue-600 text-white' : 'bg-yellow-500 text-white'}`}>
-											{car.condition}
-										</span>
-									</div>
-
-									{/* Gradiente inferior */}
-									<div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent"></div>
-								</div>
-
-								{/* Conteúdo */}
-								<div className="p-5">
-									<h3 className="text-1xl font-bold text-gray-900 mb-3 line-clamp-1 text-center">
-										{car.title}
-									</h3>
-
-									{/* Preço */}
-									<div
-										style={{ color: 'var(--primary)' }}
-										className="text-1xl font-bold mb-4 text-center"
+					{loading ? (
+						<div className="flex justify-center items-center py-20">
+							<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+						</div>
+					) : cars.length === 0 ? (
+						<div className="flex justify-center items-center py-20 text-gray-500">
+							<p>Nenhum veículo encontrado</p>
+						</div>
+					) : (
+						<div
+							ref={railRef}
+							className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+							style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+						>
+							{cars.map((car) => {
+								// Determinar condição baseado no ano (novo se >= ano atual - 1)
+								const currentYear = new Date().getFullYear();
+								const isNew = car.year >= currentYear - 1;
+								const condition = isNew ? 'Novo' : 'Usado';
+								
+								// Formatar preço
+								const formattedPrice = new Intl.NumberFormat('pt-AO').format(car.price);
+								
+								// Formatar quilometragem
+								const formattedKm = new Intl.NumberFormat('pt-AO').format(car.kilometers);
+								
+								// Capitalizar tipo de combustível
+								const fuelType = car.fuelType.charAt(0).toUpperCase() + car.fuelType.slice(1);
+								
+								return (
+									<article
+										key={car._id}
+										className="flex-shrink-0 w-64 bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
 									>
-										{car.price},00 akz
-									</div>
+										{/* Imagem */}
+										<div className="relative h-40 overflow-hidden">
+											<img
+												src={getImageUrl(car.mainImage)}
+												alt={car.name}
+												className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+											/>
 
-									{/* Especificações (duas colunas) */}
-									<div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-										<div className="flex items-center justify-end gap-2">
-											<span className="text-right">{car.km}</span>
-											<Gauge className="w-4 h-4 text-gray-400" />
-										</div>
-										<div className="flex items-center gap-2">
-											<Calendar className="w-4 h-4 text-gray-400" />
-											<span>{car.year}</span>
-										</div>
-										<div className="flex items-center justify-end gap-2">
-											<span className="text-right">{car.location}</span>
-											<MapPin className="w-4 h-4 text-gray-400" />
-										</div>
-										<div className="flex items-center gap-2">
-											<Droplet className="w-4 h-4 text-gray-400" />
-											<span>{car.fuel}</span>
-										</div>
-									</div>
+											{/* Badge de condição (Novo / Usado) */}
+											<div className="absolute top-4 left-4">
+												<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${condition === 'Novo' ? 'bg-blue-600 text-white' : 'bg-yellow-500 text-white'}`}>
+													{condition}
+												</span>
+											</div>
 
-									{/* Botão */}
-									<Link to={`/stand/compra/${car.id}`}>
-										<button
-											style={{ backgroundColor: 'var(--secondary)' }}
-											className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
-										>
-											Ver Detalhes
-										</button>
-									</Link>
-								</div>
-							</article>
-						))}
-					</div>
+											{/* Gradiente inferior */}
+											<div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent"></div>
+										</div>
+
+										{/* Conteúdo */}
+										<div className="p-5">
+											<h3 className="text-1xl font-bold text-gray-900 mb-3 line-clamp-1 text-center">
+												{car.name}
+											</h3>
+
+											{/* Preço */}
+											<div
+												style={{ color: 'var(--primary)' }}
+												className="text-1xl font-bold mb-4 text-center"
+											>
+												{formattedPrice},00 Kz
+											</div>
+
+											{/* Especificações (duas colunas) */}
+											<div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+												<div className="flex items-center justify-end gap-2">
+													<span className="text-right">{formattedKm} km</span>
+													<Gauge className="w-4 h-4 text-gray-400" />
+												</div>
+												<div className="flex items-center gap-2">
+													<Calendar className="w-4 h-4 text-gray-400" />
+													<span>{car.year}</span>
+												</div>
+												<div className="flex items-center justify-end gap-2">
+													<span className="text-right">{car.location}</span>
+													<MapPin className="w-4 h-4 text-gray-400" />
+												</div>
+												<div className="flex items-center gap-2">
+													<Droplet className="w-4 h-4 text-gray-400" />
+													<span>{fuelType}</span>
+												</div>
+											</div>
+
+											{/* Botão */}
+											<Link to={`/stand/compra/${car._id}`}>
+												<button
+													style={{ backgroundColor: 'var(--secondary)' }}
+													className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
+												>
+													Ver Detalhes
+												</button>
+											</Link>
+										</div>
+									</article>
+								);
+							})}
+						</div>
+					)}
 
 					{/* Botões mobile */}
-					<div className="flex md:hidden gap-3 justify-center mt-6">
-						<button onClick={() => scroll(-1)} aria-label="Anterior" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
-							<ChevronLeft className="w-5 h-5 text-gray-700" />
-						</button>
-						<button onClick={() => scroll(1)} aria-label="Próximo" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
-							<ChevronRight className="w-5 h-5 text-gray-700" />
-						</button>
-					</div>
+					{!loading && cars.length > 0 && (
+						<div className="flex md:hidden gap-3 justify-center mt-6">
+							<button onClick={() => scroll(-1)} aria-label="Anterior" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
+								<ChevronLeft className="w-5 h-5 text-gray-700" />
+							</button>
+							<button onClick={() => scroll(1)} aria-label="Próximo" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
+								<ChevronRight className="w-5 h-5 text-gray-700" />
+							</button>
+						</div>
+					)}
 				</div>
 
 				{/* Link para ver todos */}

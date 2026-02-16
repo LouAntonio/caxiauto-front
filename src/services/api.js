@@ -264,7 +264,30 @@ const api = {
 		return apiRequest(`/pecas/${id}`, {
 			method: 'GET',
 		});
-	},};
+	},
+
+	/**
+	 * Listar veículos de compra
+	 * @param {object} params - Parâmetros de busca (page, limit, search, featured, manufacturer, etc.)
+	 */
+	listVeiculosCompra: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		const endpoint = queryString ? `/compraveiculos?${queryString}` : '/compraveiculos';
+		return apiRequest(endpoint, {
+			method: 'GET',
+		});
+	},
+
+	/**
+	 * Buscar veículo de compra por ID
+	 * @param {string} id - ID do veículo
+	 */
+	getVeiculoCompra: (id) => {
+		return apiRequest(`/compraveiculos/${id}`, {
+			method: 'GET',
+		});
+	},
+};
 
 export default api;
 export { API_URL, getImageUrl, notyf };

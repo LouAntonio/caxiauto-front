@@ -1,90 +1,55 @@
-import React, { useRef } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import React, { useRef, useState, useEffect } from 'react'
+import { ChevronLeft, ChevronRight, Loader } from 'lucide-react'
 import { Link } from 'react-router-dom'
-
-const sampleParts = [
-	{
-		id: 1,
-		title: 'Filtro de Óleo Bosch',
-		price: '3200',
-		category: 'Motor',
-		sub: 'Filtros',
-		badges: ['Original', 'Promoção'],
-		img: './images/parts.jpg',
-	},
-	{
-		id: 2,
-		title: 'Pastilhas de Freio Brembo',
-		price: '4800',
-		category: 'Freios',
-		sub: 'Pastilhas',
-		badges: ['Mais Vendida'],
-		img: './images/parts.jpg',
-	},
-	{
-		id: 3,
-		title: 'Amortecedor Monroe',
-		price: '6900',
-		category: 'Suspensão',
-		sub: 'Amortecedores',
-		badges: ['Paralela'],
-		img: './images/parts.jpg',
-	},
-	{
-		id: 4,
-		title: 'Radiador Alta Performance',
-		price: '18500',
-		category: 'Arrefecimento',
-		sub: 'Radiadores',
-		badges: ['Importada'],
-		img: './images/parts.jpg',
-	},
-	{
-		id: 5,
-		title: 'Bateria Exide 60Ah',
-		price: '9200',
-		category: 'Elétrica & Eletrônica',
-		sub: 'Baterias',
-		badges: ['Original', 'Novo'],
-		img: './images/parts.jpg',
-	},
-	{
-		id: 6,
-		title: 'Correia Dentada Gates',
-		price: '7500',
-		category: 'Motor',
-		sub: 'Correias',
-		badges: ['Original'],
-		img: './images/parts.jpg',
-	},
-	{
-		id: 7,
-		title: 'Velas NGK (jogo)',
-		price: '2100',
-		category: 'Motor',
-		sub: 'Velas',
-		badges: ['Paralela', 'Promoção'],
-		img: './images/parts.jpg',
-	},
-	{
-		id: 8,
-		title: 'Alternador Valeo',
-		price: '11200',
-		category: 'Elétrica & Eletrônica',
-		sub: 'Alternadores',
-		badges: ['Importada', 'Mais Vendida'],
-		img: './images/parts.jpg',
-	},
-]
+import api, { getImageUrl } from '../services/api'
 
 export default function FeaturedParts() {
 	const railRef = useRef(null)
+	const [featuredParts, setFeaturedParts] = useState([])
+	const [loading, setLoading] = useState(true)
+
+	// Carregar peças em destaque
+	useEffect(() => {
+		const fetchFeaturedParts = async () => {
+			try {
+				const response = await api.listPecas({ 
+					destaque: true, 
+					limit: 10 
+				})
+				if (response.success) {
+					setFeaturedParts(response.data || [])
+				}
+			} catch (error) {
+				console.error('Erro ao carregar peças em destaque:', error)
+			} finally {
+				setLoading(false)
+			}
+		}
+		fetchFeaturedParts()
+	}, [])
 
 	function scroll(dir = 1) {
 		const rail = railRef.current
 		if (!rail) return
 		const step = Math.round(rail.clientWidth * 0.8)
 		rail.scrollBy({ left: dir * step, behavior: 'smooth' })
+	}
+
+	// Se estiver carregando ou não houver peças, não renderizar nada
+	if (loading) {
+		return (
+			<section className="parts-section py-6">
+				<div className="max-w-7xl mx-auto px-4">
+					<div className="flex items-center justify-center py-20">
+						<Loader className="w-8 h-8 animate-spin" style={{ color: 'var(--primary)' }} />
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	if (featuredParts.length === 0) {
+		return null
 	}
 
 	return (
@@ -115,42 +80,59 @@ export default function FeaturedParts() {
 				</div>
 
 				<div ref={railRef} className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4">
-					{sampleParts.map((p) => (
-						<article key={p.id} className="flex-shrink-0 w-64 bg-white rounded-2xl shadow-lg overflow-hidden group">
+					{featuredParts.map((peca) => (
+						<article key={peca._id} className="flex-shrink-0 w-64 bg-white rounded-2xl shadow-lg overflow-hidden group">
 							<div className="relative h-36 overflow-hidden">
-								<img src={p.img} alt={p.title} onError={(e) => { e.target.src = './images/i10.png' }} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+								<img 
+									src={getImageUrl(peca.image, './images/parts.jpg')} 
+									alt={peca.nome} 
+									onError={(e) => { e.target.src = './images/i10.png' }} 
+									className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+								/>
 								<div className="absolute top-3 left-3 flex gap-2">
-									{p.badges.map((b) => (
-										<span key={b} className="badge px-2 py-0.5 text-xs font-semibold rounded">{b}</span>
-									))}
+									{peca.featured && (
+										<span className="badge px-2 py-0.5 text-xs font-semibold rounded bg-yellow-500 text-white">
+											Destaque
+										</span>
+									)}
+									{peca.condition === 'new' && (
+										<span className="badge px-2 py-0.5 text-xs font-semibold rounded bg-green-500 text-white">
+											Novo
+										</span>
+									)}
+									{peca.stock > 0 && (
+										<span className="badge px-2 py-0.5 text-xs font-semibold rounded bg-blue-500 text-white">
+											Em Estoque
+										</span>
+									)}
 								</div>
 							</div>
 
 							<div className="p-4">
-								<h3 className="text-sm font-semibold line-clamp-2">{p.title}</h3>
-								<div className="text-primary font-bold mt-2 mb-3">{parseInt(p.price).toFixed(2)} akz</div>
+								<h3 className="text-sm font-semibold line-clamp-2 capitalize">{peca.nome}</h3>
+								<div className="text-primary font-bold mt-2 mb-3">
+									{parseFloat(peca.price).toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} akz
+								</div>
 
 								<div className="flex items-center justify-between text-sm text-gray-600">
 									<div className="flex items-center gap-2">
-										<span className="text-xs bg-gray-100 px-2 py-0.5 rounded">{p.category}</span>
-										<span className="text-xs text-gray-500">/</span>
-										<span className="text-xs text-gray-500">{p.sub}</span>
+										<span className="text-xs bg-gray-100 px-2 py-0.5 rounded capitalize">
+											{peca.categoria?.nome || 'Sem categoria'}
+										</span>
 									</div>
 								</div>
-							<Link to={`/stand/pecas-acessorios/${p.id}`}>
-								<button 
-									style={{ backgroundColor: 'var(--secondary)' }} 
-									className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 mt-4 w-full cursor-pointer"
-								>
-									Ver Detalhes
-								</button>
-							</Link>
+								<Link to={`/stand/pecas-acessorios/${peca._id}`}>
+									<button
+										style={{ backgroundColor: 'var(--secondary)' }}
+										className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 mt-4 w-full cursor-pointer"
+									>
+										Ver Detalhes
+									</button>
+								</Link>
 							</div>
 						</article>
 					))}
 				</div>
-
-
 			</div>
 		</section>
 	)

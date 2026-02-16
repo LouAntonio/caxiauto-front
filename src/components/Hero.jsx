@@ -1,6 +1,31 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export default function Hero() {
+	const navigate = useNavigate()
+	const [filters, setFilters] = useState({
+		pesquisa: '',
+		marca: '',
+		combustivel: '',
+		transmissao: '',
+		quilometros: '',
+		ano: '',
+		preco: ''
+	})
+
+	const handleChange = (field, value) => {
+		setFilters(prev => ({
+			...prev,
+			[field]: value
+		}))
+	}
+
+	const handleSearch = (e) => {
+		e.preventDefault()
+		// Navegar para a página de compra com os filtros aplicados
+		navigate('/stand/compra', { state: { filters } })
+	}
+
 	return (
 		<header className="relative bg-gradient-to-r from-indigo-900 via-indigo-800 to-transparent text-white overflow-hidden h-[calc(100vh-80px)]">
 			<div
@@ -21,11 +46,13 @@ export default function Hero() {
 				</div>
 
 				<div className="w-full max-w-xl bg-white/75 text-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
-					<form className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-3">
+					<form onSubmit={handleSearch} className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-3">
 						<div className="col-span-2 lg:col-span-3">
 							<label className="sr-only">Pesquisar</label>
 							<input 
 								type="text" 
+								value={filters.pesquisa}
+								onChange={(e) => handleChange('pesquisa', e.target.value)}
 								placeholder="Pesquisar veículo..."
 								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all hover:bg-white"
 							/>
@@ -33,29 +60,48 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Marca</label>
-							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white">
-								<option disabled selected>Marca</option>
+							<select 
+								value={filters.marca}
+								onChange={(e) => handleChange('marca', e.target.value)}
+								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
+							>
+								<option value="">Marca</option>
 								<option>Toyota</option>
 								<option>Ford</option>
 								<option>Chevrolet</option>
 								<option>Honda</option>
+								<option>Nissan</option>
+								<option>Mercedes-Benz</option>
+								<option>BMW</option>
+								<option>Audi</option>
+								<option>Volkswagen</option>
+								<option>Hyundai</option>
 							</select>
 						</div>
 
 						<div>
 							<label className="sr-only">Combustível</label>
-							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white">
-								<option disabled selected>Combustível</option>
+							<select 
+								value={filters.combustivel}
+								onChange={(e) => handleChange('combustivel', e.target.value)}
+								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
+							>
+								<option value="">Combustível</option>
 								<option>Gasolina</option>
 								<option>Diesel</option>
 								<option>Elétrico</option>
+								<option>Híbrido</option>
 							</select>
 						</div>
 
 						<div>
 							<label className="sr-only">Transmissão</label>
-							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white">
-								<option disabled selected>Transmissão</option>
+							<select 
+								value={filters.transmissao}
+								onChange={(e) => handleChange('transmissao', e.target.value)}
+								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
+							>
+								<option value="">Transmissão</option>
 								<option>Manual</option>
 								<option>Automática</option>
 							</select>
@@ -63,36 +109,54 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Quilômetros até</label>
-							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white">
-								<option disabled selected>Quilômetros até</option>
-								<option>50.000 km</option>
-								<option>100.000 km</option>
-								<option>200.000 km</option>
+							<select 
+								value={filters.quilometros}
+								onChange={(e) => handleChange('quilometros', e.target.value)}
+								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
+							>
+								<option value="">Quilômetros até</option>
+								<option>Até 50k</option>
+								<option>Até 100k</option>
+								<option>Até 150k</option>
+								<option>Até 200k</option>
 							</select>
 						</div>
 
 						<div>
 							<label className="sr-only">Ano até</label>
-							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white">
-								<option disabled selected>Ano até</option>
+							<select 
+								value={filters.ano}
+								onChange={(e) => handleChange('ano', e.target.value)}
+								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
+							>
+								<option value="">Ano até</option>
+								<option>2026</option>
 								<option>2024</option>
+								<option>2022</option>
 								<option>2020</option>
+								<option>2018</option>
 								<option>2015</option>
 							</select>
 						</div>
 
 						<div>
 							<label className="sr-only">Preço</label>
-							<select className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white">
-								<option disabled selected>Preço até (Kz)</option>
-								<option>Até 5.000.000 Kz</option>
-								<option>Até 10.000.000 Kz</option>
-								<option>Até 20.000.000 Kz</option>
+							<select 
+								value={filters.preco}
+								onChange={(e) => handleChange('preco', e.target.value)}
+								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
+							>
+								<option value="">Preço até (Kz)</option>
+								<option>Até 5M Kz</option>
+								<option>Até 10M Kz</option>
+								<option>Até 15M Kz</option>
+								<option>Até 20M Kz</option>
+								<option>Até 30M Kz</option>
 							</select>
 						</div>
 
 						<div className="lg:col-span-3">
-							<button type="button" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group transform active:scale-[0.98] cursor-pointer">
+							<button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group transform active:scale-[0.98] cursor-pointer">
 								<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 								</svg>

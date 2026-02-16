@@ -165,6 +165,44 @@ const Veiculos = () => {
 		setMessage({ type: '', text: '' });
 	};
 
+	const uploadToCloudinary = async (file, folder) => {
+		try {
+			// 1. Obter assinatura do backend
+			const authResponse = await api.get(`/cloudinary/authorize-upload?folder=${folder}`);
+
+			if (!authResponse.success) {
+				throw new Error('Falha ao autorizar upload');
+			}
+
+			const { timestamp, signature, cloudname, apikey } = authResponse;
+
+			// 2. Upload para o Cloudinary
+			const formData = new FormData();
+			formData.append('file', file);
+			formData.append('api_key', apikey);
+			formData.append('timestamp', timestamp);
+			formData.append('signature', signature);
+			formData.append('folder', folder);
+
+
+			const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, {
+				method: 'POST',
+				body: formData
+			});
+
+			if (!uploadResponse.ok) {
+				const errorData = await uploadResponse.json();
+				throw new Error(errorData.error?.message || 'Erro no upload para Cloudinary');
+			}
+
+			const data = await uploadResponse.json();
+			return data.secure_url;
+		} catch (error) {
+			console.error('Erro no upload:', error);
+			throw error;
+		}
+	};
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
@@ -188,67 +226,83 @@ const Veiculos = () => {
 		}
 
 		setLoading(true);
+		setMessage({ type: 'info', text: 'Processando uploads... Por favor, aguarde.' });
 
 		try {
-			const formDataToSend = new FormData();
-
-			// Adicionar campos do formulário
-			formDataToSend.append('name', formData.name);
-			formDataToSend.append('description', formData.description);
-			formDataToSend.append('manufacturer', formData.manufacturer);
-			formDataToSend.append('vehicleClass', formData.class);
-			formDataToSend.append('fuelType', formData.fuelType);
-			formDataToSend.append('transmission', formData.transmission);
-			formDataToSend.append('year', formData.year);
-			formDataToSend.append('kilometers', formData.kilometers);
-			formDataToSend.append('price', formData.price);
-			formDataToSend.append('passangers', formData.passangers);
-			formDataToSend.append('color', formData.color);
-			formDataToSend.append('location', formData.location);
-			formDataToSend.append('door', formData.door);
-			formDataToSend.append('characteristics', JSON.stringify(formData.characteristics));
-
-			// Adicionar arquivos de mídia se houver
+			// Upload de imagens
+			let uploadedImages = [];
 			if (mediaFiles.length > 0) {
-				mediaFiles.forEach(file => {
-					formDataToSend.append('media', file);
-				});
+				const imageUploadPromises = mediaFiles.map(file => uploadToCloudinary(file, 'sellCar'));
+				uploadedImages = await Promise.all(imageUploadPromises);
 			}
 
-			// Adicionar livrete se houver
+			// Upload do livrete
+			let uploadedLivrete = null;
 			if (livreteFile) {
-				formDataToSend.append('livreto', livreteFile);
+				uploadedLivrete = await uploadToCloudinary(livreteFile, 'sellCar');
 			}
+
+			// Preparar dados para envio
+			const vehicleData = {
+				name: formData.name,
+				description: formData.description,
+				manufacturer: formData.manufacturer,
+				class: formData.class,
+				fuelType: formData.fuelType,
+				transmission: formData.transmission,
+				year: formData.year,
+				kilometers: formData.kilometers,
+				price: formData.price,
+				passangers: formData.passangers,
+				color: formData.color,
+				location: formData.location,
+				door: formData.door,
+				characteristics: formData.characteristics
+			};
+
+			// Adicionar URLs das mídias se houver
+			if (uploadedImages.length > 0) {
+				vehicleData.mainImage = uploadedImages[0];
+				vehicleData.images = uploadedImages.slice(1);
+			}
+
+			// Adicionar URL do livrete se houver
+			if (uploadedLivrete) {
+				vehicleData.livreto = uploadedLivrete;
+			}
+
+			console.log('Dados a enviar:', vehicleData);
 
 			let response;
 			if (editingVehicle) {
 				// Edição - envia para rota de edição com aprovação
-				response = await api.uploadPut(`/compraveiculos/${editingVehicle._id}/edit`, formDataToSend);
+				response = await api.put(`/compraveiculos/${editingVehicle._id}/edit`, vehicleData);
 			} else {
 				// Criação - envia normalmente
-				response = await api.upload('/compraveiculos', formDataToSend);
+				response = await api.post('/compraveiculos', vehicleData);
 			}
 
 			if (response.success) {
-				const successMessage = editingVehicle 
-					? 'Edição solicitada com sucesso! Aguardando aprovação do administrador.' 
+				const successMessage = editingVehicle
+					? 'Edição solicitada com sucesso! Aguardando aprovação do administrador.'
 					: response.message || 'Veículo cadastrado com sucesso! Aguardando aprovação.';
+
 				setMessage({ type: 'success', text: successMessage });
 				await loadVehicles();
 				setTimeout(() => {
 					handleCloseModal();
 				}, 3000);
 			} else {
-				const errorMessage = editingVehicle 
-					? response.message || 'Erro ao solicitar edição.' 
+				const errorMessage = editingVehicle
+					? response.message || 'Erro ao solicitar edição.'
 					: response.message || 'Erro ao cadastrar veículo.';
 				setMessage({ type: 'error', text: errorMessage });
 			}
 		} catch (error) {
 			console.error('Erro ao processar veículo:', error);
-			const errorText = editingVehicle 
-				? 'Erro ao solicitar edição. Tente novamente.' 
-				: 'Erro ao cadastrar veículo. Tente novamente.';
+			const errorText = editingVehicle
+				? `Erro ao solicitar edição: ${error.message}`
+				: `Erro ao cadastrar veículo: ${error.message}`;
 			setMessage({ type: 'error', text: errorText });
 		} finally {
 			setLoading(false);
@@ -369,14 +423,12 @@ const Veiculos = () => {
 									</div>
 								)}
 								<div className="absolute top-3 right-3 flex gap-2">
-									<div className={`px-3 py-1 rounded-full text-xs font-semibold ${
-										vehicle.aproved ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
-									}`}>
+									<div className={`px-3 py-1 rounded-full text-xs font-semibold ${vehicle.aproved ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
+										}`}>
 										{vehicle.aproved ? 'Aprovado' : 'Pendente'}
 									</div>
-									<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${
-										vehicle.status === 'active' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
-									}`}>
+									<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${vehicle.status === 'active' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
+										}`}>
 										{vehicle.status === 'active' ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
 										{vehicle.status === 'active' ? 'Visível' : 'Oculto'}
 									</div>
@@ -448,11 +500,10 @@ const Veiculos = () => {
 									</button>
 									<button
 										onClick={() => handleToggleStatus(vehicle._id, vehicle.status)}
-										className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors cursor-pointer ${
-											vehicle.status === 'active' 
-												? 'bg-orange-500 text-white hover:bg-orange-600' 
-												: 'bg-green-500 text-white hover:bg-green-600'
-										}`}
+										className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors cursor-pointer ${vehicle.status === 'active'
+											? 'bg-orange-500 text-white hover:bg-orange-600'
+											: 'bg-green-500 text-white hover:bg-green-600'
+											}`}
 										title={vehicle.status === 'active' ? 'Desativar veículo' : 'Ativar veículo'}
 									>
 										<Power className="w-4 h-4" />
@@ -493,8 +544,8 @@ const Veiculos = () => {
 						<form onSubmit={handleSubmit} className="p-8">
 							{message.text && (
 								<div className={`mb-6 p-4 rounded-xl flex items-center gap-3 font-medium ${message.type === 'success'
-										? 'bg-green-50 text-green-800 border-2 border-green-200'
-										: 'bg-red-50 text-red-800 border-2 border-red-200'
+									? 'bg-green-50 text-green-800 border-2 border-green-200'
+									: 'bg-red-50 text-red-800 border-2 border-red-200'
 									}`}>
 									<AlertCircle className="w-5 h-5" />
 									{message.text}
@@ -777,7 +828,7 @@ const Veiculos = () => {
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#154c9a] file:text-white file:font-semibold file:cursor-pointer hover:file:bg-blue-700"
 									/>
 									<p className="text-sm text-gray-500 mt-2">
-										{editingVehicle 
+										{editingVehicle
 											? 'Deixe em branco para manter as imagens atuais. Se enviar novas imagens, elas substituirão as anteriores.'
 											: 'Selecione até 10 imagens (JPG, PNG, WEBP, GIF). A primeira imagem será a principal.'}
 									</p>
@@ -803,7 +854,7 @@ const Veiculos = () => {
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-green-600 file:text-white file:font-semibold file:cursor-pointer hover:file:bg-green-700"
 									/>
 									<p className="text-sm text-gray-500 mt-2">
-										{editingVehicle 
+										{editingVehicle
 											? 'Deixe em branco para manter o documento atual. Envie apenas se precisar atualizar o livrete.'
 											: 'Upload obrigatório do livrete ou documento do veículo em PDF'}
 									</p>
@@ -859,22 +910,19 @@ const Veiculos = () => {
 			{showConfirmModal && (
 				<div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center p-4 z-50">
 					<div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
-						<div className={`px-6 py-5 border-b ${
-							confirmType === 'danger' ? 'bg-red-50 border-red-200' :
+						<div className={`px-6 py-5 border-b ${confirmType === 'danger' ? 'bg-red-50 border-red-200' :
 							confirmType === 'warning' ? 'bg-orange-50 border-orange-200' :
-							'bg-green-50 border-green-200'
-						}`}>
+								'bg-green-50 border-green-200'
+							}`}>
 							<div className="flex items-center gap-3">
-								<div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-									confirmType === 'danger' ? 'bg-red-100' :
+								<div className={`w-12 h-12 rounded-full flex items-center justify-center ${confirmType === 'danger' ? 'bg-red-100' :
 									confirmType === 'warning' ? 'bg-orange-100' :
-									'bg-green-100'
-								}`}>
-									<AlertTriangle className={`w-6 h-6 ${
-										confirmType === 'danger' ? 'text-red-600' :
+										'bg-green-100'
+									}`}>
+									<AlertTriangle className={`w-6 h-6 ${confirmType === 'danger' ? 'text-red-600' :
 										confirmType === 'warning' ? 'text-orange-600' :
-										'text-green-600'
-									}`} />
+											'text-green-600'
+										}`} />
 								</div>
 								<h3 className="text-xl font-bold text-gray-900">{confirmTitle}</h3>
 							</div>
@@ -900,11 +948,10 @@ const Veiculos = () => {
 									setShowConfirmModal(false);
 									setConfirmAction(null);
 								}}
-								className={`flex-1 px-4 py-3 text-white font-semibold rounded-xl transition-colors cursor-pointer ${
-									confirmType === 'danger' ? 'bg-red-600 hover:bg-red-700' :
+								className={`flex-1 px-4 py-3 text-white font-semibold rounded-xl transition-colors cursor-pointer ${confirmType === 'danger' ? 'bg-red-600 hover:bg-red-700' :
 									confirmType === 'warning' ? 'bg-orange-500 hover:bg-orange-600' :
-									'bg-green-600 hover:bg-green-700'
-								}`}
+										'bg-green-600 hover:bg-green-700'
+									}`}
 							>
 								Confirmar
 							</button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { Gauge, Calendar, MapPin, Droplet, Loader2 } from 'lucide-react'
 import VehicleFilter from '../../components/VehicleFilter'
 import Pagination from '../../components/Pagination'
@@ -9,8 +9,12 @@ import api, { API_URL, getImageUrl, notyf } from '../../services/api'
 export default function Compra() {
 	useDocumentTitle('Compra de Veículos - Caxiauto')
 	const navigate = useNavigate()
+	const location = useLocation()
 
-	const [filters, setFilters] = useState({})
+	// Verificar se há filtros vindos da navegação (ex: da página inicial)
+	const initialFilters = location.state?.filters || {}
+
+	const [filters, setFilters] = useState(initialFilters)
 	const [currentPage, setCurrentPage] = useState(1)
 	const [vehicles, setVehicles] = useState([])
 	const [loading, setLoading] = useState(true)
@@ -117,9 +121,11 @@ export default function Compra() {
 		fetchVehicles()
 	}, [currentPage])
 
-	// Carregar veículos na primeira renderização
+	// Carregar veículos quando há filtros vindos da navegação
 	useEffect(() => {
-		fetchVehicles()
+		if (Object.keys(initialFilters).length > 0) {
+			fetchVehicles(initialFilters)
+		}
 	}, [])
 
 	const handleFilterChange = (newFilters) => {
@@ -182,7 +188,10 @@ export default function Compra() {
 					<aside className="w-full lg:w-80 flex-shrink-0">
 						<div className="sticky top-6">
 							<h2 className="text-xl font-bold text-gray-800 mb-4">Filtrar Veículos</h2>
-							<VehicleFilter onFilterChange={handleFilterChange} />
+							<VehicleFilter 
+								onFilterChange={handleFilterChange} 
+								initialFilters={initialFilters}
+							/>
 						</div>
 					</aside>
 
