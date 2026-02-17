@@ -10,7 +10,12 @@ const notyf = new Notyf({
 });
 
 // URL da API
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:20262';
+let API_URL = 'http://localhost:20262';
+// const API_URL = 'https://caxiauto.ecopacks-ao.com';
+
+if (1) {
+	API_URL = 'https://caxiauto.ecopacks-ao.com';
+}
 
 /**
  * Constrói URL completa para imagens de veículos
