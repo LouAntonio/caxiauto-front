@@ -329,6 +329,44 @@ const api = {
 			method: 'GET',
 		});
 	},
+
+	/**
+	 * Adicionar visualização a um item
+	 * @param {string} type - Tipo do item ('sell', 'rent', 'part')
+	 * @param {string} id - ID do item
+	 */
+	addView: (type, id) => {
+		return apiRequest(`/views/${type}/${id}`, {
+			method: 'POST',
+		});
+	},
+
+	/**
+	 * Obter total de visualizações do usuário autenticado
+	 */
+	getTotalViews: () => {
+		return apiRequest('/views/user/total', {
+			method: 'GET',
+		});
+	},
+
+	/**
+	 * Obter total de visualizações de hoje do usuário autenticado
+	 */
+	getTotalViewsToday: () => {
+		return apiRequest('/views/user/today', {
+			method: 'GET',
+		});
+	},
+
+	/**
+	 * Obter item mais visualizado do usuário autenticado
+	 */
+	getMostViewed: () => {
+		return apiRequest('/views/user/most-viewed', {
+			method: 'GET',
+		});
+	},
 };
 
 export default api;

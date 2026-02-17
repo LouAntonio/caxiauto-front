@@ -95,6 +95,14 @@ export default function DetalhesCompra() {
 						],
 						owner: vehicleData.owner
 					})
+					
+					// Registrar visualização
+					try {
+						await api.addView('sell', id)
+					} catch (viewError) {
+						console.error('Erro ao registrar visualização:', viewError)
+						// Não interromper o fluxo se falhar ao registrar view
+					}
 				} else {
 					setError('Veículo não encontrado')
 				}

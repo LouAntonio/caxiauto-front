@@ -483,7 +483,7 @@ const Veiculos = () => {
 									<div className="flex items-center gap-2 text-sm">
 										<Eye className="w-4 h-4 text-blue-500" />
 										<span className="font-medium text-blue-600">
-											{vehicle.todaaysViewCount || 0}
+											{vehicle.todayViewCount || 0}
 										</span>
 										<span className="text-gray-500">hoje</span>
 									</div>

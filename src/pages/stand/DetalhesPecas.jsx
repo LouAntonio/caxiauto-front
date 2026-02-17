@@ -108,6 +108,14 @@ export default function DetalhesPecas() {
 				if (response.success && response.data) {
 					const formattedPart = formatPartData(response)
 					setPart(formattedPart)
+					
+					// Registrar visualização
+					try {
+						await api.addView('part', id)
+					} catch (viewError) {
+						console.error('Erro ao registrar visualização:', viewError)
+						// Não interromper o fluxo se falhar ao registrar view
+					}
 				} else {
 					setError('Peça não encontrada')
 				}

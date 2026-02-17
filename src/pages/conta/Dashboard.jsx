@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 import {
 	User,
 	Mail,
@@ -30,6 +31,41 @@ const Dashboard = () => {
 		email: user?.email || '',
 		phone: user?.phone || '',
 	});
+
+	// Estados para estatísticas de visualização
+	const [viewStats, setViewStats] = useState({
+		totalViews: 0,
+		totalViewsToday: 0,
+		mostViewed: null,
+		loading: true,
+	});
+
+	// Carregar estatísticas de visualização
+	useEffect(() => {
+		const fetchViewStats = async () => {
+			try {
+				const [totalResponse, todayResponse, mostViewedResponse] = await Promise.all([
+					api.getTotalViews(),
+					api.getTotalViewsToday(),
+					api.getMostViewed(),
+				]);
+
+				setViewStats({
+					totalViews: totalResponse?.totalViews || 0,
+					totalViewsToday: todayResponse?.totalViewsToday || 0,
+					mostViewed: mostViewedResponse?.mostViewed || null,
+					loading: false,
+				});
+			} catch (error) {
+				console.error('Erro ao carregar estatísticas de visualização:', error);
+				setViewStats(prev => ({ ...prev, loading: false }));
+			}
+		};
+
+		if (user) {
+			fetchViewStats();
+		}
+	}, [user]);
 
 	const handleLogout = () => {
 		logout();
@@ -74,37 +110,24 @@ const Dashboard = () => {
 		});
 	};
 
-	// Carregar veículos reais do usuário
-	const allVehicles = JSON.parse(localStorage.getItem('caxiauto_vehicles') || '[]');
-	const userVehicles = allVehicles.filter(v => v.userId === user?.id);
-
-	// Dados mockados de estatísticas de visualizações
-	const mockStats = [
-		{
-			id: 1,
-			views: 1247,
-			viewsToday: 34,
-			viewsWeek: 189,
-		},
-		{
-			id: 2,
-			views: 856,
-			viewsToday: 18,
-			viewsWeek: 124,
-		},
-		{
-			id: 3,
-			views: 2103,
-			viewsToday: 56,
-			viewsWeek: 312,
+	// Função auxiliar para determinar o nome do item mais visto
+	const getMostViewedName = () => {
+		if (!viewStats.mostViewed) return 'N/A';
+		
+		const { marca, modelo, nome, title } = viewStats.mostViewed;
+		
+		// Para veículos (compra ou aluguel)
+		if (marca && modelo) {
+			return `${marca} ${modelo}`;
 		}
-	];
-
-	// Calcular estatísticas totais
-	const totalViews = mockStats.reduce((sum, v) => sum + v.views, 0);
-	const totalViewsToday = mockStats.reduce((sum, v) => sum + v.viewsToday, 0);
-	const totalViewsWeek = mockStats.reduce((sum, v) => sum + v.viewsWeek, 0);
-	const averageViews = mockStats.length > 0 ? Math.round(totalViews / mockStats.length) : 0;
+		
+		// Para peças
+		if (nome || title) {
+			return nome || title;
+		}
+		
+		return 'N/A';
+	};
 
 	return (
 		<div className="space-y-6">
@@ -281,7 +304,9 @@ const Dashboard = () => {
 							<Eye className="w-5 h-5 text-blue-600" />
 							<span className="text-xs font-medium text-blue-600">Total</span>
 						</div>
-						<div className="text-2xl font-bold text-gray-900">1234</div>
+						<div className="text-2xl font-bold text-gray-900">
+							{viewStats.loading ? '...' : viewStats.totalViews.toLocaleString('pt-BR')}
+						</div>
 						<p className="text-xs text-gray-600 mt-1">Visualizações totais</p>
 					</div>
 
@@ -290,7 +315,9 @@ const Dashboard = () => {
 							<BarChart3 className="w-5 h-5 text-purple-600" />
 							<span className="text-xs font-medium text-green-600">Hoje</span>
 						</div>
-						<div className="text-2xl font-bold text-gray-900">12</div>
+						<div className="text-2xl font-bold text-gray-900">
+							{viewStats.loading ? '...' : viewStats.totalViewsToday.toLocaleString('pt-BR')}
+						</div>
 						<p className="text-xs text-gray-600 mt-1">Visualizações hoje</p>
 					</div>
 
@@ -299,8 +326,12 @@ const Dashboard = () => {
 							<Car className="w-5 h-5 text-orange-600" />
 							<span className="text-xs font-medium text-orange-600">Mais Visto</span>
 						</div>
-						<div className="text-2xl font-bold text-gray-900">123</div>
-						<p className="text-xs text-gray-600 mt-1">Nome do Veículo</p>
+						<div className="text-2xl font-bold text-gray-900">
+							{viewStats.loading ? '...' : (viewStats.mostViewed?.viewCount || 0).toLocaleString('pt-BR')}
+						</div>
+						<p className="text-xs text-gray-600 mt-1 truncate" title={getMostViewedName()}>
+							{viewStats.loading ? 'Carregando...' : getMostViewedName()}
+						</p>
 					</div>
 				</div>
 			</div>

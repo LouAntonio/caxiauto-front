@@ -131,8 +131,14 @@ export default function DetalhesAluguel() {
 					const mappedVehicle = mapVehicleData(response.data)
 					setVehicle(mappedVehicle)
 					// Reset currentImageIndex se necessário
-					setCurrentImageIndex(0)
-				} else {
+					setCurrentImageIndex(0)						
+						// Registrar visualização
+						try {
+							await api.addView('rent', id)
+						} catch (viewError) {
+							console.error('Erro ao registrar visualização:', viewError)
+							// Não interromper o fluxo se falhar ao registrar view
+						}				} else {
 					setError(response.message || 'Veículo não encontrado')
 				}
 			} catch (err) {
