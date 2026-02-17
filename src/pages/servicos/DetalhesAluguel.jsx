@@ -17,20 +17,25 @@ import {
 	X,
 	Upload,
 	FileText,
-	Loader2
+	Loader2,
+	Heart
 } from 'lucide-react'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
-import api, { API_URL, getImageUrl } from '../../services/api'
+import api, { API_URL, getImageUrl, notyf } from '../../services/api'
+import { useAuth } from '../../contexts/AuthContext'
 
 export default function DetalhesAluguel() {
 	const { id } = useParams()
 	const navigate = useNavigate()
+	const { isAuthenticated } = useAuth()
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [selectedPeriod, setSelectedPeriod] = useState('diária')
 	const [showContactModal, setShowContactModal] = useState(false)
 	const [vehicle, setVehicle] = useState(null)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState(null)
+	const [isFavorite, setIsFavorite] = useState(false)
+	const [loadingFavorite, setLoadingFavorite] = useState(false)
 
 	// Planos de aluguel baseados nos dados do veículo  
 	const rentalPlans = vehicle ? [
@@ -157,6 +162,30 @@ export default function DetalhesAluguel() {
 		}
 	}, [rentalPlans, selectedPeriod])
 
+	// Buscar status de favorito
+	useEffect(() => {
+		const checkFavorite = async () => {
+			if (!isAuthenticated || !id) {
+				setIsFavorite(false)
+				return
+			}
+
+			try {
+				const response = await api.getFavorites()
+				if (response.success && response.data) {
+					const favoriteIds = response.data
+						.filter(fav => fav.itemType === 'rent')
+						.map(fav => fav.itemId)
+					setIsFavorite(favoriteIds.includes(id))
+				}
+			} catch (error) {
+				console.error('Erro ao verificar favorito:', error)
+			}
+		}
+
+		checkFavorite()
+	}, [id, isAuthenticated])
+
 	// Atualizar título da página
 	useDocumentTitle(
 		vehicle ? `${vehicle.title} - Aluguel - Caxiauto` : 'Detalhes do Veículo - Caxiauto'
@@ -217,6 +246,46 @@ export default function DetalhesAluguel() {
 		return new Intl.NumberFormat('pt-AO').format(price)
 	}
 
+	// Função para adicionar/remover favorito
+	const toggleFavorite = async (e) => {
+		e.preventDefault()
+		e.stopPropagation()
+
+		if (!isAuthenticated) {
+			notyf.error('Você precisa estar logado para adicionar favoritos')
+			return
+		}
+
+		if (loadingFavorite) return
+
+		setLoadingFavorite(true)
+
+		try {
+			if (isFavorite) {
+				const response = await api.removeFavorite(id)
+				if (response.success) {
+					setIsFavorite(false)
+					notyf.success('Removido dos favoritos')
+				} else {
+					notyf.error(response.message || 'Erro ao remover favorito')
+				}
+			} else {
+				const response = await api.addFavorite(id, 'rent')
+				if (response.success) {
+					setIsFavorite(true)
+					notyf.success('Adicionado aos favoritos')
+				} else {
+					notyf.error(response.message || 'Erro ao adicionar favorito')
+				}
+			}
+		} catch (error) {
+			console.error('Erro ao alternar favorito:', error)
+			notyf.error('Erro ao processar favorito')
+		} finally {
+			setLoadingFavorite(false)
+		}
+	}
+
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30">
 			{/* Breadcrumb */}
@@ -259,6 +328,23 @@ export default function DetalhesAluguel() {
 										{vehicle.condition}
 									</span>
 								</div>
+
+								{/* Botão de favorito (estilo similar ao FeaturedCars) */}
+								{isAuthenticated && (
+									<button
+										onClick={toggleFavorite}
+										className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
+										aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+										disabled={loadingFavorite}
+									>
+										<Heart
+											className={`w-5 h-5 transition-all duration-200 ${isFavorite
+													? 'fill-red-500 text-red-500'
+													: 'text-gray-600 hover:text-red-500'
+												} ${loadingFavorite ? 'opacity-50' : ''}`}
+										/>
+									</button>
+								)}
 
 								{/* Navegação de Imagens */}
 								<button
@@ -474,12 +560,6 @@ export default function DetalhesAluguel() {
 								>
 									{rentalPlans.length > 0 ? 'Solicitar Aluguel' : 'Entre em Contato'}
 								</button>
-
-								<div className="mt-4 pt-4 border-t border-gray-200">
-									<p className="text-xs text-gray-600 text-center">
-										Preços sujeitos a disponibilidade. Entre em contato para mais informações.
-									</p>
-								</div>
 							</div>
 
 							{/* Card de Contato */}
@@ -591,55 +671,57 @@ export default function DetalhesAluguel() {
 								setShowContactModal(false);
 							}}
 						>
-							{/* Informações Pessoais */}
-							<div className="space-y-4">
-								<div>
-									<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-										<span className="flex items-center gap-1.5">
-											Nome completo
-											<span className="text-red-500 text-base">*</span>
-										</span>
-									</label>
-									<input
-										type="text"
-										required
-										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
-										placeholder="Digite seu nome completo"
-									/>
-								</div>
-
-								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							{/* Informações Pessoais (não solicitar se usuário estiver logado) */}
+							{!isAuthenticated && (
+								<div className="space-y-4">
 									<div>
 										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
 											<span className="flex items-center gap-1.5">
-												Telefone
+												Nome completo
 												<span className="text-red-500 text-base">*</span>
 											</span>
 										</label>
 										<input
-											type="tel"
+											type="text"
 											required
 											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
-											placeholder="+244 9XX XXX XXX"
+											placeholder="Digite seu nome completo"
 										/>
 									</div>
 
-									<div>
-										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-											<span className="flex items-center gap-1.5">
-												E-mail
-												<span className="text-red-500 text-base">*</span>
-											</span>
-										</label>
-										<input
-											type="email"
-											required
-											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
-											placeholder="seu@email.com"
-										/>
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+										<div>
+											<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+												<span className="flex items-center gap-1.5">
+													Telefone
+													<span className="text-red-500 text-base">*</span>
+												</span>
+											</label>
+											<input
+												type="tel"
+												required
+												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+												placeholder="+244 9XX XXX XXX"
+											/>
+										</div>
+
+										<div>
+											<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+												<span className="flex items-center gap-1.5">
+													E-mail
+													<span className="text-red-500 text-base">*</span>
+												</span>
+											</label>
+											<input
+												type="email"
+												required
+												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+												placeholder="seu@email.com"
+											/>
+										</div>
 									</div>
 								</div>
-							</div>
+							)}
 
 							{/* Detalhes do Aluguel */}
 							<div className="pt-4 border-t border-gray-200">

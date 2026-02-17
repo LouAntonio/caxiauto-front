@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Package, Star, Search, Layers, Filter, Loader, X } from 'lucide-react'
+import { Package, Star, Search, Layers, Filter, Loader, X, Heart } from 'lucide-react'
 import Pagination from '../../components/Pagination'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
-import api, { getImageUrl } from '../../services/api'
+import api, { getImageUrl, notyf } from '../../services/api'
+import { useAuth } from '../../contexts/AuthContext'
 
 export default function PecasAcessorios() {
 	useDocumentTitle('Peças e Acessórios - Caxiauto')
@@ -24,6 +25,9 @@ export default function PecasAcessorios() {
 	const [pagination, setPagination] = useState({})
 	const [sortBy, setSortBy] = useState('')
 	const itemsPerPage = 16
+	const [favorites, setFavorites] = useState(new Set())
+	const [loadingFavorites, setLoadingFavorites] = useState(new Set())
+	const { isAuthenticated } = useAuth()
 
 	const handlePageChange = (page) => {
 		setCurrentPage(page)
@@ -124,6 +128,32 @@ export default function PecasAcessorios() {
 		fetchParts()
 	}, [currentPage, appliedSearchTerm, appliedCategory, appliedFeaturedOnly, sortBy])
 
+	// Buscar favoritos do usuário quando autenticado
+	useEffect(() => {
+		const fetchFavorites = async () => {
+			if (!isAuthenticated) {
+				setFavorites(new Set())
+				return
+			}
+
+			try {
+				const response = await api.getFavorites()
+				if (response.success && response.data) {
+					const favoriteIds = new Set(
+						response.data
+							.filter(fav => fav.itemType === 'part')
+							.map(fav => fav.itemId)
+					)
+					setFavorites(favoriteIds)
+				}
+			} catch (error) {
+				console.error('Erro ao buscar favoritos:', error)
+			}
+		}
+
+		fetchFavorites()
+	}, [isAuthenticated])
+
 	// Funções auxiliares
 	const getRating = (spechs) => {
 		// Se não tem avaliação no spechs, retorna uma padrão entre 4.0 e 4.9
@@ -131,6 +161,57 @@ export default function PecasAcessorios() {
 			return parseFloat(spechs.rating)
 		}
 		return 4.0 + Math.random() * 0.9
+	}
+
+	// Função para adicionar/remover favorito
+	const toggleFavorite = async (e, partId) => {
+		e.preventDefault()
+		e.stopPropagation()
+
+		if (!isAuthenticated) {
+			notyf.error('Você precisa estar logado para adicionar favoritos')
+			return
+		}
+
+		// Evitar múltiplos cliques
+		if (loadingFavorites.has(partId)) return
+
+		setLoadingFavorites(prev => new Set(prev).add(partId))
+
+		try {
+			const isFavorite = favorites.has(partId)
+
+			if (isFavorite) {
+				const response = await api.removeFavorite(partId)
+				if (response.success) {
+					setFavorites(prev => {
+						const newSet = new Set(prev)
+						newSet.delete(partId)
+						return newSet
+					})
+					notyf.success('Removido dos favoritos')
+				} else {
+					notyf.error(response.message || 'Erro ao remover favorito')
+				}
+			} else {
+				const response = await api.addFavorite(partId, 'part')
+				if (response.success) {
+					setFavorites(prev => new Set(prev).add(partId))
+					notyf.success('Adicionado aos favoritos')
+				} else {
+					notyf.error(response.message || 'Erro ao adicionar favorito')
+				}
+			}
+		} catch (error) {
+			console.error('Erro ao alternar favorito:', error)
+			notyf.error('Erro ao processar favorito')
+		} finally {
+			setLoadingFavorites(prev => {
+				const newSet = new Set(prev)
+				newSet.delete(partId)
+				return newSet
+			})
+		}
 	}
 
 	return (
@@ -321,6 +402,23 @@ export default function PecasAcessorios() {
 														{part.condition === 'new' ? 'Novo' : 'Usado'}
 													</span>
 												</div>
+
+												{/* Botão de favorito */}
+												{isAuthenticated && (
+													<button
+														onClick={(e) => toggleFavorite(e, part._id)}
+														className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
+														aria-label={favorites.has(part._id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+														disabled={loadingFavorites.has(part._id)}
+													>
+														<Heart
+															className={`w-4 h-4 transition-all duration-200 ${favorites.has(part._id)
+																? 'fill-red-500 text-red-500'
+																: 'text-gray-600 hover:text-red-500'
+																} ${loadingFavorites.has(part._id) ? 'opacity-50' : ''}`}
+														/>
+													</button>
+												)}
 											</div>
 
 											{/* Conteúdo */}

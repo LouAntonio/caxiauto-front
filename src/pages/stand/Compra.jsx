@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
-import { Gauge, Calendar, MapPin, Droplet, Loader2 } from 'lucide-react'
+import { Gauge, Calendar, MapPin, Droplet, Loader2, Heart } from 'lucide-react'
 import VehicleFilter from '../../components/VehicleFilter'
 import Pagination from '../../components/Pagination'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { API_URL, getImageUrl, notyf } from '../../services/api'
+import { useAuth } from '../../contexts/AuthContext'
 
 export default function Compra() {
 	useDocumentTitle('Compra de Veículos - Caxiauto')
@@ -22,6 +23,9 @@ export default function Compra() {
 	const [totalVehicles, setTotalVehicles] = useState(0)
 	const [sortBy, setSortBy] = useState('recent')
 	const vehiclesPerPage = 16
+	const [favorites, setFavorites] = useState(new Set())
+	const [loadingFavorites, setLoadingFavorites] = useState(new Set())
+	const { isAuthenticated } = useAuth()
 
 	// Função para buscar veículos do backend
 	const fetchVehicles = async (customFilters = null) => {
@@ -128,6 +132,32 @@ export default function Compra() {
 		}
 	}, [])
 
+	// Buscar favoritos do usuário quando autenticado
+	useEffect(() => {
+		const fetchFavorites = async () => {
+			if (!isAuthenticated) {
+				setFavorites(new Set())
+				return
+			}
+
+			try {
+				const response = await api.getFavorites()
+				if (response.success && response.data) {
+					const favoriteIds = new Set(
+						response.data
+							.filter(fav => fav.itemType === 'sell')
+							.map(fav => fav.itemId)
+					)
+					setFavorites(favoriteIds)
+				}
+			} catch (error) {
+				console.error('Erro ao buscar favoritos:', error)
+			}
+		}
+
+		fetchFavorites()
+	}, [isAuthenticated])
+
 	const handleFilterChange = (newFilters) => {
 		setFilters(newFilters)
 		setCurrentPage(1) // Reset para primeira página ao filtrar
@@ -160,6 +190,57 @@ export default function Compra() {
 		return str.charAt(0).toUpperCase() + str.slice(1)
 	}
 
+	// Função para adicionar/remover favorito
+	const toggleFavorite = async (e, carId) => {
+		e.preventDefault()
+		e.stopPropagation()
+
+		if (!isAuthenticated) {
+			notyf.error('Você precisa estar logado para adicionar favoritos')
+			return
+		}
+
+		// Evitar múltiplos cliques
+		if (loadingFavorites.has(carId)) return
+
+		setLoadingFavorites(prev => new Set(prev).add(carId))
+
+		try {
+			const isFavorite = favorites.has(carId)
+
+			if (isFavorite) {
+				const response = await api.removeFavorite(carId)
+				if (response.success) {
+					setFavorites(prev => {
+						const newSet = new Set(prev)
+						newSet.delete(carId)
+						return newSet
+					})
+					notyf.success('Removido dos favoritos')
+				} else {
+					notyf.error(response.message || 'Erro ao remover favorito')
+				}
+			} else {
+				const response = await api.addFavorite(carId, 'sell')
+				if (response.success) {
+					setFavorites(prev => new Set(prev).add(carId))
+					notyf.success('Adicionado aos favoritos')
+				} else {
+					notyf.error(response.message || 'Erro ao adicionar favorito')
+				}
+			}
+		} catch (error) {
+			console.error('Erro ao alternar favorito:', error)
+			notyf.error('Erro ao processar favorito')
+		} finally {
+			setLoadingFavorites(prev => {
+				const newSet = new Set(prev)
+				newSet.delete(carId)
+				return newSet
+			})
+		}
+	}
+
 	return (
 		<div className="min-h-screen bg-gray-50">
 			{/* Hero Section */}
@@ -188,8 +269,8 @@ export default function Compra() {
 					<aside className="w-full lg:w-80 flex-shrink-0">
 						<div className="sticky top-6">
 							<h2 className="text-xl font-bold text-gray-800 mb-4">Filtrar Veículos</h2>
-							<VehicleFilter 
-								onFilterChange={handleFilterChange} 
+							<VehicleFilter
+								onFilterChange={handleFilterChange}
 								initialFilters={initialFilters}
 							/>
 						</div>
@@ -245,6 +326,23 @@ export default function Compra() {
 														{car.kilometers > 0 ? 'Usado' : 'Novo'}
 													</span>
 												</div>
+
+												{/* Botão de favorito */}
+												{isAuthenticated && (
+													<button
+														onClick={(e) => toggleFavorite(e, car._id)}
+														className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
+														aria-label={favorites.has(car._id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+														disabled={loadingFavorites.has(car._id)}
+													>
+														<Heart
+															className={`w-5 h-5 transition-all duration-200 ${favorites.has(car._id)
+																	? 'fill-red-500 text-red-500'
+																	: 'text-gray-600 hover:text-red-500'
+																} ${loadingFavorites.has(car._id) ? 'opacity-50' : ''}`}
+														/>
+													</button>
+												)}
 
 												{/* Gradiente inferior */}
 												<div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent"></div>

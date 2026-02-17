@@ -10,12 +10,14 @@ import {
 	MapPin,
 	Droplet,
 	AlertCircle,
-	Loader2
+	Loader2,
+	Heart
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import RentalVehicleFilter from '../../components/RentalVehicleFilter';
 import Pagination from '../../components/Pagination';
-import api, { API_URL, getImageUrl } from '../../services/api';
+import api, { API_URL, getImageUrl, notyf } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function AluguelDeAutomoveis() {
 	useDocumentTitle('Aluguel de Automóveis - Caxiauto');
@@ -30,6 +32,9 @@ export default function AluguelDeAutomoveis() {
 	const [totalVehicles, setTotalVehicles] = useState(0);
 	const [sortBy, setSortBy] = useState('createdAt');
 	const vehiclesPerPage = 16;
+	const [favorites, setFavorites] = useState(new Set());
+	const [loadingFavorites, setLoadingFavorites] = useState(new Set());
+	const { isAuthenticated } = useAuth();
 
 	// Carrega veículos apenas na primeira renderização
 	useEffect(() => {
@@ -42,6 +47,32 @@ export default function AluguelDeAutomoveis() {
 			loadVehicles();
 		}
 	}, [currentPage]);
+
+	// Buscar favoritos do usuário quando autenticado
+	useEffect(() => {
+		const fetchFavorites = async () => {
+			if (!isAuthenticated) {
+				setFavorites(new Set());
+				return;
+			}
+
+			try {
+				const response = await api.getFavorites();
+				if (response.success && response.data) {
+					const favoriteIds = new Set(
+						response.data
+							.filter(fav => fav.itemType === 'rent')
+							.map(fav => fav.itemId)
+					);
+					setFavorites(favoriteIds);
+				}
+			} catch (error) {
+				console.error('Erro ao buscar favoritos:', error);
+			}
+		};
+
+		fetchFavorites();
+	}, [isAuthenticated]);
 
 	const loadVehicles = async () => {
 		await loadVehiclesWithFilters(filters, currentPage, sortBy);
@@ -134,26 +165,77 @@ export default function AluguelDeAutomoveis() {
 		return labels[period] || '';
 	};
 
+	// Função para adicionar/remover favorito
+	const toggleFavorite = async (e, carId) => {
+		e.preventDefault();
+		e.stopPropagation();
+
+		if (!isAuthenticated) {
+			notyf.error('Você precisa estar logado para adicionar favoritos');
+			return;
+		}
+
+		// Evitar múltiplos cliques
+		if (loadingFavorites.has(carId)) return;
+
+		setLoadingFavorites(prev => new Set(prev).add(carId));
+
+		try {
+			const isFavorite = favorites.has(carId);
+
+			if (isFavorite) {
+				const response = await api.removeFavorite(carId);
+				if (response.success) {
+					setFavorites(prev => {
+						const newSet = new Set(prev);
+						newSet.delete(carId);
+						return newSet;
+					});
+					notyf.success('Removido dos favoritos');
+				} else {
+					notyf.error(response.message || 'Erro ao remover favorito');
+				}
+			} else {
+				const response = await api.addFavorite(carId, 'rent');
+				if (response.success) {
+					setFavorites(prev => new Set(prev).add(carId));
+					notyf.success('Adicionado aos favoritos');
+				} else {
+					notyf.error(response.message || 'Erro ao adicionar favorito');
+				}
+			}
+		} catch (error) {
+			console.error('Erro ao alternar favorito:', error);
+			notyf.error('Erro ao processar favorito');
+		} finally {
+			setLoadingFavorites(prev => {
+				const newSet = new Set(prev);
+				newSet.delete(carId);
+				return newSet;
+			});
+		}
+	};
+
 	const steps = [
 		{
 			number: '01',
 			label: 'PASSO',
-			title: 'Pesquise Disponibilidade',
-			description: 'Indique as datas e a localização para ver todas as viaturas disponíveis na sua zona.',
+			title: 'Pesquise pela Viatura',
+			description: 'Esolha a viatura ou pesquise por um modelo a sua escolha.',
 			icon: Search,
 		},
 		{
 			number: '02',
 			label: 'PASSO',
 			title: 'Compare Ofertas',
-			description: 'Analise preços, características e condições de diferentes fornecedores para encontrar a melhor opção.',
+			description: 'Analise preços, características e condições de diferentes veículos para encontrar a melhor opção.',
 			icon: GitCompare,
 		},
 		{
 			number: '03',
 			label: 'PASSO',
 			title: 'Reserve com Segurança',
-			description: 'Entre em contacto direto com o parceiro e finalize a sua reserva de forma rápida e segura.',
+			description: 'Entre em contacto direto e finalize a sua reserva de forma rápida e segura.',
 			icon: Key,
 		},
 		{
@@ -247,158 +329,174 @@ export default function AluguelDeAutomoveis() {
 							<main className="flex-1">
 								<div className="mb-6 flex items-center justify-between">
 									<p className="text-gray-600">
-								<span className="font-semibold text-gray-900">{totalVehicles} veículos</span> disponíveis
-							</p>
-							<select 
-								value={sortBy}
-								onChange={handleSortChange}
-								className="border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none cursor-pointer"
-							>
-								<option value="createdAt">Mais Recentes</option>
-								<option value="price-asc">Preço: Menor para Maior</option>
-								<option value="price-desc">Preço: Maior para Menor</option>
-								<option value="year-desc">Ano: Mais Novo</option>
-								<option value="year-asc">Ano: Mais Antigo</option>
-							</select>
-						</div>
-
-						{/* Loading State */}
-						{loading && (
-							<div className="flex flex-col items-center justify-center py-20">
-								<Loader2 className="w-12 h-12 text-[#154c9a] animate-spin mb-4" />
-								<p className="text-gray-600 font-medium">Carregando veículos...</p>
-							</div>
-						)}
-
-						{/* Error State */}
-						{error && !loading && (
-							<div className="bg-red-50 border-2 border-red-200 rounded-xl p-6 flex items-center gap-3">
-								<AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
-								<div>
-									<h3 className="font-semibold text-red-900 mb-1">Erro ao carregar veículos</h3>
-									<p className="text-red-700">{error}</p>
-								</div>
-							</div>
-						)}
-
-						{/* Empty State */}
-						{!loading && !error && vehicles.length === 0 && (
-							<div className="text-center py-20">
-								<Key className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-								<h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhum veículo encontrado</h3>
-								<p className="text-gray-600">Tente ajustar os filtros para ver mais resultados</p>
-							</div>
-						)}
-
-						{/* Grid de Veículos */}
-						{!loading && !error && vehicles.length > 0 && (
-							<>
-								<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-									{vehicles.map((car) => {
-										const lowestPrice = getLowestPrice(car.rentalPrices);
-										const lowestPriceObj = car.rentalPrices?.find(rp => rp.price === lowestPrice);
-										return (
-											<article
-												key={car._id}
-												className="flex-shrink-0 w-full bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
-											>
-												{/* Imagem */}
-												<div className="relative h-40 overflow-hidden cursor-pointer" onClick={() => navigate(`/servicos/aluguel-de-automoveis/${car._id}`)}>
-													<img
-														src={getImageUrl(car.mainImage, '/images/i10.jpg')}
-														alt={car.name}
-														className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-														onError={(e) => { e.target.src = '/images/i10.jpg'; }}
-													/>
-
-													{/* Badge de disponibilidade */}
-													<div className="absolute top-4 left-4">
-														<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${
-															car.available ? 'bg-green-600 text-white' : 'bg-orange-500 text-white'
-														}`}>
-															{car.available ? 'Disponível' : 'Indisponível'}
-														</span>
-													</div>
-
-													{/* Badge de seguro */}
-													{car.insurance && (
-														<div className="absolute top-4 right-4">
-															<span className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg bg-blue-600 text-white">
-																Seguro
-															</span>
-														</div>
-													)}
-
-													{/* Gradiente inferior */}
-													<div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent"></div>
-												</div>
-
-												{/* Conteúdo */}
-												<div className="p-5">
-													<h3 className="text-1xl font-bold text-gray-900 mb-3 line-clamp-1 text-center">
-														{car.name}
-													</h3>
-
-													{/* Preço */}
-													{lowestPrice && (
-														<div className="text-center mb-4">
-															<div className="text-xs text-gray-500 mb-1">A partir de</div>
-															<div
-																style={{ color: 'var(--primary)' }}
-																className="text-xl font-bold"
-															>
-																{lowestPrice.toLocaleString()} Kz{lowestPriceObj ? getPeriodLabel(lowestPriceObj.period) : ''}
-															</div>
-														</div>
-													)}
-
-													{/* Especificações (duas colunas) */}
-													<div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-														<div className="flex items-center justify-end gap-2">
-															<span className="text-right">{car.kilometers?.toLocaleString()}</span>
-															<Gauge className="w-4 h-4 text-gray-400" />
-														</div>
-														<div className="flex items-center gap-2">
-															<Calendar className="w-4 h-4 text-gray-400" />
-															<span>{car.year}</span>
-														</div>
-														<div className="flex items-center justify-end gap-2">
-															<span className="text-right capitalize">{car.location}</span>
-															<MapPin className="w-4 h-4 text-gray-400" />
-														</div>
-														<div className="flex items-center gap-2">
-															<Droplet className="w-4 h-4 text-gray-400" />
-															<span className="capitalize">{car.fuelType}</span>
-														</div>
-													</div>
-
-													{/* Botão */}
-													<Link to={`/servicos/aluguel-de-automoveis/${car._id}`}>
-														<button
-															style={{ backgroundColor: 'var(--secondary)' }}
-															className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
-														>
-															Ver Detalhes
-														</button>
-													</Link>
-												</div>
-											</article>
-										);
-									})}
+										<span className="font-semibold text-gray-900">{totalVehicles} veículos</span> disponíveis
+									</p>
+									<select
+										value={sortBy}
+										onChange={handleSortChange}
+										className="border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none cursor-pointer"
+									>
+										<option value="createdAt">Mais Recentes</option>
+										<option value="price-asc">Preço: Menor para Maior</option>
+										<option value="price-desc">Preço: Maior para Menor</option>
+										<option value="year-desc">Ano: Mais Novo</option>
+										<option value="year-asc">Ano: Mais Antigo</option>
+									</select>
 								</div>
 
-								{/* Pagination */}
-								{totalPages > 1 && (
-									<div className="mt-12">
-										<Pagination
-											currentPage={currentPage}
-											totalPages={totalPages}
-											onPageChange={handlePageChange}
-										/>
+								{/* Loading State */}
+								{loading && (
+									<div className="flex flex-col items-center justify-center py-20">
+										<Loader2 className="w-12 h-12 text-[#154c9a] animate-spin mb-4" />
+										<p className="text-gray-600 font-medium">Carregando veículos...</p>
 									</div>
 								)}
-							</>
-						)}
+
+								{/* Error State */}
+								{error && !loading && (
+									<div className="bg-red-50 border-2 border-red-200 rounded-xl p-6 flex items-center gap-3">
+										<AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
+										<div>
+											<h3 className="font-semibold text-red-900 mb-1">Erro ao carregar veículos</h3>
+											<p className="text-red-700">{error}</p>
+										</div>
+									</div>
+								)}
+
+								{/* Empty State */}
+								{!loading && !error && vehicles.length === 0 && (
+									<div className="text-center py-20">
+										<Key className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+										<h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhum veículo encontrado</h3>
+										<p className="text-gray-600">Tente ajustar os filtros para ver mais resultados</p>
+									</div>
+								)}
+
+								{/* Grid de Veículos */}
+								{!loading && !error && vehicles.length > 0 && (
+									<>
+										<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+											{vehicles.map((car) => {
+												const lowestPrice = getLowestPrice(car.rentalPrices);
+												const lowestPriceObj = car.rentalPrices?.find(rp => rp.price === lowestPrice);
+												return (
+													<article
+														key={car._id}
+														className="flex-shrink-0 w-full bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
+													>
+														{/* Imagem */}
+														<div className="relative h-40 overflow-hidden cursor-pointer" onClick={() => navigate(`/servicos/aluguel-de-automoveis/${car._id}`)}>
+															<img
+																src={getImageUrl(car.mainImage, '/images/i10.jpg')}
+																alt={car.name}
+																className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+																onError={(e) => { e.target.src = '/images/i10.jpg'; }}
+															/>
+
+															{/* Badge de disponibilidade */}
+															<div className="absolute top-4 left-4">
+																<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${car.available ? 'bg-green-600 text-white' : 'bg-orange-500 text-white'
+																	}`}>
+																	{car.available ? 'Disponível' : 'Indisponível'}
+																</span>
+															</div>
+
+															{/* Badge de seguro */}
+															{car.insurance && (
+																<div className="absolute top-4 right-4">
+																	<span className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg bg-blue-600 text-white">
+																		Seguro
+																	</span>
+																</div>
+															)}
+
+															{/* Botão de favorito */}
+															{isAuthenticated && (
+																<button
+																	onClick={(e) => toggleFavorite(e, car._id)}
+																	className={`absolute ${car.insurance ? 'top-16' : 'top-4'} right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer`}
+																	aria-label={favorites.has(car._id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+																	disabled={loadingFavorites.has(car._id)}
+																>
+																	<Heart
+																		className={`w-5 h-5 transition-all duration-200 ${favorites.has(car._id)
+																				? 'fill-red-500 text-red-500'
+																				: 'text-gray-600 hover:text-red-500'
+																			} ${loadingFavorites.has(car._id) ? 'opacity-50' : ''}`}
+																	/>
+																</button>
+															)}
+
+															{/* Gradiente inferior */}
+															<div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent"></div>
+														</div>
+
+														{/* Conteúdo */}
+														<div className="p-5">
+															<h3 className="text-1xl font-bold text-gray-900 mb-3 line-clamp-1 text-center">
+																{car.name}
+															</h3>
+
+															{/* Preço */}
+															{lowestPrice && (
+																<div className="text-center mb-4">
+																	<div className="text-xs text-gray-500 mb-1">A partir de</div>
+																	<div
+																		style={{ color: 'var(--primary)' }}
+																		className="text-xl font-bold"
+																	>
+																		{lowestPrice.toLocaleString()} Kz{lowestPriceObj ? getPeriodLabel(lowestPriceObj.period) : ''}
+																	</div>
+																</div>
+															)}
+
+															{/* Especificações (duas colunas) */}
+															<div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+																<div className="flex items-center justify-end gap-2">
+																	<span className="text-right">{car.kilometers?.toLocaleString()}</span>
+																	<Gauge className="w-4 h-4 text-gray-400" />
+																</div>
+																<div className="flex items-center gap-2">
+																	<Calendar className="w-4 h-4 text-gray-400" />
+																	<span>{car.year}</span>
+																</div>
+																<div className="flex items-center justify-end gap-2">
+																	<span className="text-right capitalize">{car.location}</span>
+																	<MapPin className="w-4 h-4 text-gray-400" />
+																</div>
+																<div className="flex items-center gap-2">
+																	<Droplet className="w-4 h-4 text-gray-400" />
+																	<span className="capitalize">{car.fuelType}</span>
+																</div>
+															</div>
+
+															{/* Botão */}
+															<Link to={`/servicos/aluguel-de-automoveis/${car._id}`}>
+																<button
+																	style={{ backgroundColor: 'var(--secondary)' }}
+																	className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
+																>
+																	Ver Detalhes
+																</button>
+															</Link>
+														</div>
+													</article>
+												);
+											})}
+										</div>
+
+										{/* Pagination */}
+										{totalPages > 1 && (
+											<div className="mt-12">
+												<Pagination
+													currentPage={currentPage}
+													totalPages={totalPages}
+													onPageChange={handlePageChange}
+												/>
+											</div>
+										)}
+									</>
+								)}
 							</main>
 						</div>
 					</div>

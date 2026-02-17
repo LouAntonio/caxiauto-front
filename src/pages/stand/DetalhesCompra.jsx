@@ -18,19 +18,25 @@ import {
 	FileText,
 	Wallet,
 	CreditCard,
-	Loader2
+	Loader2,
+	Heart
 } from 'lucide-react'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
-import api from '../../services/api'
+import api, { notyf } from '../../services/api'
+import { useAuth } from '../../contexts/AuthContext'
 
 export default function DetalhesCompra() {
 	const { id } = useParams()
 	const navigate = useNavigate()
+	const { user, isAuthenticated } = useAuth()
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [showContactModal, setShowContactModal] = useState(false)
+	const [showVisitModal, setShowVisitModal] = useState(false)
 	const [vehicle, setVehicle] = useState(null)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState(null)
+	const [isFavorite, setIsFavorite] = useState(false)
+	const [loadingFavorite, setLoadingFavorite] = useState(false)
 
 	// Buscar dados do veículo
 	useEffect(() => {
@@ -39,7 +45,7 @@ export default function DetalhesCompra() {
 				setLoading(true)
 				setError(null)
 				const response = await api.get(`/compraveiculos/${id}`)
-				
+
 				if (response.success && response.data) {
 					// Mapear os dados da API para a estrutura esperada pelo componente
 					const vehicleData = response.data
@@ -47,28 +53,28 @@ export default function DetalhesCompra() {
 						id: vehicleData._id || id,
 						title: vehicleData.name || 'Veículo sem título',
 						price: vehicleData.price || 0,
-						images: vehicleData.mainImage 
+						images: vehicleData.mainImage
 							? [vehicleData.mainImage, ...(vehicleData.images || [])]
 							: ['/images/i10.jpg'],
 						condition: vehicleData.year >= new Date().getFullYear() ? 'Novo' : 'Usado',
 						description: vehicleData.description || 'Sem descrição disponível',
 						specs: {
-							km: vehicleData.kilometers 
-								? `${vehicleData.kilometers.toLocaleString('pt-AO')} km` 
+							km: vehicleData.kilometers
+								? `${vehicleData.kilometers.toLocaleString('pt-AO')} km`
 								: 'N/A',
 							year: vehicleData.year || 'N/A',
 							location: vehicleData.location || 'N/A',
-							fuel: vehicleData.fuelType 
+							fuel: vehicleData.fuelType
 								? vehicleData.fuelType.charAt(0).toUpperCase() + vehicleData.fuelType.slice(1)
 								: 'N/A',
-							transmission: vehicleData.transmission 
+							transmission: vehicleData.transmission
 								? vehicleData.transmission.charAt(0).toUpperCase() + vehicleData.transmission.slice(1)
 								: 'N/A',
-							passengers: vehicleData.passangers 
+							passengers: vehicleData.passangers
 								? `${vehicleData.passangers} ${vehicleData.passangers === 1 ? 'lugar' : 'lugares'}`
 								: 'N/A',
 							color: vehicleData.color || 'N/A',
-							doors: vehicleData.door 
+							doors: vehicleData.door
 								? `${vehicleData.door} ${vehicleData.door === 1 ? 'porta' : 'portas'}`
 								: 'N/A'
 						},
@@ -105,6 +111,30 @@ export default function DetalhesCompra() {
 		}
 	}, [id])
 
+	// Buscar status de favorito
+	useEffect(() => {
+		const checkFavorite = async () => {
+			if (!isAuthenticated || !id) {
+				setIsFavorite(false)
+				return
+			}
+
+			try {
+				const response = await api.getFavorites()
+				if (response.success && response.data) {
+					const favoriteIds = response.data
+						.filter(fav => fav.itemType === 'sell')
+						.map(fav => fav.itemId)
+					setIsFavorite(favoriteIds.includes(id))
+				}
+			} catch (error) {
+				console.error('Erro ao verificar favorito:', error)
+			}
+		}
+
+		checkFavorite()
+	}, [id, isAuthenticated])
+
 	useDocumentTitle(vehicle ? `${vehicle.title} - Compra - Caxiauto` : 'Carregando... - Caxiauto')
 
 	const nextImage = () => {
@@ -123,11 +153,55 @@ export default function DetalhesCompra() {
 		setShowContactModal(true)
 	}
 
+	const handleVisit = () => {
+		setShowVisitModal(true)
+	}
+
 	const formatPrice = (price) => {
 		if (price === null || price === undefined || isNaN(price) || price === 0) {
 			return 'Preço sob consulta'
 		}
 		return new Intl.NumberFormat('pt-AO').format(price)
+	}
+
+	// Função para adicionar/remover favorito
+	const toggleFavorite = async (e) => {
+		e.preventDefault()
+		e.stopPropagation()
+
+		if (!isAuthenticated) {
+			notyf.error('Você precisa estar logado para adicionar favoritos')
+			return
+		}
+
+		if (loadingFavorite) return
+
+		setLoadingFavorite(true)
+
+		try {
+			if (isFavorite) {
+				const response = await api.removeFavorite(id)
+				if (response.success) {
+					setIsFavorite(false)
+					notyf.success('Removido dos favoritos')
+				} else {
+					notyf.error(response.message || 'Erro ao remover favorito')
+				}
+			} else {
+				const response = await api.addFavorite(id, 'sell')
+				if (response.success) {
+					setIsFavorite(true)
+					notyf.success('Adicionado aos favoritos')
+				} else {
+					notyf.error(response.message || 'Erro ao adicionar favorito')
+				}
+			}
+		} catch (error) {
+			console.error('Erro ao alternar favorito:', error)
+			notyf.error('Erro ao processar favorito')
+		} finally {
+			setLoadingFavorite(false)
+		}
 	}
 
 	// Estado de loading
@@ -199,6 +273,23 @@ export default function DetalhesCompra() {
 									</span>
 								</div>
 
+								{/* Botão de favorito */}
+								{isAuthenticated && (
+									<button
+										onClick={toggleFavorite}
+										className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/95 backdrop-blur-sm shadow-xl flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
+										aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+										disabled={loadingFavorite}
+									>
+										<Heart
+											className={`w-6 h-6 transition-all duration-200 ${isFavorite
+													? 'fill-red-500 text-red-500'
+													: 'text-gray-600 hover:text-red-500'
+												} ${loadingFavorite ? 'opacity-50' : ''}`}
+										/>
+									</button>
+								)}
+
 								{/* Navegação de Imagens */}
 								{vehicle.images && vehicle.images.length > 1 && (
 									<>
@@ -243,7 +334,7 @@ export default function DetalhesCompra() {
 											key={index}
 											onClick={() => setCurrentImageIndex(index)}
 											className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex ? 'border-indigo-600 ring-2 ring-indigo-200' : 'border-gray-200'
-											} cursor-pointer`}
+												} cursor-pointer`}
 										>
 											<img src={image} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover" />
 										</button>
@@ -386,7 +477,7 @@ export default function DetalhesCompra() {
 								</button>
 
 								<button
-									onClick={handleContact}
+									onClick={handleVisit}
 									className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02] cursor-pointer"
 								>
 									Agendar Visita
@@ -478,7 +569,7 @@ export default function DetalhesCompra() {
 						<div className="sticky top-0 bg-gradient-to-br from-indigo-600 to-indigo-700 px-4 sm:px-6 pt-5 sm:pt-6 pb-4 sm:pb-5 rounded-t-2xl sm:rounded-t-3xl z-10 shadow-lg">
 							<button
 								onClick={() => setShowContactModal(false)}
-								className="absolute top-3 sm:top-4 right-3 sm:right-4 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all hover:rotate-90"
+								className="absolute top-3 sm:top-4 right-3 sm:right-4 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all hover:rotate-90 cursor-pointer"
 								aria-label="Fechar"
 							>
 								<X className="w-5 h-5 text-white" />
@@ -503,54 +594,56 @@ export default function DetalhesCompra() {
 							}}
 						>
 							{/* Informações Pessoais */}
-							<div className="space-y-4">
-								<div>
-									<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-										<span className="flex items-center gap-1.5">
-											Nome completo
-											<span className="text-red-500 text-base">*</span>
-										</span>
-									</label>
-									<input
-										type="text"
-										required
-									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
-										placeholder="Digite seu nome completo"
-									/>
-								</div>
-
-								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							{!user && (
+								<div className="space-y-4">
 									<div>
 										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
 											<span className="flex items-center gap-1.5">
-												Telefone
+												Nome completo
 												<span className="text-red-500 text-base">*</span>
 											</span>
 										</label>
 										<input
-											type="tel"
+											type="text"
 											required
-										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
-											placeholder="+244 9XX XXX XXX"
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+											placeholder="Digite seu nome completo"
 										/>
 									</div>
 
-									<div>
-										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-											<span className="flex items-center gap-1.5">
-												E-mail
-												<span className="text-red-500 text-base">*</span>
-											</span>
-										</label>
-										<input
-											type="email"
-											required
-										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
-											placeholder="seu@email.com"
-										/>
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+										<div>
+											<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+												<span className="flex items-center gap-1.5">
+													Telefone
+													<span className="text-red-500 text-base">*</span>
+												</span>
+											</label>
+											<input
+												type="tel"
+												required
+												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+												placeholder="+244 9XX XXX XXX"
+											/>
+										</div>
+
+										<div>
+											<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+												<span className="flex items-center gap-1.5">
+													E-mail
+													<span className="text-red-500 text-base">*</span>
+												</span>
+											</label>
+											<input
+												type="email"
+												required
+												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+												placeholder="seu@email.com"
+											/>
+										</div>
 									</div>
 								</div>
-							</div>
+							)}
 
 							{/* Interesse de Compra */}
 							<div className="pt-4 border-t border-gray-200">
@@ -568,25 +661,12 @@ export default function DetalhesCompra() {
 									</label>
 									<select
 										required
-									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  bg-white cursor-pointer text-sm sm:text-base font-medium"
+										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  bg-white cursor-pointer text-sm sm:text-base font-medium"
 									>
 										<option value="">Selecione uma opção</option>
 										<option value="vista">Aceitar  Preço - {formatPrice(vehicle.price)} aKz</option>
 										<option value="financiamento">Fazer oferta (especificar na Mensagem)</option>
 									</select>
-								</div>
-
-								{/* Checkbox para retoma */}
-								<div className="mt-4">
-									<label className="flex items-start gap-3 cursor-pointer group">
-										<input
-											type="checkbox"
-											className="mt-1 w-4 h-4 text-indigo-600 border-gray-300 rounded cursor-pointer"
-										/>
-										<span className="text-sm text-gray-700 group-hover:text-gray-900">
-											Tenho um veículo para retoma
-										</span>
-									</label>
 								</div>
 							</div>
 
@@ -597,7 +677,7 @@ export default function DetalhesCompra() {
 								</label>
 								<textarea
 									rows="3"
-								className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 text-sm sm:text-base"
+									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 text-sm sm:text-base"
 									placeholder="Conte-nos sobre suas dúvidas, forma de interesse ou outras informações..."
 								/>
 							</div>
@@ -614,6 +694,202 @@ export default function DetalhesCompra() {
 								<button
 									type="button"
 									onClick={() => setShowContactModal(false)}
+									className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 sm:py-3 rounded-xl transition-all active:scale-[0.98] text-sm sm:text-base cursor-pointer"
+								>
+									Cancelar
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			)}
+
+			{/* Modal de Agendamento de Visita */}
+			{showVisitModal && (
+				<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+					<div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+						{/* Header */}
+						<div className="sticky top-0 bg-gradient-to-r from-green-600 to-green-700 text-white p-4 sm:p-6 rounded-t-2xl border-b border-green-500/20">
+							<div className="flex items-start justify-between gap-4">
+								<div className="flex-1">
+									<h3 className="text-xl sm:text-2xl font-bold mb-2 flex items-center gap-2">
+										<Calendar className="w-6 h-6" />
+										Agendar Visita
+									</h3>
+									<p className="text-sm sm:text-base text-green-100 leading-relaxed">
+										{vehicle.title}
+									</p>
+								</div>
+								<button
+									onClick={() => setShowVisitModal(false)}
+									className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all hover:rotate-90 cursor-pointer"
+									aria-label="Fechar"
+								>
+									<X className="w-5 h-5 sm:w-6 sm:h-6" />
+								</button>
+							</div>
+						</div>
+
+						{/* Form */}
+						<form
+							className="p-4 sm:p-6 space-y-6"
+							onSubmit={(e) => {
+								e.preventDefault();
+								alert('Visita agendada com sucesso! Entraremos em contato para confirmar.');
+								setShowVisitModal(false);
+							}}
+						>
+							{/* Informações Pessoais */}
+							{!user && (
+								<div className="space-y-4">
+									<div>
+										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+											<span className="flex items-center gap-1.5">
+												Nome completo
+												<span className="text-red-500 text-base">*</span>
+											</span>
+										</label>
+										<input
+											type="text"
+											required
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base"
+											placeholder="Digite seu nome completo"
+										/>
+									</div>
+
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+										<div>
+											<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+												<span className="flex items-center gap-1.5">
+													Telefone
+													<span className="text-red-500 text-base">*</span>
+												</span>
+											</label>
+											<input
+												type="tel"
+												required
+												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base"
+												placeholder="+244 9XX XXX XXX"
+											/>
+										</div>
+
+										<div>
+											<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+												<span className="flex items-center gap-1.5">
+													E-mail
+													<span className="text-red-500 text-base">*</span>
+												</span>
+											</label>
+											<input
+												type="email"
+												required
+												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base"
+												placeholder="seu@email.com"
+											/>
+										</div>
+									</div>
+								</div>
+							)}
+
+							{/* Data e Hora da Visita */}
+							<div className="pt-4 border-t border-gray-200">
+								<h4 className="text-sm sm:text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+									<Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+									Data e Hora Preferencial
+								</h4>
+
+								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+									<div>
+										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+											<span className="flex items-center gap-1.5">
+												Data
+												<span className="text-red-500 text-base">*</span>
+											</span>
+										</label>
+										<input
+											type="date"
+											required
+											min={new Date().toISOString().split('T')[0]}
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 bg-white cursor-pointer text-sm sm:text-base font-medium"
+										/>
+									</div>
+
+									<div>
+										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+											<span className="flex items-center gap-1.5">
+												Horário
+												<span className="text-red-500 text-base">*</span>
+											</span>
+										</label>
+										<select
+											required
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 bg-white cursor-pointer text-sm sm:text-base font-medium"
+										>
+											<option value="">Selecione um horário</option>
+											<option value="09:00">09:00</option>
+											<option value="10:00">10:00</option>
+											<option value="11:00">11:00</option>
+											<option value="12:00">12:00</option>
+											<option value="14:00">14:00</option>
+											<option value="15:00">15:00</option>
+											<option value="16:00">16:00</option>
+											<option value="17:00">17:00</option>
+										</select>
+									</div>
+								</div>
+
+								<div className="mt-4">
+									<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+										Número de pessoas
+									</label>
+									<select
+										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 bg-white cursor-pointer text-sm sm:text-base font-medium"
+									>
+										<option value="1">1 pessoa</option>
+										<option value="2">2 pessoas</option>
+										<option value="3">3 pessoas</option>
+										<option value="4">4 ou mais pessoas</option>
+									</select>
+								</div>
+							</div>
+
+							{/* Observações */}
+							<div>
+								<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+									Observações ou pedidos especiais
+								</label>
+								<textarea
+									rows="3"
+									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base"
+									placeholder="Ex: Gostaria de realizar test-drive, verificar documentação específica, etc."
+								/>
+							</div>
+
+							{/* Informação adicional */}
+							<div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
+								<div className="flex items-start gap-3">
+									<CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+									<div className="text-sm text-green-900">
+										<p className="font-semibold mb-1">Confirmação de agendamento</p>
+										<p className="text-green-700">
+											Após enviar, nossa equipe entrará em contato para confirmar a disponibilidade e fornecer detalhes sobre a localização.
+										</p>
+									</div>
+								</div>
+							</div>
+
+							{/* Botões de Ação */}
+							<div className="pt-4 sm:pt-5 border-t border-gray-200 space-y-2.5 sm:space-y-3">
+								<button
+									type="submit"
+									className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
+								>
+									<Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+									Confirmar Agendamento
+								</button>
+								<button
+									type="button"
+									onClick={() => setShowVisitModal(false)}
 									className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 sm:py-3 rounded-xl transition-all active:scale-[0.98] text-sm sm:text-base cursor-pointer"
 								>
 									Cancelar

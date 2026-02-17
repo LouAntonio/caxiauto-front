@@ -41,11 +41,10 @@ export default function SellBuySection() {
 						<div className="space-y-6">
 							{[
 								'Pesquise o carro',
-								'Compare viaturas',
-								'Adicione aos favoritos',
-								'Contacte vendedores',
+								'Compare opções',
+								'Inicie as negociações',
 							].map((item, index) => (
-								<div key={index} className="flex items-center gap-4 group">
+								<div key={index} className="flex items-center gap-4 group cursor-pointer">
 									<div className="bg-transparent border border-[#00E676] rounded-full p-1 group-hover:bg-[#00E676] transition-colors">
 										<CheckCircle className="text-[#00E676] group-hover:text-black w-4 h-4" />
 									</div>

@@ -276,7 +276,7 @@ export default function SeguroAutomovel() {
 									onChange={handleChange}
 									required
 									className="w-full px-4 py-3 border border-gray-300 rounded-xl  outline-none transition-all"
-									placeholder="+244"
+									placeholder="+244 912 345 678"
 								/>
 							</div>
 						</div>

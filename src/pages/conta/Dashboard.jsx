@@ -192,14 +192,14 @@ const Dashboard = () => {
 							<div className="flex gap-3 pt-4">
 								<button
 									onClick={handleSave}
-									className="flex-1 bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80] transition-colors flex items-center justify-center gap-2"
+									className="flex-1 bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80] transition-colors flex items-center justify-center gap-2 cursor-pointer"
 								>
 									<Save className="w-4 h-4" />
 									Salvar
 								</button>
 								<button
 									onClick={handleCancel}
-									className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center gap-2"
+									className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center gap-2 cursor-pointer"
 								>
 									<X className="w-4 h-4" />
 									Cancelar

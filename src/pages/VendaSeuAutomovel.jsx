@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import useDocumentTitle from '../hooks/useDocumentTitle'
 import {
 	FileText,
@@ -89,14 +90,14 @@ export default function VendaSeuAutomovel() {
 						Rápido • Seguro • Sem complicações
 					</p>
 					<p className="text-lg text-blue-50 max-w-2xl mx-auto mb-8">
-						Tratamos de todo o processo por si — desde o registo até à venda final. Oferecemos um serviço completo de intermediação onde encontramos o comprador ideal para a sua viatura.
+						Tratamos de todo o processo por si — desde o marketing até à venda final. Oferecemos um serviço completo de intermediação onde encontramos o comprador ideal para a sua viatura.
 					</p>
-					<a
-						href="#formulario"
+					<Link
+						to="/auth"
 						className="inline-block bg-white text-[#154c9a] font-bold py-4 px-10 rounded-full hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
 					>
 						Registar Agora
-					</a>
+					</Link>
 				</div>
 			</section>
 

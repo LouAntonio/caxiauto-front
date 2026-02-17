@@ -33,10 +33,10 @@ const handleSessionExpired = () => {
 	// Limpar dados do localStorage
 	localStorage.removeItem('caxiauto_user');
 	localStorage.removeItem('caxiauto_token');
-	
+
 	// Mostrar notificação
 	notyf.error('Sua sessão expirou. Por favor, faça login novamente.');
-	
+
 	// Redirecionar para página de login
 	// Pequeno delay para garantir que a notificação seja exibida
 	setTimeout(() => {
@@ -284,6 +284,48 @@ const api = {
 	 */
 	getVeiculoCompra: (id) => {
 		return apiRequest(`/compraveiculos/${id}`, {
+			method: 'GET',
+		});
+	},
+
+	/**
+	 * Adicionar item aos favoritos
+	 * @param {string} itemId - ID do item
+	 * @param {string} itemType - Tipo do item ('sell', 'rent', 'part')
+	 */
+	addFavorite: (itemId, itemType) => {
+		return apiRequest('/favorites/add', {
+			method: 'POST',
+			body: JSON.stringify({ itemId, itemType }),
+		});
+	},
+
+	/**
+	 * Remover item dos favoritos
+	 * @param {string} itemId - ID do item
+	 */
+	removeFavorite: (itemId) => {
+		return apiRequest('/favorites/remove', {
+			method: 'POST',
+			body: JSON.stringify({ itemId }),
+		});
+	},
+
+	/**
+	 * Buscar todos os favoritos do usuário
+	 */
+	getFavorites: () => {
+		return apiRequest('/favorites', {
+			method: 'GET',
+		});
+	},
+
+	/**
+	 * Verificar se um item é favorito
+	 * @param {string} itemId - ID do item
+	 */
+	isFavorite: (itemId) => {
+		return apiRequest(`/favorites/is-favorite?itemId=${itemId}`, {
 			method: 'GET',
 		});
 	},

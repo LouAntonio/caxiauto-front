@@ -1,13 +1,17 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Gauge, Calendar, MapPin, Droplet } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Gauge, Calendar, MapPin, Droplet, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom'
-import api, { getImageUrl } from '../services/api';
+import api, { getImageUrl, notyf } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 	const railRef = useRef(null);
 	const [cars, setCars] = useState([]);
 	const [loading, setLoading] = useState(true);
-	
+	const [favorites, setFavorites] = useState(new Set());
+	const [loadingFavorites, setLoadingFavorites] = useState(new Set());
+	const { isAuthenticated } = useAuth();
+
 	// Determinar se deve buscar destacados ou recentes baseado no título
 	const isFeatured = title.toLowerCase().includes('destaque');
 
@@ -19,14 +23,14 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 					limit: 10,
 					page: 1,
 				};
-				
+
 				// Adicionar filtro de featured se for carros em destaque
 				if (isFeatured) {
 					params.featured = 'true';
 				}
-				
+
 				const response = await api.listVeiculosCompra(params);
-				
+
 				if (response.success && response.data) {
 					setCars(response.data);
 				}
@@ -39,6 +43,83 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 
 		fetchCars();
 	}, [isFeatured]);
+
+	// Buscar favoritos do usuário quando autenticado
+	useEffect(() => {
+		const fetchFavorites = async () => {
+			if (!isAuthenticated) {
+				setFavorites(new Set());
+				return;
+			}
+
+			try {
+				const response = await api.getFavorites();
+				if (response.success && response.data) {
+					const favoriteIds = new Set(
+						response.data
+							.filter(fav => fav.itemType === 'sell')
+							.map(fav => fav.itemId)
+					);
+					setFavorites(favoriteIds);
+				}
+			} catch (error) {
+				console.error('Erro ao buscar favoritos:', error);
+			}
+		};
+
+		fetchFavorites();
+	}, [isAuthenticated]);
+
+	// Função para adicionar/remover favorito
+	const toggleFavorite = async (e, carId) => {
+		e.preventDefault();
+		e.stopPropagation();
+
+		if (!isAuthenticated) {
+			notyf.error('Você precisa estar logado para adicionar favoritos');
+			return;
+		}
+
+		// Evitar múltiplos cliques
+		if (loadingFavorites.has(carId)) return;
+
+		setLoadingFavorites(prev => new Set(prev).add(carId));
+
+		try {
+			const isFavorite = favorites.has(carId);
+
+			if (isFavorite) {
+				const response = await api.removeFavorite(carId);
+				if (response.success) {
+					setFavorites(prev => {
+						const newSet = new Set(prev);
+						newSet.delete(carId);
+						return newSet;
+					});
+					notyf.success('Removido dos favoritos');
+				} else {
+					notyf.error(response.message || 'Erro ao remover favorito');
+				}
+			} else {
+				const response = await api.addFavorite(carId, 'sell');
+				if (response.success) {
+					setFavorites(prev => new Set(prev).add(carId));
+					notyf.success('Adicionado aos favoritos');
+				} else {
+					notyf.error(response.message || 'Erro ao adicionar favorito');
+				}
+			}
+		} catch (error) {
+			console.error('Erro ao alternar favorito:', error);
+			notyf.error('Erro ao processar favorito');
+		} finally {
+			setLoadingFavorites(prev => {
+				const newSet = new Set(prev);
+				newSet.delete(carId);
+				return newSet;
+			});
+		}
+	};
 
 	function scroll(dir = 1) {
 		const rail = railRef.current;
@@ -98,16 +179,16 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 								const currentYear = new Date().getFullYear();
 								const isNew = car.year >= currentYear - 1;
 								const condition = isNew ? 'Novo' : 'Usado';
-								
+
 								// Formatar preço
 								const formattedPrice = new Intl.NumberFormat('pt-AO').format(car.price);
-								
+
 								// Formatar quilometragem
 								const formattedKm = new Intl.NumberFormat('pt-AO').format(car.kilometers);
-								
+
 								// Capitalizar tipo de combustível
 								const fuelType = car.fuelType.charAt(0).toUpperCase() + car.fuelType.slice(1);
-								
+
 								return (
 									<article
 										key={car._id}
@@ -127,6 +208,23 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 													{condition}
 												</span>
 											</div>
+
+											{/* Botão de favorito */}
+											{isAuthenticated && (
+												<button
+													onClick={(e) => toggleFavorite(e, car._id)}
+													className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
+													aria-label={favorites.has(car._id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+													disabled={loadingFavorites.has(car._id)}
+												>
+													<Heart
+														className={`w-5 h-5 transition-all duration-200 ${favorites.has(car._id)
+																? 'fill-red-500 text-red-500'
+																: 'text-gray-600 hover:text-red-500'
+															} ${loadingFavorites.has(car._id) ? 'opacity-50' : ''}`}
+													/>
+												</button>
+											)}
 
 											{/* Gradiente inferior */}
 											<div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent"></div>

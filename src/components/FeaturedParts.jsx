@@ -1,12 +1,16 @@
 import React, { useRef, useState, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, Loader } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Loader, Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import api, { getImageUrl } from '../services/api'
+import api, { getImageUrl, notyf } from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function FeaturedParts() {
 	const railRef = useRef(null)
 	const [featuredParts, setFeaturedParts] = useState([])
 	const [loading, setLoading] = useState(true)
+	const [favorites, setFavorites] = useState(new Set())
+	const [loadingFavorites, setLoadingFavorites] = useState(new Set())
+	const { isAuthenticated } = useAuth()
 
 	// Carregar peças em destaque
 	useEffect(() => {
@@ -27,6 +31,83 @@ export default function FeaturedParts() {
 		}
 		fetchFeaturedParts()
 	}, [])
+
+	// Buscar favoritos do usuário quando autenticado
+	useEffect(() => {
+		const fetchFavorites = async () => {
+			if (!isAuthenticated) {
+				setFavorites(new Set())
+				return
+			}
+
+			try {
+				const response = await api.getFavorites()
+				if (response.success && response.data) {
+					const favoriteIds = new Set(
+						response.data
+							.filter(fav => fav.itemType === 'part')
+							.map(fav => fav.itemId)
+					)
+					setFavorites(favoriteIds)
+				}
+			} catch (error) {
+				console.error('Erro ao buscar favoritos:', error)
+			}
+		}
+
+		fetchFavorites()
+	}, [isAuthenticated])
+
+	// Função para adicionar/remover favorito
+	const toggleFavorite = async (e, partId) => {
+		e.preventDefault()
+		e.stopPropagation()
+
+		if (!isAuthenticated) {
+			notyf.error('Você precisa estar logado para adicionar favoritos')
+			return
+		}
+
+		// Evitar múltiplos cliques
+		if (loadingFavorites.has(partId)) return
+
+		setLoadingFavorites(prev => new Set(prev).add(partId))
+
+		try {
+			const isFavorite = favorites.has(partId)
+
+			if (isFavorite) {
+				const response = await api.removeFavorite(partId)
+				if (response.success) {
+					setFavorites(prev => {
+						const newSet = new Set(prev)
+						newSet.delete(partId)
+						return newSet
+					})
+					notyf.success('Removido dos favoritos')
+				} else {
+					notyf.error(response.message || 'Erro ao remover favorito')
+				}
+			} else {
+				const response = await api.addFavorite(partId, 'part')
+				if (response.success) {
+					setFavorites(prev => new Set(prev).add(partId))
+					notyf.success('Adicionado aos favoritos')
+				} else {
+					notyf.error(response.message || 'Erro ao adicionar favorito')
+				}
+			}
+		} catch (error) {
+			console.error('Erro ao alternar favorito:', error)
+			notyf.error('Erro ao processar favorito')
+		} finally {
+			setLoadingFavorites(prev => {
+				const newSet = new Set(prev)
+				newSet.delete(partId)
+				return newSet
+			})
+		}
+	}
 
 	function scroll(dir = 1) {
 		const rail = railRef.current
@@ -89,6 +170,24 @@ export default function FeaturedParts() {
 									onError={(e) => { e.target.src = './images/i10.png' }} 
 									className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
 								/>
+								
+								{/* Botão de favorito */}
+								{isAuthenticated && (
+									<button
+										onClick={(e) => toggleFavorite(e, peca._id)}
+										className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
+										aria-label={favorites.has(peca._id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+										disabled={loadingFavorites.has(peca._id)}
+									>
+										<Heart
+											className={`w-5 h-5 transition-all duration-200 ${favorites.has(peca._id)
+													? 'fill-red-500 text-red-500'
+													: 'text-gray-600 hover:text-red-500'
+												} ${loadingFavorites.has(peca._id) ? 'opacity-50' : ''}`}
+										/>
+									</button>
+								)}
+
 								<div className="absolute top-3 left-3 flex gap-2">
 									{peca.featured && (
 										<span className="badge px-2 py-0.5 text-xs font-semibold rounded bg-yellow-500 text-white">

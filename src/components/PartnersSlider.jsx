@@ -36,7 +36,7 @@ export default function PartnersSlider() {
 							{partners.map((partner) => (
 								<div
 									key={`first-${partner.id}`}
-									className="slider-item"
+									className="slider-item cursor-pointer"
 								>
 									<div className="partner-card">
 										<img
