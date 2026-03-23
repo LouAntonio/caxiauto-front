@@ -14,7 +14,7 @@ let API_URL = 'http://localhost:20262';
 // const API_URL = 'https://caxiauto.ecopacks-ao.com';
 
 if (1) {
-	API_URL = 'https://caxiauto.ecopacks-ao.com';
+	API_URL = 'https://caxiauto-back.onrender.com';
 }
 
 /**
