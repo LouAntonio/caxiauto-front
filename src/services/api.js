@@ -9,13 +9,8 @@ const notyf = new Notyf({
 	ripple: true,
 });
 
-// URL da API
-let API_URL = 'http://localhost:20262';
-// const API_URL = 'https://caxiauto.ecopacks-ao.com';
-
-if (0) {
-	API_URL = 'https://caxiauto-back.onrender.com';
-}
+// URL da API (Vite expõe variáveis via import.meta.env)
+const API_URL = import.meta.env.VITE_API_URL;
 
 /**
  * Constrói URL completa para imagens de veículos

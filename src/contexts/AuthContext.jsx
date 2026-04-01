@@ -1,7 +1,25 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
 
-const AuthContext = createContext(null);
+const defaultAuthContext = {
+	user: null,
+	loading: false,
+	login: async () => ({ success: false, message: 'AuthProvider não inicializado' }),
+	checkEmail: async () => ({ success: false, message: 'AuthProvider não inicializado' }),
+	verifyOTP: async () => ({ success: false, message: 'AuthProvider não inicializado' }),
+	resendOTP: async () => ({ success: false, message: 'AuthProvider não inicializado' }),
+	completeRegistration: async () => ({ success: false, message: 'AuthProvider não inicializado' }),
+	logout: () => {},
+	requestPasswordReset: async () => ({ success: false, message: 'AuthProvider não inicializado' }),
+	resetPassword: async () => ({ success: false, message: 'AuthProvider não inicializado' }),
+	updateUser: async () => ({ success: false, message: 'AuthProvider não inicializado' }),
+	getAuthToken: () => null,
+	checkIsLoggedIn: async () => false,
+	refreshUser: async () => false,
+	isAuthenticated: false,
+};
+
+const AuthContext = createContext(defaultAuthContext);
 
 export const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(null);
@@ -213,7 +231,10 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
 	const context = useContext(AuthContext);
 	if (!context) {
-		throw new Error('useAuth deve ser usado dentro de AuthProvider');
+		if (import.meta.env.DEV) {
+			console.warn('useAuth foi usado fora de AuthProvider. Será usado um contexto padrão para evitar quebra da UI.');
+		}
+		return defaultAuthContext;
 	}
 	return context;
 };

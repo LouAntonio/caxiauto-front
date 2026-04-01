@@ -56,15 +56,17 @@ function Analytics() {
 	return null;
 }
 
-function App() {
+function AppContent() {
+	const location = useLocation();
+	const isAdminRoute = location.pathname === '/caxiauto' || location.pathname.startsWith('/caxiauto/');
+
 	return (
-		<Router>
-			<AuthProvider>
-				<AdminProvider>
-					<Analytics />
-					<ScrollToTop />
-					<Header />
-					<Routes>
+		<AuthProvider>
+			<AdminProvider>
+				<Analytics />
+				<ScrollToTop />
+				{!isAdminRoute && <Header />}
+				<Routes>
 						<Route path="/" element={<Home />} />
 						<Route path="/sobre" element={<Sobre />} />
 						<Route path="/como-funciona" element={<ComoFunciona />} />
@@ -131,10 +133,17 @@ function App() {
 						{/* 404 route - keep last */}
 						<Route path="*" element={<NotFound />} />
 
-					</Routes>
-					<Footer />
-				</AdminProvider>
-			</AuthProvider>
+				</Routes>
+				{!isAdminRoute && <Footer />}
+			</AdminProvider>
+		</AuthProvider>
+	)
+}
+
+function App() {
+	return (
+		<Router>
+			<AppContent />
 		</Router>
 	)
 }
