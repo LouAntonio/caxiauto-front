@@ -8,8 +8,8 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 	const railRef = useRef(null);
 	const [cars, setCars] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [favorites, setFavorites] = useState(new Set());
-	const [loadingFavorites, setLoadingFavorites] = useState(new Set());
+	const [wishlist, setWishlist] = useState(new Set());
+	const [loadingWishlist, setLoadingWishlist] = useState(new Set());
 	const { isAuthenticated } = useAuth();
 
 	// Determinar se deve buscar destacados ou recentes baseado no título
@@ -22,6 +22,7 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 				const params = {
 					limit: 10,
 					page: 1,
+					type: 'SALE',
 				};
 
 				// Adicionar filtro de featured se for carros em destaque
@@ -29,7 +30,7 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 					params.featured = 'true';
 				}
 
-				const response = await api.listVeiculosCompra(params);
+				const response = await api.listVehicles(params);
 
 				if (response.success && response.data) {
 					setCars(response.data);
@@ -44,76 +45,74 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 		fetchCars();
 	}, [isFeatured]);
 
-	// Buscar favoritos do usuário quando autenticado
+	// Buscar wishlist do usuário quando autenticado
 	useEffect(() => {
-		const fetchFavorites = async () => {
+		const fetchWishlist = async () => {
 			if (!isAuthenticated) {
-				setFavorites(new Set());
+				setWishlist(new Set());
 				return;
 			}
 
 			try {
-				const response = await api.getFavorites();
+				const response = await api.getWishlist();
 				if (response.success && response.data) {
-					const favoriteIds = new Set(
-						response.data
-							.filter(fav => fav.itemType === 'sell')
-							.map(fav => fav.itemId)
+					const wishlistIds = new Set(
+						response.data.vehicles?.map(v => v.id) || []
 					);
-					setFavorites(favoriteIds);
+					setWishlist(wishlistIds);
 				}
 			} catch (error) {
-				console.error('Erro ao buscar favoritos:', error);
+				console.error('Erro ao buscar wishlist:', error);
 			}
 		};
 
-		fetchFavorites();
+		fetchWishlist();
 	}, [isAuthenticated]);
 
-	// Função para adicionar/remover favorito
-	const toggleFavorite = async (e, carId) => {
+	// Função para adicionar/remover da wishlist
+	const toggleWishlist = async (e, carId) => {
 		e.preventDefault();
 		e.stopPropagation();
 
 		if (!isAuthenticated) {
-			notyf.error('Você precisa estar logado para adicionar favoritos');
+			notyf.error('Você precisa estar logado para adicionar à wishlist');
 			return;
 		}
 
 		// Evitar múltiplos cliques
-		if (loadingFavorites.has(carId)) return;
+		if (loadingWishlist.has(carId)) return;
 
-		setLoadingFavorites(prev => new Set(prev).add(carId));
+		setLoadingWishlist(prev => new Set(prev).add(carId));
 
 		try {
-			const isFavorite = favorites.has(carId);
+			const isInWishlist = wishlist.has(carId);
 
-			if (isFavorite) {
-				const response = await api.removeFavorite(carId);
+			if (isInWishlist) {
+				const response = await api.removeVehicleFromWishlist(carId);
 				if (response.success) {
-					setFavorites(prev => {
+					setWishlist(prev => {
 						const newSet = new Set(prev);
 						newSet.delete(carId);
 						return newSet;
 					});
-					notyf.success('Removido dos favoritos');
+					notyf.success('Removido da wishlist');
 				} else {
-					notyf.error(response.message || 'Erro ao remover favorito');
+					notyf.error(response.message || 'Erro ao remover da wishlist');
 				}
 			} else {
-				const response = await api.addFavorite(carId, 'sell');
+				const response = await api.addVehicleToWishlist(carId);
 				if (response.success) {
-					setFavorites(prev => new Set(prev).add(carId));
-					notyf.success('Adicionado aos favoritos');
+					setWishlist(prev => new Set(prev).add(carId));
+					notyf.success('Adicionado à wishlist');
 				} else {
-					notyf.error(response.message || 'Erro ao adicionar favorito');
+					notyf.error(response.message || 'Erro ao adicionar à wishlist');
 				}
 			}
 		} catch (error) {
-			console.error('Erro ao alternar favorito:', error);
-			notyf.error('Erro ao processar favorito');
+			console.error('Erro ao alternar wishlist:', error);
+			notyf.error('Erro ao processar wishlist');
 		} finally {
-			setLoadingFavorites(prev => {
+			setLoadingWishlist(prev => {
 				const newSet = new Set(prev);
 				newSet.delete(carId);
 				return newSet;
@@ -175,29 +174,28 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 							style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
 						>
 							{cars.map((car) => {
-								// Determinar condição baseado no ano (novo se >= ano atual - 1)
-								const currentYear = new Date().getFullYear();
-								const isNew = car.year >= currentYear - 1;
+								// Determinar condição baseado na quilometragem
+								const isNew = car.kilometers === 0 || car.kilometers < 100;
 								const condition = isNew ? 'Novo' : 'Usado';
 
 								// Formatar preço
-								const formattedPrice = new Intl.NumberFormat('pt-AO').format(car.price);
+								const formattedPrice = new Intl.NumberFormat('pt-AO').format(car.priceSale || 0);
 
 								// Formatar quilometragem
-								const formattedKm = new Intl.NumberFormat('pt-AO').format(car.kilometers);
+								const formattedKm = new Intl.NumberFormat('pt-AO').format(car.kilometers || 0);
 
 								// Capitalizar tipo de combustível
-								const fuelType = car.fuelType.charAt(0).toUpperCase() + car.fuelType.slice(1);
+								const fuelType = car.fuelType ? car.fuelType.charAt(0).toUpperCase() + car.fuelType.slice(1) : 'N/A';
 
 								return (
 									<article
-										key={car._id}
+										key={car.id}
 										className="flex-shrink-0 w-64 bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
 									>
 										{/* Imagem */}
 										<div className="relative h-40 overflow-hidden">
 											<img
-												src={getImageUrl(car.mainImage)}
+												src={getImageUrl(car.image)}
 												alt={car.name}
 												className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
 											/>
@@ -209,19 +207,19 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 												</span>
 											</div>
 
-											{/* Botão de favorito */}
+											{/* Botão de wishlist */}
 											{isAuthenticated && (
 												<button
-													onClick={(e) => toggleFavorite(e, car._id)}
+													onClick={(e) => toggleWishlist(e, car.id)}
 													className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
-													aria-label={favorites.has(car._id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-													disabled={loadingFavorites.has(car._id)}
+													aria-label={wishlist.has(car.id) ? 'Remover da wishlist' : 'Adicionar à wishlist'}
+													disabled={loadingWishlist.has(car.id)}
 												>
 													<Heart
-														className={`w-5 h-5 transition-all duration-200 ${favorites.has(car._id)
+														className={`w-5 h-5 transition-all duration-200 ${wishlist.has(car.id)
 																? 'fill-red-500 text-red-500'
 																: 'text-gray-600 hover:text-red-500'
-															} ${loadingFavorites.has(car._id) ? 'opacity-50' : ''}`}
+															} ${loadingWishlist.has(car.id) ? 'opacity-50' : ''}`}
 													/>
 												</button>
 											)}
@@ -255,7 +253,7 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 													<span>{car.year}</span>
 												</div>
 												<div className="flex items-center justify-end gap-2">
-													<span className="text-right">{car.location}</span>
+													<span className="text-right">{car.provincia}</span>
 													<MapPin className="w-4 h-4 text-gray-400" />
 												</div>
 												<div className="flex items-center gap-2">
@@ -265,7 +263,7 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 											</div>
 
 											{/* Botão */}
-											<Link to={`/stand/compra/${car._id}`}>
+											<Link to={`/stand/compra/${car.id}`}>
 												<button
 													style={{ backgroundColor: 'var(--secondary)' }}
 													className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"

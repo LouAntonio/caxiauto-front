@@ -13,7 +13,7 @@ const notyf = new Notyf({
 let API_URL = 'http://localhost:20262';
 // const API_URL = 'https://caxiauto.ecopacks-ao.com';
 
-if (1) {
+if (0) {
 	API_URL = 'https://caxiauto-back.onrender.com';
 }
 
@@ -38,12 +38,12 @@ const handleSessionExpired = () => {
 	// Limpar dados do localStorage
 	localStorage.removeItem('caxiauto_user');
 	localStorage.removeItem('caxiauto_token');
+	localStorage.removeItem('caxiauto_admin_token');
 
 	// Mostrar notificação
 	notyf.error('Sua sessão expirou. Por favor, faça login novamente.');
 
 	// Redirecionar para página de login
-	// Pequeno delay para garantir que a notificação seja exibida
 	setTimeout(() => {
 		window.location.href = '/auth';
 	}, 500);
@@ -53,9 +53,10 @@ const handleSessionExpired = () => {
  * Função principal para fazer requisições HTTP
  * @param {string} endpoint - Endpoint da API (ex: '/users/profile')
  * @param {object} options - Opções do fetch (method, body, headers, etc.)
+ * @param {boolean} isAdmin - Se true, usa token de admin
  * @returns {Promise<object>} - Resposta da API
  */
-const apiRequest = async (endpoint, options = {}) => {
+const apiRequest = async (endpoint, options = {}, isAdmin = false) => {
 	try {
 		// Configurar headers padrão
 		const headers = {
@@ -67,8 +68,11 @@ const apiRequest = async (endpoint, options = {}) => {
 			headers['Content-Type'] = 'application/json';
 		}
 
-		// Adicionar token de autorização se existir
-		const token = localStorage.getItem('caxiauto_token');
+		// Adicionar token de autorização (admin ou usuário)
+		const token = isAdmin 
+			? localStorage.getItem('caxiauto_admin_token') 
+			: localStorage.getItem('caxiauto_token');
+		
 		if (token) {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
@@ -82,7 +86,11 @@ const apiRequest = async (endpoint, options = {}) => {
 		// Verificar se há um token renovado no header
 		const renewedToken = response.headers.get('x-renewed-token');
 		if (renewedToken) {
-			localStorage.setItem('caxiauto_token', renewedToken);
+			if (isAdmin) {
+				localStorage.setItem('caxiauto_admin_token', renewedToken);
+			} else {
+				localStorage.setItem('caxiauto_token', renewedToken);
+			}
 		}
 
 		// Tentar parsear a resposta como JSON
@@ -122,255 +130,390 @@ const apiRequest = async (endpoint, options = {}) => {
  * Métodos HTTP convenientes
  */
 const api = {
-	/**
-	 * Requisição GET
-	 * @param {string} endpoint - Endpoint da API
-	 * @param {object} options - Opções adicionais
-	 */
-	get: (endpoint, options = {}) => {
-		return apiRequest(endpoint, {
-			method: 'GET',
-			...options,
-		});
+	// ==================== MÉTODOS HTTP BÁSICOS ====================
+	get: (endpoint, options = {}, isAdmin = false) => {
+		return apiRequest(endpoint, { method: 'GET', ...options }, isAdmin);
 	},
 
-	/**
-	 * Requisição POST
-	 * @param {string} endpoint - Endpoint da API
-	 * @param {object} data - Dados a serem enviados
-	 * @param {object} options - Opções adicionais
-	 */
-	post: (endpoint, data = {}, options = {}) => {
-		return apiRequest(endpoint, {
+	post: (endpoint, data = {}, options = {}, isAdmin = false) => {
+		return apiRequest(endpoint, { method: 'POST', body: JSON.stringify(data), ...options }, isAdmin);
+	},
+
+	put: (endpoint, data = {}, options = {}, isAdmin = false) => {
+		return apiRequest(endpoint, { method: 'PUT', body: JSON.stringify(data), ...options }, isAdmin);
+	},
+
+	patch: (endpoint, data = {}, options = {}, isAdmin = false) => {
+		return apiRequest(endpoint, { method: 'PATCH', body: JSON.stringify(data), ...options }, isAdmin);
+	},
+
+	delete: (endpoint, options = {}, isAdmin = false) => {
+		return apiRequest(endpoint, { method: 'DELETE', ...options }, isAdmin);
+	},
+
+	upload: (endpoint, formData, options = {}, isAdmin = false) => {
+		return apiRequest(endpoint, { method: 'POST', body: formData, ...options }, isAdmin);
+	},
+
+	// ==================== AUTENTICAÇÃO DE USUÁRIO ====================
+	checkEmail: (email) => {
+		return api.post('/users/check-email', { email });
+	},
+
+	verifyOTP: (email, code) => {
+		return api.post('/users/verify-otp', { email, code });
+	},
+
+	resendOTP: (email) => {
+		return api.post('/users/resend-otp', { email });
+	},
+
+	completeRegistration: (userData) => {
+		return api.post('/users/complete-registration', userData);
+	},
+
+	login: (email, password) => {
+		return api.post('/users/login', { email, password });
+	},
+
+	adminLogin: (email, password) => {
+		return apiRequest('/users/admin/login', {
 			method: 'POST',
-			body: JSON.stringify(data),
-			...options,
-		});
+			body: JSON.stringify({ email, password }),
+		}, true);
 	},
 
-	/**
-	 * Requisição PUT
-	 * @param {string} endpoint - Endpoint da API
-	 * @param {object} data - Dados a serem enviados
-	 * @param {object} options - Opções adicionais
-	 */
-	put: (endpoint, data = {}, options = {}) => {
-		return apiRequest(endpoint, {
-			method: 'PUT',
-			body: JSON.stringify(data),
-			...options,
-		});
+	isLoggedIn: () => {
+		return api.get('/users/is-logged-in');
 	},
 
-	/**
-	 * Requisição PATCH
-	 * @param {string} endpoint - Endpoint da API
-	 * @param {object} data - Dados a serem enviados
-	 * @param {object} options - Opções adicionais
-	 */
-	patch: (endpoint, data = {}, options = {}) => {
-		return apiRequest(endpoint, {
-			method: 'PATCH',
-			body: JSON.stringify(data),
-			...options,
-		});
+	getProfile: () => {
+		return api.get('/users/profile');
 	},
 
-	/**
-	 * Requisição DELETE
-	 * @param {string} endpoint - Endpoint da API
-	 * @param {object} options - Opções adicionais
-	 */
-	delete: (endpoint, options = {}) => {
-		return apiRequest(endpoint, {
-			method: 'DELETE',
-			...options,
-		});
+	updateProfile: (data) => {
+		return api.put('/users/profile', data);
 	},
 
-	/**
-	 * Upload de arquivo (multipart/form-data)
-	 * @param {string} endpoint - Endpoint da API
-	 * @param {FormData} formData - FormData com os arquivos
-	 * @param {object} options - Opções adicionais
-	 */
-	upload: (endpoint, formData, options = {}) => {
-		return apiRequest(endpoint, {
-			method: 'POST',
-			body: formData,
-			...options,
-		});
+	requestPasswordReset: (email) => {
+		return api.post('/users/request-password-reset', { email });
 	},
 
-	/**
-	 * Upload de arquivo com método PUT (multipart/form-data)
-	 * @param {string} endpoint - Endpoint da API
-	 * @param {FormData} formData - FormData com os arquivos
-	 * @param {object} options - Opções adicionais
-	 */
-	uploadPut: (endpoint, formData, options = {}) => {
-		return apiRequest(endpoint, {
-			method: 'PUT',
-			body: formData,
-			...options,
-		});
+	resetPassword: (email, token, newPassword) => {
+		return api.post('/users/reset-password', { email, token, newPassword });
 	},
 
-	/**
-	 * Buscar veículo de aluguel por ID
-	 * @param {string} id - ID do veículo
-	 */
-	getVeiculoAluguel: (id) => {
-		return apiRequest(`/aluguelveiculos/${id}`, {
-			method: 'GET',
-		});
+	// ==================== USUÁRIOS (ADMIN) ====================
+	listUsers: (params = {}) => {
+		return api.post('/users/list', params, {}, true);
 	},
 
-	/**
-	 * Listar veículos de aluguel
-	 * @param {object} params - Parâmetros de busca (page, limit, search, etc.)
-	 */
-	listVeiculosAluguel: (params = {}) => {
+	updateUserRole: (userId, role) => {
+		return api.patch('/users/update-role', { userId, role }, {}, true);
+	},
+
+	toggleUserStatus: (userId, status) => {
+		return api.patch('/users/toggle-status', { userId, status }, {}, true);
+	},
+
+	// ==================== VEÍCULOS ====================
+	listVehicles: (params = {}) => {
 		const queryString = new URLSearchParams(params).toString();
-		const endpoint = queryString ? `/aluguelveiculos?${queryString}` : '/aluguelveiculos';
-		return apiRequest(endpoint, {
-			method: 'GET',
-		});
-	},
-	/**
-	 * Listar categorias de peças
-	 * @param {object} params - Parâmetros de busca (page, limit, search)
-	 */
-	listCategoriasPecas: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		const endpoint = queryString ? `/categoriaspecas?${queryString}` : '/categoriaspecas';
-		return apiRequest(endpoint, {
-			method: 'GET',
-		});
+		return api.get(`/vehicles?${queryString}`, {}, true);
 	},
 
-	/**
-	 * Listar peças
-	 * @param {object} params - Parâmetros de busca (page, limit, search, categoria, condition, minPrice, maxPrice)
-	 */
+	getVehicle: (id) => {
+		return api.get(`/vehicles/${id}`, {}, true);
+	},
+
+	createVehicle: (data) => {
+		return api.post('/vehicles', data);
+	},
+
+	updateVehicle: (id, data) => {
+		return api.put(`/vehicles/${id}`, data);
+	},
+
+	deleteVehicle: (id) => {
+		return api.delete(`/vehicles/${id}`, {}, true);
+	},
+
+	toggleVehicleStatus: (id, status) => {
+		return api.put(`/vehicles/${id}/status`, { status }, {}, true);
+	},
+
+	toggleVehicleFeatured: (id, featuredUntil = null) => {
+		return api.put(`/vehicles/${id}/featured`, { featuredUntil }, {}, true);
+	},
+
+	myVehicles: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/vehicles/my?${queryString}`);
+	},
+
+	listFeaturedVehicles: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/vehicles/featured?${queryString}`);
+	},
+
+	// ==================== PEÇAS ====================
 	listPecas: (params = {}) => {
 		const queryString = new URLSearchParams(params).toString();
-		const endpoint = queryString ? `/pecas?${queryString}` : '/pecas';
-		return apiRequest(endpoint, {
-			method: 'GET',
-		});
+		return api.get(`/pecas?${queryString}`, {}, true);
 	},
 
-	/**
-	 * Buscar peça por ID
-	 * @param {string} id - ID da peça
-	 */
 	getPeca: (id) => {
-		return apiRequest(`/pecas/${id}`, {
-			method: 'GET',
-		});
+		return api.get(`/pecas/${id}`, {}, true);
 	},
 
-	/**
-	 * Listar veículos de compra
-	 * @param {object} params - Parâmetros de busca (page, limit, search, featured, manufacturer, etc.)
-	 */
-	listVeiculosCompra: (params = {}) => {
+	createPeca: (data) => {
+		return api.post('/pecas', data);
+	},
+
+	updatePeca: (id, data) => {
+		return api.put(`/pecas/${id}`, data);
+	},
+
+	deletePeca: (id) => {
+		return api.delete(`/pecas/${id}`, {}, true);
+	},
+
+	minhasPecas: (params = {}) => {
 		const queryString = new URLSearchParams(params).toString();
-		const endpoint = queryString ? `/compraveiculos?${queryString}` : '/compraveiculos';
-		return apiRequest(endpoint, {
-			method: 'GET',
-		});
+		return api.get(`/pecas/my?${queryString}`);
 	},
 
-	/**
-	 * Buscar veículo de compra por ID
-	 * @param {string} id - ID do veículo
-	 */
-	getVeiculoCompra: (id) => {
-		return apiRequest(`/compraveiculos/${id}`, {
-			method: 'GET',
-		});
+	listFeaturedPecas: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/pecas/featured?${queryString}`);
 	},
 
-	/**
-	 * Adicionar item aos favoritos
-	 * @param {string} itemId - ID do item
-	 * @param {string} itemType - Tipo do item ('sell', 'rent', 'part')
-	 */
-	addFavorite: (itemId, itemType) => {
-		return apiRequest('/favorites/add', {
-			method: 'POST',
-			body: JSON.stringify({ itemId, itemType }),
-		});
+	// ==================== CATEGORIAS DE PEÇAS ====================
+	listCategorias: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/categorias?${queryString}`, {}, true);
 	},
 
-	/**
-	 * Remover item dos favoritos
-	 * @param {string} itemId - ID do item
-	 */
-	removeFavorite: (itemId) => {
-		return apiRequest('/favorites/remove', {
-			method: 'POST',
-			body: JSON.stringify({ itemId }),
-		});
+	getCategoria: (id) => {
+		return api.get(`/categorias/${id}`, {}, true);
 	},
 
-	/**
-	 * Buscar todos os favoritos do usuário
-	 */
-	getFavorites: () => {
-		return apiRequest('/favorites', {
-			method: 'GET',
-		});
+	createCategoria: (name) => {
+		return api.post('/categorias', { name }, {}, true);
 	},
 
-	/**
-	 * Verificar se um item é favorito
-	 * @param {string} itemId - ID do item
-	 */
-	isFavorite: (itemId) => {
-		return apiRequest(`/favorites/is-favorite?itemId=${itemId}`, {
-			method: 'GET',
-		});
+	updateCategoria: (id, name) => {
+		return api.put(`/categorias/${id}`, { name }, {}, true);
 	},
 
-	/**
-	 * Adicionar visualização a um item
-	 * @param {string} type - Tipo do item ('sell', 'rent', 'part')
-	 * @param {string} id - ID do item
-	 */
+	deleteCategoria: (id) => {
+		return api.delete(`/categorias/${id}`, {}, true);
+	},
+
+	// ==================== WISHLIST (SUBSTITUI FAVORITOS) ====================
+	getWishlist: () => {
+		return api.get('/wishlist');
+	},
+
+	addVehicleToWishlist: (vehicleId) => {
+		return api.post(`/wishlist/vehicles/${vehicleId}`);
+	},
+
+	removeVehicleFromWishlist: (vehicleId) => {
+		return api.delete(`/wishlist/vehicles/${vehicleId}`);
+	},
+
+	addPecaToWishlist: (pecaId) => {
+		return api.post(`/wishlist/pecas/${pecaId}`);
+	},
+
+	removePecaFromWishlist: (pecaId) => {
+		return api.delete(`/wishlist/pecas/${pecaId}`);
+	},
+
+	checkIfInWishlist: (type, id) => {
+		return api.get(`/wishlist/check?type=${type}&id=${id}`);
+	},
+
+	// ==================== RESERVAS (BOOKINGS) ====================
+	createBooking: (vehicleId, startDate, endDate) => {
+		return api.post('/bookings', { vehicleId, startDate, endDate });
+	},
+
+	getMyBookings: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/bookings/my?${queryString}`);
+	},
+
+	getBookingsByVehicle: (vehicleId, params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/bookings/vehicle/${vehicleId}?${queryString}`);
+	},
+
+	getBooking: (id) => {
+		return api.get(`/bookings/${id}`);
+	},
+
+	updateBookingStatus: (id, status) => {
+		return api.put(`/bookings/${id}/status`, { status });
+	},
+
+	cancelBooking: (id) => {
+		return api.delete(`/bookings/${id}`);
+	},
+
+	// ==================== AVALIAÇÕES (REVIEWS) ====================
+	createReview: (sellerId, rating, comment = null) => {
+		return api.post('/reviews', { sellerId, rating, comment });
+	},
+
+	getReviewsBySeller: (sellerId, params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/reviews/seller/${sellerId}?${queryString}`);
+	},
+
+	getMyReviews: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/reviews/my?${queryString}`);
+	},
+
+	getReviewSummary: (sellerId) => {
+		return api.get(`/reviews/seller/${sellerId}/summary`);
+	},
+
+	deleteReview: (id) => {
+		return api.delete(`/reviews/${id}`, {}, true);
+	},
+
+	// ==================== DENÚNCIAS (REPORTS) ====================
+	createReport: (reason, description, { reportedUserId, vehicleId, pecaId } = {}) => {
+		return api.post('/reports', { reason, description, reportedUserId, vehicleId, pecaId });
+	},
+
+	getMyReports: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/reports/my-reports?${queryString}`);
+	},
+
+	getAllReports: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/reports?${queryString}`, {}, true);
+	},
+
+	getReport: (id) => {
+		return api.get(`/reports/${id}`, {}, true);
+	},
+
+	updateReportStatus: (id, status) => {
+		return api.put(`/reports/${id}/status`, { status }, {}, true);
+	},
+
+	deleteReport: (id) => {
+		return api.delete(`/reports/${id}`, {}, true);
+	},
+
+	// ==================== ASSINATURAS E PLANOS ====================
+	listPlans: () => {
+		return api.get('/subscriptions/plans');
+	},
+
+	listHighlightPackages: () => {
+		return api.get('/subscriptions/highlight-packages');
+	},
+
+	subscribePlan: (planId) => {
+		return api.post('/subscriptions/subscribe', { planId });
+	},
+
+	getMySubscription: () => {
+		return api.get('/subscriptions/my-subscription');
+	},
+
+	cancelSubscription: () => {
+		return api.post('/subscriptions/cancel');
+	},
+
+	buyHighlightPackage: (packageId) => {
+		return api.post('/subscriptions/buy-highlight', { packageId });
+	},
+
+	applyVehicleHighlight: (vehicleId, daysDuration = 7) => {
+		return api.post(`/subscriptions/apply-highlight/${vehicleId}`, { daysDuration });
+	},
+
+	// ==================== VISUALIZAÇÕES (VIEWS) ====================
 	addView: (type, id) => {
-		return apiRequest(`/views/${type}/${id}`, {
-			method: 'POST',
-		});
+		return api.post(`/views/${type}/${id}`);
 	},
 
-	/**
-	 * Obter total de visualizações do usuário autenticado
-	 */
 	getTotalViews: () => {
-		return apiRequest('/views/user/total', {
-			method: 'GET',
-		});
+		return api.get('/views/user/total');
 	},
 
-	/**
-	 * Obter total de visualizações de hoje do usuário autenticado
-	 */
 	getTotalViewsToday: () => {
-		return apiRequest('/views/user/today', {
-			method: 'GET',
-		});
+		return api.get('/views/user/today');
 	},
 
-	/**
-	 * Obter item mais visualizado do usuário autenticado
-	 */
 	getMostViewed: () => {
-		return apiRequest('/views/user/most-viewed', {
-			method: 'GET',
-		});
+		return api.get('/views/user/most-viewed');
+	},
+
+	// ==================== CLOUDINARY (UPLOAD) ====================
+	getCloudinarySignature: (folder) => {
+		return api.get(`/cloudinary/upload?folder=${folder}`);
+	},
+
+	deleteCloudinaryResource: (publicId) => {
+		return api.post('/cloudinary/delete', { publicId });
+	},
+
+	// ==================== ADMIN - DASHBOARD ====================
+	getDashboardStats: () => {
+		return api.get('/admin/dashboard/stats', {}, true);
+	},
+
+	getRecentVehicles: (limit = 5) => {
+		return api.get(`/admin/dashboard/recent-vehicles?limit=${limit}`, {}, true);
+	},
+
+	getRecentPecas: (limit = 5) => {
+		return api.get(`/admin/dashboard/recent-pecas?limit=${limit}`, {}, true);
+	},
+
+	getRecentUsers: (limit = 5) => {
+		return api.get(`/admin/dashboard/recent-users?limit=${limit}`, {}, true);
+	},
+
+	// ==================== ADMIN - VENDEDORES ====================
+	getPendingSellers: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/admin/sellers/pending?${queryString}`, {}, true);
+	},
+
+	getSellerDocs: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/admin/sellers/docs?${queryString}`, {}, true);
+	},
+
+	verifySeller: (sellerId, isVerified = true) => {
+		return api.put(`/admin/sellers/${sellerId}/verify`, { isVerified }, {}, true);
+	},
+
+	// ==================== ADMIN - FABRICANTES E CLASSES ====================
+	listManufacturers: () => {
+		return api.get('/admin/manufacturers', {}, true);
+	},
+
+	createManufacturer: (name) => {
+		return api.post('/admin/manufacturers', { name }, {}, true);
+	},
+
+	listClasses: () => {
+		return api.get('/admin/classes', {}, true);
+	},
+
+	createClass: (name) => {
+		return api.post('/admin/classes', { name }, {}, true);
 	},
 };
 
