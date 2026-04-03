@@ -73,7 +73,6 @@ export default function DetalhesCompra() {
 							passengers: vehicleData.passengerCapacity
 								? `${vehicleData.passengerCapacity} ${vehicleData.passengerCapacity === 1 ? 'lugar' : 'lugares'}`
 								: 'N/A',
-							color: vehicleData.color || 'N/A',
 							doors: vehicleData.doorCount
 								? `${vehicleData.doorCount} ${vehicleData.doorCount === 1 ? 'porta' : 'portas'}`
 								: 'N/A'
@@ -128,12 +127,12 @@ export default function DetalhesCompra() {
 			}
 
 			try {
-				const response = await api.getFavorites()
+				const response = await api.getWishlist()
 				if (response.success && response.data) {
-					const favoriteIds = response.data
-						.filter(fav => fav.itemType === 'sell')
-						.map(fav => fav.itemId)
-					setIsFavorite(favoriteIds.includes(id))
+					const favoriteIds = new Set(
+						response.data.vehicles?.map(v => v.id) || []
+					)
+					setIsFavorite(favoriteIds.has(id))
 				}
 			} catch (error) {
 				console.error('Erro ao verificar favorito:', error)
@@ -188,7 +187,7 @@ export default function DetalhesCompra() {
 
 		try {
 			if (isFavorite) {
-				const response = await api.removeFavorite(id)
+				const response = await api.removeVehicleFromWishlist(id)
 				if (response.success) {
 					setIsFavorite(false)
 					notyf.success('Removido dos favoritos')
@@ -196,7 +195,7 @@ export default function DetalhesCompra() {
 					notyf.error(response.message || 'Erro ao remover favorito')
 				}
 			} else {
-				const response = await api.addFavorite(id, 'sell')
+				const response = await api.addVehicleToWishlist(id)
 				if (response.success) {
 					setIsFavorite(true)
 					notyf.success('Adicionado aos favoritos')
@@ -383,8 +382,8 @@ export default function DetalhesCompra() {
 								</div>
 								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
 									<Car className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
-									<span className="text-xs text-gray-600 mb-1">Cor</span>
-									<span className="font-semibold text-gray-900">{vehicle.specs.color}</span>
+									<span className="text-xs text-gray-600 mb-1">Portas</span>
+									<span className="font-semibold text-gray-900">{vehicle.specs.doors}</span>
 								</div>
 								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
 									<MapPin className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />

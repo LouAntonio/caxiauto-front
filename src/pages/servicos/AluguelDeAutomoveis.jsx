@@ -57,12 +57,10 @@ export default function AluguelDeAutomoveis() {
 			}
 
 			try {
-				const response = await api.getFavorites();
+				const response = await api.getWishlist();
 				if (response.success && response.data) {
 					const favoriteIds = new Set(
-						response.data
-							.filter(fav => fav.itemType === 'rent')
-							.map(fav => fav.itemId)
+						response.data.vehicles?.map(v => v.id) || []
 					);
 					setFavorites(favoriteIds);
 				}
@@ -87,7 +85,8 @@ export default function AluguelDeAutomoveis() {
 			const params = new URLSearchParams({
 				page: page,
 				limit: vehiclesPerPage,
-				sort: sort
+				sort: sort,
+				type: 'RENT'
 			});
 
 			// Adicionar filtros
@@ -96,8 +95,8 @@ export default function AluguelDeAutomoveis() {
 			if (appliedFilters.class) params.append('class', appliedFilters.class);
 			if (appliedFilters.fuelType) params.append('fuelType', appliedFilters.fuelType);
 			if (appliedFilters.transmission) params.append('transmission', appliedFilters.transmission);
-			if (appliedFilters.minPrice) params.append('minPrice', appliedFilters.minPrice);
-			if (appliedFilters.maxPrice) params.append('maxPrice', appliedFilters.maxPrice);
+			if (appliedFilters.minPrice) params.append('minPriceRent', appliedFilters.minPrice);
+			if (appliedFilters.maxPrice) params.append('maxPriceRent', appliedFilters.maxPrice);
 			if (appliedFilters.minYear) params.append('minYear', appliedFilters.minYear);
 			if (appliedFilters.maxYear) params.append('maxYear', appliedFilters.maxYear);
 
@@ -107,7 +106,7 @@ export default function AluguelDeAutomoveis() {
 			}
 
 			// Fazer a requisição para a API
-			const response = await api.get(`/aluguelveiculos?${params.toString()}`);
+			const response = await api.get(`/vehicles?${params.toString()}`);
 
 			if (response.success) {
 				setVehicles(response.data || []);
@@ -147,22 +146,13 @@ export default function AluguelDeAutomoveis() {
 		loadVehiclesWithFilters(filters, 1, newSortBy);
 	};
 
-	const getLowestPrice = (rentalPrices) => {
-		if (!rentalPrices || rentalPrices.length === 0) return null;
-		const prices = rentalPrices.map(rp => rp.price);
-		return Math.min(...prices);
+	const getLowestPrice = (vehicle) => {
+		if (!vehicle || !vehicle.priceRentDay) return null;
+		return vehicle.priceRentDay;
 	};
 
-	const getPeriodLabel = (period) => {
-		const labels = {
-			'diário': '/dia',
-			'semanal': '/semana',
-			'mensal': '/mês',
-			'trimestral': '/trimestre',
-			'semestral': '/semestre',
-			'anual': '/ano'
-		};
-		return labels[period] || '';
+	const getPeriodLabel = () => {
+		return '/dia';
 	};
 
 	// Função para adicionar/remover favorito
@@ -184,7 +174,7 @@ export default function AluguelDeAutomoveis() {
 			const isFavorite = favorites.has(carId);
 
 			if (isFavorite) {
-				const response = await api.removeFavorite(carId);
+				const response = await api.removeVehicleFromWishlist(carId);
 				if (response.success) {
 					setFavorites(prev => {
 						const newSet = new Set(prev);
@@ -196,7 +186,7 @@ export default function AluguelDeAutomoveis() {
 					notyf.error(response.message || 'Erro ao remover favorito');
 				}
 			} else {
-				const response = await api.addFavorite(carId, 'rent');
+				const response = await api.addVehicleToWishlist(carId);
 				if (response.success) {
 					setFavorites(prev => new Set(prev).add(carId));
 					notyf.success('Adicionado aos favoritos');
@@ -377,17 +367,16 @@ export default function AluguelDeAutomoveis() {
 									<>
 										<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 											{vehicles.map((car) => {
-												const lowestPrice = getLowestPrice(car.rentalPrices);
-												const lowestPriceObj = car.rentalPrices?.find(rp => rp.price === lowestPrice);
+												const price = getLowestPrice(car);
 												return (
 													<article
-														key={car._id}
+														key={car.id}
 														className="flex-shrink-0 w-full bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
 													>
 														{/* Imagem */}
-														<div className="relative h-40 overflow-hidden cursor-pointer" onClick={() => navigate(`/servicos/aluguel-de-automoveis/${car._id}`)}>
+														<div className="relative h-40 overflow-hidden cursor-pointer" onClick={() => navigate(`/servicos/aluguel-de-automoveis/${car.id}`)}>
 															<img
-																src={getImageUrl(car.mainImage, '/images/i10.jpg')}
+																src={getImageUrl(car.image, '/images/i10.jpg')}
 																alt={car.name}
 																className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
 																onError={(e) => { e.target.src = '/images/i10.jpg'; }}
@@ -395,17 +384,17 @@ export default function AluguelDeAutomoveis() {
 
 															{/* Badge de disponibilidade */}
 															<div className="absolute top-4 left-4">
-																<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${car.available ? 'bg-green-600 text-white' : 'bg-orange-500 text-white'
+																<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${car.status === 'ACTIVE' ? 'bg-green-600 text-white' : 'bg-orange-500 text-white'
 																	}`}>
-																	{car.available ? 'Disponível' : 'Indisponível'}
+																	{car.status === 'ACTIVE' ? 'Disponível' : 'Indisponível'}
 																</span>
 															</div>
 
 															{/* Badge de seguro */}
-															{car.insurance && (
+															{car.isVerified && (
 																<div className="absolute top-4 right-4">
 																	<span className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg bg-blue-600 text-white">
-																		Seguro
+																		Verificado
 																	</span>
 																</div>
 															)}
@@ -413,16 +402,16 @@ export default function AluguelDeAutomoveis() {
 															{/* Botão de favorito */}
 															{isAuthenticated && (
 																<button
-																	onClick={(e) => toggleFavorite(e, car._id)}
-																	className={`absolute ${car.insurance ? 'top-16' : 'top-4'} right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer`}
-																	aria-label={favorites.has(car._id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-																	disabled={loadingFavorites.has(car._id)}
+																	onClick={(e) => toggleFavorite(e, car.id)}
+																	className={`absolute ${car.isVerified ? 'top-16' : 'top-4'} right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer`}
+																	aria-label={favorites.has(car.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+																	disabled={loadingFavorites.has(car.id)}
 																>
 																	<Heart
-																		className={`w-5 h-5 transition-all duration-200 ${favorites.has(car._id)
+																		className={`w-5 h-5 transition-all duration-200 ${favorites.has(car.id)
 																				? 'fill-red-500 text-red-500'
 																				: 'text-gray-600 hover:text-red-500'
-																			} ${loadingFavorites.has(car._id) ? 'opacity-50' : ''}`}
+																			} ${loadingFavorites.has(car.id) ? 'opacity-50' : ''}`}
 																	/>
 																</button>
 															)}
@@ -438,14 +427,14 @@ export default function AluguelDeAutomoveis() {
 															</h3>
 
 															{/* Preço */}
-															{lowestPrice && (
+															{price && (
 																<div className="text-center mb-4">
 																	<div className="text-xs text-gray-500 mb-1">A partir de</div>
 																	<div
 																		style={{ color: 'var(--primary)' }}
 																		className="text-xl font-bold"
 																	>
-																		{lowestPrice.toLocaleString()} Kz{lowestPriceObj ? getPeriodLabel(lowestPriceObj.period) : ''}
+																		{price.toLocaleString('pt-AO')},00 Kz{getPeriodLabel()}
 																	</div>
 																</div>
 															)}
@@ -453,7 +442,7 @@ export default function AluguelDeAutomoveis() {
 															{/* Especificações (duas colunas) */}
 															<div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
 																<div className="flex items-center justify-end gap-2">
-																	<span className="text-right">{car.kilometers?.toLocaleString()}</span>
+																	<span className="text-right">{car.kilometers?.toLocaleString('pt-AO')}</span>
 																	<Gauge className="w-4 h-4 text-gray-400" />
 																</div>
 																<div className="flex items-center gap-2">
@@ -461,7 +450,7 @@ export default function AluguelDeAutomoveis() {
 																	<span>{car.year}</span>
 																</div>
 																<div className="flex items-center justify-end gap-2">
-																	<span className="text-right capitalize">{car.location}</span>
+																	<span className="text-right">{car.provincia}</span>
 																	<MapPin className="w-4 h-4 text-gray-400" />
 																</div>
 																<div className="flex items-center gap-2">
@@ -471,7 +460,7 @@ export default function AluguelDeAutomoveis() {
 															</div>
 
 															{/* Botão */}
-															<Link to={`/servicos/aluguel-de-automoveis/${car._id}`}>
+															<Link to={`/servicos/aluguel-de-automoveis/${car.id}`}>
 																<button
 																	style={{ backgroundColor: 'var(--secondary)' }}
 																	className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"

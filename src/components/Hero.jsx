@@ -1,8 +1,24 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import api from '../services/api'
+
+// Enums alinhados com o schema (FuelType e TransmissionType)
+const FUEL_TYPES = [
+	{ value: 'GASOLINE', label: 'Gasolina' },
+	{ value: 'DIESEL', label: 'Diesel' },
+	{ value: 'ELECTRIC', label: 'Elétrico' },
+	{ value: 'HYBRID', label: 'Híbrido' },
+]
+
+const TRANSMISSION_TYPES = [
+	{ value: 'MANUAL', label: 'Manual' },
+	{ value: 'AUTOMATIC', label: 'Automática' },
+	{ value: 'SEMI_AUTOMATIC', label: 'Semi-Automática' },
+]
 
 export default function Hero() {
 	const navigate = useNavigate()
+	const [manufacturers, setManufacturers] = useState([])
 	const [filters, setFilters] = useState({
 		pesquisa: '',
 		marca: '',
@@ -13,6 +29,21 @@ export default function Hero() {
 		preco: ''
 	})
 
+	// Buscar fabricantes da API
+	useEffect(() => {
+		const fetchManufacturers = async () => {
+			try {
+				const response = await api.getManufacturers()
+				if (response.success && response.data) {
+					setManufacturers(response.data)
+				}
+			} catch (error) {
+				console.error('Erro ao buscar fabricantes:', error)
+			}
+		}
+		fetchManufacturers()
+	}, [])
+
 	const handleChange = (field, value) => {
 		setFilters(prev => ({
 			...prev,
@@ -22,7 +53,7 @@ export default function Hero() {
 
 	const handleSearch = (e) => {
 		e.preventDefault()
-		// Navegar para a página de compra com os filtros aplicados
+		// Enviar filtros com valores corretos (marca = ID, combustivel/transmissao = enum UPPERCASE)
 		navigate('/stand/compra', { state: { filters } })
 	}
 
@@ -49,8 +80,8 @@ export default function Hero() {
 					<form onSubmit={handleSearch} className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-3">
 						<div className="col-span-2 lg:col-span-3">
 							<label className="sr-only">Pesquisar</label>
-							<input 
-								type="text" 
+							<input
+								type="text"
 								value={filters.pesquisa}
 								onChange={(e) => handleChange('pesquisa', e.target.value)}
 								placeholder="Pesquisar veículo..."
@@ -60,56 +91,49 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Marca</label>
-							<select 
+							<select
 								value={filters.marca}
 								onChange={(e) => handleChange('marca', e.target.value)}
 								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
 							>
 								<option value="">Marca</option>
-								<option>Toyota</option>
-								<option>Ford</option>
-								<option>Chevrolet</option>
-								<option>Honda</option>
-								<option>Nissan</option>
-								<option>Mercedes-Benz</option>
-								<option>BMW</option>
-								<option>Audi</option>
-								<option>Volkswagen</option>
-								<option>Hyundai</option>
+								{manufacturers.map((mfr) => (
+									<option key={mfr.id} value={mfr.id}>{mfr.name}</option>
+								))}
 							</select>
 						</div>
 
 						<div>
 							<label className="sr-only">Combustível</label>
-							<select 
+							<select
 								value={filters.combustivel}
 								onChange={(e) => handleChange('combustivel', e.target.value)}
 								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
 							>
 								<option value="">Combustível</option>
-								<option>Gasolina</option>
-								<option>Diesel</option>
-								<option>Elétrico</option>
-								<option>Híbrido</option>
+								{FUEL_TYPES.map((fuel) => (
+									<option key={fuel.value} value={fuel.value}>{fuel.label}</option>
+								))}
 							</select>
 						</div>
 
 						<div>
 							<label className="sr-only">Transmissão</label>
-							<select 
+							<select
 								value={filters.transmissao}
 								onChange={(e) => handleChange('transmissao', e.target.value)}
 								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
 							>
 								<option value="">Transmissão</option>
-								<option>Manual</option>
-								<option>Automática</option>
+								{TRANSMISSION_TYPES.map((trans) => (
+									<option key={trans.value} value={trans.value}>{trans.label}</option>
+								))}
 							</select>
 						</div>
 
 						<div>
 							<label className="sr-only">Quilômetros até</label>
-							<select 
+							<select
 								value={filters.quilometros}
 								onChange={(e) => handleChange('quilometros', e.target.value)}
 								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
@@ -124,7 +148,7 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Ano até</label>
-							<select 
+							<select
 								value={filters.ano}
 								onChange={(e) => handleChange('ano', e.target.value)}
 								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
@@ -141,7 +165,7 @@ export default function Hero() {
 
 						<div>
 							<label className="sr-only">Preço</label>
-							<select 
+							<select
 								value={filters.preco}
 								onChange={(e) => handleChange('preco', e.target.value)}
 								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"

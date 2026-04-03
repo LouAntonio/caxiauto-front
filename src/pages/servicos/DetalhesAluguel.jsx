@@ -45,67 +45,91 @@ export default function DetalhesAluguel() {
 		setTimeout(() => setBookingSuccess(false), 5000);
 	};
 
-	// Planos de aluguel baseados nos dados do veículo  
-	const rentalPlans = vehicle ? [
-		vehicle.pricing.diaria && {
+	// Planos de aluguel baseados nos dados do veículo
+	const rentalPlans = vehicle && vehicle.price ? [
+		{
 			id: 'diária',
 			name: 'Diária',
 			duration: 'Até 24 horas',
-			price: vehicle.pricing.diaria,
+			price: vehicle.price,
 			unit: 'Kz/dia',
 			daysCount: 1
 		},
-		vehicle.pricing.semanal && {
+		{
 			id: 'semanal',
 			name: 'Semanal',
 			duration: '7 dias',
-			price: vehicle.pricing.semanal,
+			price: vehicle.price * 7,
 			unit: 'Kz/semana',
-			daysCount: 7,
-			showSavings: vehicle.pricing.diaria && vehicle.pricing.semanal < (vehicle.pricing.diaria * 7)
+			daysCount: 7
 		},
-		vehicle.pricing.mensal && {
+		{
 			id: 'mensal',
 			name: 'Mensal',
 			duration: '30 dias',
-			price: vehicle.pricing.mensal,
+			price: vehicle.price * 30,
 			unit: 'Kz/mês',
-			daysCount: 30,
-			showSavings: vehicle.pricing.diaria && vehicle.pricing.mensal < (vehicle.pricing.diaria * 30)
+			daysCount: 30
 		}
-	].filter(Boolean) : []
+	] : []
 
 	// Mapear dados da API para formato do componente
 	const mapVehicleData = (apiVehicle) => {
-		const images = apiVehicle.images && apiVehicle.images.length > 0
-			? apiVehicle.images.map(img => getImageUrl(img, '/images/placeholder-car.jpg'))
-			: [getImageUrl(apiVehicle.mainImage, '/images/placeholder-car.jpg')]
+		// Formar lista de imagens (image principal + gallery)
+		const images = []
+		if (apiVehicle.image) {
+			images.push(getImageUrl(apiVehicle.image, '/images/placeholder-car.jpg'))
+		}
+		if (apiVehicle.gallery && apiVehicle.gallery.length > 0) {
+			images.push(...apiVehicle.gallery.map(img => getImageUrl(img, '/images/placeholder-car.jpg')))
+		}
+		if (images.length === 0) {
+			images.push('/images/placeholder-car.jpg')
+		}
+
+		// Capitalizar fuelType e transmission (vêm como enum UPPERCASE)
+		const fuelLabels = {
+			GASOLINE: 'Gasolina',
+			DIESEL: 'Diesel',
+			ELECTRIC: 'Elétrico',
+			HYBRID: 'Híbrido'
+		}
+		const transmissionLabels = {
+			MANUAL: 'Manual',
+			AUTOMATIC: 'Automática',
+			SEMI_AUTOMATIC: 'Semi-Automática'
+		}
+
+		const fullName = [
+			apiVehicle.Manufacturer?.name,
+			apiVehicle.name,
+			apiVehicle.Class?.name,
+			apiVehicle.year
+		].filter(Boolean).join(' ')
 
 		return {
-			id: apiVehicle._id,
-			title: `${apiVehicle.manufacturer} ${apiVehicle.name} ${apiVehicle.year}`,
-			price: apiVehicle.rentalPrices?.find(p => p.period === 'diário')?.price,
+			id: apiVehicle.id,
+			title: fullName || 'Veículo sem título',
+			price: apiVehicle.priceRentDay || 0,
 			images,
 			condition: apiVehicle.kilometers === 0 ? 'Novo' : 'Usado',
-			description: apiVehicle.description,
+			description: apiVehicle.description || 'Sem descrição disponível',
 			specs: {
-				km: `${new Intl.NumberFormat('pt-AO').format(apiVehicle.kilometers)} km`,
-				year: apiVehicle.year,
-				location: apiVehicle.location,
-				fuel: apiVehicle.fuelType === 'gasolina' ? 'Gasolina' :
-					apiVehicle.fuelType === 'diesel' ? 'Diesel' :
-						apiVehicle.fuelType === 'elétrico' ? 'Elétrico' : 'Híbrido',
-				transmission: apiVehicle.transmission === 'automática' ? 'Automática' : 'Manual',
-				passengers: `${apiVehicle.passangers} lugares`,
-				color: apiVehicle.color,
-				doors: `${apiVehicle.door} portas`
+				km: apiVehicle.kilometers
+					? `${new Intl.NumberFormat('pt-AO').format(apiVehicle.kilometers)} km`
+					: 'N/A',
+				year: apiVehicle.year || 'N/A',
+				location: apiVehicle.provincia || 'N/A',
+				fuel: fuelLabels[apiVehicle.fuelType] || apiVehicle.fuelType || 'N/A',
+				transmission: transmissionLabels[apiVehicle.transmission] || apiVehicle.transmission || 'N/A',
+				passengers: apiVehicle.passengerCapacity
+					? `${apiVehicle.passengerCapacity} ${apiVehicle.passengerCapacity === 1 ? 'lugar' : 'lugares'}`
+					: 'N/A',
+				doors: apiVehicle.doorCount
+					? `${apiVehicle.doorCount} ${apiVehicle.doorCount === 1 ? 'porta' : 'portas'}`
+					: 'N/A'
 			},
 			features: apiVehicle.characteristics || [],
-			pricing: {
-				diaria: apiVehicle.rentalPrices?.find(p => p.period === 'diário')?.price,
-				semanal: apiVehicle.rentalPrices?.find(p => p.period === 'semanal')?.price,
-				mensal: apiVehicle.rentalPrices?.find(p => p.period === 'mensal')?.price
-			},
 			included: [
 				'Seguro contra terceiros',
 				'Assistência 24h',
@@ -117,7 +141,7 @@ export default function DetalhesAluguel() {
 				'Carta de condução válida',
 				'Idade mínima 18 anos'
 			],
-			owner: apiVehicle.owner
+			seller: apiVehicle.Seller
 		}
 	}
 
@@ -133,7 +157,7 @@ export default function DetalhesAluguel() {
 			try {
 				setLoading(true)
 				setError(null)
-				const response = await api.getVeiculoAluguel(id)
+				const response = await api.get(`/vehicles/${id}`)
 
 				if (response.success && response.data) {
 					const mappedVehicle = mapVehicleData(response.data)
@@ -185,12 +209,12 @@ export default function DetalhesAluguel() {
 			}
 
 			try {
-				const response = await api.getFavorites()
+				const response = await api.getWishlist()
 				if (response.success && response.data) {
-					const favoriteIds = response.data
-						.filter(fav => fav.itemType === 'rent')
-						.map(fav => fav.itemId)
-					setIsFavorite(favoriteIds.includes(id))
+					const favoriteIds = new Set(
+						response.data.vehicles?.map(v => v.id) || []
+					)
+					setIsFavorite(favoriteIds.has(id))
 				}
 			} catch (error) {
 				console.error('Erro ao verificar favorito:', error)
@@ -276,7 +300,7 @@ export default function DetalhesAluguel() {
 
 		try {
 			if (isFavorite) {
-				const response = await api.removeFavorite(id)
+				const response = await api.removeVehicleFromWishlist(id)
 				if (response.success) {
 					setIsFavorite(false)
 					notyf.success('Removido dos favoritos')
@@ -284,7 +308,7 @@ export default function DetalhesAluguel() {
 					notyf.error(response.message || 'Erro ao remover favorito')
 				}
 			} else {
-				const response = await api.addFavorite(id, 'rent')
+				const response = await api.addVehicleToWishlist(id)
 				if (response.success) {
 					setIsFavorite(true)
 					notyf.success('Adicionado aos favoritos')
@@ -437,8 +461,8 @@ export default function DetalhesAluguel() {
 								</div>
 								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
 									<Car className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
-									<span className="text-xs text-gray-600 mb-1">Cor</span>
-									<span className="font-semibold text-gray-900">{vehicle.specs.color}</span>
+									<span className="text-xs text-gray-600 mb-1">Portas</span>
+									<span className="font-semibold text-gray-900">{vehicle.specs.doors}</span>
 								</div>
 								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
 									<MapPin className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
@@ -542,11 +566,6 @@ export default function DetalhesAluguel() {
 															<div className="text-xs text-gray-600">{plan.unit}</div>
 														</div>
 													</div>
-													{plan.showSavings && (
-														<div className="mt-2 text-xs text-green-600 font-medium">
-															Economize {formatPrice(vehicle.pricing.diaria * plan.daysCount - plan.price)} Kz
-														</div>
-													)}
 												</button>
 											))}
 										</div>

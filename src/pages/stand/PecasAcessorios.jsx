@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Package, Star, Search, Layers, Filter, Loader, X, Heart } from 'lucide-react'
+import { Package, Search, Layers, Loader, X, Heart, MapPin } from 'lucide-react'
 import Pagination from '../../components/Pagination'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { getImageUrl, notyf } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
+
+// Enum de províncias alinhado com o schema
+const PROVINCIAS = [
+	'LUANDA', 'BENGUELA', 'HUAMBO', 'HUILA', 'CABINDA', 'NAMIBE',
+	'BENGO', 'CUANZA_NORTE', 'CUANZA_SUL', 'CUNENE', 'BIE', 'MOXICO',
+	'LUNDA_NORTE', 'LUNDA_SUL', 'UIGE', 'ZAIRE', 'CUANDO_CUBANGO', 'MALANJE'
+]
 
 export default function PecasAcessorios() {
 	useDocumentTitle('Peças e Acessórios - Caxiauto')
 
 	const [searchTerm, setSearchTerm] = useState('')
 	const [selectedCategory, setSelectedCategory] = useState('')
+	const [selectedProvincia, setSelectedProvincia] = useState('')
 	const [featuredOnly, setFeaturedOnly] = useState(false)
 
 	// Estados para filtros aplicados (usados na API)
 	const [appliedSearchTerm, setAppliedSearchTerm] = useState('')
 	const [appliedCategory, setAppliedCategory] = useState('')
+	const [appliedProvincia, setAppliedProvincia] = useState('')
 	const [appliedFeaturedOnly, setAppliedFeaturedOnly] = useState(false)
 
 	const [currentPage, setCurrentPage] = useState(1)
@@ -38,6 +47,7 @@ export default function PecasAcessorios() {
 	const handleApplyFilters = () => {
 		setAppliedSearchTerm(searchTerm)
 		setAppliedCategory(selectedCategory)
+		setAppliedProvincia(selectedProvincia)
 		setAppliedFeaturedOnly(featuredOnly)
 		setCurrentPage(1)
 	}
@@ -46,9 +56,11 @@ export default function PecasAcessorios() {
 	const handleClearFilters = () => {
 		setSearchTerm('')
 		setSelectedCategory('')
+		setSelectedProvincia('')
 		setFeaturedOnly(false)
 		setAppliedSearchTerm('')
 		setAppliedCategory('')
+		setAppliedProvincia('')
 		setAppliedFeaturedOnly(false)
 		setCurrentPage(1)
 	}
@@ -92,7 +104,7 @@ export default function PecasAcessorios() {
 		fetchParts()
 	}, [])
 
-	// Carregar peças
+	// Carregar peças com filtros aplicados
 	useEffect(() => {
 		const fetchParts = async () => {
 			setLoading(true)
@@ -110,8 +122,12 @@ export default function PecasAcessorios() {
 					params.categoria = appliedCategory
 				}
 
+				if (appliedProvincia) {
+					params.provincia = appliedProvincia
+				}
+
 				if (appliedFeaturedOnly) {
-					params.destaque = true
+					params.featured = 'true'
 				}
 
 				const response = await api.listPecas(params)
@@ -126,7 +142,7 @@ export default function PecasAcessorios() {
 			}
 		}
 		fetchParts()
-	}, [currentPage, appliedSearchTerm, appliedCategory, appliedFeaturedOnly, sortBy])
+	}, [currentPage, appliedSearchTerm, appliedCategory, appliedProvincia, appliedFeaturedOnly])
 
 	// Buscar favoritos do usuário quando autenticado
 	useEffect(() => {
@@ -137,12 +153,10 @@ export default function PecasAcessorios() {
 			}
 
 			try {
-				const response = await api.getFavorites()
+				const response = await api.getWishlist()
 				if (response.success && response.data) {
 					const favoriteIds = new Set(
-						response.data
-							.filter(fav => fav.itemType === 'part')
-							.map(fav => fav.itemId)
+						response.data.pecas?.map(p => p.id) || []
 					)
 					setFavorites(favoriteIds)
 				}
@@ -153,15 +167,6 @@ export default function PecasAcessorios() {
 
 		fetchFavorites()
 	}, [isAuthenticated])
-
-	// Funções auxiliares
-	const getRating = (spechs) => {
-		// Se não tem avaliação no spechs, retorna uma padrão entre 4.0 e 4.9
-		if (spechs && spechs.rating) {
-			return parseFloat(spechs.rating)
-		}
-		return 4.0 + Math.random() * 0.9
-	}
 
 	// Função para adicionar/remover favorito
 	const toggleFavorite = async (e, partId) => {
@@ -182,7 +187,7 @@ export default function PecasAcessorios() {
 			const isFavorite = favorites.has(partId)
 
 			if (isFavorite) {
-				const response = await api.removeFavorite(partId)
+				const response = await api.removePecaFromWishlist(partId)
 				if (response.success) {
 					setFavorites(prev => {
 						const newSet = new Set(prev)
@@ -194,7 +199,7 @@ export default function PecasAcessorios() {
 					notyf.error(response.message || 'Erro ao remover favorito')
 				}
 			} else {
-				const response = await api.addFavorite(partId, 'part')
+				const response = await api.addPecaToWishlist(partId)
 				if (response.success) {
 					setFavorites(prev => new Set(prev).add(partId))
 					notyf.success('Adicionado aos favoritos')
@@ -284,16 +289,16 @@ export default function PecasAcessorios() {
 											{/* Categorias da API */}
 											{categories.map((category) => (
 												<button
-													key={category._id}
-													onClick={() => setSelectedCategory(category._id)}
-													className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${selectedCategory === category._id
+													key={category.id}
+													onClick={() => setSelectedCategory(category.id)}
+													className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${selectedCategory === category.id
 														? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md'
 														: 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-sm'
 														}`}
 												>
-
-													<span className="capitalize">{category.nome}</span>
-													{selectedCategory === category._id && (
+													<Layers className="w-4 h-4" />
+													<span className="capitalize">{category.name}</span>
+													{selectedCategory === category.id && (
 														<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
 															<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
 														</svg>
@@ -301,6 +306,24 @@ export default function PecasAcessorios() {
 												</button>
 											))}
 										</div>
+									</div>
+
+									{/* Província */}
+									<div className="space-y-2">
+										<label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+											<MapPin className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+											Província
+										</label>
+										<select
+											value={selectedProvincia}
+											onChange={(e) => setSelectedProvincia(e.target.value)}
+											className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 bg-white outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm cursor-pointer"
+										>
+											<option value="">Todas</option>
+											{PROVINCIAS.map((prov) => (
+												<option key={prov} value={prov}>{prov.charAt(0) + prov.slice(1).toLowerCase().replace('_', ' ')}</option>
+											))}
+										</select>
 									</div>
 
 									{/* Filtro Em Destaque */}
@@ -318,7 +341,7 @@ export default function PecasAcessorios() {
 										</label>
 									</div>
 
-									{/* Bot\u00f5es de A\u00e7\u00e3o */}
+									{/* Botões de Ação */}
 									<div className="flex gap-2 pt-2">
 										<button
 											onClick={handleApplyFilters}
@@ -373,49 +396,47 @@ export default function PecasAcessorios() {
 							</div>
 						) : (
 							<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-								{parts.map((part) => {
-									const rating = getRating(part.spechs)
-									return (
-										<article
-											key={part._id}
+								{parts.map((part) => (
+									<article
+											key={part.id}
 											className="flex flex-col w-full bg-white rounded-2xl shadow-lg overflow-hidden group h-full"
 										>
 											{/* Imagem */}
 											<div className="relative h-36 overflow-hidden">
 												<img
 													src={getImageUrl(part.image, '/images/parts.jpg')}
-													alt={part.nome}
+													alt={part.name}
 													className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 													onError={(e) => { e.target.src = '/images/parts.jpg'; }}
 												/>
 												{/* Badge de estoque */}
 												<div className="absolute top-3 left-3">
-													<span className={`badge px-2 py-0.5 text-xs font-semibold rounded ${part.stock > 20 ? 'bg-green-600 text-white' : part.stock > 10 ? 'bg-yellow-500 text-white' : 'bg-red-500 text-white'
-														}`}>
-														{part.stock || 0} em estoque
+													<span className={`badge px-2 py-0.5 text-xs font-semibold rounded bg-blue-500 text-white`}>
+														Em estoque
 													</span>
 												</div>
 												{/* Badge de condição */}
-												<div className="absolute top-3 right-3">
-													<span className={`badge px-2 py-0.5 text-xs font-semibold rounded capitalize ${part.condition === 'new' ? 'bg-blue-600 text-white' : 'bg-orange-600 text-white'
-														}`}>
-														{part.condition === 'new' ? 'Novo' : 'Usado'}
-													</span>
-												</div>
+												{part.isFeatured && (
+													<div className="absolute top-3 right-3">
+														<span className={`badge px-2 py-0.5 text-xs font-semibold rounded bg-yellow-500 text-white`}>
+															Destaque
+														</span>
+													</div>
+												)}
 
 												{/* Botão de favorito */}
 												{isAuthenticated && (
 													<button
-														onClick={(e) => toggleFavorite(e, part._id)}
+														onClick={(e) => toggleFavorite(e, part.id)}
 														className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
-														aria-label={favorites.has(part._id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-														disabled={loadingFavorites.has(part._id)}
+														aria-label={favorites.has(part.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+														disabled={loadingFavorites.has(part.id)}
 													>
 														<Heart
-															className={`w-4 h-4 transition-all duration-200 ${favorites.has(part._id)
+															className={`w-4 h-4 transition-all duration-200 ${favorites.has(part.id)
 																? 'fill-red-500 text-red-500'
 																: 'text-gray-600 hover:text-red-500'
-																} ${loadingFavorites.has(part._id) ? 'opacity-50' : ''}`}
+																} ${loadingFavorites.has(part.id) ? 'opacity-50' : ''}`}
 														/>
 													</button>
 												)}
@@ -424,24 +445,24 @@ export default function PecasAcessorios() {
 											{/* Conteúdo */}
 											<div className="flex flex-col flex-grow p-4">
 												<h3 className="text-sm font-semibold line-clamp-2 capitalize">
-													{part.nome}
+													{part.name}
 												</h3>
 
 												{/* Preço */}
 												<div className="text-primary font-bold mt-2 mb-3">
-													{part.price?.toFixed(2)} akz
+													{parseFloat(part.price).toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} akz
 												</div>
 
 												{/* Categoria e Rating */}
 												<div className="flex items-center justify-between text-sm text-gray-600 mb-3">
 													<span className="text-xs bg-gray-100 px-2 py-0.5 rounded capitalize">
-														{part.categoria?.nome || 'Sem categoria'}
+														{part.Categoria?.name || 'Sem categoria'}
 													</span>
 												</div>
 
 												{/* Botão - no fundo do card */}
 												<div className="mt-auto">
-													<Link to={`/stand/pecas-acessorios/${part._id}`}>
+													<Link to={`/stand/pecas-acessorios/${part.id}`}>
 														<button
 															style={{ backgroundColor: 'var(--secondary)' }}
 															className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 w-full cursor-pointer"
@@ -452,8 +473,7 @@ export default function PecasAcessorios() {
 												</div>
 											</div>
 										</article>
-									)
-								})}
+								))}
 							</div>
 						)}
 						{/* Pagination */}

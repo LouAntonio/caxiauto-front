@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
 	Package,
 	Star,
+	MapPin,
 	ChevronLeft,
 	ChevronRight,
 	Phone,
@@ -40,7 +41,7 @@ export default function DetalhesPecas() {
 	const formatPartData = (apiData) => {
 		const pecaData = apiData.data
 
-		// Formar lista de imagens
+		// Formar lista de imagens (image principal + gallery se existir)
 		let images = []
 		if (pecaData.image) {
 			images.push(getImageUrl(pecaData.image, '/images/parts.jpg'))
@@ -55,41 +56,36 @@ export default function DetalhesPecas() {
 			images = ['/images/parts.jpg']
 		}
 
-		// Mapear especificações (se existirem)
-		const specs = pecaData.spechs || {}
+		// Mapear especificações baseado no schema Prisma
 		const specifications = {
-			'Categoria': pecaData.categoria?.nome || 'N/A',
-			'Condição': pecaData.condition === 'new' ? 'Novo' : 'Usado',
-			'Stock': `${pecaData.stock || 0} unidades`,
-			...specs
+			'Categoria': pecaData.Categoria?.name || 'N/A',
+			'Província': pecaData.provincia || 'N/A',
+			'Destaque': pecaData.isFeatured ? 'Sim' : 'Não',
+			'Compatibilidade': pecaData.compatibility && pecaData.compatibility.length > 0
+				? pecaData.compatibility.join(', ')
+				: 'N/A'
 		}
 
-		// Mapear características
-		const features = Array.isArray(pecaData.characteristics)
-			? pecaData.characteristics
-			: pecaData.characteristics
-				? [pecaData.characteristics]
-				: ['Peça de qualidade', 'Garantia de funcionamento']
+		// Mapear características (compatibility array)
+		const features = pecaData.compatibility && pecaData.compatibility.length > 0
+			? pecaData.compatibility.map(c => `Compatível com: ${c}`)
+			: ['Peça de qualidade', 'Garantia de funcionamento']
 
-		// Definir badges baseados nos dados
+		// Definir badges baseados nos dados reais do schema
 		const badges = []
-		if (pecaData.condition === 'new') badges.push('Novo')
-		if (pecaData.featured) badges.push('Destaque')
-		if (pecaData.stock && pecaData.stock > 0) badges.push('Em Stock')
-		if (badges.length === 0) badges.push('Disponível')
+		if (pecaData.isFeatured) badges.push('Destaque')
+		badges.push('Disponível')
 
 		return {
-			id: pecaData._id,
-			name: pecaData.nome?.charAt(0).toUpperCase() + pecaData.nome?.slice(1) || 'Peça sem nome',
+			id: pecaData.id,
+			name: pecaData.name?.charAt(0).toUpperCase() + pecaData.name?.slice(1) || 'Peça sem nome',
 			price: pecaData.price || 0,
-			category: pecaData.categoria?.nome || 'Não categorizada',
-			subcategory: pecaData.categoria?.descricao || '',
-			brand: specs.marca || specs.Marca || 'Marca não informada',
-			code: specs.codigo || specs.Código || pecaData._id?.slice(-8) || 'N/A',
-			stock: pecaData.stock || 0,
+			category: pecaData.Categoria?.name || 'Não categorizada',
+			provincia: pecaData.provincia || 'N/A',
+			compatibility: pecaData.compatibility || [],
 			images,
-			condition: pecaData.condition === 'new' ? 'Novo' : 'Usado',
-			description: pecaData.descricao || 'Peça de alta qualidade para o seu veículo.',
+			isFeatured: pecaData.isFeatured || false,
+			description: 'Peça de alta qualidade para o seu veículo.',
 			specifications,
 			features,
 			badges
@@ -141,12 +137,12 @@ export default function DetalhesPecas() {
 			}
 
 			try {
-				const response = await api.getFavorites()
+				const response = await api.getWishlist()
 				if (response.success && response.data) {
-					const favoriteIds = response.data
-						.filter(fav => fav.itemType === 'part')
-						.map(fav => fav.itemId)
-					setIsFavorite(favoriteIds.includes(id))
+					const favoriteIds = new Set(
+						response.data.pecas?.map(p => p.id) || []
+					)
+					setIsFavorite(favoriteIds.has(id))
 				}
 			} catch (error) {
 				console.error('Erro ao verificar favorito:', error)
@@ -183,7 +179,7 @@ export default function DetalhesPecas() {
 	const handleQuantityChange = (delta) => {
 		if (!part) return
 		const newQuantity = quantity + delta
-		if (newQuantity >= 1 && newQuantity <= part.stock) {
+		if (newQuantity >= 1) {
 			setQuantity(newQuantity)
 		}
 	}
@@ -204,7 +200,7 @@ export default function DetalhesPecas() {
 
 		try {
 			if (isFavorite) {
-				const response = await api.removeFavorite(id)
+				const response = await api.removePecaFromWishlist(id)
 				if (response.success) {
 					setIsFavorite(false)
 					notyf.success('Removido dos favoritos')
@@ -212,7 +208,7 @@ export default function DetalhesPecas() {
 					notyf.error(response.message || 'Erro ao remover favorito')
 				}
 			} else {
-				const response = await api.addFavorite(id, 'part')
+				const response = await api.addPecaToWishlist(id)
 				if (response.success) {
 					setIsFavorite(true)
 					notyf.success('Adicionado aos favoritos')
@@ -399,14 +395,14 @@ export default function DetalhesPecas() {
 									<span className="font-semibold text-gray-900 text-sm text-center">{part.category}</span>
 								</div>
 								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl">
-									<CheckCircle2 className="w-6 h-6 text-green-600 mb-2" />
-									<span className="text-xs text-gray-600 mb-1">Condição</span>
-									<span className="font-semibold text-gray-900 text-sm">{part.condition}</span>
+									<MapPin className="w-6 h-6 text-green-600 mb-2" />
+									<span className="text-xs text-gray-600 mb-1">Província</span>
+									<span className="font-semibold text-gray-900 text-sm">{part.provincia}</span>
 								</div>
 								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl">
-									<Package className="w-6 h-6 text-green-600 mb-2" />
-									<span className="text-xs text-gray-600 mb-1">Em Estoque</span>
-									<span className="font-semibold text-gray-900 text-sm">{part.stock} unidades</span>
+									<Star className="w-6 h-6 text-yellow-600 mb-2" />
+									<span className="text-xs text-gray-600 mb-1">Destaque</span>
+									<span className="font-semibold text-gray-900 text-sm">{part.isFeatured ? 'Sim' : 'Não'}</span>
 								</div>
 							</div>
 						</div>
@@ -483,19 +479,18 @@ export default function DetalhesPecas() {
 											value={quantity}
 											onChange={(e) => {
 												const val = parseInt(e.target.value) || 1
-												if (val >= 1 && val <= (part?.stock || 0)) setQuantity(val)
+												if (val >= 1) setQuantity(val)
 											}}
 											className="w-20 text-center border-2 border-gray-300 rounded-lg py-2 outline-none "
 										/>
 										<button
 											onClick={() => handleQuantityChange(1)}
-											className="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-											disabled={quantity >= (part?.stock || 0)}
+											className="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors cursor-pointer"
 										>
 											+
 										</button>
 									</div>
-									<p className="text-xs text-gray-500 mt-2">{part?.stock || 0} unidades disponíveis</p>
+									<p className="text-xs text-gray-500 mt-2">Consultar disponibilidade para a quantidade desejada</p>
 								</div>
 								<div className="bg-gray-50 rounded-xl p-4 mb-4">
 									<div className="flex justify-between items-center">
@@ -746,10 +741,6 @@ export default function DetalhesPecas() {
 								<h4 className="font-bold text-green-900 mb-2">{part.name}</h4>
 								<div className="space-y-1 text-sm text-green-700">
 									<div className="flex justify-between">
-										<span>Stock atual:</span>
-										<span className="font-semibold">{part.stock} unidades</span>
-									</div>
-									<div className="flex justify-between">
 										<span>Preço unitário:</span>
 										<span className="font-semibold">{formatPrice(part.price)} akz</span>
 									</div>
@@ -791,12 +782,6 @@ export default function DetalhesPecas() {
 										+
 									</button>
 								</div>
-								{requestedQuantity > part.stock && (
-									<p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
-										<AlertCircle className="w-3.5 h-3.5" />
-										Quantidade solicitada excede o stock atual. Verificaremos a disponibilidade.
-									</p>
-								)}
 								<div className="bg-gray-50 rounded-lg p-3 mt-3">
 									<div className="flex justify-between items-center text-sm">
 										<span className="text-gray-600">Valor total estimado:</span>

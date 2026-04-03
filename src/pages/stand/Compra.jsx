@@ -41,16 +41,16 @@ export default function Compra() {
 				limit: vehiclesPerPage,
 			})
 
-			// Mapear filtros do português para inglês e adicionar à query
+			// Mapear filtros e adicionar à query
 			if (activeFilters.marca) params.append('manufacturer', activeFilters.marca)
 			if (activeFilters.classe) params.append('class', activeFilters.classe)
 			if (activeFilters.combustivel) {
-				// Normalizar o combustível para lowercase
-				params.append('fuelType', activeFilters.combustivel.toLowerCase())
+				// Já vem como enum UPPERCASE (GASOLINE, DIESEL, etc.)
+				params.append('fuelType', activeFilters.combustivel)
 			}
 			if (activeFilters.transmissao) {
-				// Normalizar a transmissão para lowercase
-				params.append('transmission', activeFilters.transmissao.toLowerCase())
+				// Já vem como enum UPPERCASE (MANUAL, AUTOMATIC, etc.)
+				params.append('transmission', activeFilters.transmissao)
 			}
 
 			// Processar faixa de preço
@@ -141,12 +141,10 @@ export default function Compra() {
 			}
 
 			try {
-				const response = await api.getFavorites()
+				const response = await api.getWishlist()
 				if (response.success && response.data) {
 					const favoriteIds = new Set(
-						response.data
-							.filter(fav => fav.itemType === 'sell')
-							.map(fav => fav.itemId)
+						response.data.vehicles?.map(v => v.id) || []
 					)
 					setFavorites(favoriteIds)
 				}
@@ -209,7 +207,7 @@ export default function Compra() {
 			const isFavorite = favorites.has(carId)
 
 			if (isFavorite) {
-				const response = await api.removeFavorite(carId)
+				const response = await api.removeVehicleFromWishlist(carId)
 				if (response.success) {
 					setFavorites(prev => {
 						const newSet = new Set(prev)
@@ -221,7 +219,7 @@ export default function Compra() {
 					notyf.error(response.message || 'Erro ao remover favorito')
 				}
 			} else {
-				const response = await api.addFavorite(carId, 'sell')
+				const response = await api.addVehicleToWishlist(carId)
 				if (response.success) {
 					setFavorites(prev => new Set(prev).add(carId))
 					notyf.success('Adicionado aos favoritos')
