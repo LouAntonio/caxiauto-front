@@ -32,6 +32,11 @@ import Veiculos from './pages/conta/Veiculos'
 import VeiculosAluguel from './pages/conta/VeiculosAluguel'
 import Favoritos from './pages/conta/Favoritos'
 import Documentos from './pages/conta/Documentos'
+import Reservas from './pages/conta/Reservas'
+import Assinatura from './pages/conta/Assinatura'
+import Avaliacoes from './pages/conta/Avaliacoes'
+import Denuncias from './pages/conta/Denuncias'
+import PerfilVendedor from './pages/PerfilVendedor'
 // Admin Pages
 import AdminLogin from './pages/caxiauto/AdminLogin'
 import AdminLayout from './pages/caxiauto/AdminLayout'
@@ -91,6 +96,9 @@ function AppContent() {
 						<Route path="/auth" element={<Auth />} />
 						<Route path="/recuperar-senha" element={<RecuperarSenha />} />
 
+						{/* Perfil público do vendedor */}
+						<Route path="/vendedor/:id" element={<PerfilVendedor />} />
+
 						{/* Protected routes - Painel de Conta */}
 						<Route
 							path="/minha-conta"
@@ -103,8 +111,12 @@ function AppContent() {
 							<Route index element={<Dashboard />} />
 							<Route path="veiculos" element={<Veiculos />} />
 							<Route path="veiculos-aluguel" element={<VeiculosAluguel />} />
+							<Route path="reservas" element={<Reservas />} />
 							<Route path="favoritos" element={<Favoritos />} />
 							<Route path="documentos" element={<Documentos />} />
+							<Route path="assinatura" element={<Assinatura />} />
+							<Route path="avaliacoes" element={<Avaliacoes />} />
+							<Route path="denuncias" element={<Denuncias />} />
 						</Route>
 
 						{/* Admin Routes - Painel Administrativo */}

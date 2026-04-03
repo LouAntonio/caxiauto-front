@@ -7,7 +7,11 @@ import {
 	Heart,
 	FileText,
 	Settings,
-	User
+	User,
+	Calendar,
+	CreditCard,
+	Star,
+	AlertTriangle
 } from 'lucide-react';
 
 const ContaLayout = () => {
@@ -31,6 +35,11 @@ const ContaLayout = () => {
 			path: '/minha-conta/veiculos-aluguel',
 		},
 		{
+			icon: Calendar,
+			title: 'Minhas Reservas',
+			path: '/minha-conta/reservas',
+		},
+		{
 			icon: Heart,
 			title: 'Favoritos',
 			path: '/minha-conta/favoritos',
@@ -39,6 +48,21 @@ const ContaLayout = () => {
 			icon: FileText,
 			title: 'Documentos',
 			path: '/minha-conta/documentos',
+		},
+		{
+			icon: CreditCard,
+			title: 'Assinatura',
+			path: '/minha-conta/assinatura',
+		},
+		{
+			icon: Star,
+			title: 'Avaliações',
+			path: '/minha-conta/avaliacoes',
+		},
+		{
+			icon: AlertTriangle,
+			title: 'Denúncias',
+			path: '/minha-conta/denuncias',
 		},
 	];
 
