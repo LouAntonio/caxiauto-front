@@ -510,6 +510,38 @@ const api = {
 	createClass: (name) => {
 		return api.post('/admin/classes', { name }, {}, true);
 	},
+
+	// ==================== ADMIN - PARCEIROS ====================
+	listPartners: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/partners?${queryString}`, {}, true);
+	},
+
+	getPartner: (id) => {
+		return api.get(`/partners/${id}`, {}, true);
+	},
+
+	createPartner: (data) => {
+		return api.post('/partners', data, {}, true);
+	},
+
+	updatePartner: (id, data) => {
+		return api.put(`/partners/${id}`, data, {}, true);
+	},
+
+	deletePartner: (id) => {
+		return api.delete(`/partners/${id}`, {}, true);
+	},
+
+	togglePartnerStatus: (id, status) => {
+		return api.patch(`/partners/${id}/status`, { status }, {}, true);
+	},
+
+	// ==================== PARCEIROS (PÚBLICO) ====================
+	listActivePartners: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/partners/active?${queryString}`);
+	},
 };
 
 export default api;

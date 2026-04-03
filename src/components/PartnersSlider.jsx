@@ -1,21 +1,55 @@
-import React from 'react';
-
-const partners = [
-	{ id: 1, name: 'Toyota', logo: '/images/logos/LogoOficialCrooped.png' },
-	{ id: 2, name: 'Honda', logo: '/images/logos/LogoOficialCrooped.png' },
-	{ id: 3, name: 'Volkswagen', logo: '/images/logos/LogoOficialCrooped.png' },
-	{ id: 4, name: 'Hyundai', logo: '/images/logos/LogoOficialCrooped.png' },
-	{ id: 5, name: 'Nissan', logo: '/images/logos/LogoOficialCrooped.png' },
-	{ id: 6, name: 'Ford', logo: '/images/logos/LogoOficialCrooped.png' },
-	{ id: 7, name: 'Chevrolet', logo: '/images/logos/LogoOficialCrooped.png' },
-	{ id: 8, name: 'Mercedes', logo: '/images/logos/LogoOficialCrooped.png' },
-	{ id: 9, name: 'BMW', logo: '/images/logos/LogoOficialCrooped.png' },
-	{ id: 10, name: 'Audi', logo: '/images/logos/LogoOficialCrooped.png' },
-];
+import React, { useState, useEffect } from 'react';
+import { Phone, MessageCircle, Loader2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import api, { getImageUrl } from '../services/api';
 
 export default function PartnersSlider() {
+	const [partners, setPartners] = useState([]);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		const loadPartners = async () => {
+			try {
+				const response = await api.listActivePartners({ limit: 4 });
+				if (response.success) {
+					setPartners(response.data);
+				}
+			} catch (error) {
+				console.error('Erro ao carregar parceiros:', error);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		loadPartners();
+	}, []);
+
+	if (loading) {
+		return (
+			<section className="py-12 bg-gray-50">
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+					<div className="text-center mb-12">
+						<h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+							Nossos Parceiros
+						</h2>
+						<p className="text-gray-600 max-w-2xl mx-auto">
+							Conheça as empresas que trabalham connosco para oferecer os melhores serviços e produtos.
+						</p>
+					</div>
+					<div className="flex items-center justify-center py-20">
+						<Loader2 className="w-12 h-12 text-[#154c9a] animate-spin" />
+					</div>
+				</div>
+			</section>
+		);
+	}
+
+	if (partners.length === 0) {
+		return null;
+	}
+
 	return (
-		<section className="py-6 bg-white overflow-hidden">
+		<section className="py-12 bg-gray-50">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				{/* Header */}
 				<div className="text-center mb-12">
@@ -23,133 +57,113 @@ export default function PartnersSlider() {
 						Nossos Parceiros
 					</h2>
 					<p className="text-gray-600 max-w-2xl mx-auto">
-						Trabalhamos com as marcas mais confiáveis do mercado automobilístico
+						Conheça as empresas que trabalham connosco para oferecer os melhores serviços e produtos.
 					</p>
 				</div>
 
-				{/* Slider Container */}
-				<div className="relative">
-					{/* Slider */}
-					<div className="slider-container">
-						<div className="slider-track">
-							{/* Primeiro conjunto de logos */}
-							{partners.map((partner) => (
-								<div
-									key={`first-${partner.id}`}
-									className="slider-item cursor-pointer"
-								>
-									<div className="partner-card">
-										<img
-											src={partner.logo}
-											alt={partner.name}
-											className="partner-logo"
-											onError={(e) => {
-												e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"%3E%3Crect fill="%23f0f0f0" width="200" height="100"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-family="Arial" font-size="16"%3E' + partner.name + '%3C/text%3E%3C/svg%3E';
-											}}
-										/>
+				{/* Partners Grid */}
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+					{partners.map((partner) => (
+						<div key={partner.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col">
+							{/* Banner */}
+							{partner.banner ? (
+								<div className="relative h-36 bg-gradient-to-b from-gray-200 to-gray-300 overflow-hidden">
+									<img
+										src={getImageUrl(partner.banner, null)}
+										alt={`Banner ${partner.name}`}
+										className="w-full h-full object-cover"
+										onError={(e) => {
+											e.target.style.display = 'none';
+										}}
+									/>
+									<div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+									<div className="absolute bottom-3 left-0 right-0 text-center">
+										<span className="text-white font-semibold text-sm bg-black/20 px-3 py-1 rounded-full">{partner.name}</span>
 									</div>
 								</div>
-							))}
+							) : (
+								<div className="relative h-36 bg-gradient-to-b from-gray-200 to-gray-300 flex items-center justify-center">
+									<div className="absolute bottom-3 left-0 right-0 text-center">
+										<span className="text-gray-700 font-semibold text-sm bg-white/60 px-3 py-1 rounded-full">{partner.name}</span>
+									</div>
+								</div>
+							)}
 
-							{/* Segundo conjunto de logos (duplicado para scroll infinito) */}
-							{partners.map((partner) => (
-								<div
-									key={`second-${partner.id}`}
-									className="slider-item"
-								>
-									<div className="partner-card">
-										<img
-											src={partner.logo}
-											alt={partner.name}
-											className="partner-logo"
-											onError={(e) => {
-												e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"%3E%3Crect fill="%23f0f0f0" width="200" height="100"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-family="Arial" font-size="16"%3E' + partner.name + '%3C/text%3E%3C/svg%3E';
-											}}
-										/>
-									</div>
+							{/* Logo Circular - Entre banner e corpo */}
+							<div className="relative -mt-16 flex justify-center z-10">
+								<div className="w-28 h-28 rounded-full bg-white p-2 shadow-lg">
+									<img
+										src={getImageUrl(partner.logo, 'https://placehold.co/100x100/f3f4f6/1e293b?text=' + encodeURIComponent(partner.name.substring(0, 2)))}
+										alt={partner.name}
+										className="w-full h-full object-contain rounded-full"
+										onError={(e) => {
+											e.target.src = 'https://placehold.co/100x100/f3f4f6/1e293b?text=' + encodeURIComponent(partner.name.substring(0, 2));
+										}}
+									/>
 								</div>
-							))}
+							</div>
+
+							{/* Body */}
+							<div className="p-5 pt-3 flex-grow flex flex-col">
+								<h3 className="text-xl font-bold text-gray-900 mb-3 text-center">{partner.name}</h3>
+
+								{partner.characteristics && partner.characteristics.length > 0 && (
+									<ul className="space-y-1 mb-4 flex-grow">
+										{partner.characteristics.map((characteristic, index) => (
+											<li key={index} className="flex items-start gap-2 text-sm text-gray-600">
+												<span className="text-gray-400 mt-1">•</span>
+												{characteristic}
+											</li>
+										))}
+									</ul>
+								)}
+
+								{/* Logo CaxiAuto no centro */}
+								<div className="flex justify-center my-4">
+									<img
+										src="/logo-caxiauto.png"
+										alt="CaxiAuto"
+										className="h-10 object-contain"
+										onError={(e) => {
+											e.target.style.display = 'none';
+										}}
+									/>
+								</div>
+
+								{/* Action Buttons */}
+								<div className="grid grid-cols-2 gap-3 mt-auto">
+									<a
+										href={`https://wa.me/${partner.whatsapp.replace(/\s/g, '')}`}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white py-2.5 px-3 rounded-lg text-sm font-medium transition-colors"
+									>
+										<MessageCircle size={16} />
+										WhatsApp
+									</a>
+									<a
+										href={`tel:${partner.phone}`}
+										className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-3 rounded-lg text-sm font-medium transition-colors"
+									>
+										<Phone size={16} />
+										Ligar
+									</a>
+								</div>
+							</div>
 						</div>
-					</div>
+					))}
+				</div>
+
+				{/* Ver Mais Button */}
+				<div className="text-center">
+					<Link
+						to="/parceiros"
+						className="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300"
+					>
+						Ver Mais
+					</Link>
 				</div>
 			</div>
-
-			<style jsx>{`
-				.slider-container {
-					overflow: hidden;
-					width: 100%;
-				}
-
-				.slider-track {
-					display: flex;
-					animation: scroll 40s linear infinite;
-					width: fit-content;
-				}
-
-				.slider-track:hover {
-					animation-play-state: paused;
-				}
-
-				.slider-item {
-					flex: 0 0 auto;
-					padding: 0 1rem;
-				}
-
-				.partner-card {
-					width: 180px;
-					height: 100px;
-					background: white;
-					border-radius: 1rem;
-					padding: 1.5rem;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					transition: all 0.3s ease;
-				}
-
-				.partner-card:hover {
-					transform: translateY(-4px);
-				}
-
-				.partner-logo {
-					max-width: 100%;
-					max-height: 100%;
-					object-fit: contain;
-					filter: grayscale(100%) opacity(0.6);
-					transition: filter 0.3s ease;
-				}
-
-				.partner-card:hover .partner-logo {
-					filter: grayscale(0%) opacity(1);
-				}
-
-				@keyframes scroll {
-					0% {
-						transform: translateX(0);
-					}
-					100% {
-						transform: translateX(-50%);
-					}
-				}
-
-				/* Pausa a animação quando qualquer card é hover */
-				.slider-track:has(.partner-card:hover) {
-					animation-play-state: paused;
-				}
-
-				/* Responsive */
-				@media (max-width: 768px) {
-					.slider-track {
-						animation-duration: 30s;
-					}
-
-					.partner-card {
-						width: 140px;
-						height: 80px;
-						padding: 1rem;
-					}
-				}
-			`}</style>
 		</section>
 	);
 }

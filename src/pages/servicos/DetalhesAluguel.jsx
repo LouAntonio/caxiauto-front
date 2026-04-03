@@ -23,6 +23,7 @@ import {
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { API_URL, getImageUrl, notyf } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
+import BookingForm from '../../components/BookingForm'
 
 export default function DetalhesAluguel() {
 	const { id } = useParams()
@@ -34,8 +35,15 @@ export default function DetalhesAluguel() {
 	const [vehicle, setVehicle] = useState(null)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState(null)
-	const [isFavorite, setIsFavorite] = useState(false)
-	const [loadingFavorite, setLoadingFavorite] = useState(false)
+	const [isFavorite, setIsFavorite] = useState(false);
+	const [loadingFavorite, setLoadingFavorite] = useState(false);
+	const [bookingSuccess, setBookingSuccess] = useState(false);
+
+	// Handler para quando uma reserva é criada
+	const handleBookingCreated = () => {
+		setBookingSuccess(true);
+		setTimeout(() => setBookingSuccess(false), 5000);
+	};
 
 	// Planos de aluguel baseados nos dados do veículo  
 	const rentalPlans = vehicle ? [
@@ -557,15 +565,32 @@ export default function DetalhesAluguel() {
 									</div>
 								)}
 
-								<button
-									onClick={handleContact}
-									className={`w-full font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02] cursor-pointer ${rentalPlans.length > 0
-										? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white'
-										: 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white'
-										}`}
-								>
-									{rentalPlans.length > 0 ? 'Solicitar Aluguel' : 'Entre em Contato'}
-								</button>
+								{/* Mensagem de sucesso da reserva */}
+								{bookingSuccess && (
+									<div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
+										<div className="flex items-center gap-2">
+											<CheckCircle2 className="w-5 h-5 text-green-600" />
+											<p className="text-sm text-green-700 font-medium">
+												Reserva criada com sucesso! Aguarde confirmação.
+											</p>
+										</div>
+									</div>
+								)}
+
+								{/* Componente de Reserva */}
+								{isAuthenticated ? (
+									<BookingForm vehicle={vehicle} onBookingCreated={handleBookingCreated} />
+								) : (
+									<button
+										onClick={handleContact}
+										className={`w-full font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02] cursor-pointer ${rentalPlans.length > 0
+											? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white'
+											: 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white'
+											}`}
+									>
+										{rentalPlans.length > 0 ? 'Solicitar Aluguel' : 'Entre em Contato'}
+									</button>
+								)}
 							</div>
 
 							{/* Card de Contato */}
