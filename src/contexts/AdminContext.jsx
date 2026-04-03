@@ -200,6 +200,88 @@ export const AdminProvider = ({ children }) => {
 		}
 	};
 
+	// ==================== PLANOS DE ASSINATURA ====================
+	const adminListPlans = async () => {
+		try {
+			const data = await api.adminListPlans();
+			return data;
+		} catch (error) {
+			console.error('Erro ao listar planos:', error);
+			return { success: false, message: error.message };
+		}
+	};
+
+	const adminCreatePlan = async (data) => {
+		try {
+			const result = await api.adminCreatePlan(data);
+			return result;
+		} catch (error) {
+			console.error('Erro ao criar plano:', error);
+			return { success: false, message: error.message };
+		}
+	};
+
+	const adminUpdatePlan = async (id, data) => {
+		try {
+			const result = await api.adminUpdatePlan(id, data);
+			return result;
+		} catch (error) {
+			console.error('Erro ao atualizar plano:', error);
+			return { success: false, message: error.message };
+		}
+	};
+
+	const adminDeletePlan = async (id) => {
+		try {
+			const result = await api.adminDeletePlan(id);
+			return result;
+		} catch (error) {
+			console.error('Erro ao remover plano:', error);
+			return { success: false, message: error.message };
+		}
+	};
+
+	// ==================== PACOTES DE DESTAQUE ====================
+	const adminListHighlightPackages = async () => {
+		try {
+			const data = await api.adminListHighlightPackages();
+			return data;
+		} catch (error) {
+			console.error('Erro ao listar pacotes de destaque:', error);
+			return { success: false, message: error.message };
+		}
+	};
+
+	const adminCreateHighlightPackage = async (data) => {
+		try {
+			const result = await api.adminCreateHighlightPackage(data);
+			return result;
+		} catch (error) {
+			console.error('Erro ao criar pacote de destaque:', error);
+			return { success: false, message: error.message };
+		}
+	};
+
+	const adminUpdateHighlightPackage = async (id, data) => {
+		try {
+			const result = await api.adminUpdateHighlightPackage(id, data);
+			return result;
+		} catch (error) {
+			console.error('Erro ao atualizar pacote de destaque:', error);
+			return { success: false, message: error.message };
+		}
+	};
+
+	const adminDeleteHighlightPackage = async (id) => {
+		try {
+			const result = await api.adminDeleteHighlightPackage(id);
+			return result;
+		} catch (error) {
+			console.error('Erro ao remover pacote de destaque:', error);
+			return { success: false, message: error.message };
+		}
+	};
+
 	const value = {
 		admin,
 		loading,
@@ -217,6 +299,15 @@ export const AdminProvider = ({ children }) => {
 		createManufacturer,
 		listClasses,
 		createClass,
+		// Planos e pacotes
+		adminListPlans,
+		adminCreatePlan,
+		adminUpdatePlan,
+		adminDeletePlan,
+		adminListHighlightPackages,
+		adminCreateHighlightPackage,
+		adminUpdateHighlightPackage,
+		adminDeleteHighlightPackage,
 		isAuthenticated: !!admin,
 	};
 

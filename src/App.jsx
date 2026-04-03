@@ -51,6 +51,8 @@ import AdminReviews from './pages/caxiauto/AdminReviews'
 import AdminManufacturers from './pages/caxiauto/AdminManufacturers'
 import AdminClasses from './pages/caxiauto/AdminClasses'
 import AdminPartners from './pages/caxiauto/AdminPartners'
+import AdminPlans from './pages/caxiauto/AdminPlans'
+import AdminHighlightPackages from './pages/caxiauto/AdminHighlightPackages'
 
 function Analytics() {
 	const location = useLocation();
@@ -142,6 +144,8 @@ function AppContent() {
 							<Route path="fabricantes" element={<AdminManufacturers />} />
 							<Route path="classes" element={<AdminClasses />} />
 							<Route path="parceiros" element={<AdminPartners />} />
+							<Route path="planos" element={<AdminPlans />} />
+							<Route path="pacotes-destaque" element={<AdminHighlightPackages />} />
 						</Route>
 
 						{/* 404 route - keep last */}

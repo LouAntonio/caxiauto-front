@@ -511,6 +511,39 @@ const api = {
 		return api.post('/admin/classes', { name }, {}, true);
 	},
 
+	// ==================== ADMIN - PLANOS E PACOTES DE DESTAQUE ====================
+	adminListPlans: () => {
+		return api.get('/admin/plans', {}, true);
+	},
+
+	adminCreatePlan: (data) => {
+		return api.post('/admin/plans', data, {}, true);
+	},
+
+	adminUpdatePlan: (id, data) => {
+		return api.put(`/admin/plans/${id}`, data, {}, true);
+	},
+
+	adminDeletePlan: (id) => {
+		return api.delete(`/admin/plans/${id}`, {}, true);
+	},
+
+	adminListHighlightPackages: () => {
+		return api.get('/admin/highlight-packages', {}, true);
+	},
+
+	adminCreateHighlightPackage: (data) => {
+		return api.post('/admin/highlight-packages', data, {}, true);
+	},
+
+	adminUpdateHighlightPackage: (id, data) => {
+		return api.put(`/admin/highlight-packages/${id}`, data, {}, true);
+	},
+
+	adminDeleteHighlightPackage: (id) => {
+		return api.delete(`/admin/highlight-packages/${id}`, {}, true);
+	},
+
 	// ==================== ADMIN - PARCEIROS ====================
 	listPartners: (params = {}) => {
 		const queryString = new URLSearchParams(params).toString();
