@@ -17,7 +17,9 @@ import {
 	Shield,
 	LogOut,
 	Menu,
-	X
+	X,
+	CreditCard,
+	Sparkles
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -85,6 +87,16 @@ const AdminLayout = () => {
 			icon: Handshake,
 			title: 'Parceiros',
 			path: '/caxiauto/parceiros',
+		},
+		{
+			icon: CreditCard,
+			title: 'Planos',
+			path: '/caxiauto/planos',
+		},
+		{
+			icon: Sparkles,
+			title: 'Pacotes Destaque',
+			path: '/caxiauto/pacotes-destaque',
 		},
 	];
 

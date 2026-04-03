@@ -190,6 +190,10 @@ const api = {
 		return api.put('/users/profile', data);
 	},
 
+	updateSellerDocs: (data) => {
+		return api.put('/users/seller-docs', data);
+	},
+
 	requestPasswordReset: (email) => {
 		return api.post('/users/request-password-reset', { email });
 	},
@@ -249,6 +253,15 @@ const api = {
 	listFeaturedVehicles: (params = {}) => {
 		const queryString = new URLSearchParams(params).toString();
 		return api.get(`/vehicles/featured?${queryString}`);
+	},
+
+	// ==================== FABRICANTES E CLASSES ====================
+	getManufacturers: () => {
+		return api.get('/vehicles/manufacturers');
+	},
+
+	getClasses: () => {
+		return api.get('/vehicles/classes');
 	},
 
 	// ==================== PEÇAS ====================
@@ -369,7 +382,7 @@ const api = {
 
 	getMyReviews: (params = {}) => {
 		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/reviews/my?${queryString}`);
+		return api.get(`/reviews/my-reviews?${queryString}`);
 	},
 
 	getReviewSummary: (sellerId) => {
@@ -417,11 +430,11 @@ const api = {
 	},
 
 	subscribePlan: (planId) => {
-		return api.post('/subscriptions/subscribe', { planId });
+		return api.post('/subscriptions', { planId });
 	},
 
 	getMySubscription: () => {
-		return api.get('/subscriptions/my-subscription');
+		return api.get('/subscriptions');
 	},
 
 	cancelSubscription: () => {
@@ -429,11 +442,11 @@ const api = {
 	},
 
 	buyHighlightPackage: (packageId) => {
-		return api.post('/subscriptions/buy-highlight', { packageId });
+		return api.post('/subscriptions/highlights/purchase', { packageId });
 	},
 
 	applyVehicleHighlight: (vehicleId, daysDuration = 7) => {
-		return api.post(`/subscriptions/apply-highlight/${vehicleId}`, { daysDuration });
+		return api.post(`/subscriptions/highlights/apply/${vehicleId}`, { daysDuration });
 	},
 
 	// ==================== VISUALIZAÇÕES (VIEWS) ====================
@@ -455,7 +468,7 @@ const api = {
 
 	// ==================== CLOUDINARY (UPLOAD) ====================
 	getCloudinarySignature: (folder) => {
-		return api.get(`/cloudinary/upload?folder=${folder}`);
+		return api.get(`/cloudinary/authorize-upload?folder=${folder}`);
 	},
 
 	deleteCloudinaryResource: (publicId) => {
@@ -509,6 +522,39 @@ const api = {
 
 	createClass: (name) => {
 		return api.post('/admin/classes', { name }, {}, true);
+	},
+
+	// ==================== ADMIN - PLANOS E PACOTES DE DESTAQUE ====================
+	adminListPlans: () => {
+		return api.get('/admin/plans', {}, true);
+	},
+
+	adminCreatePlan: (data) => {
+		return api.post('/admin/plans', data, {}, true);
+	},
+
+	adminUpdatePlan: (id, data) => {
+		return api.put(`/admin/plans/${id}`, data, {}, true);
+	},
+
+	adminDeletePlan: (id) => {
+		return api.delete(`/admin/plans/${id}`, {}, true);
+	},
+
+	adminListHighlightPackages: () => {
+		return api.get('/admin/highlight-packages', {}, true);
+	},
+
+	adminCreateHighlightPackage: (data) => {
+		return api.post('/admin/highlight-packages', data, {}, true);
+	},
+
+	adminUpdateHighlightPackage: (id, data) => {
+		return api.put(`/admin/highlight-packages/${id}`, data, {}, true);
+	},
+
+	adminDeleteHighlightPackage: (id) => {
+		return api.delete(`/admin/highlight-packages/${id}`, {}, true);
 	},
 
 	// ==================== ADMIN - PARCEIROS ====================
