@@ -50,6 +50,7 @@ import AdminReports from './pages/caxiauto/AdminReports'
 import AdminReviews from './pages/caxiauto/AdminReviews'
 import AdminManufacturers from './pages/caxiauto/AdminManufacturers'
 import AdminClasses from './pages/caxiauto/AdminClasses'
+import AdminPartners from './pages/caxiauto/AdminPartners'
 
 function Analytics() {
 	const location = useLocation();
@@ -140,6 +141,7 @@ function AppContent() {
 							<Route path="avaliacoes" element={<AdminReviews />} />
 							<Route path="fabricantes" element={<AdminManufacturers />} />
 							<Route path="classes" element={<AdminClasses />} />
+							<Route path="parceiros" element={<AdminPartners />} />
 						</Route>
 
 						{/* 404 route - keep last */}

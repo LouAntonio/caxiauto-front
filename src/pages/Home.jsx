@@ -37,7 +37,6 @@ export default function Home() {
 					/>
 				</div>
 				<FeaturedParts />
-				<VehicleRequestSection />
 				{/* <Publicidades /> */}
 				<PartnersSlider />
 				<div className="my-2">
