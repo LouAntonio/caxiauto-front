@@ -44,17 +44,17 @@ export default function DetalhesCompra() {
 			try {
 				setLoading(true)
 				setError(null)
-				const response = await api.get(`/compraveiculos/${id}`)
+				const response = await api.get(`/vehicles/${id}`)
 
 				if (response.success && response.data) {
 					// Mapear os dados da API para a estrutura esperada pelo componente
 					const vehicleData = response.data
 					setVehicle({
-						id: vehicleData._id || id,
+						id: vehicleData.id || id,
 						title: vehicleData.name || 'Veículo sem título',
-						price: vehicleData.price || 0,
-						images: vehicleData.mainImage
-							? [vehicleData.mainImage, ...(vehicleData.images || [])]
+						price: vehicleData.priceSale || 0,
+						images: vehicleData.image
+							? [vehicleData.image, ...(vehicleData.gallery || [])]
 							: ['/images/i10.jpg'],
 						condition: vehicleData.year >= new Date().getFullYear() ? 'Novo' : 'Usado',
 						description: vehicleData.description || 'Sem descrição disponível',
@@ -63,19 +63,19 @@ export default function DetalhesCompra() {
 								? `${vehicleData.kilometers.toLocaleString('pt-AO')} km`
 								: 'N/A',
 							year: vehicleData.year || 'N/A',
-							location: vehicleData.location || 'N/A',
+							location: vehicleData.provincia || 'N/A',
 							fuel: vehicleData.fuelType
 								? vehicleData.fuelType.charAt(0).toUpperCase() + vehicleData.fuelType.slice(1)
 								: 'N/A',
 							transmission: vehicleData.transmission
 								? vehicleData.transmission.charAt(0).toUpperCase() + vehicleData.transmission.slice(1)
 								: 'N/A',
-							passengers: vehicleData.passangers
-								? `${vehicleData.passangers} ${vehicleData.passangers === 1 ? 'lugar' : 'lugares'}`
+							passengers: vehicleData.passengerCapacity
+								? `${vehicleData.passengerCapacity} ${vehicleData.passengerCapacity === 1 ? 'lugar' : 'lugares'}`
 								: 'N/A',
 							color: vehicleData.color || 'N/A',
-							doors: vehicleData.door
-								? `${vehicleData.door} ${vehicleData.door === 1 ? 'porta' : 'portas'}`
+							doors: vehicleData.doorCount
+								? `${vehicleData.doorCount} ${vehicleData.doorCount === 1 ? 'porta' : 'portas'}`
 								: 'N/A'
 						},
 						features: vehicleData.characteristics || [],

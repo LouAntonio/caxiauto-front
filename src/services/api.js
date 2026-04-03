@@ -251,6 +251,15 @@ const api = {
 		return api.get(`/vehicles/featured?${queryString}`);
 	},
 
+	// ==================== FABRICANTES E CLASSES ====================
+	getManufacturers: () => {
+		return api.get('/vehicles/manufacturers');
+	},
+
+	getClasses: () => {
+		return api.get('/vehicles/classes');
+	},
+
 	// ==================== PEÇAS ====================
 	listPecas: (params = {}) => {
 		const queryString = new URLSearchParams(params).toString();

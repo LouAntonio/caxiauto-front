@@ -103,7 +103,7 @@ export default function Compra() {
 				params.append('featured', 'true')
 			}
 
-			const response = await api.get(`/compraveiculos?${params.toString()}`)
+			const response = await api.get(`/vehicles?${params.toString()}`)
 
 			if (response.success) {
 				setVehicles(response.data)
@@ -309,13 +309,13 @@ export default function Compra() {
 								<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 									{vehicles.map((car) => (
 										<article
-											key={car._id}
+											key={car.id}
 											className="flex-shrink-0 w-full bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
 										>
 											{/* Imagem */}
 											<div className="relative h-40 overflow-hidden">
 												<img
-													src={getImageUrl(car.mainImage, '/images/i10.jpg')}
+													src={getImageUrl(car.image, '/images/i10.jpg')}
 													className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
 													onError={(e) => { e.target.src = '/images/i10.jpg'; }}
 												/>
@@ -330,16 +330,16 @@ export default function Compra() {
 												{/* Botão de favorito */}
 												{isAuthenticated && (
 													<button
-														onClick={(e) => toggleFavorite(e, car._id)}
+														onClick={(e) => toggleFavorite(e, car.id)}
 														className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
-														aria-label={favorites.has(car._id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-														disabled={loadingFavorites.has(car._id)}
+														aria-label={favorites.has(car.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+														disabled={loadingFavorites.has(car.id)}
 													>
 														<Heart
-															className={`w-5 h-5 transition-all duration-200 ${favorites.has(car._id)
+															className={`w-5 h-5 transition-all duration-200 ${favorites.has(car.id)
 																	? 'fill-red-500 text-red-500'
 																	: 'text-gray-600 hover:text-red-500'
-																} ${loadingFavorites.has(car._id) ? 'opacity-50' : ''}`}
+																} ${loadingFavorites.has(car.id) ? 'opacity-50' : ''}`}
 														/>
 													</button>
 												)}
@@ -359,7 +359,7 @@ export default function Compra() {
 													style={{ color: 'var(--primary)' }}
 													className="text-1xl font-bold mb-4 text-center"
 												>
-													{formatPrice(car.price)},00 akz
+													{formatPrice(car.priceSale)},00 akz
 												</div>
 
 												{/* Especificações (duas colunas) */}
@@ -373,7 +373,7 @@ export default function Compra() {
 														<span>{car.year}</span>
 													</div>
 													<div className="flex items-center justify-end gap-2">
-														<span className="text-right">{car.location}</span>
+														<span className="text-right">{car.provincia}</span>
 														<MapPin className="w-4 h-4 text-gray-400" />
 													</div>
 													<div className="flex items-center gap-2">
@@ -383,7 +383,7 @@ export default function Compra() {
 												</div>
 
 												{/* Botão */}
-												<Link to={`/stand/compra/${car._id}`}>
+												<Link to={`/stand/compra/${car.id}`}>
 													<button
 														style={{ backgroundColor: 'var(--secondary)' }}
 														className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"

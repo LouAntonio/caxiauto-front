@@ -43,13 +43,15 @@ const VeiculosAluguel = () => {
 	const [confirmMessage, setConfirmMessage] = useState('');
 	const [confirmTitle, setConfirmTitle] = useState('');
 	const [confirmType, setConfirmType] = useState('danger');
+	const [manufacturers, setManufacturers] = useState([]);
+	const [vehicleClasses, setVehicleClasses] = useState([]);
 
 	const [formData, setFormData] = useState({
 		name: '',
 		description: '',
-		manufacturer: '',
-		class: '',
-		fuelType: 'gasolina',
+		manufacturerId: '',
+		classId: '',
+		fuelType: 'GASOLINE',
 		transmission: 'manual',
 		year: '',
 		kilometers: '',
@@ -69,12 +71,36 @@ const VeiculosAluguel = () => {
 		availableFrom: ''
 	});
 
-	// Carregar veículos do usuário
+	// Carregar veículos e dados de referência
 	useEffect(() => {
 		if (user) {
 			loadVehicles();
 		}
+		loadManufacturers();
+		loadClasses();
 	}, [user]);
+
+	const loadManufacturers = async () => {
+		try {
+			const response = await api.getManufacturers();
+			if (response.success) {
+				setManufacturers(response.data);
+			}
+		} catch (error) {
+			console.error('Erro ao carregar fabricantes:', error);
+		}
+	};
+
+	const loadClasses = async () => {
+		try {
+			const response = await api.getClasses();
+			if (response.success) {
+				setVehicleClasses(response.data);
+			}
+		} catch (error) {
+			console.error('Erro ao carregar classes:', error);
+		}
+	};
 
 	const loadVehicles = async () => {
 		try {
@@ -85,6 +111,16 @@ const VeiculosAluguel = () => {
 		} catch (error) {
 			console.error('Erro ao carregar veículos:', error);
 		}
+	};
+
+	const formatFuelType = (type) => {
+		const map = {
+			'GASOLINE': 'Gasolina',
+			'DIESEL': 'Diesel',
+			'ELECTRIC': 'Elétrico',
+			'HYBRID': 'Híbrido'
+		};
+		return map[type] || type;
 	};
 
 	const handleChange = (e) => {
@@ -151,9 +187,9 @@ const VeiculosAluguel = () => {
 		setFormData({
 			name: '',
 			description: '',
-			manufacturer: '',
-			class: '',
-			fuelType: 'gasolina',
+			manufacturerId: '',
+			classId: '',
+			fuelType: 'GASOLINE',
 			transmission: 'manual',
 			year: '',
 			kilometers: '',
@@ -184,9 +220,9 @@ const VeiculosAluguel = () => {
 			setFormData({
 				name: vehicle.name || '',
 				description: vehicle.description || '',
-				manufacturer: vehicle.manufacturer || '',
-				class: vehicle.class || '',
-				fuelType: vehicle.fuelType || 'gasolina',
+				manufacturerId: vehicle.manufacturerId || vehicle.Manufacturer?.id || '',
+				classId: vehicle.classId || vehicle.Class?.id || '',
+				fuelType: vehicle.fuelType || 'GASOLINE',
 				transmission: vehicle.transmission || 'manual',
 				year: vehicle.year || '',
 				kilometers: vehicle.kilometers || '',
@@ -252,8 +288,8 @@ const VeiculosAluguel = () => {
 		e.preventDefault();
 
 		// Validação básica
-		if (!formData.name || !formData.description || !formData.manufacturer ||
-			!formData.class || !formData.year || !formData.kilometers ||
+		if (!formData.name || !formData.description || !formData.manufacturerId ||
+			!formData.classId || !formData.year || !formData.kilometers ||
 			!formData.passangers || !formData.color ||
 			!formData.location || !formData.door) {
 			setMessage({ type: 'error', text: 'Por favor, preencha todos os campos obrigatórios.' });
@@ -545,7 +581,7 @@ const VeiculosAluguel = () => {
 										</div>
 										<div className="flex items-center gap-2 text-sm text-gray-600">
 											<Fuel className="w-4 h-4 text-[#154c9a]" />
-											<span className="capitalize">{vehicle.fuelType}</span>
+											<span>{formatFuelType(vehicle.fuelType)}</span>
 										</div>
 										<div className="flex items-center gap-2 text-sm text-gray-600">
 											<Settings className="w-4 h-4 text-[#154c9a]" />
@@ -701,15 +737,18 @@ const VeiculosAluguel = () => {
 									<label className="block text-gray-700 font-semibold mb-2">
 										Marca <span className="text-red-500">*</span>
 									</label>
-									<input
-										type="text"
-										name="manufacturer"
-										value={formData.manufacturer}
+									<select
+										name="manufacturerId"
+										value={formData.manufacturerId}
 										onChange={handleChange}
 										required
-										placeholder="Ex: Toyota, Ford, Volkswagen"
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
-									/>
+									>
+										<option value="">Selecione a marca</option>
+										{manufacturers.map(m => (
+											<option key={m.id} value={m.id}>{m.name}</option>
+										))}
+									</select>
 								</div>
 
 								{/* Classe/Tipo */}
@@ -718,20 +757,16 @@ const VeiculosAluguel = () => {
 										Tipo/Classe <span className="text-red-500">*</span>
 									</label>
 									<select
-										name="class"
-										value={formData.class}
+										name="classId"
+										value={formData.classId}
 										onChange={handleChange}
 										required
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									>
 										<option value="">Selecione o tipo</option>
-										<option value="Sedan">Sedan</option>
-										<option value="Hatchback">Hatchback</option>
-										<option value="SUV">SUV</option>
-										<option value="Pickup">Pickup</option>
-										<option value="Van">Van</option>
-										<option value="Coupe">Coupé</option>
-										<option value="Conversivel">Conversível</option>
+										{vehicleClasses.map(c => (
+											<option key={c.id} value={c.id}>{c.name}</option>
+										))}
 									</select>
 								</div>
 
@@ -836,10 +871,10 @@ const VeiculosAluguel = () => {
 										required
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									>
-										<option value="gasolina">Gasolina</option>
-										<option value="diesel">Diesel</option>
-										<option value="elétrico">Elétrico</option>
-										<option value="híbrido">Híbrido</option>
+										<option value="GASOLINE">Gasolina</option>
+										<option value="DIESEL">Diesel</option>
+										<option value="ELECTRIC">Elétrico</option>
+										<option value="HYBRID">Híbrido</option>
 									</select>
 								</div>
 

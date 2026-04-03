@@ -40,16 +40,20 @@ const Veiculos = () => {
 	const [confirmMessage, setConfirmMessage] = useState('');
 	const [confirmTitle, setConfirmTitle] = useState('');
 	const [confirmType, setConfirmType] = useState('danger');
+	const [manufacturers, setManufacturers] = useState([]);
+	const [vehicleClasses, setVehicleClasses] = useState([]);
 	const [formData, setFormData] = useState({
 		name: '',
 		description: '',
-		manufacturer: '',
-		class: '',
-		fuelType: 'gasolina',
-		transmission: 'manual',
+		manufacturerId: '',
+		classId: '',
+		fuelType: 'GASOLINE',
+		transmission: 'MANUAL',
+		type: 'SALE',
 		year: '',
 		kilometers: '',
 		price: '',
+		priceRent: '',
 		passangers: '',
 		color: '',
 		location: '',
@@ -57,22 +61,56 @@ const Veiculos = () => {
 		characteristics: []
 	});
 
-	// Carregar veículos do usuário
+	// Carregar veículos e dados de referência
 	useEffect(() => {
 		if (user) {
 			loadVehicles();
 		}
+		loadManufacturers();
+		loadClasses();
 	}, [user]);
+
+	const loadManufacturers = async () => {
+		try {
+			const response = await api.getManufacturers();
+			if (response.success) {
+				setManufacturers(response.data);
+			}
+		} catch (error) {
+			console.error('Erro ao carregar fabricantes:', error);
+		}
+	};
+
+	const loadClasses = async () => {
+		try {
+			const response = await api.getClasses();
+			if (response.success) {
+				setVehicleClasses(response.data);
+			}
+		} catch (error) {
+			console.error('Erro ao carregar classes:', error);
+		}
+	};
 
 	const loadVehicles = async () => {
 		try {
-			const response = await api.get('/compraveiculos?myVehicles=true');
+			const response = await api.get('/vehicles/my-vehicles');
 			if (response.success) {
 				setVehicles(response.data);
 			}
 		} catch (error) {
 			console.error('Erro ao carregar veículos:', error);
 		}
+	};
+
+	const formatFuelType = (type) => {
+		const map = {
+			'GASOLINE': 'Gasolina',
+			'DIESEL': 'Diesel',
+			'ELECTRIC': 'Elétrico',
+			'HYBRID': 'Híbrido'
+		};
+		return map[type] || type;
 	};
 
 	const handleChange = (e) => {
@@ -114,13 +152,15 @@ const Veiculos = () => {
 		setFormData({
 			name: '',
 			description: '',
-			manufacturer: '',
-			class: '',
-			fuelType: 'gasolina',
-			transmission: 'manual',
+			manufacturerId: '',
+			classId: '',
+			fuelType: 'GASOLINE',
+			transmission: 'MANUAL',
+			type: 'SALE',
 			year: '',
 			kilometers: '',
 			price: '',
+			priceRent: '',
 			passangers: '',
 			color: '',
 			location: '',
@@ -139,17 +179,19 @@ const Veiculos = () => {
 			setFormData({
 				name: vehicle.name || '',
 				description: vehicle.description || '',
-				manufacturer: vehicle.manufacturer || '',
-				class: vehicle.class || '',
-				fuelType: vehicle.fuelType || 'gasolina',
-				transmission: vehicle.transmission || 'manual',
+				manufacturerId: vehicle.manufacturerId || vehicle.Manufacturer?.id || '',
+				classId: vehicle.classId || vehicle.Class?.id || '',
+				fuelType: vehicle.fuelType || 'GASOLINE',
+				transmission: vehicle.transmission || 'MANUAL',
+				type: vehicle.type || 'SALE',
 				year: vehicle.year || '',
 				kilometers: vehicle.kilometers || '',
-				price: vehicle.price || '',
-				passangers: vehicle.passangers || '',
+				price: vehicle.priceSale || '',
+				priceRent: vehicle.priceRentDay || '',
+				passangers: vehicle.passengerCapacity || '',
 				color: vehicle.color || '',
-				location: vehicle.location || '',
-				door: vehicle.door || '',
+				location: vehicle.provincia || '',
+				door: vehicle.doorCount || '',
 				characteristics: vehicle.characteristics || []
 			});
 		} else {
@@ -207,8 +249,8 @@ const Veiculos = () => {
 		e.preventDefault();
 
 		// Validação básica
-		if (!formData.name || !formData.description || !formData.manufacturer ||
-			!formData.class || !formData.year || !formData.kilometers ||
+		if (!formData.name || !formData.description || !formData.manufacturerId ||
+			!formData.classId || !formData.year || !formData.kilometers ||
 			!formData.price || !formData.passangers || !formData.color ||
 			!formData.location || !formData.door) {
 			setMessage({ type: 'error', text: 'Por favor, preencha todos os campos obrigatórios.' });
@@ -242,33 +284,34 @@ const Veiculos = () => {
 				uploadedLivrete = await uploadToCloudinary(livreteFile, 'sellCar');
 			}
 
-			// Preparar dados para envio
+			// Preparar dados para envio (mapeados para o schema Vehicle)
 			const vehicleData = {
 				name: formData.name,
 				description: formData.description,
-				manufacturer: formData.manufacturer,
-				class: formData.class,
+				manufacturerId: formData.manufacturerId,
+				classId: formData.classId,
 				fuelType: formData.fuelType,
 				transmission: formData.transmission,
+				type: formData.type,
 				year: formData.year,
 				kilometers: formData.kilometers,
-				price: formData.price,
-				passangers: formData.passangers,
-				color: formData.color,
-				location: formData.location,
-				door: formData.door,
+				priceSale: formData.price,
+				priceRentDay: formData.priceRent || null,
+				passengerCapacity: formData.passangers,
+				doorCount: formData.door,
+				provincia: formData.location,
 				characteristics: formData.characteristics
 			};
 
-			// Adicionar URLs das mídias se houver
+			// Adicionar imagem principal e galeria se houver
 			if (uploadedImages.length > 0) {
-				vehicleData.mainImage = uploadedImages[0];
-				vehicleData.images = uploadedImages.slice(1);
+				vehicleData.image = uploadedImages[0];
+				vehicleData.gallery = uploadedImages.slice(1);
 			}
 
-			// Adicionar URL do livrete se houver
+			// Adicionar documentos (livrete) se houver
 			if (uploadedLivrete) {
-				vehicleData.livreto = uploadedLivrete;
+				vehicleData.documents = [uploadedLivrete];
 			}
 
 			console.log('Dados a enviar:', vehicleData);
@@ -276,10 +319,10 @@ const Veiculos = () => {
 			let response;
 			if (editingVehicle) {
 				// Edição - envia para rota de edição com aprovação
-				response = await api.put(`/compraveiculos/${editingVehicle._id}/edit`, vehicleData);
+				response = await api.put(`/vehicles/${editingVehicle._id}`, vehicleData);
 			} else {
 				// Criação - envia normalmente
-				response = await api.post('/compraveiculos', vehicleData);
+				response = await api.post('/vehicles', vehicleData);
 			}
 
 			if (response.success) {
@@ -315,7 +358,7 @@ const Veiculos = () => {
 		setConfirmType('danger');
 		setConfirmAction(() => async () => {
 			try {
-				const response = await api.delete(`/compraveiculos/${vehicleId}`);
+				const response = await api.delete(`/vehicles/${vehicleId}`);
 				if (response.success) {
 					setMessage({ type: 'success', text: 'Veículo excluído com sucesso!' });
 					await loadVehicles();
@@ -338,7 +381,7 @@ const Veiculos = () => {
 		setConfirmType(currentStatus === 'active' ? 'warning' : 'success');
 		setConfirmAction(() => async () => {
 			try {
-				const response = await api.put(`/compraveiculos/${vehicleId}/toggle-status`);
+				const response = await api.put(`/vehicles/${vehicleId}/toggle-status`);
 				if (response.success) {
 					setMessage({ type: 'success', text: response.message || 'Status alterado com sucesso!' });
 					await loadVehicles();
@@ -451,22 +494,22 @@ const Veiculos = () => {
 									</div>
 									<div className="flex items-center gap-2 text-sm text-gray-600">
 										<Fuel className="w-4 h-4 text-[#154c9a]" />
-										<span className="capitalize">{vehicle.fuelType}</span>
+										<span>{formatFuelType(vehicle.fuelType)}</span>
 									</div>
 									<div className="flex items-center gap-2 text-sm text-gray-600">
 										<Settings className="w-4 h-4 text-[#154c9a]" />
 										<span className="capitalize">{vehicle.transmission}</span>
 									</div>
-									{vehicle.location && (
+									{vehicle.provincia && (
 										<div className="flex items-center gap-2 text-sm text-gray-600">
 											<MapPin className="w-4 h-4 text-[#154c9a]" />
-											<span>{vehicle.location}</span>
+											<span>{vehicle.provincia}</span>
 										</div>
 									)}
-									{vehicle.price && (
+									{vehicle.priceSale && (
 										<div className="flex items-center gap-2 text-sm font-semibold text-[#154c9a]">
 											<DollarSign className="w-4 h-4" />
-											<span>{vehicle.price.toLocaleString()} Kz</span>
+											<span>{vehicle.priceSale.toLocaleString()} Kz</span>
 										</div>
 									)}
 								</div>
@@ -575,15 +618,18 @@ const Veiculos = () => {
 									<label className="block text-gray-700 font-semibold mb-2">
 										Marca <span className="text-red-500">*</span>
 									</label>
-									<input
-										type="text"
-										name="manufacturer"
-										value={formData.manufacturer}
+									<select
+										name="manufacturerId"
+										value={formData.manufacturerId}
 										onChange={handleChange}
 										required
-										placeholder="Ex: Toyota, Ford, Volkswagen"
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
-									/>
+									>
+										<option value="">Selecione a marca</option>
+										{manufacturers.map(m => (
+											<option key={m.id} value={m.id}>{m.name}</option>
+										))}
+									</select>
 								</div>
 
 								{/* Classe/Tipo */}
@@ -592,20 +638,16 @@ const Veiculos = () => {
 										Tipo/Classe <span className="text-red-500">*</span>
 									</label>
 									<select
-										name="class"
-										value={formData.class}
+										name="classId"
+										value={formData.classId}
 										onChange={handleChange}
 										required
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									>
 										<option value="">Selecione o tipo</option>
-										<option value="Sedan">Sedan</option>
-										<option value="Hatchback">Hatchback</option>
-										<option value="SUV">SUV</option>
-										<option value="Pickup">Pickup</option>
-										<option value="Van">Van</option>
-										<option value="Coupe">Coupé</option>
-										<option value="Conversivel">Conversível</option>
+										{vehicleClasses.map(c => (
+											<option key={c.id} value={c.id}>{c.name}</option>
+										))}
 									</select>
 								</div>
 
@@ -710,10 +752,10 @@ const Veiculos = () => {
 										required
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									>
-										<option value="gasolina">Gasolina</option>
-										<option value="diesel">Diesel</option>
-										<option value="elétrico">Elétrico</option>
-										<option value="híbrido">Híbrido</option>
+										<option value="GASOLINE">Gasolina</option>
+										<option value="DIESEL">Diesel</option>
+										<option value="ELECTRIC">Elétrico</option>
+										<option value="HYBRID">Híbrido</option>
 									</select>
 								</div>
 
@@ -729,8 +771,9 @@ const Veiculos = () => {
 										required
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									>
-										<option value="manual">Manual</option>
-										<option value="automática">Automática</option>
+										<option value="MANUAL">Manual</option>
+										<option value="AUTOMATIC">Automática</option>
+										<option value="SEMI_AUTOMATIC">Semi-Automática</option>
 									</select>
 								</div>
 
@@ -751,20 +794,38 @@ const Veiculos = () => {
 									/>
 								</div>
 
-								{/* Localização */}
+								{/* Localização (Província) */}
 								<div className="md:col-span-2">
 									<label className="block text-gray-700 font-semibold mb-2">
-										Localização <span className="text-red-500">*</span>
+										Província <span className="text-red-500">*</span>
 									</label>
-									<input
-										type="text"
+									<select
 										name="location"
 										value={formData.location}
 										onChange={handleChange}
 										required
-										placeholder="Ex: Luanda, Angola"
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
-									/>
+									>
+										<option value="">Selecione uma província</option>
+										<option value="LUANDA">Luanda</option>
+										<option value="BENGUELA">Benguela</option>
+										<option value="HUAMBO">Huambo</option>
+										<option value="HUILA">Huíla</option>
+										<option value="CABINDA">Cabinda</option>
+										<option value="NAMIBE">Namibe</option>
+										<option value="BENGO">Bengo</option>
+										<option value="CUANZA_NORTE">Cuanza Norte</option>
+										<option value="CUANZA_SUL">Cuanza Sul</option>
+										<option value="CUNENE">Cunene</option>
+										<option value="BIE">Bié</option>
+										<option value="MOXICO">Moxico</option>
+										<option value="LUNDA_NORTE">Lunda Norte</option>
+										<option value="LUNDA_SUL">Lunda Sul</option>
+										<option value="UIGE">Uíge</option>
+										<option value="ZAIRE">Zaire</option>
+										<option value="CUANDO_CUBANGO">Cuando Cubango</option>
+										<option value="MALANJE">Malanje</option>
+									</select>
 								</div>
 
 								{/* Características */}
