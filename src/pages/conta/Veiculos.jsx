@@ -18,7 +18,8 @@ import {
 	Power,
 	Eye,
 	EyeOff,
-	AlertTriangle
+	AlertTriangle,
+	ImageIcon
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import api, { API_URL, getImageUrl } from '../../services/api';
@@ -33,7 +34,7 @@ const Veiculos = () => {
 	const [message, setMessage] = useState({ type: '', text: '' });
 	const [loading, setLoading] = useState(false);
 	const [mediaFiles, setMediaFiles] = useState([]);
-	const [livreteFile, setLivreteFile] = useState(null);
+	const [documentsFiles, setDocumentsFiles] = useState([]);
 	const [newCharacteristic, setNewCharacteristic] = useState('');
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [confirmAction, setConfirmAction] = useState(null);
@@ -126,9 +127,13 @@ const Veiculos = () => {
 		setMediaFiles(files);
 	};
 
-	const handleLivreteChange = (e) => {
-		const file = e.target.files[0];
-		setLivreteFile(file);
+	const handleDocumentsChange = (e) => {
+		const files = Array.from(e.target.files);
+		setDocumentsFiles(prev => [...prev, ...files]);
+	};
+
+	const handleRemoveDocument = (index) => {
+		setDocumentsFiles(prev => prev.filter((_, i) => i !== index));
 	};
 
 	const handleAddCharacteristic = () => {
@@ -168,7 +173,7 @@ const Veiculos = () => {
 			characteristics: []
 		});
 		setMediaFiles([]);
-		setLivreteFile(null);
+		setDocumentsFiles([]);
 		setNewCharacteristic('');
 		setEditingVehicle(null);
 	};
@@ -262,11 +267,6 @@ const Veiculos = () => {
 			return;
 		}
 
-		if (!livreteFile && !editingVehicle) {
-			setMessage({ type: 'error', text: 'É necessário enviar o documento do veículo (livrete).' });
-			return;
-		}
-
 		setLoading(true);
 		setMessage({ type: 'info', text: 'Processando uploads... Por favor, aguarde.' });
 
@@ -278,10 +278,11 @@ const Veiculos = () => {
 				uploadedImages = await Promise.all(imageUploadPromises);
 			}
 
-			// Upload do livrete
-			let uploadedLivrete = null;
-			if (livreteFile) {
-				uploadedLivrete = await uploadToCloudinary(livreteFile, 'sellCar');
+			// Upload de documentos (imagens e/ou PDFs)
+			let uploadedDocs = [];
+			if (documentsFiles.length > 0) {
+				const docUploadPromises = documentsFiles.map(file => uploadToCloudinary(file, 'sellCar'));
+				uploadedDocs = await Promise.all(docUploadPromises);
 			}
 
 			// Preparar dados para envio (mapeados para o schema Vehicle)
@@ -309,9 +310,9 @@ const Veiculos = () => {
 				vehicleData.gallery = uploadedImages.slice(1);
 			}
 
-			// Adicionar documentos (livrete) se houver
-			if (uploadedLivrete) {
-				vehicleData.documents = [uploadedLivrete];
+			// Adicionar documentos se houver
+			if (uploadedDocs.length > 0) {
+				vehicleData.documents = uploadedDocs;
 			}
 
 			console.log('Dados a enviar:', vehicleData);
@@ -319,7 +320,7 @@ const Veiculos = () => {
 			let response;
 			if (editingVehicle) {
 				// Edição - envia para rota de edição com aprovação
-				response = await api.put(`/vehicles/${editingVehicle._id}`, vehicleData);
+				response = await api.put(`/vehicles/${editingVehicle.id}`, vehicleData);
 			} else {
 				// Criação - envia normalmente
 				response = await api.post('/vehicles', vehicleData);
@@ -451,12 +452,12 @@ const Veiculos = () => {
 			) : (
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 					{vehicles.map(vehicle => (
-						<div key={vehicle._id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+						<div key={vehicle.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
 							{/* Imagem do veículo */}
 							<div className="h-48 bg-gray-200 relative">
-								{vehicle.mainImage ? (
+								{vehicle.image ? (
 									<img
-										src={getImageUrl(vehicle.mainImage)}
+										src={getImageUrl(vehicle.image)}
 										alt={vehicle.name}
 										className="w-full h-full object-cover"
 									/>
@@ -484,7 +485,7 @@ const Veiculos = () => {
 									{vehicle.name}
 								</h3>
 								<p className="text-gray-600 mb-4 text-sm">
-									{vehicle.manufacturer} • {vehicle.year} • {vehicle.color}
+									{vehicle.Manufacturer?.name} • {vehicle.year} • {vehicle.color}
 								</p>
 
 								<div className="space-y-2 mb-4">
@@ -542,7 +543,7 @@ const Veiculos = () => {
 										Editar
 									</button>
 									<button
-										onClick={() => handleToggleStatus(vehicle._id, vehicle.status)}
+										onClick={() => handleToggleStatus(vehicle.id, vehicle.status)}
 										className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors cursor-pointer ${vehicle.status === 'active'
 											? 'bg-orange-500 text-white hover:bg-orange-600'
 											: 'bg-green-500 text-white hover:bg-green-600'
@@ -552,7 +553,7 @@ const Veiculos = () => {
 										<Power className="w-4 h-4" />
 									</button>
 									<button
-										onClick={() => handleDelete(vehicle._id)}
+										onClick={() => handleDelete(vehicle.id)}
 										className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
 										title="Excluir veículo"
 									>
@@ -900,29 +901,49 @@ const Veiculos = () => {
 									)}
 								</div>
 
-								{/* Livrete (PDF) */}
+								{/* Documentos do Veículo (imagens + PDF) */}
 								<div className="md:col-span-2">
 									<label className="block text-gray-700 font-semibold mb-2">
 										<FileText className="w-5 h-5 inline mr-2" />
-										Livrete / Documento do Veículo (PDF) {editingVehicle ? '(opcional - envie apenas se quiser alterar)' : <span className="text-red-500">*</span>}
+										Documentos do Veículo (imagens ou PDF) {editingVehicle ? '(opcional)' : <span className="text-red-500">*</span>}
 									</label>
 									<input
 										type="file"
-										name="livreto"
-										accept="application/pdf"
-										onChange={handleLivreteChange}
-										required={!editingVehicle}
+										name="documents"
+										accept="image/*,application/pdf"
+										multiple
+										onChange={handleDocumentsChange}
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-green-600 file:text-white file:font-semibold file:cursor-pointer hover:file:bg-green-700"
 									/>
 									<p className="text-sm text-gray-500 mt-2">
 										{editingVehicle
-											? 'Deixe em branco para manter o documento atual. Envie apenas se precisar atualizar o livrete.'
-											: 'Upload obrigatório do livrete ou documento do veículo em PDF'}
+											? 'Envie apenas se quiser adicionar ou atualizar documentos.'
+											: 'Pode enviar imagens (JPG, PNG) ou PDFs do livrete, licenciamento, inspeção, etc.'}
 									</p>
-									{livreteFile && (
-										<p className="text-sm text-green-600 mt-2 font-semibold">
-											Arquivo selecionado: {livreteFile.name}
-										</p>
+									{documentsFiles.length > 0 && (
+										<div className="mt-3 space-y-2">
+											<p className="text-sm font-semibold text-gray-700">Ficheiros selecionados ({documentsFiles.length}):</p>
+											{documentsFiles.map((file, index) => (
+												<div key={index} className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg">
+													<div className="flex items-center gap-2 min-w-0 flex-1">
+														{file.type === 'application/pdf' ? (
+															<FileText className="w-4 h-4 text-red-500 flex-shrink-0" />
+														) : (
+															<ImageIcon className="w-4 h-4 text-blue-500 flex-shrink-0" />
+														)}
+														<span className="text-sm text-gray-600 truncate">{file.name}</span>
+														<span className="text-xs text-gray-400 flex-shrink-0">({(file.size / 1024).toFixed(1)} KB)</span>
+													</div>
+													<button
+														type="button"
+														onClick={() => handleRemoveDocument(index)}
+														className="text-red-500 hover:text-red-700 ml-2 flex-shrink-0"
+													>
+														<X className="w-4 h-4" />
+													</button>
+												</div>
+											))}
+										</div>
 									)}
 								</div>
 
