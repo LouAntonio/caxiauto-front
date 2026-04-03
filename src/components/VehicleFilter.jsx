@@ -1,7 +1,24 @@
 import React, { useState, useEffect } from 'react'
 import { Search, RotateCcw, Car, Fuel, Settings, Gauge, Calendar, Wallet } from 'lucide-react'
+import api from '../services/api'
+
+// Enums alinhados com o schema (FuelType e TransmissionType)
+const FUEL_TYPES = [
+	{ value: 'GASOLINE', label: 'Gasolina' },
+	{ value: 'DIESEL', label: 'Diesel' },
+	{ value: 'ELECTRIC', label: 'Elétrico' },
+	{ value: 'HYBRID', label: 'Híbrido' },
+]
+
+const TRANSMISSION_TYPES = [
+	{ value: 'MANUAL', label: 'Manual' },
+	{ value: 'AUTOMATIC', label: 'Automática' },
+	{ value: 'SEMI_AUTOMATIC', label: 'Semi-Automática' },
+]
 
 export default function VehicleFilter({ onFilterChange, initialFilters = {} }) {
+	const [manufacturers, setManufacturers] = useState([])
+	const [classes, setClasses] = useState([])
 	const [filters, setFilters] = useState({
 		pesquisa: '',
 		marca: '',
@@ -14,6 +31,27 @@ export default function VehicleFilter({ onFilterChange, initialFilters = {} }) {
 		destaque: false,
 		...initialFilters
 	})
+
+	// Buscar fabricantes e classes da API
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				const [mfrRes, clsRes] = await Promise.all([
+					api.getManufacturers(),
+					api.getClasses()
+				])
+				if (mfrRes.success && mfrRes.data) {
+					setManufacturers(mfrRes.data)
+				}
+				if (clsRes.success && clsRes.data) {
+					setClasses(clsRes.data)
+				}
+			} catch (error) {
+				console.error('Erro ao buscar fabricantes/classes:', error)
+			}
+		}
+		fetchData()
+	}, [])
 
 	// Atualizar filtros quando initialFilters mudar
 	useEffect(() => {
@@ -90,18 +128,9 @@ export default function VehicleFilter({ onFilterChange, initialFilters = {} }) {
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todas</option>
-							<option>Toyota</option>
-							<option>Ford</option>
-							<option>Chevrolet</option>
-							<option>Honda</option>
-							<option>Nissan</option>
-							<option>Mercedes-Benz</option>
-							<option>BMW</option>
-							<option>Audi</option>
-							<option>Volkswagen</option>
-							<option>Hyundai</option>
-							<option>Kia</option>
-							<option>Mazda</option>
+							{manufacturers.map((mfr) => (
+								<option key={mfr.id} value={mfr.id}>{mfr.name}</option>
+							))}
 						</select>
 					</div>
 
@@ -116,14 +145,9 @@ export default function VehicleFilter({ onFilterChange, initialFilters = {} }) {
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todas</option>
-							<option>SUV</option>
-							<option>Sedan</option>
-							<option>Hatchback</option>
-							<option>Pickup</option>
-							<option>Van</option>
-							<option>Coupé</option>
-							<option>Minivan</option>
-							<option>Crossover</option>
+							{classes.map((cls) => (
+								<option key={cls.id} value={cls.id}>{cls.name}</option>
+							))}
 						</select>
 					</div>
 				</div>
@@ -141,10 +165,9 @@ export default function VehicleFilter({ onFilterChange, initialFilters = {} }) {
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todos</option>
-							<option>Gasolina</option>
-							<option>Diesel</option>
-							<option>Elétrico</option>
-							<option>Híbrido</option>
+							{FUEL_TYPES.map((fuel) => (
+								<option key={fuel.value} value={fuel.value}>{fuel.label}</option>
+							))}
 						</select>
 					</div>
 
@@ -159,8 +182,9 @@ export default function VehicleFilter({ onFilterChange, initialFilters = {} }) {
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todas</option>
-							<option>Manual</option>
-							<option>Automática</option>
+							{TRANSMISSION_TYPES.map((trans) => (
+								<option key={trans.value} value={trans.value}>{trans.label}</option>
+							))}
 						</select>
 					</div>
 				</div>

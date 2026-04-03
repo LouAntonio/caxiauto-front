@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Package, Star, Search, Layers, Filter, Loader, X, Heart } from 'lucide-react'
+import { Package, Search, Layers, Loader, X, Heart, MapPin } from 'lucide-react'
 import Pagination from '../../components/Pagination'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { getImageUrl, notyf } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
+
+// Enum de províncias alinhado com o schema
+const PROVINCIAS = [
+	'LUANDA', 'BENGUELA', 'HUAMBO', 'HUILA', 'CABINDA', 'NAMIBE',
+	'BENGO', 'CUANZA_NORTE', 'CUANZA_SUL', 'CUNENE', 'BIE', 'MOXICO',
+	'LUNDA_NORTE', 'LUNDA_SUL', 'UIGE', 'ZAIRE', 'CUANDO_CUBANGO', 'MALANJE'
+]
 
 export default function PecasAcessorios() {
 	useDocumentTitle('Peças e Acessórios - Caxiauto')
 
 	const [searchTerm, setSearchTerm] = useState('')
 	const [selectedCategory, setSelectedCategory] = useState('')
+	const [selectedProvincia, setSelectedProvincia] = useState('')
 	const [featuredOnly, setFeaturedOnly] = useState(false)
 
 	// Estados para filtros aplicados (usados na API)
 	const [appliedSearchTerm, setAppliedSearchTerm] = useState('')
 	const [appliedCategory, setAppliedCategory] = useState('')
+	const [appliedProvincia, setAppliedProvincia] = useState('')
 	const [appliedFeaturedOnly, setAppliedFeaturedOnly] = useState(false)
 
 	const [currentPage, setCurrentPage] = useState(1)
@@ -38,6 +47,7 @@ export default function PecasAcessorios() {
 	const handleApplyFilters = () => {
 		setAppliedSearchTerm(searchTerm)
 		setAppliedCategory(selectedCategory)
+		setAppliedProvincia(selectedProvincia)
 		setAppliedFeaturedOnly(featuredOnly)
 		setCurrentPage(1)
 	}
@@ -46,9 +56,11 @@ export default function PecasAcessorios() {
 	const handleClearFilters = () => {
 		setSearchTerm('')
 		setSelectedCategory('')
+		setSelectedProvincia('')
 		setFeaturedOnly(false)
 		setAppliedSearchTerm('')
 		setAppliedCategory('')
+		setAppliedProvincia('')
 		setAppliedFeaturedOnly(false)
 		setCurrentPage(1)
 	}
@@ -92,7 +104,7 @@ export default function PecasAcessorios() {
 		fetchParts()
 	}, [])
 
-	// Carregar peças
+	// Carregar peças com filtros aplicados
 	useEffect(() => {
 		const fetchParts = async () => {
 			setLoading(true)
@@ -110,8 +122,12 @@ export default function PecasAcessorios() {
 					params.categoria = appliedCategory
 				}
 
+				if (appliedProvincia) {
+					params.provincia = appliedProvincia
+				}
+
 				if (appliedFeaturedOnly) {
-					params.destaque = true
+					params.featured = 'true'
 				}
 
 				const response = await api.listPecas(params)
@@ -126,7 +142,7 @@ export default function PecasAcessorios() {
 			}
 		}
 		fetchParts()
-	}, [currentPage, appliedSearchTerm, appliedCategory, appliedFeaturedOnly, sortBy])
+	}, [currentPage, appliedSearchTerm, appliedCategory, appliedProvincia, appliedFeaturedOnly])
 
 	// Buscar favoritos do usuário quando autenticado
 	useEffect(() => {
@@ -151,12 +167,6 @@ export default function PecasAcessorios() {
 
 		fetchFavorites()
 	}, [isAuthenticated])
-
-	// Funções auxiliares
-	const getRating = (part) => {
-		// Se não tem avaliação, retorna uma padrão entre 4.0 e 4.9
-		return 4.0 + Math.random() * 0.9
-	}
 
 	// Função para adicionar/remover favorito
 	const toggleFavorite = async (e, partId) => {
@@ -279,16 +289,16 @@ export default function PecasAcessorios() {
 											{/* Categorias da API */}
 											{categories.map((category) => (
 												<button
-													key={category._id}
-													onClick={() => setSelectedCategory(category._id)}
-													className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${selectedCategory === category._id
+													key={category.id}
+													onClick={() => setSelectedCategory(category.id)}
+													className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${selectedCategory === category.id
 														? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md'
 														: 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-sm'
 														}`}
 												>
-
-													<span className="capitalize">{category.nome}</span>
-													{selectedCategory === category._id && (
+													<Layers className="w-4 h-4" />
+													<span className="capitalize">{category.name}</span>
+													{selectedCategory === category.id && (
 														<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
 															<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
 														</svg>
@@ -296,6 +306,24 @@ export default function PecasAcessorios() {
 												</button>
 											))}
 										</div>
+									</div>
+
+									{/* Província */}
+									<div className="space-y-2">
+										<label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+											<MapPin className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+											Província
+										</label>
+										<select
+											value={selectedProvincia}
+											onChange={(e) => setSelectedProvincia(e.target.value)}
+											className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 bg-white outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm cursor-pointer"
+										>
+											<option value="">Todas</option>
+											{PROVINCIAS.map((prov) => (
+												<option key={prov} value={prov}>{prov.charAt(0) + prov.slice(1).toLowerCase().replace('_', ' ')}</option>
+											))}
+										</select>
 									</div>
 
 									{/* Filtro Em Destaque */}
@@ -313,7 +341,7 @@ export default function PecasAcessorios() {
 										</label>
 									</div>
 
-									{/* Bot\u00f5es de A\u00e7\u00e3o */}
+									{/* Botões de Ação */}
 									<div className="flex gap-2 pt-2">
 										<button
 											onClick={handleApplyFilters}
@@ -368,10 +396,8 @@ export default function PecasAcessorios() {
 							</div>
 						) : (
 							<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-								{parts.map((part) => {
-									const rating = getRating(part)
-									return (
-										<article
+								{parts.map((part) => (
+									<article
 											key={part.id}
 											className="flex flex-col w-full bg-white rounded-2xl shadow-lg overflow-hidden group h-full"
 										>
@@ -447,8 +473,7 @@ export default function PecasAcessorios() {
 												</div>
 											</div>
 										</article>
-									)
-								})}
+								))}
 							</div>
 						)}
 						{/* Pagination */}

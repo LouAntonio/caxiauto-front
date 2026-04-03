@@ -41,16 +41,16 @@ export default function Compra() {
 				limit: vehiclesPerPage,
 			})
 
-			// Mapear filtros do português para inglês e adicionar à query
+			// Mapear filtros e adicionar à query
 			if (activeFilters.marca) params.append('manufacturer', activeFilters.marca)
 			if (activeFilters.classe) params.append('class', activeFilters.classe)
 			if (activeFilters.combustivel) {
-				// Normalizar o combustível para lowercase
-				params.append('fuelType', activeFilters.combustivel.toLowerCase())
+				// Já vem como enum UPPERCASE (GASOLINE, DIESEL, etc.)
+				params.append('fuelType', activeFilters.combustivel)
 			}
 			if (activeFilters.transmissao) {
-				// Normalizar a transmissão para lowercase
-				params.append('transmission', activeFilters.transmissao.toLowerCase())
+				// Já vem como enum UPPERCASE (MANUAL, AUTOMATIC, etc.)
+				params.append('transmission', activeFilters.transmissao)
 			}
 
 			// Processar faixa de preço

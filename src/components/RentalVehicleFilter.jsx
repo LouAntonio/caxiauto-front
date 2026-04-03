@@ -1,7 +1,24 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Search, RotateCcw, Car, Fuel, Settings, Calendar, Wallet } from 'lucide-react'
+import api from '../services/api'
+
+// Enums alinhados com o schema (FuelType e TransmissionType)
+const FUEL_TYPES = [
+	{ value: 'GASOLINE', label: 'Gasolina' },
+	{ value: 'DIESEL', label: 'Diesel' },
+	{ value: 'ELECTRIC', label: 'Elétrico' },
+	{ value: 'HYBRID', label: 'Híbrido' },
+]
+
+const TRANSMISSION_TYPES = [
+	{ value: 'MANUAL', label: 'Manual' },
+	{ value: 'AUTOMATIC', label: 'Automática' },
+	{ value: 'SEMI_AUTOMATIC', label: 'Semi-Automática' },
+]
 
 export default function RentalVehicleFilter({ onFilterChange }) {
+	const [manufacturers, setManufacturers] = useState([])
+	const [classes, setClasses] = useState([])
 	const [filters, setFilters] = useState({
 		search: '',
 		manufacturer: '',
@@ -14,6 +31,27 @@ export default function RentalVehicleFilter({ onFilterChange }) {
 		maxYear: '',
 		featured: false
 	})
+
+	// Buscar fabricantes e classes da API
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				const [mfrRes, clsRes] = await Promise.all([
+					api.getManufacturers(),
+					api.getClasses()
+				])
+				if (mfrRes.success && mfrRes.data) {
+					setManufacturers(mfrRes.data)
+				}
+				if (clsRes.success && clsRes.data) {
+					setClasses(clsRes.data)
+				}
+			} catch (error) {
+				console.error('Erro ao buscar fabricantes/classes:', error)
+			}
+		}
+		fetchData()
+	}, [])
 
 	const handleChange = (field, value) => {
 		const newFilters = {
@@ -84,20 +122,9 @@ export default function RentalVehicleFilter({ onFilterChange }) {
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todas</option>
-							<option value="Toyota">Toyota</option>
-							<option value="Ford">Ford</option>
-							<option value="Chevrolet">Chevrolet</option>
-							<option value="Honda">Honda</option>
-							<option value="Nissan">Nissan</option>
-							<option value="Mercedes-Benz">Mercedes-Benz</option>
-							<option value="BMW">BMW</option>
-							<option value="Audi">Audi</option>
-							<option value="Volkswagen">Volkswagen</option>
-							<option value="Hyundai">Hyundai</option>
-							<option value="Kia">Kia</option>
-							<option value="Mazda">Mazda</option>
-							<option value="Renault">Renault</option>
-							<option value="Peugeot">Peugeot</option>
+							{manufacturers.map((mfr) => (
+								<option key={mfr.id} value={mfr.id}>{mfr.name}</option>
+							))}
 						</select>
 					</div>
 
@@ -112,16 +139,9 @@ export default function RentalVehicleFilter({ onFilterChange }) {
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todas</option>
-							<option value="SUV">SUV</option>
-							<option value="Sedan">Sedan</option>
-							<option value="Hatchback">Hatchback</option>
-							<option value="Pickup">Pickup</option>
-							<option value="Van">Van</option>
-							<option value="Coupé">Coupé</option>
-							<option value="Minivan">Minivan</option>
-							<option value="Crossover">Crossover</option>
-							<option value="Compacto">Compacto</option>
-							<option value="Executivo">Executivo</option>
+							{classes.map((cls) => (
+								<option key={cls.id} value={cls.id}>{cls.name}</option>
+							))}
 						</select>
 					</div>
 				</div>
@@ -139,10 +159,9 @@ export default function RentalVehicleFilter({ onFilterChange }) {
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todos</option>
-							<option value="Gasolina">Gasolina</option>
-							<option value="Diesel">Diesel</option>
-							<option value="Elétrico">Elétrico</option>
-							<option value="Híbrido">Híbrido</option>
+							{FUEL_TYPES.map((fuel) => (
+								<option key={fuel.value} value={fuel.value}>{fuel.label}</option>
+							))}
 						</select>
 					</div>
 
@@ -157,8 +176,9 @@ export default function RentalVehicleFilter({ onFilterChange }) {
 							className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 bg-white outline-none transition-all cursor-pointer hover:border-indigo-300 text-gray-700 text-sm"
 						>
 							<option value="">Todas</option>
-							<option value="Manual">Manual</option>
-							<option value="Automática">Automática</option>
+							{TRANSMISSION_TYPES.map((trans) => (
+								<option key={trans.value} value={trans.value}>{trans.label}</option>
+							))}
 						</select>
 					</div>
 				</div>
