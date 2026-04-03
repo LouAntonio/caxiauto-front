@@ -382,7 +382,7 @@ const api = {
 
 	getMyReviews: (params = {}) => {
 		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/reviews/my?${queryString}`);
+		return api.get(`/reviews/my-reviews?${queryString}`);
 	},
 
 	getReviewSummary: (sellerId) => {
