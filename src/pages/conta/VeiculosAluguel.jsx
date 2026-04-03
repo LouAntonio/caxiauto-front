@@ -19,9 +19,7 @@ import {
 	Eye,
 	EyeOff,
 	AlertTriangle,
-	Calendar,
-	Shield,
-	Clock
+	ImageIcon
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import api, { API_URL, getImageUrl } from '../../services/api';
@@ -36,7 +34,7 @@ const VeiculosAluguel = () => {
 	const [message, setMessage] = useState({ type: '', text: '' });
 	const [loading, setLoading] = useState(false);
 	const [mediaFiles, setMediaFiles] = useState([]);
-	const [livreteFile, setLivreteFile] = useState(null);
+	const [documentsFiles, setDocumentsFiles] = useState([]);
 	const [newCharacteristic, setNewCharacteristic] = useState('');
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [confirmAction, setConfirmAction] = useState(null);
@@ -52,23 +50,14 @@ const VeiculosAluguel = () => {
 		manufacturerId: '',
 		classId: '',
 		fuelType: 'GASOLINE',
-		transmission: 'manual',
+		transmission: 'MANUAL',
 		year: '',
 		kilometers: '',
-		passangers: '',
-		color: '',
-		location: '',
-		door: '',
+		doorCount: '',
+		passengerCapacity: '',
+		provincia: '',
 		characteristics: [],
-		rentalPrices: [
-			{ period: 'diário', price: '' }
-		],
-		minRentalPeriod: 'diário',
-		deposit: '',
-		insurance: false,
-		insuranceCost: '',
-		available: true,
-		availableFrom: ''
+		priceRentDay: ''
 	});
 
 	// Carregar veículos e dados de referência
@@ -104,9 +93,13 @@ const VeiculosAluguel = () => {
 
 	const loadVehicles = async () => {
 		try {
-			const response = await api.get('/aluguelveiculos?myVehicles=true');
+			const response = await api.get('/vehicles/my-vehicles');
 			if (response.success) {
-				setVehicles(response.data);
+				// Filtrar apenas veículos de aluguel (RENT ou BOTH)
+				const rentVehicles = (response.data || []).filter(
+					v => v.type === 'RENT' || v.type === 'BOTH'
+				);
+				setVehicles(rentVehicles);
 			}
 		} catch (error) {
 			console.error('Erro ao carregar veículos:', error);
@@ -124,36 +117,11 @@ const VeiculosAluguel = () => {
 	};
 
 	const handleChange = (e) => {
-		const { name, value, type, checked } = e.target;
+		const { name, value } = e.target;
 		setFormData(prev => ({
 			...prev,
-			[name]: type === 'checkbox' ? checked : value
+			[name]: value
 		}));
-	};
-
-	const handleRentalPriceChange = (index, field, value) => {
-		setFormData(prev => ({
-			...prev,
-			rentalPrices: prev.rentalPrices.map((price, i) =>
-				i === index ? { ...price, [field]: value } : price
-			)
-		}));
-	};
-
-	const addRentalPrice = () => {
-		setFormData(prev => ({
-			...prev,
-			rentalPrices: [...prev.rentalPrices, { period: 'semanal', price: '' }]
-		}));
-	};
-
-	const removeRentalPrice = (index) => {
-		if (formData.rentalPrices.length > 1) {
-			setFormData(prev => ({
-				...prev,
-				rentalPrices: prev.rentalPrices.filter((_, i) => i !== index)
-			}));
-		}
 	};
 
 	const handleMediaChange = (e) => {
@@ -161,9 +129,13 @@ const VeiculosAluguel = () => {
 		setMediaFiles(files);
 	};
 
-	const handleLivreteChange = (e) => {
-		const file = e.target.files[0];
-		setLivreteFile(file);
+	const handleDocumentsChange = (e) => {
+		const files = Array.from(e.target.files);
+		setDocumentsFiles(prev => [...prev, ...files]);
+	};
+
+	const handleRemoveDocument = (index) => {
+		setDocumentsFiles(prev => prev.filter((_, i) => i !== index));
 	};
 
 	const handleAddCharacteristic = () => {
@@ -190,26 +162,17 @@ const VeiculosAluguel = () => {
 			manufacturerId: '',
 			classId: '',
 			fuelType: 'GASOLINE',
-			transmission: 'manual',
+			transmission: 'MANUAL',
 			year: '',
 			kilometers: '',
-			passangers: '',
-			color: '',
-			location: '',
-			door: '',
+			doorCount: '',
+			passengerCapacity: '',
+			provincia: '',
 			characteristics: [],
-			rentalPrices: [
-				{ period: 'diário', price: '' }
-			],
-			minRentalPeriod: 'diário',
-			deposit: '',
-			insurance: false,
-			insuranceCost: '',
-			available: true,
-			availableFrom: ''
+			priceRentDay: ''
 		});
 		setMediaFiles([]);
-		setLivreteFile(null);
+		setDocumentsFiles([]);
 		setNewCharacteristic('');
 		setEditingVehicle(null);
 	};
@@ -223,21 +186,14 @@ const VeiculosAluguel = () => {
 				manufacturerId: vehicle.manufacturerId || vehicle.Manufacturer?.id || '',
 				classId: vehicle.classId || vehicle.Class?.id || '',
 				fuelType: vehicle.fuelType || 'GASOLINE',
-				transmission: vehicle.transmission || 'manual',
+				transmission: vehicle.transmission || 'MANUAL',
 				year: vehicle.year || '',
 				kilometers: vehicle.kilometers || '',
-				passangers: vehicle.passangers || '',
-				color: vehicle.color || '',
-				location: vehicle.location || '',
-				door: vehicle.door || '',
+				doorCount: vehicle.doorCount || '',
+				passengerCapacity: vehicle.passengerCapacity || '',
+				provincia: vehicle.provincia || '',
 				characteristics: vehicle.characteristics || [],
-				rentalPrices: vehicle.rentalPrices && vehicle.rentalPrices.length > 0 ? vehicle.rentalPrices : [{ period: 'diário', price: '' }],
-				minRentalPeriod: vehicle.minRentalPeriod || 'diário',
-				deposit: vehicle.deposit || '',
-				insurance: vehicle.insurance || false,
-				insuranceCost: vehicle.insuranceCost || '',
-				available: vehicle.available !== undefined ? vehicle.available : true,
-				availableFrom: vehicle.availableFrom ? new Date(vehicle.availableFrom).toISOString().split('T')[0] : ''
+				priceRentDay: vehicle.priceRentDay || ''
 			});
 		} else {
 			resetForm();
@@ -253,16 +209,12 @@ const VeiculosAluguel = () => {
 	};
 
 	const uploadToCloudinary = async (file, folder) => {
-		// 1. Obter assinatura do backend
 		const signatureResponse = await api.get(`/cloudinary/authorize-upload?folder=${folder}`);
-
 		if (!signatureResponse.success) {
 			throw new Error('Não foi possível autorizar o upload.');
 		}
-
 		const { timestamp, signature, cloudname, apikey } = signatureResponse;
 
-		// 2. Upload para o Cloudinary
 		const formData = new FormData();
 		formData.append('file', file);
 		formData.append('api_key', apikey);
@@ -290,16 +242,8 @@ const VeiculosAluguel = () => {
 		// Validação básica
 		if (!formData.name || !formData.description || !formData.manufacturerId ||
 			!formData.classId || !formData.year || !formData.kilometers ||
-			!formData.passangers || !formData.color ||
-			!formData.location || !formData.door) {
+			!formData.priceRentDay || !formData.provincia || !formData.doorCount || !formData.passengerCapacity) {
 			setMessage({ type: 'error', text: 'Por favor, preencha todos os campos obrigatórios.' });
-			return;
-		}
-
-		// Validar preços de aluguel
-		const hasValidPrice = formData.rentalPrices.some(rp => rp.period && rp.price && parseFloat(rp.price) > 0);
-		if (!hasValidPrice) {
-			setMessage({ type: 'error', text: 'É necessário definir pelo menos um preço de aluguel.' });
 			return;
 		}
 
@@ -308,53 +252,49 @@ const VeiculosAluguel = () => {
 			return;
 		}
 
-		if (!livreteFile && !editingVehicle) {
-			setMessage({ type: 'error', text: 'É necessário enviar o documento do veículo (livrete).' });
-			return;
-		}
-
 		setLoading(true);
 
 		try {
-			// Upload de Imagens
-			let mediaUrls = [];
+			// Upload de imagens
+			let uploadedImages = [];
 			if (mediaFiles.length > 0) {
-				const uploadPromises = mediaFiles.map(file => uploadToCloudinary(file, 'rentCar'));
-				mediaUrls = await Promise.all(uploadPromises);
+				const imageUploadPromises = mediaFiles.map(file => uploadToCloudinary(file, 'rentCar'));
+				uploadedImages = await Promise.all(imageUploadPromises);
 			}
 
-			// Upload do Livrete
-			let livreteUrl = null;
-			if (livreteFile) {
-				livreteUrl = await uploadToCloudinary(livreteFile, 'ids'); // ou 'rentCar' se preferir
+			// Upload de documentos
+			let uploadedDocs = [];
+			if (documentsFiles.length > 0) {
+				const docUploadPromises = documentsFiles.map(file => uploadToCloudinary(file, 'rentCar'));
+				uploadedDocs = await Promise.all(docUploadPromises);
 			}
 
-			// Preparar dados para envio (JSON)
+			// Preparar dados para envio (mapeados para o schema Vehicle)
 			const vehicleData = {
-				...formData,
-				characteristics: JSON.stringify(formData.characteristics),
-				rentalPrices: JSON.stringify(formData.rentalPrices.filter(rp => rp.period && rp.price && parseFloat(rp.price) > 0)),
-				deposit: formData.deposit || 0,
-				insuranceCost: formData.insuranceCost || 0,
-				availableFrom: formData.availableFrom || undefined,
+				name: formData.name,
+				description: formData.description,
+				manufacturerId: formData.manufacturerId,
+				classId: formData.classId,
+				fuelType: formData.fuelType,
+				transmission: formData.transmission,
+				type: 'RENT',
+				year: formData.year,
+				kilometers: formData.kilometers,
+				priceRentDay: formData.priceRentDay,
+				doorCount: formData.doorCount,
+				passengerCapacity: formData.passengerCapacity,
+				provincia: formData.provincia,
+				characteristics: formData.characteristics,
+				image: uploadedImages[0],
+				gallery: uploadedImages.slice(1),
+				documents: uploadedDocs
 			};
-
-			// Adicionar URLs se houver novos uploads
-			if (mediaUrls.length > 0) {
-				vehicleData.media = mediaUrls;
-			}
-
-			if (livreteUrl) {
-				vehicleData.livreto = livreteUrl;
-			}
 
 			let response;
 			if (editingVehicle) {
-				// Edição - envia JSON
-				response = await api.put(`/aluguelveiculos/${editingVehicle._id}/edit`, vehicleData);
+				response = await api.put(`/vehicles/${editingVehicle.id}`, vehicleData);
 			} else {
-				// Criação - envia JSON
-				response = await api.post('/aluguelveiculos', vehicleData);
+				response = await api.post('/vehicles', vehicleData);
 			}
 
 			if (response.success) {
@@ -389,7 +329,7 @@ const VeiculosAluguel = () => {
 		setConfirmType('danger');
 		setConfirmAction(() => async () => {
 			try {
-				const response = await api.delete(`/aluguelveiculos/${vehicleId}`);
+				const response = await api.delete(`/vehicles/${vehicleId}`);
 				if (response.success) {
 					setMessage({ type: 'success', text: 'Veículo excluído com sucesso!' });
 					await loadVehicles();
@@ -406,13 +346,13 @@ const VeiculosAluguel = () => {
 	};
 
 	const handleToggleStatus = (vehicleId, currentStatus) => {
-		const newStatus = currentStatus === 'active' ? 'inativo' : 'ativo';
+		const newStatus = currentStatus === 'ACTIVE' ? 'HIDDEN' : 'ACTIVE';
 		setConfirmTitle('Alterar Status');
-		setConfirmMessage(`Tem certeza que deseja tornar este veículo ${newStatus}?`);
-		setConfirmType(currentStatus === 'active' ? 'warning' : 'success');
+		setConfirmMessage(`Tem certeza que deseja tornar este veículo ${newStatus === 'ACTIVE' ? 'ativo' : 'oculto'}?`);
+		setConfirmType(currentStatus === 'ACTIVE' ? 'warning' : 'success');
 		setConfirmAction(() => async () => {
 			try {
-				const response = await api.put(`/aluguelveiculos/${vehicleId}/toggle-status`);
+				const response = await api.put(`/vehicles/${vehicleId}/toggle-status`, { status: newStatus });
 				if (response.success) {
 					setMessage({ type: 'success', text: response.message || 'Status alterado com sucesso!' });
 					await loadVehicles();
@@ -426,51 +366,6 @@ const VeiculosAluguel = () => {
 			}
 		});
 		setShowConfirmModal(true);
-	};
-
-	const handleToggleDisponibilidade = (vehicleId, currentAvailability) => {
-		const newStatus = currentAvailability ? 'indisponível' : 'disponível';
-		setConfirmTitle('Alterar Disponibilidade');
-		setConfirmMessage(`Tem certeza que deseja tornar este veículo ${newStatus} para aluguel?`);
-		setConfirmType(currentAvailability ? 'warning' : 'success');
-		setConfirmAction(() => async () => {
-			try {
-				const response = await api.put(`/aluguelveiculos/${vehicleId}/toggle-disponibilidade`);
-				if (response.success) {
-					setMessage({ type: 'success', text: response.message || 'Disponibilidade alterada com sucesso!' });
-					await loadVehicles();
-					setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-				} else {
-					setMessage({ type: 'error', text: response.message || 'Erro ao alterar disponibilidade.' });
-				}
-			} catch (error) {
-				console.error('Erro ao alterar disponibilidade:', error);
-				setMessage({ type: 'error', text: 'Erro ao alterar disponibilidade do veículo.' });
-			}
-		});
-		setShowConfirmModal(true);
-	};
-
-	const getStatusBadge = (status) => {
-		const statusMap = {
-			'active': { label: 'Ativo', color: 'bg-green-500' },
-			'inactive': { label: 'Inativo', color: 'bg-gray-500' },
-			'suspended': { label: 'Suspenso', color: 'bg-red-500' },
-			'rented': { label: 'Alugado', color: 'bg-purple-500' }
-		};
-		return statusMap[status] || { label: status, color: 'bg-gray-500' };
-	};
-
-	const getPeriodLabel = (period) => {
-		const periodMap = {
-			'diário': 'Dia',
-			'semanal': 'Semana',
-			'mensal': 'Mês',
-			'trimestral': 'Trimestre',
-			'semestral': 'Semestre',
-			'anual': 'Ano'
-		};
-		return periodMap[period] || period;
 	};
 
 	return (
@@ -526,161 +421,100 @@ const VeiculosAluguel = () => {
 				</div>
 			) : (
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-					{vehicles.map(vehicle => {
-						const statusInfo = getStatusBadge(vehicle.status);
-						return (
-							<div key={vehicle._id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
-								{/* Imagem do veículo */}
-								<div className="h-48 bg-gray-200 relative">
-									{vehicle.mainImage ? (
-										<img
-											src={getImageUrl(vehicle.mainImage)}
-											alt={vehicle.name}
-											className="w-full h-full object-cover"
-										/>
-									) : (
-										<div className="w-full h-full flex items-center justify-center">
-											<Car className="w-16 h-16 text-gray-400" />
-										</div>
-									)}
-									<div className="absolute top-3 right-3 flex flex-col gap-2">
-										<div className={`px-3 py-1 rounded-full text-xs font-semibold ${vehicle.aproved ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
-											}`}>
-											{vehicle.aproved ? 'Aprovado' : 'Pendente'}
-										</div>
-										<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${statusInfo.color} text-white`}>
-											{statusInfo.label}
-										</div>
-										{vehicle.available ? (
-											<div className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-500 text-white flex items-center gap-1">
-												<Eye className="w-3 h-3" />
-												Disponível
-											</div>
-										) : (
-											<div className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-500 text-white flex items-center gap-1">
-												<EyeOff className="w-3 h-3" />
-												Indisponível
-											</div>
-										)}
+					{vehicles.map(vehicle => (
+						<div key={vehicle.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+							{/* Imagem do veículo */}
+							<div className="h-48 bg-gray-200 relative">
+								{vehicle.image ? (
+									<img
+										src={getImageUrl(vehicle.image)}
+										alt={vehicle.name}
+										className="w-full h-full object-cover"
+									/>
+								) : (
+									<div className="w-full h-full flex items-center justify-center">
+										<Car className="w-16 h-16 text-gray-400" />
 									</div>
-								</div>
-
-								{/* Informações do veículo */}
-								<div className="p-5">
-									<h3 className="text-xl font-bold text-gray-900 mb-1">
-										{vehicle.name}
-									</h3>
-									<p className="text-gray-600 mb-4 text-sm">
-										{vehicle.manufacturer} • {vehicle.year} • {vehicle.color}
-									</p>
-
-									<div className="space-y-2 mb-4">
-										<div className="flex items-center gap-2 text-sm text-gray-600">
-											<Gauge className="w-4 h-4 text-[#154c9a]" />
-											<span>{vehicle.kilometers ? `${vehicle.kilometers.toLocaleString()} km` : 'Não informado'}</span>
-										</div>
-										<div className="flex items-center gap-2 text-sm text-gray-600">
-											<Fuel className="w-4 h-4 text-[#154c9a]" />
-											<span>{formatFuelType(vehicle.fuelType)}</span>
-										</div>
-										<div className="flex items-center gap-2 text-sm text-gray-600">
-											<Settings className="w-4 h-4 text-[#154c9a]" />
-											<span className="capitalize">{vehicle.transmission}</span>
-										</div>
-										{vehicle.location && (
-											<div className="flex items-center gap-2 text-sm text-gray-600">
-												<MapPin className="w-4 h-4 text-[#154c9a]" />
-												<span>{vehicle.location}</span>
-											</div>
-										)}
-										{vehicle.minRentalPeriod && (
-											<div className="flex items-center gap-2 text-sm text-gray-600">
-												<Clock className="w-4 h-4 text-[#154c9a]" />
-												<span>Período mínimo: {vehicle.minRentalPeriod}</span>
-											</div>
-										)}
-										{vehicle.insurance && (
-											<div className="flex items-center gap-2 text-sm text-green-600">
-												<Shield className="w-4 h-4" />
-												<span>Seguro incluído</span>
-											</div>
-										)}
+								)}
+								<div className="absolute top-3 right-3 flex flex-col gap-2">
+									<div className={`px-3 py-1 rounded-full text-xs font-semibold ${vehicle.isAproved ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
+										}`}>
+										{vehicle.isAproved ? 'Aprovado' : 'Pendente'}
 									</div>
-
-									{/* Preços de aluguel */}
-									{vehicle.rentalPrices && vehicle.rentalPrices.length > 0 && (
-										<div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-											<p className="text-xs font-semibold text-gray-700 mb-2">Preços de Aluguel:</p>
-											<div className="space-y-1">
-												{vehicle.rentalPrices.map((rp, idx) => (
-													<div key={idx} className="flex items-center justify-between text-sm">
-														<span className="text-gray-600 capitalize">{getPeriodLabel(rp.period)}:</span>
-														<span className="font-semibold text-[#154c9a]">{rp.price.toLocaleString()} Kz</span>
-													</div>
-												))}
-											</div>
-										</div>
-									)}
-
-									{/* Estatísticas de visualizações */}
-									<div className="flex items-center justify-between pt-3 border-t">
-										<div className="flex items-center gap-2 text-sm">
-											<Eye className="w-4 h-4 text-purple-500" />
-											<span className="font-medium text-purple-600">
-												{vehicle.viewCount || 0}
-											</span>
-											<span className="text-gray-500">total</span>
-										</div>
-										<div className="flex items-center gap-2 text-sm">
-											<Eye className="w-4 h-4 text-blue-500" />
-											<span className="font-medium text-blue-600">
-												{vehicle.todayViewCount || 0}
-											</span>
-											<span className="text-gray-500">hoje</span>
-										</div>
-									</div>
-
-									{/* Botões de ação */}
-									<div className="flex gap-2 pt-4 border-t">
-										<button
-											onClick={() => handleOpenModal(vehicle)}
-											className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#154c9a] text-white rounded-lg hover:bg-[#123f80] transition-colors cursor-pointer"
-										>
-											<Edit2 className="w-4 h-4" />
-											Editar
-										</button>
-										<button
-											onClick={() => handleToggleDisponibilidade(vehicle._id, vehicle.available)}
-											className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors cursor-pointer ${vehicle.available
-												? 'bg-orange-500 text-white hover:bg-orange-600'
-												: 'bg-green-500 text-white hover:bg-green-600'
-												}`}
-											title={vehicle.available ? 'Marcar como indisponível' : 'Marcar como disponível'}
-										>
-											{vehicle.available ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-										</button>
-										<button
-											onClick={() => handleToggleStatus(vehicle._id, vehicle.status)}
-											className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors cursor-pointer ${vehicle.status === 'active'
-												? 'bg-gray-500 text-white hover:bg-gray-600'
-												: 'bg-blue-500 text-white hover:bg-blue-600'
-												}`}
-											title={vehicle.status === 'active' ? 'Desativar veículo' : 'Ativar veículo'}
-										>
-											<Power className="w-4 h-4" />
-										</button>
-										<button
-											onClick={() => handleDelete(vehicle._id)}
-											className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
-											title="Excluir veículo"
-										>
-											<Trash2 className="w-4 h-4" />
-										</button>
+									<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${vehicle.status === 'ACTIVE' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
+										}`}>
+										<Eye className="w-3 h-3" />
+										{vehicle.status === 'ACTIVE' ? 'Visível' : 'Oculto'}
 									</div>
 								</div>
 							</div>
-						);
-					})}
+
+							{/* Informações do veículo */}
+							<div className="p-5">
+								<h3 className="text-xl font-bold text-gray-900 mb-1">
+									{vehicle.name}
+								</h3>
+								<p className="text-gray-600 mb-4 text-sm">
+									{vehicle.Manufacturer?.name} • {vehicle.year}
+								</p>
+
+								<div className="space-y-2 mb-4">
+									<div className="flex items-center gap-2 text-sm text-gray-600">
+										<Gauge className="w-4 h-4 text-[#154c9a]" />
+										<span>{vehicle.kilometers ? `${vehicle.kilometers.toLocaleString()} km` : 'Não informado'}</span>
+									</div>
+									<div className="flex items-center gap-2 text-sm text-gray-600">
+										<Fuel className="w-4 h-4 text-[#154c9a]" />
+										<span>{formatFuelType(vehicle.fuelType)}</span>
+									</div>
+									<div className="flex items-center gap-2 text-sm text-gray-600">
+										<Settings className="w-4 h-4 text-[#154c9a]" />
+										<span className="capitalize">{vehicle.transmission}</span>
+									</div>
+									{vehicle.provincia && (
+										<div className="flex items-center gap-2 text-sm text-gray-600">
+											<MapPin className="w-4 h-4 text-[#154c9a]" />
+											<span>{vehicle.provincia}</span>
+										</div>
+									)}
+									{vehicle.priceRentDay && (
+										<div className="flex items-center gap-2 text-sm font-semibold text-[#154c9a]">
+											<DollarSign className="w-4 h-4" />
+											<span>{Number(vehicle.priceRentDay).toLocaleString('pt-AO')} Kz/dia</span>
+										</div>
+									)}
+								</div>
+
+								{/* Botões de ação */}
+								<div className="flex gap-2 pt-4 border-t">
+									<button
+										onClick={() => handleOpenModal(vehicle)}
+										className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#154c9a] text-white rounded-lg hover:bg-[#123f80] transition-colors cursor-pointer"
+									>
+										<Edit2 className="w-4 h-4" />
+										Editar
+									</button>
+									<button
+										onClick={() => handleToggleStatus(vehicle.id, vehicle.status)}
+										className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors cursor-pointer ${vehicle.status === 'ACTIVE'
+											? 'bg-gray-500 text-white hover:bg-gray-600'
+											: 'bg-blue-500 text-white hover:bg-blue-600'
+											}`}
+										title={vehicle.status === 'ACTIVE' ? 'Ocultar veículo' : 'Ativar veículo'}
+									>
+										<Power className="w-4 h-4" />
+									</button>
+									<button
+										onClick={() => handleDelete(vehicle.id)}
+										className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
+										title="Excluir veículo"
+									>
+										<Trash2 className="w-4 h-4" />
+									</button>
+								</div>
+							</div>
+						</div>
+					))}
 				</div>
 			)}
 
@@ -726,10 +560,9 @@ const VeiculosAluguel = () => {
 										value={formData.name}
 										onChange={handleChange}
 										required
-										placeholder="Ex: Toyota Corolla 2020 XEI Automático"
+										placeholder="Ex: Toyota Corolla 2020 para Aluguel"
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									/>
-									<p className="text-sm text-gray-500 mt-2">Título que aparecerá no anúncio do veículo</p>
 								</div>
 
 								{/* Marca */}
@@ -788,18 +621,19 @@ const VeiculosAluguel = () => {
 									/>
 								</div>
 
-								{/* Cor */}
+								{/* Preço por dia */}
 								<div>
 									<label className="block text-gray-700 font-semibold mb-2">
-										Cor <span className="text-red-500">*</span>
+										Preço por Dia (Kz) <span className="text-red-500">*</span>
 									</label>
 									<input
-										type="text"
-										name="color"
-										value={formData.color}
+										type="number"
+										name="priceRentDay"
+										value={formData.priceRentDay}
 										onChange={handleChange}
 										required
-										placeholder="Ex: Preto, Branco, Prata"
+										placeholder="Ex: 25000"
+										min="0"
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									/>
 								</div>
@@ -810,8 +644,8 @@ const VeiculosAluguel = () => {
 										Número de Portas <span className="text-red-500">*</span>
 									</label>
 									<select
-										name="door"
-										value={formData.door}
+										name="doorCount"
+										value={formData.doorCount}
 										onChange={handleChange}
 										required
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
@@ -831,8 +665,8 @@ const VeiculosAluguel = () => {
 									</label>
 									<input
 										type="number"
-										name="passangers"
-										value={formData.passangers}
+										name="passengerCapacity"
+										value={formData.passengerCapacity}
 										onChange={handleChange}
 										required
 										placeholder="Ex: 5"
@@ -878,7 +712,7 @@ const VeiculosAluguel = () => {
 									</select>
 								</div>
 
-								{/* Câmbio */}
+								{/* Transmissão */}
 								<div>
 									<label className="block text-gray-700 font-semibold mb-2">
 										Transmissão <span className="text-red-500">*</span>
@@ -890,175 +724,44 @@ const VeiculosAluguel = () => {
 										required
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									>
-										<option value="manual">Manual</option>
-										<option value="automática">Automática</option>
+										<option value="MANUAL">Manual</option>
+										<option value="AUTOMATIC">Automática</option>
+										<option value="SEMI_AUTOMATIC">Semi-Automática</option>
 									</select>
 								</div>
 
-								{/* Localização */}
+								{/* Província */}
 								<div className="md:col-span-2">
 									<label className="block text-gray-700 font-semibold mb-2">
-										Localização <span className="text-red-500">*</span>
-									</label>
-									<input
-										type="text"
-										name="location"
-										value={formData.location}
-										onChange={handleChange}
-										required
-										placeholder="Ex: Luanda, Angola"
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
-									/>
-								</div>
-
-								{/* Seção de Preços de Aluguel */}
-								<div className="md:col-span-2 border-t-2 border-gray-200 pt-6 mt-4">
-									<h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-										<DollarSign className="w-5 h-5 text-[#154c9a]" />
-										Preços de Aluguel
-									</h3>
-
-									{formData.rentalPrices.map((rentalPrice, index) => (
-										<div key={index} className="flex gap-3 mb-3">
-											<select
-												value={rentalPrice.period}
-												onChange={(e) => handleRentalPriceChange(index, 'period', e.target.value)}
-												className="px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
-											>
-												<option value="diário">Diário</option>
-												<option value="semanal">Semanal</option>
-												<option value="mensal">Mensal</option>
-												<option value="trimestral">Trimestral</option>
-												<option value="semestral">Semestral</option>
-												<option value="anual">Anual</option>
-											</select>
-											<input
-												type="number"
-												value={rentalPrice.price}
-												onChange={(e) => handleRentalPriceChange(index, 'price', e.target.value)}
-												placeholder="Preço (Kz)"
-												min="0"
-												className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
-											/>
-											{formData.rentalPrices.length > 1 && (
-												<button
-													type="button"
-													onClick={() => removeRentalPrice(index)}
-													className="px-4 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors"
-												>
-													<X className="w-5 h-5" />
-												</button>
-											)}
-										</div>
-									))}
-
-									<button
-										type="button"
-										onClick={addRentalPrice}
-										className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-colors"
-									>
-										<Plus className="w-4 h-4" />
-										Adicionar Período
-									</button>
-									<p className="text-sm text-gray-500 mt-2">Define preços diferentes para períodos de aluguel variados</p>
-								</div>
-
-								{/* Período Mínimo de Aluguel */}
-								<div>
-									<label className="block text-gray-700 font-semibold mb-2">
-										Período Mínimo de Aluguel
+										Província <span className="text-red-500">*</span>
 									</label>
 									<select
-										name="minRentalPeriod"
-										value={formData.minRentalPeriod}
+										name="provincia"
+										value={formData.provincia}
 										onChange={handleChange}
+										required
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									>
-										<option value="diário">Diário</option>
-										<option value="semanal">Semanal</option>
-										<option value="mensal">Mensal</option>
+										<option value="">Selecione uma província</option>
+										<option value="LUANDA">Luanda</option>
+										<option value="BENGUELA">Benguela</option>
+										<option value="HUAMBO">Huambo</option>
+										<option value="HUILA">Huíla</option>
+										<option value="CABINDA">Cabinda</option>
+										<option value="NAMIBE">Namibe</option>
+										<option value="BENGO">Bengo</option>
+										<option value="CUANZA_NORTE">Cuanza Norte</option>
+										<option value="CUANZA_SUL">Cuanza Sul</option>
+										<option value="CUNENE">Cunene</option>
+										<option value="BIE">Bié</option>
+										<option value="MOXICO">Moxico</option>
+										<option value="LUNDA_NORTE">Lunda Norte</option>
+										<option value="LUNDA_SUL">Lunda Sul</option>
+										<option value="UIGE">Uíge</option>
+										<option value="ZAIRE">Zaire</option>
+										<option value="CUANDO_CUBANGO">Cuando Cubango</option>
+										<option value="MALANJE">Malanje</option>
 									</select>
-								</div>
-
-								{/* Depósito */}
-								<div>
-									<label className="block text-gray-700 font-semibold mb-2">
-										Depósito/Caução (Kz)
-									</label>
-									<input
-										type="number"
-										name="deposit"
-										value={formData.deposit}
-										onChange={handleChange}
-										placeholder="Ex: 50000"
-										min="0"
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
-									/>
-								</div>
-
-								{/* Seguro */}
-								<div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
-									<input
-										type="checkbox"
-										id="insurance"
-										name="insurance"
-										checked={formData.insurance}
-										onChange={handleChange}
-										className="w-5 h-5 text-[#154c9a] border-gray-300 rounded"
-									/>
-									<label htmlFor="insurance" className="flex items-center gap-2 text-gray-700 font-semibold cursor-pointer">
-										<Shield className="w-5 h-5 text-[#154c9a]" />
-										Seguro Incluído
-									</label>
-								</div>
-
-								{/* Custo do Seguro (se incluído) */}
-								{formData.insurance && (
-									<div>
-										<label className="block text-gray-700 font-semibold mb-2">
-											Custo do Seguro (Kz/dia)
-										</label>
-										<input
-											type="number"
-											name="insuranceCost"
-											value={formData.insuranceCost}
-											onChange={handleChange}
-											placeholder="Ex: 5000"
-											min="0"
-											className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
-										/>
-									</div>
-								)}
-
-								{/* Disponibilidade */}
-								<div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
-									<input
-										type="checkbox"
-										id="available"
-										name="available"
-										checked={formData.available}
-										onChange={handleChange}
-										className="w-5 h-5 text-[#154c9a] border-gray-300 rounded"
-									/>
-									<label htmlFor="available" className="flex items-center gap-2 text-gray-700 font-semibold cursor-pointer">
-										<Eye className="w-5 h-5 text-[#154c9a]" />
-										Disponível para Aluguel
-									</label>
-								</div>
-
-								{/* Disponível A Partir De */}
-								<div>
-									<label className="block text-gray-700 font-semibold mb-2">
-										<Calendar className="w-4 h-4 inline mr-2" />
-										Disponível A Partir De
-									</label>
-									<input
-										type="date"
-										name="availableFrom"
-										value={formData.availableFrom}
-										onChange={handleChange}
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
-									/>
 								</div>
 
 								{/* Características */}
@@ -1103,14 +806,13 @@ const VeiculosAluguel = () => {
 											))}
 										</div>
 									)}
-									<p className="text-sm text-gray-500 mt-2">Adicione características opcionais para valorizar seu veículo</p>
 								</div>
 
-								{/* Imagens/Mídias */}
+								{/* Imagens do Veículo */}
 								<div className="md:col-span-2">
 									<label className="block text-gray-700 font-semibold mb-2">
 										<Upload className="w-5 h-5 inline mr-2" />
-										Imagens do Veículo {editingVehicle ? '(opcional - envie apenas se quiser alterar)' : <span className="text-red-500">* (mínimo 1)</span>}
+										Imagens do Veículo {editingVehicle ? '(opcional)' : <span className="text-red-500">*</span>}
 									</label>
 									<input
 										type="file"
@@ -1118,13 +820,12 @@ const VeiculosAluguel = () => {
 										accept="image/*"
 										multiple
 										onChange={handleMediaChange}
-										required={!editingVehicle}
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#154c9a] file:text-white file:font-semibold file:cursor-pointer hover:file:bg-blue-700"
 									/>
 									<p className="text-sm text-gray-500 mt-2">
 										{editingVehicle
-											? 'Deixe em branco para manter as imagens atuais. Se enviar novas imagens, elas substituirão as anteriores.'
-											: 'Selecione até 10 imagens (JPG, PNG, WEBP, GIF). A primeira imagem será a principal.'}
+											? 'Deixe em branco para manter as imagens atuais.'
+											: 'Selecione imagens (JPG, PNG, WEBP). A primeira será a principal.'}
 									</p>
 									{mediaFiles.length > 0 && (
 										<p className="text-sm text-green-600 mt-2 font-semibold">
@@ -1133,29 +834,47 @@ const VeiculosAluguel = () => {
 									)}
 								</div>
 
-								{/* Livrete (PDF) */}
+								{/* Documentos do Veículo (imagens + PDF) */}
 								<div className="md:col-span-2">
 									<label className="block text-gray-700 font-semibold mb-2">
 										<FileText className="w-5 h-5 inline mr-2" />
-										Livrete / Documento do Veículo (PDF) {editingVehicle ? '(opcional - envie apenas se quiser alterar)' : <span className="text-red-500">*</span>}
+										Documentos do Veículo (imagens ou PDF)
 									</label>
 									<input
 										type="file"
-										name="livreto"
-										accept="application/pdf"
-										onChange={handleLivreteChange}
-										required={!editingVehicle}
+										name="documents"
+										accept="image/*,application/pdf"
+										multiple
+										onChange={handleDocumentsChange}
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-green-600 file:text-white file:font-semibold file:cursor-pointer hover:file:bg-green-700"
 									/>
 									<p className="text-sm text-gray-500 mt-2">
-										{editingVehicle
-											? 'Deixe em branco para manter o documento atual. Envie apenas se precisar atualizar o livrete.'
-											: 'Upload obrigatório do livrete ou documento do veículo em PDF'}
+										Pode enviar imagens (JPG, PNG) ou PDFs do livrete, licenciamento, inspeção, etc.
 									</p>
-									{livreteFile && (
-										<p className="text-sm text-green-600 mt-2 font-semibold">
-											Arquivo selecionado: {livreteFile.name}
-										</p>
+									{documentsFiles.length > 0 && (
+										<div className="mt-3 space-y-2">
+											<p className="text-sm font-semibold text-gray-700">Ficheiros selecionados ({documentsFiles.length}):</p>
+											{documentsFiles.map((file, index) => (
+												<div key={index} className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg">
+													<div className="flex items-center gap-2 min-w-0 flex-1">
+														{file.type === 'application/pdf' ? (
+															<FileText className="w-4 h-4 text-red-500 flex-shrink-0" />
+														) : (
+															<ImageIcon className="w-4 h-4 text-blue-500 flex-shrink-0" />
+														)}
+														<span className="text-sm text-gray-600 truncate">{file.name}</span>
+														<span className="text-xs text-gray-400 flex-shrink-0">({(file.size / 1024).toFixed(1)} KB)</span>
+													</div>
+													<button
+														type="button"
+														onClick={() => handleRemoveDocument(index)}
+														className="text-red-500 hover:text-red-700 ml-2 flex-shrink-0"
+													>
+														<X className="w-4 h-4" />
+													</button>
+												</div>
+											))}
+										</div>
 									)}
 								</div>
 
@@ -1173,7 +892,6 @@ const VeiculosAluguel = () => {
 										placeholder="Descreva as características, condições e diferenciais do veículo para aluguel..."
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all resize-none"
 									/>
-									<p className="text-sm text-gray-500 mt-2">Informações adicionais que possam interessar aos clientes (mínimo 10 caracteres)</p>
 								</div>
 							</div>
 
