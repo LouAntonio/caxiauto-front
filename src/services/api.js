@@ -190,6 +190,10 @@ const api = {
 		return api.put('/users/profile', data);
 	},
 
+	updateSellerDocs: (data) => {
+		return api.put('/users/seller-docs', data);
+	},
+
 	requestPasswordReset: (email) => {
 		return api.post('/users/request-password-reset', { email });
 	},
@@ -464,7 +468,7 @@ const api = {
 
 	// ==================== CLOUDINARY (UPLOAD) ====================
 	getCloudinarySignature: (folder) => {
-		return api.get(`/cloudinary/upload?folder=${folder}`);
+		return api.get(`/cloudinary/authorize-upload?folder=${folder}`);
 	},
 
 	deleteCloudinaryResource: (publicId) => {
