@@ -588,6 +588,31 @@ const api = {
 		const queryString = new URLSearchParams(params).toString();
 		return api.get(`/partners/active?${queryString}`);
 	},
+
+	// ==================== ALIASES DE FAVORITOS (DELEGAM PARA WISHLIST) ====================
+	getFavorites: () => {
+		return api.get('/wishlist');
+	},
+
+	addFavorite: (id, type) => {
+		if (type === 'part') {
+			return api.post(`/wishlist/pecas/${id}`);
+		}
+		return api.post(`/wishlist/vehicles/${id}`);
+	},
+
+	removeFavorite: (id, type) => {
+		if (type === 'part') {
+			return api.delete(`/wishlist/pecas/${id}`);
+		}
+		return api.delete(`/wishlist/vehicles/${id}`);
+	},
+
+	// Alias para categorias de peças
+	listCategoriasPecas: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/categorias?${queryString}`, {}, false);
+	},
 };
 
 export default api;

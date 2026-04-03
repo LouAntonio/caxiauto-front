@@ -137,12 +137,10 @@ export default function PecasAcessorios() {
 			}
 
 			try {
-				const response = await api.getFavorites()
+				const response = await api.getWishlist()
 				if (response.success && response.data) {
 					const favoriteIds = new Set(
-						response.data
-							.filter(fav => fav.itemType === 'part')
-							.map(fav => fav.itemId)
+						response.data.pecas?.map(p => p.id) || []
 					)
 					setFavorites(favoriteIds)
 				}
@@ -155,11 +153,8 @@ export default function PecasAcessorios() {
 	}, [isAuthenticated])
 
 	// Funções auxiliares
-	const getRating = (spechs) => {
-		// Se não tem avaliação no spechs, retorna uma padrão entre 4.0 e 4.9
-		if (spechs && spechs.rating) {
-			return parseFloat(spechs.rating)
-		}
+	const getRating = (part) => {
+		// Se não tem avaliação, retorna uma padrão entre 4.0 e 4.9
 		return 4.0 + Math.random() * 0.9
 	}
 
@@ -182,7 +177,7 @@ export default function PecasAcessorios() {
 			const isFavorite = favorites.has(partId)
 
 			if (isFavorite) {
-				const response = await api.removeFavorite(partId)
+				const response = await api.removePecaFromWishlist(partId)
 				if (response.success) {
 					setFavorites(prev => {
 						const newSet = new Set(prev)
@@ -194,7 +189,7 @@ export default function PecasAcessorios() {
 					notyf.error(response.message || 'Erro ao remover favorito')
 				}
 			} else {
-				const response = await api.addFavorite(partId, 'part')
+				const response = await api.addPecaToWishlist(partId)
 				if (response.success) {
 					setFavorites(prev => new Set(prev).add(partId))
 					notyf.success('Adicionado aos favoritos')
@@ -374,48 +369,48 @@ export default function PecasAcessorios() {
 						) : (
 							<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 								{parts.map((part) => {
-									const rating = getRating(part.spechs)
+									const rating = getRating(part)
 									return (
 										<article
-											key={part._id}
+											key={part.id}
 											className="flex flex-col w-full bg-white rounded-2xl shadow-lg overflow-hidden group h-full"
 										>
 											{/* Imagem */}
 											<div className="relative h-36 overflow-hidden">
 												<img
 													src={getImageUrl(part.image, '/images/parts.jpg')}
-													alt={part.nome}
+													alt={part.name}
 													className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 													onError={(e) => { e.target.src = '/images/parts.jpg'; }}
 												/>
 												{/* Badge de estoque */}
 												<div className="absolute top-3 left-3">
-													<span className={`badge px-2 py-0.5 text-xs font-semibold rounded ${part.stock > 20 ? 'bg-green-600 text-white' : part.stock > 10 ? 'bg-yellow-500 text-white' : 'bg-red-500 text-white'
-														}`}>
-														{part.stock || 0} em estoque
+													<span className={`badge px-2 py-0.5 text-xs font-semibold rounded bg-blue-500 text-white`}>
+														Em estoque
 													</span>
 												</div>
 												{/* Badge de condição */}
-												<div className="absolute top-3 right-3">
-													<span className={`badge px-2 py-0.5 text-xs font-semibold rounded capitalize ${part.condition === 'new' ? 'bg-blue-600 text-white' : 'bg-orange-600 text-white'
-														}`}>
-														{part.condition === 'new' ? 'Novo' : 'Usado'}
-													</span>
-												</div>
+												{part.isFeatured && (
+													<div className="absolute top-3 right-3">
+														<span className={`badge px-2 py-0.5 text-xs font-semibold rounded bg-yellow-500 text-white`}>
+															Destaque
+														</span>
+													</div>
+												)}
 
 												{/* Botão de favorito */}
 												{isAuthenticated && (
 													<button
-														onClick={(e) => toggleFavorite(e, part._id)}
+														onClick={(e) => toggleFavorite(e, part.id)}
 														className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
-														aria-label={favorites.has(part._id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-														disabled={loadingFavorites.has(part._id)}
+														aria-label={favorites.has(part.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+														disabled={loadingFavorites.has(part.id)}
 													>
 														<Heart
-															className={`w-4 h-4 transition-all duration-200 ${favorites.has(part._id)
+															className={`w-4 h-4 transition-all duration-200 ${favorites.has(part.id)
 																? 'fill-red-500 text-red-500'
 																: 'text-gray-600 hover:text-red-500'
-																} ${loadingFavorites.has(part._id) ? 'opacity-50' : ''}`}
+																} ${loadingFavorites.has(part.id) ? 'opacity-50' : ''}`}
 														/>
 													</button>
 												)}
@@ -424,24 +419,24 @@ export default function PecasAcessorios() {
 											{/* Conteúdo */}
 											<div className="flex flex-col flex-grow p-4">
 												<h3 className="text-sm font-semibold line-clamp-2 capitalize">
-													{part.nome}
+													{part.name}
 												</h3>
 
 												{/* Preço */}
 												<div className="text-primary font-bold mt-2 mb-3">
-													{part.price?.toFixed(2)} akz
+													{parseFloat(part.price).toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} akz
 												</div>
 
 												{/* Categoria e Rating */}
 												<div className="flex items-center justify-between text-sm text-gray-600 mb-3">
 													<span className="text-xs bg-gray-100 px-2 py-0.5 rounded capitalize">
-														{part.categoria?.nome || 'Sem categoria'}
+														{part.Categoria?.name || 'Sem categoria'}
 													</span>
 												</div>
 
 												{/* Botão - no fundo do card */}
 												<div className="mt-auto">
-													<Link to={`/stand/pecas-acessorios/${part._id}`}>
+													<Link to={`/stand/pecas-acessorios/${part.id}`}>
 														<button
 															style={{ backgroundColor: 'var(--secondary)' }}
 															className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 w-full cursor-pointer"
