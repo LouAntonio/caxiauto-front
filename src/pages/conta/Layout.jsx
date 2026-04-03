@@ -11,7 +11,8 @@ import {
 	Calendar,
 	CreditCard,
 	Star,
-	AlertTriangle
+	AlertTriangle,
+	Wrench
 } from 'lucide-react';
 
 const ContaLayout = () => {
@@ -28,6 +29,11 @@ const ContaLayout = () => {
 			icon: Car,
 			title: 'Meus Veículos',
 			path: '/minha-conta/veiculos',
+		},
+		{
+			icon: Wrench,
+			title: 'Minhas Peças',
+			path: '/minha-conta/pecas',
 		},
 		{
 			icon: Car,

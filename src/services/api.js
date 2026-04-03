@@ -286,9 +286,17 @@ const api = {
 		return api.delete(`/pecas/${id}`, {}, true);
 	},
 
+	togglePecaStatus: (id, status) => {
+		return api.put(`/pecas/${id}/toggle-status`, status ? { status } : {});
+	},
+
+	togglePecaFeatured: (id, featuredUntil = null) => {
+		return api.put(`/pecas/${id}/toggle-featured`, { featuredUntil });
+	},
+
 	minhasPecas: (params = {}) => {
 		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/pecas/my?${queryString}`);
+		return api.get(`/pecas/my-parts?${queryString}`);
 	},
 
 	listFeaturedPecas: (params = {}) => {

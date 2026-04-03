@@ -39,6 +39,7 @@ export default function Compra() {
 			const params = new URLSearchParams({
 				page: currentPage,
 				limit: vehiclesPerPage,
+				type: 'SALE',
 			})
 
 			// Mapear filtros e adicionar à query
@@ -183,9 +184,15 @@ export default function Compra() {
 		return new Intl.NumberFormat('pt-AO').format(km)
 	}
 
-	// Capitalizar primeira letra
-	const capitalize = (str) => {
-		return str.charAt(0).toUpperCase() + str.slice(1)
+	// Capitalizar/formatar tipo de combustível
+	const formatFuelType = (fuel) => {
+		const map = {
+			'GASOLINE': 'Gasolina',
+			'DIESEL': 'Diesel',
+			'ELECTRIC': 'Elétrico',
+			'HYBRID': 'Híbrido'
+		}
+		return map[fuel] || fuel
 	}
 
 	// Função para adicionar/remover favorito
@@ -376,7 +383,7 @@ export default function Compra() {
 													</div>
 													<div className="flex items-center gap-2">
 														<Droplet className="w-4 h-4 text-gray-400" />
-														<span>{capitalize(car.fuelType)}</span>
+														<span>{formatFuelType(car.fuelType)}</span>
 													</div>
 												</div>
 

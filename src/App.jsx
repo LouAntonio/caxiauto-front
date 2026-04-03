@@ -36,6 +36,7 @@ import Reservas from './pages/conta/Reservas'
 import Assinatura from './pages/conta/Assinatura'
 import Avaliacoes from './pages/conta/Avaliacoes'
 import Denuncias from './pages/conta/Denuncias'
+import Pecas from './pages/conta/Pecas'
 import PerfilVendedor from './pages/PerfilVendedor'
 // Admin Pages
 import AdminLogin from './pages/caxiauto/AdminLogin'
@@ -113,6 +114,7 @@ function AppContent() {
 						>
 							<Route index element={<Dashboard />} />
 							<Route path="veiculos" element={<Veiculos />} />
+							<Route path="pecas" element={<Pecas />} />
 							<Route path="veiculos-aluguel" element={<VeiculosAluguel />} />
 							<Route path="reservas" element={<Reservas />} />
 							<Route path="favoritos" element={<Favoritos />} />
