@@ -417,11 +417,11 @@ const api = {
 	},
 
 	subscribePlan: (planId) => {
-		return api.post('/subscriptions/subscribe', { planId });
+		return api.post('/subscriptions', { planId });
 	},
 
 	getMySubscription: () => {
-		return api.get('/subscriptions/my-subscription');
+		return api.get('/subscriptions');
 	},
 
 	cancelSubscription: () => {
@@ -429,11 +429,11 @@ const api = {
 	},
 
 	buyHighlightPackage: (packageId) => {
-		return api.post('/subscriptions/buy-highlight', { packageId });
+		return api.post('/subscriptions/highlights/purchase', { packageId });
 	},
 
 	applyVehicleHighlight: (vehicleId, daysDuration = 7) => {
-		return api.post(`/subscriptions/apply-highlight/${vehicleId}`, { daysDuration });
+		return api.post(`/subscriptions/highlights/apply/${vehicleId}`, { daysDuration });
 	},
 
 	// ==================== VISUALIZAÇÕES (VIEWS) ====================
