@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../../contexts/AdminContext';
 import { Sparkles, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { notyf } from '../../services/api';
+import { AdminTableSkeleton } from '../../components/skeletons';
+import useLoadingState from '../../hooks/useLoadingState';
 
 const AdminHighlightPackages = () => {
 	const {
@@ -21,6 +23,8 @@ const AdminHighlightPackages = () => {
 		itemType: 'VEHICLE',
 		daysDuration: '',
 	});
+
+	const { loading: actionLoading, withLoading, isActionLoading } = useLoadingState({ preventConcurrent: true });
 
 	const loadPackages = async () => {
 		setLoading(true);
@@ -65,7 +69,7 @@ const AdminHighlightPackages = () => {
 			daysDuration: Number(formData.daysDuration),
 		};
 
-		try {
+		await withLoading(async () => {
 			let response;
 			if (editingPackage) {
 				response = await adminUpdateHighlightPackage(editingPackage.id, payload);
@@ -82,15 +86,13 @@ const AdminHighlightPackages = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao salvar pacote');
 			}
-		} catch (error) {
-			notyf.error('Erro ao salvar pacote');
-		}
+		});
 	};
 
 	const handleDelete = async (id) => {
 		if (!window.confirm('Tem certeza que deseja remover este pacote de destaque?')) return;
 
-		try {
+		await withLoading(async () => {
 			const response = await adminDeleteHighlightPackage(id);
 			if (response.success) {
 				notyf.success('Pacote de destaque removido com sucesso!');
@@ -98,9 +100,7 @@ const AdminHighlightPackages = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao remover pacote');
 			}
-		} catch (error) {
-			notyf.error('Erro ao remover pacote');
-		}
+		});
 	};
 
 	const formatCurrency = (value) => {
@@ -128,9 +128,7 @@ const AdminHighlightPackages = () => {
 
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 				{loading ? (
-					<div className="flex items-center justify-center py-20">
-						<Loader2 className="w-12 h-12 text-[#154c9a] animate-spin" />
-					</div>
+					<AdminTableSkeleton rows={5} columns={6} />
 				) : packages.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-20">
 						<Sparkles className="w-16 h-16 text-gray-300 mb-4" />
@@ -167,17 +165,19 @@ const AdminHighlightPackages = () => {
 											<div className="flex items-center justify-end gap-2">
 												<button
 													onClick={() => handleOpenEdit(pkg)}
-													className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+													className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
 													title="Editar"
+													disabled={actionLoading}
 												>
-													<Pencil className="w-4 h-4" />
+													{actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Pencil className="w-4 h-4" />}
 												</button>
 												<button
 													onClick={() => handleDelete(pkg.id)}
-													className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+													className="p-2 text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
 													title="Remover"
+													disabled={actionLoading}
 												>
-													<Trash2 className="w-4 h-4" />
+													{isActionLoading(`delete-${pkg.id}`) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
 												</button>
 											</div>
 										</td>
@@ -250,9 +250,17 @@ const AdminHighlightPackages = () => {
 							<div className="flex gap-3 mt-6">
 								<button
 									type="submit"
-									className="flex-1 bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80]"
+									disabled={actionLoading}
+									className="flex-1 bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 								>
-									{editingPackage ? 'Salvar' : 'Criar'}
+									{actionLoading ? (
+										<>
+											<Loader2 className="w-5 h-5 animate-spin" />
+											{editingPackage ? 'Salvando...' : 'Criando...'}
+										</>
+									) : (
+										editingPackage ? 'Salvar' : 'Criar'
+									)}
 								</button>
 								<button
 									type="button"

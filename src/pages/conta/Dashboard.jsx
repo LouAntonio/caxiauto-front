@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
@@ -17,6 +17,8 @@ import {
 	Car
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import { DashboardSkeleton } from '../../components/skeletons';
+import ButtonLoader from '../../components/ButtonLoader';
 
 const Dashboard = () => {
 	useDocumentTitle('Dashboard - CaxiAuto');
@@ -25,6 +27,7 @@ const Dashboard = () => {
 	const navigate = useNavigate();
 	const [isEditing, setIsEditing] = useState(false);
 	const [message, setMessage] = useState('');
+	const [saving, setSaving] = useState(false);
 	const [formData, setFormData] = useState({
 		name: user?.name || '',
 		surname: user?.surname || '',
@@ -79,17 +82,23 @@ const Dashboard = () => {
 		});
 	};
 
-	const handleSave = async () => {
-		const result = await updateUser(formData);
-		if (result.success) {
-			setMessage('Dados atualizados com sucesso!');
-			setIsEditing(false);
-			setTimeout(() => setMessage(''), 3000);
-		} else {
-			setMessage('Erro ao atualizar dados: ' + result.error);
-			setTimeout(() => setMessage(''), 3000);
+	const handleSave = useCallback(async () => {
+		if (saving) return; // Previne cliques duplos
+		setSaving(true);
+		try {
+			const result = await updateUser(formData);
+			if (result.success) {
+				setMessage('Dados atualizados com sucesso!');
+				setIsEditing(false);
+				setTimeout(() => setMessage(''), 3000);
+			} else {
+				setMessage('Erro ao atualizar dados: ' + result.error);
+				setTimeout(() => setMessage(''), 3000);
+			}
+		} finally {
+			setSaving(false);
 		}
-	};
+	}, [formData, saving, updateUser]);
 
 	const handleCancel = () => {
 		setFormData({
@@ -128,6 +137,10 @@ const Dashboard = () => {
 		
 		return 'N/A';
 	};
+
+	if (viewStats.loading) {
+		return <DashboardSkeleton />;
+	}
 
 	return (
 		<div className="space-y-6">
@@ -213,20 +226,24 @@ const Dashboard = () => {
 							</div>
 
 							<div className="flex gap-3 pt-4">
-								<button
+								<ButtonLoader
+									loading={saving}
+									loadingText="Salvando..."
 									onClick={handleSave}
-									className="flex-1 bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80] transition-colors flex items-center justify-center gap-2 cursor-pointer"
+									variant="primary"
+									className="flex-1"
 								>
 									<Save className="w-4 h-4" />
 									Salvar
-								</button>
-								<button
+								</ButtonLoader>
+								<ButtonLoader
 									onClick={handleCancel}
-									className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+									variant="gray"
+									className="flex-1"
 								>
 									<X className="w-4 h-4" />
 									Cancelar
-								</button>
+								</ButtonLoader>
 							</div>
 						</div>
 					) : (
@@ -270,20 +287,22 @@ const Dashboard = () => {
 							</div>
 
 							<div className="flex gap-3 pt-4 border-t">
-								<button
+								<ButtonLoader
 									onClick={() => setIsEditing(true)}
-									className="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+									variant="gray"
+									className="flex-1"
 								>
 									<Edit2 className="w-4 h-4" />
 									Editar Perfil
-								</button>
-								<button
+								</ButtonLoader>
+								<ButtonLoader
 									onClick={handleLogout}
-									className="flex-1 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-2 font-medium cursor-pointer"
+									variant="red_outline"
+									className="flex-1"
 								>
 									<LogOut className="w-4 h-4" />
 									Sair
-								</button>
+								</ButtonLoader>
 							</div>
 						</div>
 					)}
@@ -299,38 +318,38 @@ const Dashboard = () => {
 
 				{/* Cards de Estatísticas Gerais */}
 				<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-					<div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200 cursor-pointer">
+					<div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
 						<div className="flex items-center justify-between mb-2">
 							<Eye className="w-5 h-5 text-blue-600" />
 							<span className="text-xs font-medium text-blue-600">Total</span>
 						</div>
 						<div className="text-2xl font-bold text-gray-900">
-							{viewStats.loading ? '...' : viewStats.totalViews.toLocaleString('pt-BR')}
+							{viewStats.totalViews.toLocaleString('pt-BR')}
 						</div>
 						<p className="text-xs text-gray-600 mt-1">Visualizações totais</p>
 					</div>
 
-					<div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200 cursor-pointer">
+					<div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
 						<div className="flex items-center justify-between mb-2">
 							<BarChart3 className="w-5 h-5 text-purple-600" />
 							<span className="text-xs font-medium text-green-600">Hoje</span>
 						</div>
 						<div className="text-2xl font-bold text-gray-900">
-							{viewStats.loading ? '...' : viewStats.totalViewsToday.toLocaleString('pt-BR')}
+							{viewStats.totalViewsToday.toLocaleString('pt-BR')}
 						</div>
 						<p className="text-xs text-gray-600 mt-1">Visualizações hoje</p>
 					</div>
 
-					<div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200 cursor-pointer">
+					<div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
 						<div className="flex items-center justify-between mb-2">
 							<Car className="w-5 h-5 text-orange-600" />
 							<span className="text-xs font-medium text-orange-600">Mais Visto</span>
 						</div>
 						<div className="text-2xl font-bold text-gray-900">
-							{viewStats.loading ? '...' : (viewStats.mostViewed?.viewCount || 0).toLocaleString('pt-BR')}
+							{(viewStats.mostViewed?.viewCount || 0).toLocaleString('pt-BR')}
 						</div>
 						<p className="text-xs text-gray-600 mt-1 truncate" title={getMostViewedName()}>
-							{viewStats.loading ? 'Carregando...' : getMostViewedName()}
+							{getMostViewedName()}
 						</p>
 					</div>
 				</div>

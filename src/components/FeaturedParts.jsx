@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, Loader, Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import PecaCardSkeleton from './PecaCardSkeleton'
 import api, { getImageUrl, notyf } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -119,8 +120,15 @@ export default function FeaturedParts() {
 		return (
 			<section className="parts-section py-6">
 				<div className="max-w-7xl mx-auto px-4">
-					<div className="flex items-center justify-center py-20">
-						<Loader className="w-8 h-8 animate-spin" style={{ color: 'var(--primary)' }} />
+					<div className="flex items-center justify-between mb-6">
+						<div className="h-8 w-48 bg-gray-200 skeleton-shimmer rounded-md" />
+						<div className="hidden md:flex gap-3">
+							<div className="w-10 h-10 rounded-full bg-gray-200 skeleton-shimmer" />
+							<div className="w-10 h-10 rounded-full bg-gray-200 skeleton-shimmer" />
+						</div>
+					</div>
+					<div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
+						<PecaCardSkeleton count={5} className="w-64 flex-shrink-0" />
 					</div>
 				</div>
 			</section>

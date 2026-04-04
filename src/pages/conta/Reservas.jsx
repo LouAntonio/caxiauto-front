@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import api, { getImageUrl, notyf } from '../../services/api';
 import {
@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import { ListSkeleton } from '../../components/skeletons';
+import ButtonLoader from '../../components/ButtonLoader';
 
 const Reservas = () => {
 	useDocumentTitle('Minhas Reservas - CaxiAuto');
@@ -26,40 +28,74 @@ const Reservas = () => {
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [total, setTotal] = useState(0);
+	const [cancelingId, setCancelingId] = useState(null);
+	const [isFetching, setIsFetching] = useState(false);
+	const abortControllerRef = useRef(null);
 
 	useEffect(() => {
 		fetchReservas();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [filter, page]);
 
-	const fetchReservas = async () => {
+	const fetchReservas = useCallback(async () => {
+		// Cancelar requisição anterior
+		if (abortControllerRef.current) {
+			abortControllerRef.current.abort();
+		}
+
+		// Prevenir requisições duplicadas
+		if (isFetching) return;
+
+		const controller = new AbortController();
+		abortControllerRef.current = controller;
+		setIsFetching(true);
 		setLoading(true);
+
 		try {
 			const params = { page, limit: 10 };
 			if (filter) params.status = filter;
 
 			const response = await api.getMyBookings(params);
 
-			if (response.success) {
-				setReservas(response.data || []);
-				setTotal(response.pagination?.total || 0);
-				setTotalPages(response.pagination?.totalPages || 1);
-			} else {
-				notyf.error('Erro ao carregar reservas');
-				setReservas([]);
+			if (!controller.signal.aborted) {
+				if (response.success) {
+					setReservas(response.data || []);
+					setTotal(response.pagination?.total || 0);
+					setTotalPages(response.pagination?.totalPages || 1);
+				} else {
+					notyf.error('Erro ao carregar reservas');
+					setReservas([]);
+				}
 			}
 		} catch (error) {
-			console.error('Erro ao carregar reservas:', error);
-			notyf.error('Erro ao carregar reservas');
+			if (!controller.signal.aborted) {
+				console.error('Erro ao carregar reservas:', error);
+				notyf.error('Erro ao carregar reservas');
+			}
 		} finally {
-			setLoading(false);
+			if (!controller.signal.aborted) {
+				setLoading(false);
+				setIsFetching(false);
+			}
 		}
-	};
+	}, [filter, page, isFetching]);
 
-	const handleCancelReserva = async (reservaId) => {
+	// Cleanup ao desmontar
+	useEffect(() => {
+		return () => {
+			if (abortControllerRef.current) {
+				abortControllerRef.current.abort();
+			}
+		};
+	}, []);
+
+	const handleCancelReserva = useCallback(async (reservaId) => {
+		if (cancelingId) return; // Prevenir clique duplo
 		if (!window.confirm('Tem certeza que deseja cancelar esta reserva?')) {
 			return;
 		}
 
+		setCancelingId(reservaId);
 		try {
 			const response = await api.cancelBooking(reservaId);
 
@@ -72,8 +108,10 @@ const Reservas = () => {
 		} catch (error) {
 			console.error('Erro ao cancelar reserva:', error);
 			notyf.error('Erro ao cancelar reserva');
+		} finally {
+			setCancelingId(null);
 		}
-	};
+	}, [cancelingId, fetchReservas]);
 
 	const getStatusBadge = (status) => {
 		const statusConfig = {
@@ -214,12 +252,7 @@ const Reservas = () => {
 
 				{/* Lista de Reservas */}
 				{loading ? (
-					<div className="flex items-center justify-center py-16">
-						<div className="text-center">
-							<Loader2 className="w-12 h-12 animate-spin text-[#154c9a] mx-auto mb-4" />
-							<p className="text-gray-600">Carregando reservas...</p>
-						</div>
-					</div>
+					<ListSkeleton count={5} />
 				) : reservas.length === 0 ? (
 					<div className="text-center py-16">
 						<Calendar className="w-20 h-20 text-gray-300 mx-auto mb-4" />
@@ -325,13 +358,16 @@ const Reservas = () => {
 											Ver Veículo
 										</Link>
 										{(reserva.status === 'PENDING' || reserva.status === 'CONFIRMED') && (
-											<button
+											<ButtonLoader
 												onClick={() => handleCancelReserva(reserva.id)}
-												className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
+												loading={cancelingId === reserva.id}
+												loadingText="Cancelando..."
+												variant="red_outline"
+												size="sm"
 											>
 												<XCircle className="w-4 h-4" />
 												Cancelar
-											</button>
+											</ButtonLoader>
 										)}
 									</div>
 								</div>

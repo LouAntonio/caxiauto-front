@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import {
 	Wrench,
@@ -21,6 +21,8 @@ import {
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import api, { getImageUrl } from '../../services/api';
+import { PecaCardSkeleton } from '../../components/skeletons';
+import ButtonLoader from '../../components/ButtonLoader';
 
 const Pecas = () => {
 	useDocumentTitle('Minhas Peças - CaxiAuto');
@@ -32,6 +34,9 @@ const Pecas = () => {
 	const [editingPeca, setEditingPeca] = useState(null);
 	const [message, setMessage] = useState({ type: '', text: '' });
 	const [loading, setLoading] = useState(false);
+	const [actionLoading, setActionLoading] = useState(new Set());
+	const [isFetching, setIsFetching] = useState(false);
+	const abortControllerRef = useRef(null);
 	const [mediaFiles, setMediaFiles] = useState([]);
 	const [galleryFiles, setGalleryFiles] = useState([]);
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -80,16 +85,39 @@ const Pecas = () => {
 		}
 	};
 
-	const loadPecas = async () => {
+	const loadPecas = useCallback(async () => {
+		if (abortControllerRef.current) {
+			abortControllerRef.current.abort();
+		}
+		if (isFetching) return;
+
+		const controller = new AbortController();
+		abortControllerRef.current = controller;
+		setIsFetching(true);
+
 		try {
 			const response = await api.minhasPecas();
-			if (response.success) {
+			if (!controller.signal.aborted && response.success) {
 				setPecas(response.data);
 			}
 		} catch (error) {
-			console.error('Erro ao carregar peças:', error);
+			if (!controller.signal.aborted) {
+				console.error('Erro ao carregar peças:', error);
+			}
+		} finally {
+			if (!controller.signal.aborted) {
+				setIsFetching(false);
+			}
 		}
-	};
+	}, [isFetching]);
+
+	useEffect(() => {
+		return () => {
+			if (abortControllerRef.current) {
+				abortControllerRef.current.abort();
+			}
+		};
+	}, []);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -278,10 +306,12 @@ const Pecas = () => {
 	};
 
 	const handleDelete = (pecaId) => {
+		if (actionLoading.has(`delete-${pecaId}`)) return;
 		setConfirmTitle('Excluir Peça');
 		setConfirmMessage('Tem certeza que deseja excluir esta peça? Esta ação não pode ser desfeita.');
 		setConfirmType('danger');
 		setConfirmAction(() => async () => {
+			setActionLoading(prev => new Set(prev).add(`delete-${pecaId}`));
 			try {
 				const response = await api.deletePeca(pecaId);
 				if (response.success) {
@@ -294,17 +324,25 @@ const Pecas = () => {
 			} catch (error) {
 				console.error('Erro ao excluir peça:', error);
 				setMessage({ type: 'error', text: 'Erro ao excluir peça.' });
+			} finally {
+				setActionLoading(prev => {
+					const next = new Set(prev);
+					next.delete(`delete-${pecaId}`);
+					return next;
+				});
 			}
 		});
 		setShowConfirmModal(true);
 	};
 
 	const handleToggleStatus = (pecaId, currentStatus) => {
+		if (actionLoading.has(`toggle-${pecaId}`)) return;
 		const newStatus = currentStatus === 'ACTIVE' ? 'HIDDEN' : 'ACTIVE';
 		setConfirmTitle('Alterar Visibilidade');
 		setConfirmMessage(`Tem certeza que deseja tornar esta peça ${newStatus === 'ACTIVE' ? 'visível' : 'oculta'}?`);
 		setConfirmType(newStatus === 'ACTIVE' ? 'success' : 'warning');
 		setConfirmAction(() => async () => {
+			setActionLoading(prev => new Set(prev).add(`toggle-${pecaId}`));
 			try {
 				const response = await api.togglePecaStatus(pecaId, newStatus);
 				if (response.success) {
@@ -317,6 +355,12 @@ const Pecas = () => {
 			} catch (error) {
 				console.error('Erro ao alterar visibilidade:', error);
 				setMessage({ type: 'error', text: 'Erro ao alterar visibilidade da peça.' });
+			} finally {
+				setActionLoading(prev => {
+					const next = new Set(prev);
+					next.delete(`toggle-${pecaId}`);
+					return next;
+				});
 			}
 		});
 		setShowConfirmModal(true);
@@ -387,7 +431,9 @@ const Pecas = () => {
 			)}
 
 			{/* Lista de peças */}
-			{pecas.length === 0 ? (
+			{isFetching ? (
+				<PecaCardSkeleton count={4} />
+			) : pecas.length === 0 ? (
 				<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
 					<Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
 					<h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -512,30 +558,35 @@ const Pecas = () => {
 
 									{/* Botões de ação */}
 									<div className="flex gap-2 pt-4 border-t">
-										<button
+										<ButtonLoader
 											onClick={() => handleOpenModal(peca)}
-											className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#154c9a] text-white rounded-lg hover:bg-[#123f80] transition-colors cursor-pointer"
+											variant="primary"
+											className="flex-1"
+											size="sm"
 										>
 											<Edit2 className="w-4 h-4" />
 											Editar
-										</button>
-										<button
+										</ButtonLoader>
+										<ButtonLoader
 											onClick={() => handleToggleStatus(peca.id, peca.status)}
-											className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors cursor-pointer ${peca.status === 'ACTIVE'
-												? 'bg-orange-500 text-white hover:bg-orange-600'
-												: 'bg-green-500 text-white hover:bg-green-600'
-												}`}
+											loading={actionLoading.has(`toggle-${peca.id}`)}
+											loadingText=""
+											variant={peca.status === 'ACTIVE' ? 'warning' : 'success'}
+											size="sm"
 											title={peca.status === 'ACTIVE' ? 'Ocultar peça' : 'Tornar peça visível'}
 										>
 											<Power className="w-4 h-4" />
-										</button>
-										<button
+										</ButtonLoader>
+										<ButtonLoader
 											onClick={() => handleDelete(peca.id)}
-											className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
+											loading={actionLoading.has(`delete-${peca.id}`)}
+											loadingText=""
+											variant="danger"
+											size="sm"
 											title="Excluir peça"
 										>
 											<Trash2 className="w-4 h-4" />
-										</button>
+										</ButtonLoader>
 									</div>
 								</div>
 							</div>
@@ -801,23 +852,17 @@ const Pecas = () => {
 								>
 									Cancelar
 								</button>
-								<button
+								<ButtonLoader
 									type="submit"
-									disabled={loading}
-									className="flex-1 px-6 py-3 bg-[#154c9a] text-white rounded-xl hover:bg-[#123f80] transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+									loading={loading}
+									loadingText="Processando..."
+									variant="primary"
+									size="lg"
+									className="flex-1"
 								>
-									{loading ? (
-										<>
-											<div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-											Processando...
-										</>
-									) : (
-										<>
-											<Save className="w-5 h-5" />
-											{editingPeca ? 'Salvar Alterações' : 'Cadastrar Peça'}
-										</>
-									)}
-								</button>
+									<Save className="w-5 h-5" />
+									{editingPeca ? 'Salvar Alterações' : 'Cadastrar Peça'}
+								</ButtonLoader>
 							</div>
 						</form>
 					</div>

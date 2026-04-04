@@ -22,6 +22,9 @@ import {
 	AlertCircle,
 	X
 } from 'lucide-react';
+import { AdminTableSkeleton, AdminFormSkeleton, AdminModalSkeleton } from '../../components/skeletons';
+import useLoadingState from '../../hooks/useLoadingState';
+import useDebounce from '../../hooks/useDebounce';
 
 const AdminSellers = () => {
 	const { getPendingSellers, getSellerDocs, verifySeller, adminGetSellerDetails } = useAdmin();
@@ -32,8 +35,12 @@ const AdminSellers = () => {
 	const [sellerDocs, setSellerDocs] = useState([]);
 	const [pendingCount, setPendingCount] = useState(0);
 	const [searchInput, setSearchInput] = useState('');
+	const debouncedSearch = useDebounce(searchInput, 300);
 	const [filters, setFilters] = useState({ search: '', isVerified: '' });
 	const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, total: 0 });
+
+	// Loading state hook
+	const { loading: actionLoading, withLoading } = useLoadingState({ preventConcurrent: true });
 
 	// Modals
 	const [detailsModal, setDetailsModal] = useState({ open: false, seller: null });
@@ -110,16 +117,22 @@ const AdminSellers = () => {
 
 	const handleSearch = (e) => {
 		e.preventDefault();
-		setFilters({ ...filters, search: searchInput.trim() });
+		setFilters({ ...filters, search: debouncedSearch });
 		setPagination({ ...pagination, currentPage: 1 });
-		setTimeout(() => loadAllSellers(), 0);
 	};
+
+	// Auto-search quando o valor debounce muda
+	useEffect(() => {
+		if (activeTab === 'all') {
+			setFilters(prev => ({ ...prev, search: debouncedSearch }));
+			setPagination(prev => ({ ...prev, currentPage: 1 }));
+		}
+	}, [debouncedSearch]);
 
 	const handleClearSearch = () => {
 		setSearchInput('');
 		setFilters({ search: '', isVerified: '' });
 		setPagination({ ...pagination, currentPage: 1 });
-		setTimeout(() => loadAllSellers(), 0);
 	};
 
 	const handleVerifySeller = (sellerId, sellerName, isVerified) => {
@@ -128,7 +141,7 @@ const AdminSellers = () => {
 
 	const submitVerify = async () => {
 		const isVerified = confirmModal.action === 'verify';
-		try {
+		await withLoading(async () => {
 			const response = await verifySeller(confirmModal.sellerId, isVerified);
 			if (response.success) {
 				notyf.success(isVerified ? 'Vendedor verificado! Email enviado.' : 'Verificação removida! Email enviado.');
@@ -138,34 +151,29 @@ const AdminSellers = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao verificar');
 			}
-		} catch (error) {
-			notyf.error('Erro ao verificar vendedor');
-		}
+		});
 	};
 
 	const handleViewDocs = async (seller) => {
-		try {
+		await withLoading(async () => {
 			const response = await adminGetSellerDetails(seller.id || seller.sellerId);
 			if (response.success) {
 				setDocsModal({ open: true, seller, docs: response.data.sellerDocs });
+			} else {
+				notyf.error('Erro ao carregar documentos');
 			}
-		} catch (error) {
-			console.error('Erro:', error);
-			notyf.error('Erro ao carregar documentos');
-		}
+		});
 	};
 
 	const handleViewDetails = async (sellerId) => {
-		try {
+		await withLoading(async () => {
 			const response = await adminGetSellerDetails(sellerId);
 			if (response.success) {
 				setDetailsModal({ open: true, seller: response.data });
 			} else {
 				notyf.error('Erro ao carregar detalhes');
 			}
-		} catch (error) {
-			notyf.error('Erro ao carregar detalhes');
-		}
+		});
 	};
 
 	const formatDate = (date) => {
@@ -262,8 +270,13 @@ const AdminSellers = () => {
 							<option value="true">Verificados</option>
 							<option value="false">Não verificados</option>
 						</select>
-						<button type="submit" className="bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80] flex items-center justify-center gap-2">
-							<Search className="w-5 h-5" /> Pesquisar
+						<button
+							type="submit"
+							disabled={actionLoading}
+							className="bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+						>
+							{actionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+							{actionLoading ? 'Pesquisando...' : 'Pesquisar'}
 						</button>
 					</div>
 				</form>
@@ -272,7 +285,7 @@ const AdminSellers = () => {
 			{/* Conteúdo */}
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 				{loading ? (
-					<div className="flex items-center justify-center py-20"><Loader2 className="w-12 h-12 text-[#154c9a] animate-spin" /></div>
+					<AdminTableSkeleton rows={6} columns={5} />
 				) : activeTab === 'pending' ? (
 					pendingSellers.length === 0 ? (
 						<div className="flex flex-col items-center justify-center py-20">
@@ -305,24 +318,27 @@ const AdminSellers = () => {
 												<div className="flex items-center gap-2">
 													<button
 														onClick={() => handleViewDocs(seller)}
-														className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+														className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 														title="Ver documentos"
+														disabled={actionLoading}
 													>
-														<Eye className="w-5 h-5" />
+														{actionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Eye className="w-5 h-5" />}
 													</button>
 													<button
 														onClick={() => handleVerifySeller(seller.id, `${seller.name} ${seller.surname}`, false)}
-														className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
+														className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 														title="Verificar"
+														disabled={actionLoading}
 													>
-														<CheckCircle className="w-5 h-5" />
+														{actionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
 													</button>
 													<button
 														onClick={() => setConfirmModal({ open: true, sellerId: seller.id, sellerName: `${seller.name} ${seller.surname}`, action: 'reject' })}
-														className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+														className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 														title="Rejeitar"
+														disabled={actionLoading}
 													>
-														<XCircle className="w-5 h-5" />
+														{actionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <XCircle className="w-5 h-5" />}
 													</button>
 												</div>
 											</td>
@@ -360,8 +376,8 @@ const AdminSellers = () => {
 											<td className="px-4 py-3">
 												<span className={`px-2 py-1 text-xs font-medium rounded-full ${
 													seller.role === 'ADMIN' ? 'bg-purple-100 text-purple-800'
-													: seller.role === 'SELLER' ? 'bg-blue-100 text-blue-800'
-													: 'bg-gray-100 text-gray-800'
+														: seller.role === 'SELLER' ? 'bg-blue-100 text-blue-800'
+															: 'bg-gray-100 text-gray-800'
 												}`}>
 													{seller.role}
 												</span>
@@ -378,19 +394,21 @@ const AdminSellers = () => {
 												<div className="flex items-center gap-1">
 													<button
 														onClick={() => handleViewDetails(seller.id)}
-														className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
+														className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 														title="Ver detalhes"
+														disabled={actionLoading}
 													>
-														<Eye className="w-4 h-4" />
+														{actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
 													</button>
 													<button
 														onClick={() => handleVerifySeller(seller.id, `${seller.name} ${seller.surname}`, seller.isVerified)}
-														className={`p-1.5 rounded-lg ${
+														className={`p-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
 															seller.isVerified ? 'text-yellow-600 hover:bg-yellow-50' : 'text-green-600 hover:bg-green-50'
 														}`}
 														title={seller.isVerified ? 'Remover verificação' : 'Verificar'}
+														disabled={actionLoading}
 													>
-														{seller.isVerified ? <Shield className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+														{actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (seller.isVerified ? <Shield className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />)}
 													</button>
 												</div>
 											</td>
@@ -431,10 +449,11 @@ const AdminSellers = () => {
 											<td className="px-6 py-4">
 												<button
 													onClick={() => handleViewDocs(doc.user || doc)}
-													className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+													className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 													title="Ver documentos"
+													disabled={actionLoading}
 												>
-													<Eye className="w-5 h-5" />
+													{actionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Eye className="w-5 h-5" />}
 												</button>
 											</td>
 										</tr>
@@ -515,15 +534,19 @@ const AdminSellers = () => {
 							<div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-end gap-3 rounded-b-2xl">
 								<button
 									onClick={() => { setDocsModal({ open: false, seller: null, docs: null }); handleVerifySeller(docsModal.seller.id, `${docsModal.seller.name} ${docsModal.seller.surname}`, false); }}
-									className="bg-green-600 text-white px-6 py-2.5 rounded-lg hover:bg-green-700 font-medium flex items-center gap-2"
+									disabled={actionLoading}
+									className="bg-green-600 text-white px-6 py-2.5 rounded-lg hover:bg-green-700 font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
 								>
-									<CheckCircle className="w-5 h-5" /> Aprovar Vendedor
+									{actionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
+									{actionLoading ? 'Aprovando...' : 'Aprovar Vendedor'}
 								</button>
 								<button
 									onClick={() => { setDocsModal({ open: false, seller: null, docs: null }); setConfirmModal({ open: true, sellerId: docsModal.seller.id, sellerName: `${docsModal.seller.name} ${docsModal.seller.surname}`, action: 'reject' }); }}
-									className="bg-red-600 text-white px-6 py-2.5 rounded-lg hover:bg-red-700 font-medium flex items-center gap-2"
+									disabled={actionLoading}
+									className="bg-red-600 text-white px-6 py-2.5 rounded-lg hover:bg-red-700 font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
 								>
-									<XCircle className="w-5 h-5" /> Rejeitar
+									{actionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <XCircle className="w-5 h-5" />}
+									{actionLoading ? 'Rejeitando...' : 'Rejeitar'}
 								</button>
 							</div>
 						)}
@@ -707,28 +730,41 @@ const AdminSellers = () => {
 								{confirmModal.action === 'verify' ? <CheckCircle className="w-5 h-5 text-green-600" /> : <XCircle className="w-5 h-5 text-red-600" />}
 								{confirmModal.action === 'verify' ? 'Verificar Vendedor' : confirmModal.action === 'reject' ? 'Rejeitar Vendedor' : 'Remover Verificação'}
 							</h2>
-							<button onClick={() => setConfirmModal({ open: false, sellerId: null, sellerName: '', action: 'verify' })} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+							<button
+								onClick={() => setConfirmModal({ open: false, sellerId: null, sellerName: '', action: 'verify' })}
+								disabled={actionLoading}
+								className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
+							>
+								<X className="w-5 h-5" />
+							</button>
 						</div>
 						<div className="p-6">
 							<p className="text-gray-700">
 								{confirmModal.action === 'verify'
 									? `Tem certeza que deseja verificar e aprovar ${confirmModal.sellerName}?`
 									: confirmModal.action === 'reject'
-									? `Tem certeza que deseja rejeitar ${confirmModal.sellerName}?`
-									: `Tem certeza que deseja remover a verificação de ${confirmModal.sellerName}?`}
+										? `Tem certeza que deseja rejeitar ${confirmModal.sellerName}?`
+										: `Tem certeza que deseja remover a verificação de ${confirmModal.sellerName}?`}
 							</p>
 							<p className="text-sm text-gray-500 mt-2">Um email será enviado ao vendedor informando a alteração.</p>
 						</div>
 						<div className="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3">
-							<button onClick={() => setConfirmModal({ open: false, sellerId: null, sellerName: '', action: 'verify' })} className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
+							<button
+								onClick={() => setConfirmModal({ open: false, sellerId: null, sellerName: '', action: 'verify' })}
+								disabled={actionLoading}
+								className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+							>
+								Cancelar
+							</button>
 							<button
 								onClick={submitVerify}
-								className={`px-6 py-2 rounded-lg font-medium flex items-center gap-2 text-white ${
+								disabled={actionLoading}
+								className={`px-6 py-2 rounded-lg font-medium flex items-center gap-2 text-white disabled:opacity-50 disabled:cursor-not-allowed ${
 									confirmModal.action === 'verify' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
 								}`}
 							>
-								{confirmModal.action === 'verify' ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-								Confirmar
+								{actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (confirmModal.action === 'verify' ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />)}
+								{actionLoading ? 'Processando...' : 'Confirmar'}
 							</button>
 						</div>
 					</div>

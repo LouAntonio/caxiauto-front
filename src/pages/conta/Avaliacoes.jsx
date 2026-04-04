@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import api, { notyf } from '../../services/api';
 import {
@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import { ListSkeleton } from '../../components/skeletons';
+import ButtonLoader from '../../components/ButtonLoader';
 
 const Avaliacoes = () => {
 	useDocumentTitle('Minhas Avaliações - CaxiAuto');
@@ -21,37 +23,67 @@ const Avaliacoes = () => {
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [total, setTotal] = useState(0);
+	const [deletingId, setDeletingId] = useState(null);
+	const [isFetching, setIsFetching] = useState(false);
+	const abortControllerRef = useRef(null);
 
 	useEffect(() => {
 		fetchReviews();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [page]);
 
-	const fetchReviews = async () => {
+	const fetchReviews = useCallback(async () => {
+		if (abortControllerRef.current) {
+			abortControllerRef.current.abort();
+		}
+		if (isFetching) return;
+
+		const controller = new AbortController();
+		abortControllerRef.current = controller;
+		setIsFetching(true);
 		setLoading(true);
+
 		try {
 			const response = await api.getMyReviews({ page, limit: 10 });
 
-			if (response.success) {
-				setReviews(response.data || []);
-				setTotal(response.pagination?.total || 0);
-				setTotalPages(response.pagination?.totalPages || 1);
-			} else {
-				notyf.error('Erro ao carregar avaliações');
-				setReviews([]);
+			if (!controller.signal.aborted) {
+				if (response.success) {
+					setReviews(response.data || []);
+					setTotal(response.pagination?.total || 0);
+					setTotalPages(response.pagination?.totalPages || 1);
+				} else {
+					notyf.error('Erro ao carregar avaliações');
+					setReviews([]);
+				}
 			}
 		} catch (error) {
-			console.error('Erro ao carregar avaliações:', error);
-			notyf.error('Erro ao carregar avaliações');
+			if (!controller.signal.aborted) {
+				console.error('Erro ao carregar avaliações:', error);
+				notyf.error('Erro ao carregar avaliações');
+			}
 		} finally {
-			setLoading(false);
+			if (!controller.signal.aborted) {
+				setLoading(false);
+				setIsFetching(false);
+			}
 		}
-	};
+	}, [page, isFetching]);
 
-	const handleDeleteReview = async (reviewId) => {
+	useEffect(() => {
+		return () => {
+			if (abortControllerRef.current) {
+				abortControllerRef.current.abort();
+			}
+		};
+	}, []);
+
+	const handleDeleteReview = useCallback(async (reviewId) => {
+		if (deletingId) return;
 		if (!window.confirm('Tem certeza que deseja excluir esta avaliação?')) {
 			return;
 		}
 
+		setDeletingId(reviewId);
 		try {
 			const response = await api.deleteReview(reviewId);
 
@@ -64,8 +96,10 @@ const Avaliacoes = () => {
 		} catch (error) {
 			console.error('Erro ao excluir avaliação:', error);
 			notyf.error('Erro ao excluir avaliação');
+		} finally {
+			setDeletingId(null);
 		}
-	};
+	}, [deletingId, fetchReviews]);
 
 	const renderStars = (rating) => {
 		return (
@@ -111,12 +145,7 @@ const Avaliacoes = () => {
 
 				{/* Lista de Avaliações */}
 				{loading ? (
-					<div className="flex items-center justify-center py-16">
-						<div className="text-center">
-							<Loader2 className="w-12 h-12 animate-spin text-[#154c9a] mx-auto mb-4" />
-							<p className="text-gray-600">Carregando avaliações...</p>
-						</div>
-					</div>
+					<ListSkeleton count={5} variant="compact" />
 				) : reviews.length === 0 ? (
 					<div className="text-center py-16">
 						<Star className="w-20 h-20 text-gray-300 mx-auto mb-4" />
@@ -175,13 +204,17 @@ const Avaliacoes = () => {
 									</div>
 
 									{/* Botão de Excluir */}
-									<button
+									<ButtonLoader
 										onClick={() => handleDeleteReview(review.id)}
-										className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+										loading={deletingId === review.id}
+										loadingText=""
+										variant="gray"
+										size="sm"
+										className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50"
 										title="Excluir avaliação"
 									>
 										<Trash2 className="w-5 h-5" />
-									</button>
+									</ButtonLoader>
 								</div>
 							</div>
 						))}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import api, { notyf } from '../../services/api';
 import {
@@ -15,6 +15,7 @@ import {
 	Briefcase
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import ButtonLoader from '../../components/ButtonLoader';
 
 const Documentos = () => {
 	useDocumentTitle('Documentos - CaxiAuto');
@@ -246,11 +247,28 @@ const Documentos = () => {
 	if (loading) {
 		return (
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-				<div className="flex items-center justify-center py-16">
-					<div className="text-center">
-						<Loader2 className="w-12 h-12 animate-spin text-[#154c9a] mx-auto mb-4" />
-						<p className="text-gray-600">Carregando documentos...</p>
+				<div className="flex items-center gap-3 mb-6">
+					<div className="w-12 h-12 bg-gray-200 rounded-lg animate-pulse" />
+					<div className="space-y-2">
+						<div className="h-7 bg-gray-200 rounded w-56 animate-pulse" />
+						<div className="h-4 bg-gray-200 rounded w-80 animate-pulse" />
 					</div>
+				</div>
+				<div className="space-y-6">
+					<div className="border-2 border-dashed border-gray-300 rounded-xl p-6">
+						<div className="h-5 bg-gray-200 rounded w-48 mb-4 animate-pulse" />
+						<div className="h-3 bg-gray-200 rounded w-full animate-pulse" />
+						<div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse" />
+					</div>
+					<div className="border-2 border-dashed border-gray-300 rounded-xl p-6">
+						<div className="h-5 bg-gray-200 rounded w-48 mb-4 animate-pulse" />
+						<div className="h-3 bg-gray-200 rounded w-full animate-pulse" />
+					</div>
+					<div className="border-2 border-dashed border-gray-300 rounded-xl p-6">
+						<div className="h-5 bg-gray-200 rounded w-48 mb-4 animate-pulse" />
+						<div className="h-3 bg-gray-200 rounded w-full animate-pulse" />
+					</div>
+					<div className="h-12 bg-gray-200 rounded-lg animate-pulse" />
 				</div>
 			</div>
 		);
@@ -331,23 +349,17 @@ const Documentos = () => {
 					/>
 
 					{/* Botão */}
-					<button
+					<ButtonLoader
 						type="submit"
-						disabled={uploading}
-						className="w-full bg-[#154c9a] text-white py-3 px-6 rounded-lg hover:bg-[#123f80] transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+						loading={uploading}
+						loadingText="Enviando Documentos..."
+						variant="primary"
+						size="lg"
+						className="w-full"
 					>
-						{uploading ? (
-							<>
-								<Loader2 className="w-5 h-5 animate-spin" />
-								Enviando Documentos...
-							</>
-						) : (
-							<>
-								<Upload className="w-5 h-5" />
-								{sellerDocs ? 'Atualizar Documentos' : 'Enviar Documentos para Verificação'}
-							</>
-						)}
-					</button>
+						<Upload className="w-5 h-5" />
+						{sellerDocs ? 'Atualizar Documentos' : 'Enviar Documentos para Verificação'}
+					</ButtonLoader>
 				</form>
 			</div>
 		</div>

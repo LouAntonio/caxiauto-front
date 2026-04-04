@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Heart, Car, Wrench, Calendar, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import api, { getImageUrl, notyf } from '../../services/api';
+import { VehicleCardSkeleton, PecaCardSkeleton } from '../../components/skeletons';
+import ButtonLoader from '../../components/ButtonLoader';
+import useAbortableFetch from '../../hooks/useAbortableFetch';
 
 const Favoritos = () => {
     useDocumentTitle('Favoritos - CaxiAuto');
@@ -10,6 +13,8 @@ const Favoritos = () => {
     const [loading, setLoading] = useState(true);
     const [vehicles, setVehicles] = useState([]);
     const [pecas, setPecas] = useState([]);
+    const [removingItems, setRemovingItems] = useState(new Set());
+    const { getSignal } = useAbortableFetch();
 
     useEffect(() => {
         const fetchFavorites = async () => {
@@ -34,7 +39,9 @@ const Favoritos = () => {
         fetchFavorites();
     }, []);
 
-    const handleRemoveVehicle = async (vehicleId) => {
+    const handleRemoveVehicle = useCallback(async (vehicleId) => {
+        if (removingItems.has(vehicleId)) return;
+        setRemovingItems(prev => new Set(prev).add(vehicleId));
         try {
             const res = await api.removeVehicleFromWishlist(vehicleId);
             if (res && res.success) {
@@ -45,10 +52,18 @@ const Favoritos = () => {
             }
         } catch {
             notyf.error('Erro ao remover veículo dos favoritos');
+        } finally {
+            setRemovingItems(prev => {
+                const next = new Set(prev);
+                next.delete(vehicleId);
+                return next;
+            });
         }
-    };
+    }, [removingItems]);
 
-    const handleRemovePeca = async (pecaId) => {
+    const handleRemovePeca = useCallback(async (pecaId) => {
+        if (removingItems.has(pecaId)) return;
+        setRemovingItems(prev => new Set(prev).add(pecaId));
         try {
             const res = await api.removePecaFromWishlist(pecaId);
             if (res && res.success) {
@@ -59,8 +74,14 @@ const Favoritos = () => {
             }
         } catch {
             notyf.error('Erro ao remover peça dos favoritos');
+        } finally {
+            setRemovingItems(prev => {
+                const next = new Set(prev);
+                next.delete(pecaId);
+                return next;
+            });
         }
-    };
+    }, [removingItems]);
 
     const totalItems = vehicles.length + pecas.length;
 
@@ -80,11 +101,9 @@ const Favoritos = () => {
                 </div>
 
                 {loading ? (
-                    <div className="flex items-center justify-center py-16">
-                        <div className="text-center">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
-                            <p className="text-gray-600">Carregando favoritos...</p>
-                        </div>
+                    <div className="space-y-8">
+                        <VehicleCardSkeleton count={3} />
+                        <PecaCardSkeleton count={3} />
                     </div>
                 ) : totalItems === 0 ? (
                     <div className="text-center py-16">
@@ -130,10 +149,15 @@ const Favoritos = () => {
 
                                                 <button
                                                     onClick={() => handleRemoveVehicle(vehicle.id)}
-                                                    className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-red-50 transition-colors shadow-sm group/btn"
+                                                    disabled={removingItems.has(vehicle.id)}
+                                                    className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-red-50 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                                     aria-label="Remover dos favoritos"
                                                 >
-                                                    <Heart className="w-4 h-4 text-red-500 fill-red-500 group-hover/btn:text-red-700" />
+                                                    {removingItems.has(vehicle.id) ? (
+                                                        <div className="animate-spin w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full" />
+                                                    ) : (
+                                                        <Heart className="w-4 h-4 text-red-500 fill-red-500 hover:text-red-700" />
+                                                    )}
                                                 </button>
                                             </div>
 
@@ -207,10 +231,15 @@ const Favoritos = () => {
 
                                                 <button
                                                     onClick={() => handleRemovePeca(peca.id)}
-                                                    className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-red-50 transition-colors shadow-sm group/btn"
+                                                    disabled={removingItems.has(peca.id)}
+                                                    className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-red-50 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                                     aria-label="Remover dos favoritos"
                                                 >
-                                                    <Heart className="w-4 h-4 text-red-500 fill-red-500 group-hover/btn:text-red-700" />
+                                                    {removingItems.has(peca.id) ? (
+                                                        <div className="animate-spin w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full" />
+                                                    ) : (
+                                                        <Heart className="w-4 h-4 text-red-500 fill-red-500 hover:text-red-700" />
+                                                    )}
                                                 </button>
                                             </div>
 

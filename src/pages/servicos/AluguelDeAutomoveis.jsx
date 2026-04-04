@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import {
-	Search,
-	GitCompare,
-	CheckCircle2,
-	Key,
 	Gauge,
 	Calendar,
 	MapPin,
 	Droplet,
 	AlertCircle,
 	Loader2,
-	Heart
+	Heart,
+	Key
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import RentalVehicleFilter from '../../components/RentalVehicleFilter';
 import Pagination from '../../components/Pagination';
+import CarCardSkeleton from '../../components/CarCardSkeleton';
 import api, { API_URL, getImageUrl, notyf } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -206,37 +204,6 @@ export default function AluguelDeAutomoveis() {
 		}
 	};
 
-	const steps = [
-		{
-			number: '01',
-			label: 'PASSO',
-			title: 'Pesquise pela Viatura',
-			description: 'Esolha a viatura ou pesquise por um modelo a sua escolha.',
-			icon: Search,
-		},
-		{
-			number: '02',
-			label: 'PASSO',
-			title: 'Compare Ofertas',
-			description: 'Analise preços, características e condições de diferentes veículos para encontrar a melhor opção.',
-			icon: GitCompare,
-		},
-		{
-			number: '03',
-			label: 'PASSO',
-			title: 'Reserve com Segurança',
-			description: 'Entre em contacto direto e finalize a sua reserva de forma rápida e segura.',
-			icon: Key,
-		},
-		{
-			number: '04',
-			label: 'PASSO',
-			title: 'Levante e Conduza',
-			description: 'Receba a viatura no local combinado e desfrute da sua viagem com total tranquilidade.',
-			icon: CheckCircle2,
-		}
-	];
-
 	return (
 		<main className="bg-gradient-to-b from-white to-gray-50 min-h-screen">
 			{/* Hero Section */}
@@ -266,43 +233,6 @@ export default function AluguelDeAutomoveis() {
 			</section>
 
 			<div className='max-w-7xl mx-auto'>
-				{/* Timeline Steps */}
-				<section className="pt-8 pb-4 px-6 overflow-hidden">
-					<div className="max-w-7xl mx-auto">
-						<div className="text-center mb-10">
-							<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Como Funciona</span>
-							<h2 className="text-3xl font-bold text-gray-900">Alugar nunca foi tão fácil</h2>
-						</div>
-
-						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-							{steps.map((step, index) => (
-								<div key={step.number} className="relative group">
-									<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-8 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 hover:from-white hover:to-blue-50 transition-all duration-300 transform group-hover:-translate-y-2 relative overflow-hidden h-full flex flex-col">
-										<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -m-10 opacity-40 group-hover:opacity-70 transition-opacity duration-500"></div>
-
-										<div className="relative mb-6 flex flex-col items-center text-center">
-											<div className="w-20 h-20 bg-gradient-to-br from-white to-blue-50 rounded-full shadow-[0_4px_20px_rgba(21,76,154,0.25)] flex flex-col items-center justify-center border-[5px] border-[#154c9a] group-hover:border-[6px] group-hover:scale-110 group-hover:shadow-[0_6px_25px_rgba(21,76,154,0.35)] transition-all duration-300 mb-4">
-												<span className="text-[10px] font-bold text-[#154c9a] uppercase tracking-widest">{step.label}</span>
-												<span className="text-3xl font-black bg-gradient-to-br from-[#154c9a] to-blue-700 bg-clip-text text-transparent leading-none">{step.number}</span>
-											</div>
-
-											<div className="w-16 h-16 bg-gradient-to-br from-[#154c9a] to-blue-600 rounded-2xl flex items-center justify-center shadow-[0_4px_15px_rgba(21,76,154,0.3)] text-white transform group-hover:rotate-12 group-hover:scale-110 group-hover:shadow-[0_6px_20px_rgba(21,76,154,0.4)] transition-all duration-300 mb-5">
-												<step.icon size={30} strokeWidth={2.5} />
-											</div>
-
-											<h3 className="text-xl font-bold text-gray-800 group-hover:text-[#154c9a] transition-colors mb-1">{step.title}</h3>
-										</div>
-
-										<p className="text-base text-gray-600 leading-relaxed font-medium text-center mt-auto">
-											{step.description}
-										</p>
-									</div>
-								</div>
-							))}
-						</div>
-					</div>
-				</section>
-
 				{/* Seção de Veículos com Sidebar Filter */}
 				<section className="py-8 px-6">
 					<div className="max-w-7xl mx-auto">
@@ -336,9 +266,8 @@ export default function AluguelDeAutomoveis() {
 
 								{/* Loading State */}
 								{loading && (
-									<div className="flex flex-col items-center justify-center py-20">
-										<Loader2 className="w-12 h-12 text-[#154c9a] animate-spin mb-4" />
-										<p className="text-gray-600 font-medium">Carregando veículos...</p>
+									<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+										<CarCardSkeleton count={8} className="w-full" />
 									</div>
 								)}
 
@@ -365,7 +294,7 @@ export default function AluguelDeAutomoveis() {
 								{/* Grid de Veículos */}
 								{!loading && !error && vehicles.length > 0 && (
 									<>
-										<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+										<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
 											{vehicles.map((car) => {
 												const price = getLowestPrice(car);
 												return (
@@ -385,7 +314,7 @@ export default function AluguelDeAutomoveis() {
 															{/* Badge de disponibilidade */}
 															<div className="absolute top-4 left-4">
 																<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${car.status === 'ACTIVE' ? 'bg-green-600 text-white' : 'bg-orange-500 text-white'
-																	}`}>
+																}`}>
 																	{car.status === 'ACTIVE' ? 'Disponível' : 'Indisponível'}
 																</span>
 															</div>
@@ -409,9 +338,9 @@ export default function AluguelDeAutomoveis() {
 																>
 																	<Heart
 																		className={`w-5 h-5 transition-all duration-200 ${favorites.has(car.id)
-																				? 'fill-red-500 text-red-500'
-																				: 'text-gray-600 hover:text-red-500'
-																			} ${loadingFavorites.has(car.id) ? 'opacity-50' : ''}`}
+																			? 'fill-red-500 text-red-500'
+																			: 'text-gray-600 hover:text-red-500'
+																		} ${loadingFavorites.has(car.id) ? 'opacity-50' : ''}`}
 																	/>
 																</button>
 															)}

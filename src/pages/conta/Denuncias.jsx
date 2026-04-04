@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import api, { notyf } from '../../services/api';
 import {
@@ -14,6 +14,7 @@ import {
 	Wrench
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import { ListSkeleton } from '../../components/skeletons';
 
 const Denuncias = () => {
 	useDocumentTitle('Minhas Denúncias - CaxiAuto');
@@ -25,34 +26,61 @@ const Denuncias = () => {
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [total, setTotal] = useState(0);
+	const [isFetching, setIsFetching] = useState(false);
+	const abortControllerRef = useRef(null);
 
 	useEffect(() => {
 		fetchReports();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [filter, page]);
 
-	const fetchReports = async () => {
+	const fetchReports = useCallback(async () => {
+		if (abortControllerRef.current) {
+			abortControllerRef.current.abort();
+		}
+		if (isFetching) return;
+
+		const controller = new AbortController();
+		abortControllerRef.current = controller;
+		setIsFetching(true);
 		setLoading(true);
+
 		try {
 			const params = { page, limit: 10 };
 			if (filter) params.status = filter;
 
 			const response = await api.getMyReports(params);
 
-			if (response.success) {
-				setReports(response.data || []);
-				setTotal(response.pagination?.total || 0);
-				setTotalPages(response.pagination?.totalPages || 1);
-			} else {
-				notyf.error('Erro ao carregar denúncias');
-				setReports([]);
+			if (!controller.signal.aborted) {
+				if (response.success) {
+					setReports(response.data || []);
+					setTotal(response.pagination?.total || 0);
+					setTotalPages(response.pagination?.totalPages || 1);
+				} else {
+					notyf.error('Erro ao carregar denúncias');
+					setReports([]);
+				}
 			}
 		} catch (error) {
-			console.error('Erro ao carregar denúncias:', error);
-			notyf.error('Erro ao carregar denúncias');
+			if (!controller.signal.aborted) {
+				console.error('Erro ao carregar denúncias:', error);
+				notyf.error('Erro ao carregar denúncias');
+			}
 		} finally {
-			setLoading(false);
+			if (!controller.signal.aborted) {
+				setLoading(false);
+				setIsFetching(false);
+			}
 		}
-	};
+	}, [filter, page, isFetching]);
+
+	useEffect(() => {
+		return () => {
+			if (abortControllerRef.current) {
+				abortControllerRef.current.abort();
+			}
+		};
+	}, []);
 
 	const getStatusBadge = (status) => {
 		const statusConfig = {
@@ -201,12 +229,7 @@ const Denuncias = () => {
 
 				{/* Lista de Denúncias */}
 				{loading ? (
-					<div className="flex items-center justify-center py-16">
-						<div className="text-center">
-							<Loader2 className="w-12 h-12 animate-spin text-[#154c9a] mx-auto mb-4" />
-							<p className="text-gray-600">Carregando denúncias...</p>
-						</div>
-					</div>
+					<ListSkeleton count={5} variant="compact" />
 				) : reports.length === 0 ? (
 					<div className="text-center py-16">
 						<AlertTriangle className="w-20 h-20 text-gray-300 mx-auto mb-4" />

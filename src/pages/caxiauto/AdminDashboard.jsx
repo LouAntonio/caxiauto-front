@@ -17,6 +17,7 @@ import {
 	ArrowDownRight
 } from 'lucide-react';
 import { getImageUrl } from '../../services/api';
+import { AdminStatsSkeleton, AdminTableSkeleton } from '../../components/skeletons';
 
 const AdminDashboard = () => {
 	const {
@@ -136,8 +137,65 @@ const AdminDashboard = () => {
 
 	if (loading) {
 		return (
-			<div className="flex items-center justify-center py-20">
-				<Loader2 className="w-12 h-12 text-[#154c9a] animate-spin" />
+			<div className="space-y-8">
+				{/* Header skeleton */}
+				<div className="mb-8">
+					<div className="h-9 bg-gray-200 rounded w-48 animate-pulse mb-2" />
+					<div className="h-5 bg-gray-200 rounded w-72 animate-pulse" />
+				</div>
+
+				{/* Stats cards skeleton */}
+				<AdminStatsSkeleton count={8} />
+
+				{/* Seção de Estatísticas Adicionais skeleton */}
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+					<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-pulse">
+						<div className="flex items-center justify-between mb-4">
+							<div className="h-6 bg-gray-200 rounded w-40" />
+							<div className="h-6 bg-gray-200 rounded w-16" />
+						</div>
+						<div className="h-4 bg-gray-200 rounded w-full" />
+					</div>
+					<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-pulse">
+						<div className="flex items-center justify-between mb-4">
+							<div className="h-6 bg-gray-200 rounded w-32" />
+							<div className="h-6 bg-gray-200 rounded w-16" />
+						</div>
+						<div className="h-4 bg-gray-200 rounded w-full" />
+					</div>
+				</div>
+
+				{/* Tabelas de recentes skeleton */}
+				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+					<div className="lg:col-span-2">
+						<AdminTableSkeleton rows={5} columns={5} />
+					</div>
+					<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-pulse">
+						<div className="p-6 border-b border-gray-200">
+							<div className="h-6 bg-gray-200 rounded w-40" />
+						</div>
+						<div className="divide-y divide-gray-100">
+							{Array.from({ length: 5 }).map((_, i) => (
+								<div key={i} className="p-4 space-y-3">
+									<div className="flex items-center gap-3">
+										<div className="w-10 h-10 bg-gray-300 rounded-full" />
+										<div className="space-y-2 flex-1">
+											<div className="h-4 bg-gray-200 rounded w-3/4" />
+											<div className="h-3 bg-gray-200 rounded w-1/2" />
+										</div>
+									</div>
+									<div className="flex gap-2">
+										<div className="h-5 bg-gray-200 rounded-full w-20" />
+										<div className="h-5 bg-gray-200 rounded-full w-16" />
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
+				</div>
+
+				{/* Peças Recentes skeleton */}
+				<AdminTableSkeleton rows={5} columns={5} />
 			</div>
 		);
 	}
@@ -318,8 +376,8 @@ const AdminDashboard = () => {
 										user.role === 'ADMIN'
 											? 'bg-purple-100 text-purple-800'
 											: user.role === 'SELLER'
-											? 'bg-blue-100 text-blue-800'
-											: 'bg-gray-100 text-gray-800'
+												? 'bg-blue-100 text-blue-800'
+												: 'bg-gray-100 text-gray-800'
 									}`}>
 										{user.role}
 									</span>
@@ -327,8 +385,8 @@ const AdminDashboard = () => {
 										user.status === 'ACTIVE'
 											? 'bg-green-100 text-green-800'
 											: user.status === 'BANNED'
-											? 'bg-red-100 text-red-800'
-											: 'bg-yellow-100 text-yellow-800'
+												? 'bg-red-100 text-red-800'
+												: 'bg-yellow-100 text-yellow-800'
 									}`}>
 										{user.status}
 									</span>
