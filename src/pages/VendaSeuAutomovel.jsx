@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import useDocumentTitle from '../hooks/useDocumentTitle'
 import {
@@ -12,13 +12,13 @@ import {
 	Zap,
 	Star,
 	ThumbsUp,
-	Car
+	Car,
+	ArrowRight,
+	Sparkles
 } from 'lucide-react'
 
 export default function VendaSeuAutomovel() {
 	useDocumentTitle('Venda a Sua Viatura - Caxiauto')
-
-	const [currentStep, setCurrentStep] = useState(1)
 
 	const steps = [
 		{
@@ -66,8 +66,9 @@ export default function VendaSeuAutomovel() {
 	]
 
 	return (
-		<main className="bg-gradient-to-b from-white to-gray-50 min-h-screen">{/* Hero Section */}
-			<section className="min-h-[calc(100vh-80px)] px-6 bg-[#154c9a] text-white relative overflow-hidden isolate flex items-center justify-center">
+		<main className="bg-gradient-to-b from-white to-gray-50 min-h-screen">
+			{/* Hero Section */}
+			<section className="min-h-[calc(100vh-80px)] px-6 bg-[#154c9a] text-white relative overflow-hidden isolate flex items-center justify-center py-28 sm:py-40">
 				<div
 					className="absolute inset-0 -z-10 opacity-10"
 					style={{
@@ -75,37 +76,58 @@ export default function VendaSeuAutomovel() {
 					}}
 				></div>
 
-				<div className="absolute top-0 right-0 -mr-20 -mt-20 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-3xl"></div>
-				<div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-3xl"></div>
+				{/* Gradiente de background */}
+				<div className="absolute inset-0 -z-10 bg-gradient-to-br from-[#154c9a] via-[#0f3d7a] to-[#154c9a] opacity-90"></div>
+
+				{/* Elementos decorativos */}
+				<div className="absolute top-0 right-0 -mr-32 -mt-32 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+				<div className="absolute bottom-0 left-0 -ml-32 -mb-32 w-[500px] h-[500px] bg-red-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+				<div className="absolute top-1/2 left-1/4 w-2 h-2 bg-white/20 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
+				<div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-white/30 rounded-full animate-bounce" style={{ animationDelay: '1.5s' }}></div>
 
 				<div className="max-w-4xl mx-auto text-center relative z-10">
-					<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-100 mb-6 backdrop-blur-sm">
+					{/* Badge decorativo */}
+					<div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 border border-white/20 text-blue-100 mb-8 backdrop-blur-sm shadow-lg">
 						<Car className="w-5 h-5" />
-						<span className="font-medium">Intermediação de Vendas</span>
+						<span className="font-semibold text-sm tracking-wide uppercase">Intermediação de Vendas</span>
 					</div>
-					<h1 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">
-						VENDA A SUA VIATURA COM A CAXIAUTO
+
+					<h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 tracking-tight leading-tight">
+						VENDA A SUA <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">VIATURA</span> COM A CAXIAUTO
 					</h1>
 					<p className="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed">
 						Rápido • Seguro • Sem complicações
 					</p>
-					<p className="text-lg text-blue-50 max-w-2xl mx-auto mb-8">
+					<p className="text-lg text-blue-50 max-w-2xl mx-auto mb-10">
 						Tratamos de todo o processo por si — desde o marketing até à venda final. Oferecemos um serviço completo de intermediação onde encontramos o comprador ideal para a sua viatura.
 					</p>
 					<Link
 						to="/auth"
-						className="inline-block bg-white text-[#154c9a] font-bold py-4 px-10 rounded-full hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+						className="inline-flex items-center gap-2 bg-white text-[#154c9a] font-bold py-5 px-12 rounded-full hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 group text-lg"
 					>
 						Registar Agora
+						<ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
 					</Link>
+
+					{/* Scroll indicator */}
+					<div className="mt-12 animate-bounce">
+						<div className="w-6 h-10 mx-auto border-2 border-white/30 rounded-full flex items-start justify-center p-1">
+							<div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+						</div>
+					</div>
 				</div>
 			</section>
 
 			{/* Timeline Steps - Como Funciona */}
-			<section className="py-24 px-6 overflow-hidden">
+			<section className="py-24 px-6 overflow-hidden relative">
+				<div className="absolute inset-0 bg-gradient-to-b from-white to-gray-50/50 -z-10"></div>
+
 				<div className="max-w-7xl mx-auto">
 					<div className="text-center mb-16">
-						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Processo Simples</span>
+						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-[#154c9a] mb-4">
+							<CheckCircle2 className="w-4 h-4" />
+							<span className="text-sm font-semibold">Processo Simples</span>
+						</div>
 						<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Como Funciona</h2>
 						<p className="text-xl text-gray-600 max-w-2xl mx-auto">
 							Apenas 4 passos para vender a sua viatura com segurança
@@ -113,7 +135,7 @@ export default function VendaSeuAutomovel() {
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-						{steps.map((step, index) => (
+						{steps.map((step) => (
 							<div key={step.number} className="relative group">
 								<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-8 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 hover:from-white hover:to-blue-50 transition-all duration-300 transform group-hover:-translate-y-2 relative overflow-hidden h-full flex flex-col">
 									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -m-10 opacity-40 group-hover:opacity-70 transition-opacity duration-500"></div>
@@ -142,12 +164,16 @@ export default function VendaSeuAutomovel() {
 			</section>
 
 			{/* Comissão Transparente */}
-			<section className="py-24 px-6 bg-white relative">
+			<section className="py-24 px-6 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
 				<div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+				<div className="absolute top-0 left-0 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl -z-10"></div>
 
 				<div className="max-w-7xl mx-auto">
 					<div className="text-center mb-16">
-						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Preços Justos</span>
+						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 border border-green-100 text-green-700 mb-4">
+							<DollarSign className="w-4 h-4" />
+							<span className="text-sm font-semibold">Preços Justos</span>
+						</div>
 						<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Comissão Transparente</h2>
 						<p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
 							Só paga se vender. Sem custos de registo ou mensalidades.
@@ -155,29 +181,32 @@ export default function VendaSeuAutomovel() {
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-						{commissions.map((item, index) => (
-							<div key={index} className="relative group">
-								<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-2xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-8 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 transition-all duration-300 transform group-hover:-translate-y-2 text-center">
-									<div className={`w-24 h-24 mx-auto mb-6 bg-gradient-to-br ${item.color} rounded-2xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-all duration-300`}>
-										<DollarSign className="w-12 h-12 text-white" strokeWidth={2.5} />
+						{commissions.map((item) => (
+							<div key={item.range} className="relative group">
+								<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-10 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 transition-all duration-500 transform group-hover:-translate-y-2 text-center overflow-hidden">
+									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -m-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+									<div className="relative">
+										<div className={`w-20 h-20 mx-auto mb-6 bg-gradient-to-br ${item.color} rounded-2xl flex items-center justify-center shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
+											<DollarSign className="w-10 h-10 text-white" strokeWidth={2.5} />
+										</div>
+										<p className="text-gray-700 font-semibold mb-4">{item.range}</p>
+										<p className="text-5xl font-black bg-gradient-to-br from-[#154c9a] to-blue-700 bg-clip-text text-transparent">{item.percentage}</p>
 									</div>
-									<p className="text-gray-700 font-semibold mb-4">{item.range}</p>
-									<p className="text-5xl font-black bg-gradient-to-br from-[#154c9a] to-blue-700 bg-clip-text text-transparent">{item.percentage}</p>
 								</div>
 							</div>
 						))}
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-						<div className="flex items-center gap-3 bg-green-50 p-4 rounded-xl border border-green-200">
+						<div className="flex items-center gap-3 bg-green-50 p-5 rounded-2xl border border-green-200 shadow-sm">
 							<CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
 							<span className="text-gray-700 font-medium">Sem custos de registo</span>
 						</div>
-						<div className="flex items-center gap-3 bg-green-50 p-4 rounded-xl border border-green-200">
+						<div className="flex items-center gap-3 bg-green-50 p-5 rounded-2xl border border-green-200 shadow-sm">
 							<CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
 							<span className="text-gray-700 font-medium">Sem mensalidades</span>
 						</div>
-						<div className="flex items-center gap-3 bg-green-50 p-4 rounded-xl border border-green-200">
+						<div className="flex items-center gap-3 bg-green-50 p-5 rounded-2xl border border-green-200 shadow-sm">
 							<CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
 							<span className="text-gray-700 font-medium">Só paga se vender</span>
 						</div>
@@ -186,27 +215,62 @@ export default function VendaSeuAutomovel() {
 			</section>
 
 			{/* Benefits Grid */}
-			<section className="py-24 px-6 bg-gradient-to-br from-gray-50 to-blue-50/30 relative">
+			<section className="py-24 px-6 bg-gradient-to-br from-gray-50 to-blue-50/30 relative overflow-hidden">
+				<div className="absolute top-0 right-0 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl -z-10"></div>
+
 				<div className="max-w-7xl mx-auto">
 					<div className="text-center mb-16">
-						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Vantagens</span>
+						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-50 border border-red-100 text-[#d41120] mb-4">
+							<Star className="w-4 h-4" />
+							<span className="text-sm font-semibold">Vantagens</span>
+						</div>
 						<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Porque Vender com a Caxiauto?</h2>
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-						{benefits.map((benefit, index) => (
-							<div key={index} className="group">
-								<div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-[#154c9a]/20 h-full">
-									<div className="w-16 h-16 bg-gradient-to-br from-[#154c9a] to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-										<benefit.icon className="w-8 h-8 text-white" strokeWidth={2.5} />
+						{benefits.map((benefit) => (
+							<div key={benefit.title} className="group">
+								<div className="bg-white rounded-3xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] p-8 hover:shadow-[0_20px_40px_-15px_rgba(21,76,154,0.15)] transition-all duration-500 transform hover:-translate-y-2 border-2 border-transparent hover:border-[#154c9a]/20 h-full relative overflow-hidden">
+									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-50 to-transparent rounded-full -m-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+									<div className="relative">
+										<div className="w-16 h-16 bg-gradient-to-br from-[#154c9a] to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg transform group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-xl transition-all duration-500">
+											<benefit.icon className="w-8 h-8 text-white" strokeWidth={2.5} />
+										</div>
+										<h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#154c9a] transition-colors">
+											{benefit.title}
+										</h3>
+										<p className="text-gray-600 leading-relaxed">{benefit.description}</p>
 									</div>
-									<h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#154c9a] transition-colors">
-										{benefit.title}
-									</h3>
-									<p className="text-gray-600 leading-relaxed">{benefit.description}</p>
 								</div>
 							</div>
 						))}
+					</div>
+				</div>
+			</section>
+
+			{/* CTA Final */}
+			<section className="relative bg-gradient-to-br from-[#154c9a] via-[#0f3d7a] to-[#154c9a] py-20 overflow-hidden">
+				<div className="absolute inset-0 opacity-10">
+					<div className="absolute top-0 right-0 w-96 h-96 bg-blue-400 rounded-full blur-3xl"></div>
+					<div className="absolute bottom-0 left-0 w-80 h-80 bg-red-400 rounded-full blur-3xl"></div>
+				</div>
+
+				<div className="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
+					<div className="text-center">
+						<div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 border border-white/20 text-blue-100 mb-6 backdrop-blur-sm">
+							<Sparkles className="w-5 h-5" />
+							<span className="font-semibold text-sm">Comece Agora</span>
+						</div>
+						<h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Pronto para vender a sua viatura?</h2>
+						<p className="text-lg text-blue-100 max-w-2xl mx-auto mb-8">Registe-se agora e encontre o comprador ideal para a sua viatura com total segurança.</p>
+						<Link
+							to="/auth"
+							className="inline-flex items-center justify-center gap-2 bg-white text-[#154c9a] px-10 py-5 rounded-2xl font-semibold hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 group text-lg"
+						>
+							<Car className="w-5 h-5" />
+							Registar Agora
+							<ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+						</Link>
 					</div>
 				</div>
 			</section>
