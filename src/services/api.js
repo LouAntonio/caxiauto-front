@@ -255,6 +255,32 @@ const api = {
 		return api.get(`/vehicles/featured?${queryString}`);
 	},
 
+	// ==================== VEÍCULOS (ADMIN) ====================
+	adminListPendingVehicles: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/vehicles/admin/pending?${queryString}`, {}, true);
+	},
+
+	adminGetVehicleDetails: (id) => {
+		return api.get(`/vehicles/admin/${id}/details`, {}, true);
+	},
+
+	adminApproveVehicle: (id) => {
+		return api.put(`/vehicles/admin/${id}/approve`, {}, {}, true);
+	},
+
+	adminRejectVehicle: (id, reason) => {
+		return api.put(`/vehicles/admin/${id}/reject`, { reason }, {}, true);
+	},
+
+	adminSetVehicleFeatured: (id, featuredUntil) => {
+		return api.put(`/vehicles/admin/${id}/featured`, { featuredUntil }, {}, true);
+	},
+
+	adminRemoveVehicleFeatured: (id) => {
+		return api.delete(`/vehicles/admin/${id}/featured`, {}, true);
+	},
+
 	// ==================== FABRICANTES E CLASSES ====================
 	getManufacturers: () => {
 		return api.get('/vehicles/manufacturers');
