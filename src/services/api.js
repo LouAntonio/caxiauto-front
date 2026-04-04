@@ -211,8 +211,20 @@ const api = {
 		return api.patch('/users/update-role', { userId, role }, {}, true);
 	},
 
-	toggleUserStatus: (userId, status) => {
-		return api.patch('/users/toggle-status', { userId, status }, {}, true);
+	toggleUserStatus: (userId, status, reason) => {
+		return api.patch('/users/toggle-status', { userId, status, reason }, {}, true);
+	},
+
+	adminGetUserDetails: (id) => {
+		return api.get(`/users/admin/${id}/details`, {}, true);
+	},
+
+	adminVerifyUser: (userId, isVerified) => {
+		return api.put(`/users/admin/${userId}/verify`, { isVerified }, {}, true);
+	},
+
+	adminResetUserPassword: (userId) => {
+		return api.post(`/users/admin/${userId}/reset-password`, {}, {}, true);
 	},
 
 	// ==================== VEÍCULOS ====================
@@ -565,6 +577,10 @@ const api = {
 
 	verifySeller: (sellerId, isVerified = true) => {
 		return api.put(`/admin/sellers/${sellerId}/verify`, { isVerified }, {}, true);
+	},
+
+	adminGetSellerDetails: (id) => {
+		return api.get(`/admin/sellers/${id}/details`, {}, true);
 	},
 
 	// ==================== ADMIN - FABRICANTES E CLASSES ====================

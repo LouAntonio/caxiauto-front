@@ -158,6 +158,16 @@ export const AdminProvider = ({ children }) => {
 		}
 	};
 
+	const adminGetSellerDetails = async (id) => {
+		try {
+			const data = await api.adminGetSellerDetails(id);
+			return data;
+		} catch (error) {
+			console.error('Erro ao obter detalhes do vendedor:', error);
+			return { success: false, message: error.message };
+		}
+	};
+
 	// ==================== FABRICANTES ====================
 	const listManufacturers = async () => {
 		try {
@@ -295,6 +305,7 @@ export const AdminProvider = ({ children }) => {
 		getPendingSellers,
 		getSellerDocs,
 		verifySeller,
+		adminGetSellerDetails,
 		listManufacturers,
 		createManufacturer,
 		listClasses,
