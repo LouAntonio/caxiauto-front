@@ -1,6 +1,6 @@
 import React from 'react';
 import useDocumentTitle from '../hooks/useDocumentTitle';
-import { Search, Scale, MessageCircle, ShieldCheck, ShoppingCart, Store, Wrench, Truck, Car, Users, ArrowRight } from 'lucide-react';
+import { Search, Scale, MessageCircle, ShieldCheck, ShoppingCart, Store, Wrench, Truck, Car, Users, ArrowRight, Key, GitCompare, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function ComoFunciona() {
@@ -46,6 +46,37 @@ export default function ComoFunciona() {
 		{ icon: Users, title: 'Particulares que precisam de aluguer de viaturas' }
 	];
 
+	const aluguelSteps = [
+		{
+			number: '01',
+			label: 'PASSO',
+			title: 'Pesquise pela Viatura',
+			description: 'Escolha a viatura ou pesquise por um modelo à sua escolha.',
+			icon: Search,
+		},
+		{
+			number: '02',
+			label: 'PASSO',
+			title: 'Compare Ofertas',
+			description: 'Analise preços, características e condições de diferentes veículos para encontrar a melhor opção.',
+			icon: GitCompare,
+		},
+		{
+			number: '03',
+			label: 'PASSO',
+			title: 'Reserve com Segurança',
+			description: 'Entre em contacto direto e finalize a sua reserva de forma rápida e segura.',
+			icon: Key,
+		},
+		{
+			number: '04',
+			label: 'PASSO',
+			title: 'Levante e Conduza',
+			description: 'Receba a viatura no local combinado e desfrute da sua viagem com total tranquilidade.',
+			icon: CheckCircle2,
+		}
+	];
+
 	return (
 		<main className="bg-gradient-to-b from-white to-gray-50 min-h-screen">
 			{/* Hero Section */}
@@ -79,7 +110,7 @@ export default function ComoFunciona() {
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-						{steps.map((step, index) => (
+						{steps.map((step) => (
 							<div key={step.number} className="relative group">
 								<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-8 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 hover:from-white hover:to-blue-50 transition-all duration-300 transform group-hover:-translate-y-2 relative overflow-hidden h-full flex flex-col">
 									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -m-10 opacity-40 group-hover:opacity-70 transition-opacity duration-500"></div>
@@ -121,9 +152,9 @@ export default function ComoFunciona() {
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-						{audience.map((item, index) => (
+						{audience.map((item) => (
 							<div
-								key={index}
+								key={item.title}
 								className="group bg-gray-50 hover:bg-white p-8 rounded-3xl border border-transparent hover:border-gray-100 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-300 text-center md:text-left"
 							>
 								<div className="w-14 h-14 mx-auto md:mx-0 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 text-[#154c9a] group-hover:scale-110 group-hover:bg-[#154c9a] group-hover:text-white transition-all duration-300 border border-gray-100">
@@ -135,6 +166,60 @@ export default function ComoFunciona() {
 								<div className="h-1 w-12 bg-gray-200 mx-auto md:mx-0 rounded-full group-hover:w-full group-hover:bg-[#154c9a]/20 transition-all duration-500"></div>
 							</div>
 						))}
+					</div>
+				</div>
+			</section>
+
+			{/* Aluguel de Automóveis Section */}
+			<section className="py-24 px-6 overflow-hidden relative">
+				<div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+				<div className="absolute top-0 right-0 w-96 h-96 bg-blue-100/30 rounded-full blur-3xl -z-10"></div>
+
+				<div className="max-w-7xl mx-auto">
+					<div className="text-center mb-10">
+						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Aluguel de Automóveis</span>
+						<h2 className="text-3xl font-bold text-gray-900 mb-4">Alugar nunca foi tão fácil</h2>
+						<p className="text-lg text-gray-600 max-w-2xl mx-auto">
+							Encontre o carro perfeito para a sua viagem, negócios ou eventos em apenas 4 passos.
+						</p>
+					</div>
+
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+						{aluguelSteps.map((step) => (
+							<div key={step.number} className="relative group">
+								<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-8 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 hover:from-white hover:to-blue-50 transition-all duration-300 transform group-hover:-translate-y-2 relative overflow-hidden h-full flex flex-col">
+									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -m-10 opacity-40 group-hover:opacity-70 transition-opacity duration-500"></div>
+
+									<div className="relative mb-6 flex flex-col items-center text-center">
+										<div className="w-20 h-20 bg-gradient-to-br from-white to-blue-50 rounded-full shadow-[0_4px_20px_rgba(21,76,154,0.25)] flex flex-col items-center justify-center border-[5px] border-[#154c9a] group-hover:border-[6px] group-hover:scale-110 group-hover:shadow-[0_6px_25px_rgba(21,76,154,0.35)] transition-all duration-300 mb-4">
+											<span className="text-[10px] font-bold text-[#154c9a] uppercase tracking-widest">{step.label}</span>
+											<span className="text-3xl font-black bg-gradient-to-br from-[#154c9a] to-blue-700 bg-clip-text text-transparent leading-none">{step.number}</span>
+										</div>
+
+										<div className="w-16 h-16 bg-gradient-to-br from-[#154c9a] to-blue-600 rounded-2xl flex items-center justify-center shadow-[0_4px_15px_rgba(21,76,154,0.3)] text-white transform group-hover:rotate-12 group-hover:scale-110 group-hover:shadow-[0_6px_20px_rgba(21,76,154,0.4)] transition-all duration-300 mb-5">
+											<step.icon size={30} strokeWidth={2.5} />
+										</div>
+
+										<h3 className="text-xl font-bold text-gray-800 group-hover:text-[#154c9a] transition-colors mb-1">{step.title}</h3>
+									</div>
+
+									<p className="text-base text-gray-600 leading-relaxed font-medium text-center mt-auto">
+										{step.description}
+									</p>
+								</div>
+							</div>
+						))}
+					</div>
+
+					{/* CTA */}
+					<div className="text-center mt-12">
+						<Link
+							to="/servicos/aluguel-de-automoveis"
+							className="inline-flex items-center gap-2 bg-[#154c9a] text-white px-8 py-4 rounded-2xl font-semibold hover:bg-[#0f3d7a] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+						>
+							Ver Veículos Disponíveis
+							<ArrowRight className="w-5 h-5" />
+						</Link>
 					</div>
 				</div>
 			</section>
