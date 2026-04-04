@@ -330,6 +330,32 @@ const api = {
 		return api.get(`/pecas/featured?${queryString}`);
 	},
 
+	// ==================== PEÇAS (ADMIN) ====================
+	adminListPendingPecas: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/pecas/admin/pending?${queryString}`, {}, true);
+	},
+
+	adminGetPecaDetails: (id) => {
+		return api.get(`/pecas/admin/${id}/details`, {}, true);
+	},
+
+	adminApprovePeca: (id) => {
+		return api.put(`/pecas/admin/${id}/approve`, {}, {}, true);
+	},
+
+	adminRejectPeca: (id, reason) => {
+		return api.put(`/pecas/admin/${id}/reject`, { reason }, {}, true);
+	},
+
+	adminSetPecaFeatured: (id, featuredUntil) => {
+		return api.put(`/pecas/admin/${id}/featured`, { featuredUntil }, {}, true);
+	},
+
+	adminRemovePecaFeatured: (id) => {
+		return api.delete(`/pecas/admin/${id}/featured`, {}, true);
+	},
+
 	// ==================== CATEGORIAS DE PEÇAS ====================
 	listCategorias: (params = {}) => {
 		const queryString = new URLSearchParams(params).toString();
