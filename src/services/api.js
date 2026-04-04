@@ -211,8 +211,20 @@ const api = {
 		return api.patch('/users/update-role', { userId, role }, {}, true);
 	},
 
-	toggleUserStatus: (userId, status) => {
-		return api.patch('/users/toggle-status', { userId, status }, {}, true);
+	toggleUserStatus: (userId, status, reason) => {
+		return api.patch('/users/toggle-status', { userId, status, reason }, {}, true);
+	},
+
+	adminGetUserDetails: (id) => {
+		return api.get(`/users/admin/${id}/details`, {}, true);
+	},
+
+	adminVerifyUser: (userId, isVerified) => {
+		return api.put(`/users/admin/${userId}/verify`, { isVerified }, {}, true);
+	},
+
+	adminResetUserPassword: (userId) => {
+		return api.post(`/users/admin/${userId}/reset-password`, {}, {}, true);
 	},
 
 	// ==================== VEÍCULOS ====================
@@ -253,6 +265,32 @@ const api = {
 	listFeaturedVehicles: (params = {}) => {
 		const queryString = new URLSearchParams(params).toString();
 		return api.get(`/vehicles/featured?${queryString}`);
+	},
+
+	// ==================== VEÍCULOS (ADMIN) ====================
+	adminListPendingVehicles: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/vehicles/admin/pending?${queryString}`, {}, true);
+	},
+
+	adminGetVehicleDetails: (id) => {
+		return api.get(`/vehicles/admin/${id}/details`, {}, true);
+	},
+
+	adminApproveVehicle: (id) => {
+		return api.put(`/vehicles/admin/${id}/approve`, {}, {}, true);
+	},
+
+	adminRejectVehicle: (id, reason) => {
+		return api.put(`/vehicles/admin/${id}/reject`, { reason }, {}, true);
+	},
+
+	adminSetVehicleFeatured: (id, featuredUntil) => {
+		return api.put(`/vehicles/admin/${id}/featured`, { featuredUntil }, {}, true);
+	},
+
+	adminRemoveVehicleFeatured: (id) => {
+		return api.delete(`/vehicles/admin/${id}/featured`, {}, true);
 	},
 
 	// ==================== FABRICANTES E CLASSES ====================
@@ -302,6 +340,32 @@ const api = {
 	listFeaturedPecas: (params = {}) => {
 		const queryString = new URLSearchParams(params).toString();
 		return api.get(`/pecas/featured?${queryString}`);
+	},
+
+	// ==================== PEÇAS (ADMIN) ====================
+	adminListPendingPecas: (params = {}) => {
+		const queryString = new URLSearchParams(params).toString();
+		return api.get(`/pecas/admin/pending?${queryString}`, {}, true);
+	},
+
+	adminGetPecaDetails: (id) => {
+		return api.get(`/pecas/admin/${id}/details`, {}, true);
+	},
+
+	adminApprovePeca: (id) => {
+		return api.put(`/pecas/admin/${id}/approve`, {}, {}, true);
+	},
+
+	adminRejectPeca: (id, reason) => {
+		return api.put(`/pecas/admin/${id}/reject`, { reason }, {}, true);
+	},
+
+	adminSetPecaFeatured: (id, featuredUntil) => {
+		return api.put(`/pecas/admin/${id}/featured`, { featuredUntil }, {}, true);
+	},
+
+	adminRemovePecaFeatured: (id) => {
+		return api.delete(`/pecas/admin/${id}/featured`, {}, true);
 	},
 
 	// ==================== CATEGORIAS DE PEÇAS ====================
@@ -515,6 +579,10 @@ const api = {
 		return api.put(`/admin/sellers/${sellerId}/verify`, { isVerified }, {}, true);
 	},
 
+	adminGetSellerDetails: (id) => {
+		return api.get(`/admin/sellers/${id}/details`, {}, true);
+	},
+
 	// ==================== ADMIN - FABRICANTES E CLASSES ====================
 	listManufacturers: () => {
 		return api.get('/admin/manufacturers', {}, true);
@@ -524,12 +592,33 @@ const api = {
 		return api.post('/admin/manufacturers', { name }, {}, true);
 	},
 
+	updateManufacturer: (id, name) => {
+		return api.put(`/admin/manufacturers/${id}`, { name }, {}, true);
+	},
+
+	deleteManufacturer: (id) => {
+		return api.delete(`/admin/manufacturers/${id}`, {}, true);
+	},
+
 	listClasses: () => {
 		return api.get('/admin/classes', {}, true);
 	},
 
 	createClass: (name) => {
 		return api.post('/admin/classes', { name }, {}, true);
+	},
+
+	updateClass: (id, name) => {
+		return api.put(`/admin/classes/${id}`, { name }, {}, true);
+	},
+
+	deleteClass: (id) => {
+		return api.delete(`/admin/classes/${id}`, {}, true);
+	},
+
+	adminListAllReviews: (params = {}) => {
+		const qs = new URLSearchParams(params).toString();
+		return api.get(`/admin/reviews?${qs}`, {}, true);
 	},
 
 	// ==================== ADMIN - PLANOS E PACOTES DE DESTAQUE ====================

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api, { notyf } from '../../services/api';
 import { handleAdminAuthError } from '../../utils/adminUtils';
-import { FolderTree, Search, Edit2, Trash2, Loader2, Plus } from 'lucide-react';
+import { FolderTree, Search, Edit2, Trash2, Loader2, Plus, X } from 'lucide-react';
 
 const AdminCategorias = () => {
 	const [loading, setLoading] = useState(true);
@@ -16,7 +16,7 @@ const AdminCategorias = () => {
 		setLoading(true);
 		try {
 			const params = new URLSearchParams({ page: pagination.currentPage, limit: 20 });
-			if (search) params.append('search', search);
+			if (search.trim()) params.append('search', search.trim());
 			const response = await api.listCategorias(Object.fromEntries(params));
 			if (response.success) {
 				setCategorias(response.data);
@@ -27,9 +27,12 @@ const AdminCategorias = () => {
 				});
 			} else if (handleAdminAuthError(response)) {
 				return;
+			} else {
+				notyf.error(response.msg || 'Erro ao carregar categorias');
 			}
 		} catch (error) {
 			console.error('Erro ao carregar categorias:', error);
+			notyf.error('Erro ao carregar categorias');
 		} finally {
 			setLoading(false);
 		}
@@ -37,10 +40,14 @@ const AdminCategorias = () => {
 
 	useEffect(() => {
 		loadCategorias();
-	}, [pagination.currentPage, search]);
+	}, [pagination.currentPage]);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		if (!formData.name.trim()) {
+			notyf.error('O nome da categoria é obrigatório');
+			return;
+		}
 		try {
 			let response;
 			if (editingCategory) {
@@ -57,7 +64,7 @@ const AdminCategorias = () => {
 			} else if (handleAdminAuthError(response)) {
 				return;
 			} else {
-				notyf.error('Erro ao salvar categoria');
+				notyf.error(response.msg || 'Erro ao salvar categoria');
 			}
 		} catch (error) {
 			notyf.error('Erro ao salvar categoria');
@@ -93,6 +100,31 @@ const AdminCategorias = () => {
 		setShowModal(true);
 	};
 
+	const handleSearch = (e) => {
+		e.preventDefault();
+		setPagination({ ...pagination, currentPage: 1 });
+		loadCategorias();
+	};
+
+	const handleClearSearch = () => {
+		setSearch('');
+		setPagination({ ...pagination, currentPage: 1 });
+		// Recarregar sem pesquisa após limpar
+		setTimeout(() => {
+			setLoading(true);
+			api.listCategorias({ page: 1, limit: 20 }).then(response => {
+				if (response.success) {
+					setCategorias(response.data);
+					setPagination({
+						currentPage: response.pagination.currentPage,
+						totalPages: response.pagination.totalPages,
+						total: response.pagination.totalItems,
+					});
+				}
+			}).catch(err => console.error('Erro:', err)).finally(() => setLoading(false));
+		}, 0);
+	};
+
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
@@ -105,8 +137,9 @@ const AdminCategorias = () => {
 				</button>
 			</div>
 
-			<div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-				<div className="flex gap-4">
+			{/* Pesquisa */}
+			<form onSubmit={handleSearch} className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+				<div className="flex gap-3">
 					<div className="relative flex-1">
 						<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
 						<input
@@ -114,12 +147,28 @@ const AdminCategorias = () => {
 							placeholder="Buscar categorias..."
 							value={search}
 							onChange={(e) => setSearch(e.target.value)}
-							className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
+							className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
 						/>
+						{search && (
+							<button
+								type="button"
+								onClick={handleClearSearch}
+								className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+							>
+								<X className="w-4 h-4" />
+							</button>
+						)}
 					</div>
+					<button
+						type="submit"
+						className="bg-[#154c9a] text-white px-6 py-2 rounded-lg hover:bg-[#123f80] transition-colors flex items-center gap-2"
+					>
+						<Search className="w-5 h-5" /> Pesquisar
+					</button>
 				</div>
-			</div>
+			</form>
 
+			{/* Tabela */}
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 				{loading ? (
 					<div className="flex items-center justify-center py-20"><Loader2 className="w-12 h-12 text-[#154c9a] animate-spin" /></div>
@@ -159,6 +208,7 @@ const AdminCategorias = () => {
 				)}
 			</div>
 
+			{/* Paginação */}
 			{pagination.totalPages > 1 && (
 				<div className="flex items-center justify-center gap-2">
 					<button onClick={() => setPagination({ ...pagination, currentPage: pagination.currentPage - 1 })} disabled={pagination.currentPage === 1} className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50">Anterior</button>
@@ -178,8 +228,9 @@ const AdminCategorias = () => {
 								<input
 									type="text"
 									value={formData.name}
-									onChange={(e) => setFormData({ name: e.target.value.toLowerCase().trim() })}
+									onChange={(e) => setFormData({ name: e.target.value })}
 									className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
+									placeholder="Ex: Motor, Suspensão, Travões..."
 									required
 								/>
 							</div>
