@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import {
 	Car,
@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import api, { API_URL, getImageUrl } from '../../services/api';
+import { VehicleCardSkeleton } from '../../components/skeletons';
+import ButtonLoader from '../../components/ButtonLoader';
 
 const Veiculos = () => {
 	useDocumentTitle('Meus Veículos - CaxiAuto');
@@ -33,6 +35,9 @@ const Veiculos = () => {
 	const [editingVehicle, setEditingVehicle] = useState(null);
 	const [message, setMessage] = useState({ type: '', text: '' });
 	const [loading, setLoading] = useState(false);
+	const [actionLoading, setActionLoading] = useState(new Set());
+	const [isFetching, setIsFetching] = useState(false);
+	const abortControllerRef = useRef(null);
 	const [mediaFiles, setMediaFiles] = useState([]);
 	const [documentsFiles, setDocumentsFiles] = useState([]);
 	const [newCharacteristic, setNewCharacteristic] = useState('');
@@ -93,16 +98,39 @@ const Veiculos = () => {
 		}
 	};
 
-	const loadVehicles = async () => {
+	const loadVehicles = useCallback(async () => {
+		if (abortControllerRef.current) {
+			abortControllerRef.current.abort();
+		}
+		if (isFetching) return;
+
+		const controller = new AbortController();
+		abortControllerRef.current = controller;
+		setIsFetching(true);
+
 		try {
 			const response = await api.get('/vehicles/my-vehicles');
-			if (response.success) {
+			if (!controller.signal.aborted && response.success) {
 				setVehicles(response.data);
 			}
 		} catch (error) {
-			console.error('Erro ao carregar veículos:', error);
+			if (!controller.signal.aborted) {
+				console.error('Erro ao carregar veículos:', error);
+			}
+		} finally {
+			if (!controller.signal.aborted) {
+				setIsFetching(false);
+			}
 		}
-	};
+	}, [isFetching]);
+
+	useEffect(() => {
+		return () => {
+			if (abortControllerRef.current) {
+				abortControllerRef.current.abort();
+			}
+		};
+	}, []);
 
 	const formatFuelType = (type) => {
 		const map = {
@@ -354,10 +382,12 @@ const Veiculos = () => {
 	};
 
 	const handleDelete = (vehicleId) => {
+		if (actionLoading.has(`delete-${vehicleId}`)) return;
 		setConfirmTitle('Excluir Veículo');
 		setConfirmMessage('Tem certeza que deseja excluir este veículo? Esta ação não pode ser desfeita.');
 		setConfirmType('danger');
 		setConfirmAction(() => async () => {
+			setActionLoading(prev => new Set(prev).add(`delete-${vehicleId}`));
 			try {
 				const response = await api.delete(`/vehicles/${vehicleId}`);
 				if (response.success) {
@@ -370,17 +400,25 @@ const Veiculos = () => {
 			} catch (error) {
 				console.error('Erro ao excluir veículo:', error);
 				setMessage({ type: 'error', text: 'Erro ao excluir veículo.' });
+			} finally {
+				setActionLoading(prev => {
+					const next = new Set(prev);
+					next.delete(`delete-${vehicleId}`);
+					return next;
+				});
 			}
 		});
 		setShowConfirmModal(true);
 	};
 
 	const handleToggleStatus = (vehicleId, currentStatus) => {
+		if (actionLoading.has(`toggle-${vehicleId}`)) return;
 		const newStatus = currentStatus === 'active' ? 'inativo' : 'ativo';
 		setConfirmTitle('Alterar Status');
 		setConfirmMessage(`Tem certeza que deseja tornar este veículo ${newStatus}?`);
 		setConfirmType(currentStatus === 'active' ? 'warning' : 'success');
 		setConfirmAction(() => async () => {
+			setActionLoading(prev => new Set(prev).add(`toggle-${vehicleId}`));
 			try {
 				const response = await api.put(`/vehicles/${vehicleId}/toggle-status`);
 				if (response.success) {
@@ -393,6 +431,12 @@ const Veiculos = () => {
 			} catch (error) {
 				console.error('Erro ao alterar status:', error);
 				setMessage({ type: 'error', text: 'Erro ao alterar status do veículo.' });
+			} finally {
+				setActionLoading(prev => {
+					const next = new Set(prev);
+					next.delete(`toggle-${vehicleId}`);
+					return next;
+				});
 			}
 		});
 		setShowConfirmModal(true);
@@ -432,7 +476,9 @@ const Veiculos = () => {
 			)}
 
 			{/* Lista de veículos */}
-			{vehicles.length === 0 ? (
+			{isFetching ? (
+				<VehicleCardSkeleton count={4} />
+			) : vehicles.length === 0 ? (
 				<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
 					<Car className="w-16 h-16 text-gray-300 mx-auto mb-4" />
 					<h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -535,30 +581,35 @@ const Veiculos = () => {
 
 								{/* Botões de ação */}
 								<div className="flex gap-2 pt-4 border-t">
-									<button
+									<ButtonLoader
 										onClick={() => handleOpenModal(vehicle)}
-										className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#154c9a] text-white rounded-lg hover:bg-[#123f80] transition-colors cursor-pointer"
+										variant="primary"
+										className="flex-1"
+										size="sm"
 									>
 										<Edit2 className="w-4 h-4" />
 										Editar
-									</button>
-									<button
+									</ButtonLoader>
+									<ButtonLoader
 										onClick={() => handleToggleStatus(vehicle.id, vehicle.status)}
-										className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors cursor-pointer ${vehicle.status === 'active'
-											? 'bg-orange-500 text-white hover:bg-orange-600'
-											: 'bg-green-500 text-white hover:bg-green-600'
-											}`}
+										loading={actionLoading.has(`toggle-${vehicle.id}`)}
+										loadingText=""
+										variant={vehicle.status === 'active' ? 'warning' : 'success'}
+										size="sm"
 										title={vehicle.status === 'active' ? 'Desativar veículo' : 'Ativar veículo'}
 									>
 										<Power className="w-4 h-4" />
-									</button>
-									<button
+									</ButtonLoader>
+									<ButtonLoader
 										onClick={() => handleDelete(vehicle.id)}
-										className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
+										loading={actionLoading.has(`delete-${vehicle.id}`)}
+										loadingText=""
+										variant="danger"
+										size="sm"
 										title="Excluir veículo"
 									>
 										<Trash2 className="w-4 h-4" />
-									</button>
+									</ButtonLoader>
 								</div>
 							</div>
 						</div>
@@ -974,14 +1025,17 @@ const Veiculos = () => {
 								>
 									Cancelar
 								</button>
-								<button
+								<ButtonLoader
 									type="submit"
-									disabled={loading}
-									className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[#154c9a] to-blue-600 text-white font-semibold rounded-xl hover:from-[#123f80] hover:to-blue-700 shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
+									loading={loading}
+									loadingText="Enviando..."
+									variant="primary"
+									size="lg"
+									className="flex-1"
 								>
 									<Save className="w-5 h-5" />
-									{loading ? 'Enviando...' : (editingVehicle ? 'Salvar Alterações' : 'Adicionar Veículo')}
-								</button>
+									{editingVehicle ? 'Salvar Alterações' : 'Adicionar Veículo'}
+								</ButtonLoader>
 							</div>
 						</form>
 					</div>

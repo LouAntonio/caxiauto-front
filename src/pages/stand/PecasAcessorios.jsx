@@ -385,7 +385,7 @@ export default function PecasAcessorios() {
 						</div>
 
 						{loading ? (
-							<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+							<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
 								<PecaCardSkeleton count={8} className="w-full" />
 							</div>
 						) : parts.length === 0 ? (

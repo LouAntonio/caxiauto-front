@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import api, { notyf } from '../../services/api';
 import {
@@ -13,6 +13,8 @@ import {
 	Car
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import { SkeletonCard } from '../../components/skeletons';
+import ButtonLoader from '../../components/ButtonLoader';
 
 const Assinatura = () => {
 	useDocumentTitle('Minha Assinatura - CaxiAuto');
@@ -149,11 +151,35 @@ const Assinatura = () => {
 
 	if (loading) {
 		return (
-			<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-				<div className="flex items-center justify-center py-16">
-					<div className="text-center">
-						<Loader2 className="w-12 h-12 animate-spin text-[#154c9a] mx-auto mb-4" />
-						<p className="text-gray-600">Carregando planos e assinaturas...</p>
+			<div className="space-y-6">
+				{/* Skeleton da assinatura atual */}
+				<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+					<div className="flex items-center gap-3 mb-6">
+						<div className="w-12 h-12 bg-gray-200 rounded-lg animate-pulse" />
+						<div className="space-y-2">
+							<div className="h-7 bg-gray-200 rounded w-48 animate-pulse" />
+							<div className="h-4 bg-gray-200 rounded w-64 animate-pulse" />
+						</div>
+					</div>
+					<div className="border-2 border-dashed border-gray-300 rounded-xl p-6">
+						<div className="w-16 h-16 bg-gray-200 rounded mx-auto mb-4 animate-pulse" />
+						<div className="h-5 bg-gray-200 rounded w-48 mx-auto mb-2 animate-pulse" />
+						<div className="h-4 bg-gray-200 rounded w-80 mx-auto animate-pulse" />
+					</div>
+				</div>
+				{/* Skeleton dos planos */}
+				<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+					<div className="flex items-center gap-3 mb-6">
+						<div className="w-12 h-12 bg-gray-200 rounded-lg animate-pulse" />
+						<div className="space-y-2">
+							<div className="h-7 bg-gray-200 rounded w-48 animate-pulse" />
+							<div className="h-4 bg-gray-200 rounded w-64 animate-pulse" />
+						</div>
+					</div>
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+						<SkeletonCard />
+						<SkeletonCard />
+						<SkeletonCard />
 					</div>
 				</div>
 			</div>
@@ -204,23 +230,16 @@ const Assinatura = () => {
 							</div>
 						</div>
 
-						<button
+						<ButtonLoader
 							onClick={handleCancelSubscription}
-							disabled={processing}
-							className="mt-6 w-full bg-red-50 text-red-600 py-3 px-6 rounded-lg hover:bg-red-100 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+							loading={processing}
+							loadingText="Cancelando..."
+							variant="red_outline"
+							className="mt-6 w-full"
 						>
-							{processing ? (
-								<>
-									<Loader2 className="w-5 h-5 animate-spin" />
-									Processando...
-								</>
-							) : (
-								<>
-									<X className="w-5 h-5" />
-									Cancelar Assinatura
-								</>
-							)}
-						</button>
+							<X className="w-5 h-5" />
+							Cancelar Assinatura
+						</ButtonLoader>
 					</div>
 				) : (
 					<div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center">
@@ -299,26 +318,16 @@ const Assinatura = () => {
 										)}
 									</div>
 
-									<button
+									<ButtonLoader
 										onClick={() => handleSubscribe(plan.id)}
-										disabled={processing || mySubscription?.planId === plan.id}
-										className={`w-full py-3 px-6 rounded-lg font-semibold transition-all ${
-											mySubscription?.planId === plan.id
-												? 'bg-green-600 text-white cursor-not-allowed'
-												: 'bg-[#154c9a] text-white hover:bg-[#123f80]'
-										} disabled:opacity-50 disabled:cursor-not-allowed`}
+										loading={processing && selectedPlan === plan.id}
+										loadingText="Processando..."
+										variant={mySubscription?.planId === plan.id ? 'success' : 'primary'}
+										className={`w-full ${mySubscription?.planId === plan.id ? 'cursor-not-allowed' : ''}`}
+										disabled={mySubscription?.planId === plan.id}
 									>
-										{processing && selectedPlan === plan.id ? (
-											<div className="flex items-center justify-center gap-2">
-												<Loader2 className="w-5 h-5 animate-spin" />
-												Processando...
-											</div>
-										) : mySubscription?.planId === plan.id ? (
-											'Plano Atual'
-										) : (
-											'Assinar Agora'
-										)}
-									</button>
+										{mySubscription?.planId === plan.id ? 'Plano Atual' : 'Assinar Agora'}
+									</ButtonLoader>
 								</div>
 							);
 						})}
@@ -365,20 +374,15 @@ const Assinatura = () => {
 									<span>{pkg.daysDuration} dias de destaque</span>
 								</div>
 
-								<button
+								<ButtonLoader
 									onClick={() => handleBuyHighlightPackage(pkg.id)}
-									disabled={processing}
-									className="w-full bg-yellow-500 text-white py-3 px-6 rounded-lg hover:bg-yellow-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+									loading={processing && selectedPackage === pkg.id}
+									loadingText="Processando..."
+									variant="yellow"
+									className="w-full"
 								>
-									{processing && selectedPackage === pkg.id ? (
-										<div className="flex items-center justify-center gap-2">
-											<Loader2 className="w-5 h-5 animate-spin" />
-											Processando...
-										</div>
-									) : (
-										'Comprar Pacote'
-									)}
-								</button>
+									Comprar Pacote
+								</ButtonLoader>
 							</div>
 						))}
 					</div>
