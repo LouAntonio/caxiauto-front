@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../../contexts/AdminContext';
 import api, { notyf } from '../../services/api';
 import { Star, Trash2, Loader2, Search, X } from 'lucide-react';
+import { AdminTableSkeleton } from '../../components/skeletons';
+import useLoadingState from '../../hooks/useLoadingState';
+import useDebounce from '../../hooks/useDebounce';
 
 const AdminReviews = () => {
 	const { adminListAllReviews } = useAdmin();
@@ -11,6 +14,8 @@ const AdminReviews = () => {
 	const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, total: 0 });
 	const [filters, setFilters] = useState({ minRating: '', search: '' });
 	const [searchInput, setSearchInput] = useState('');
+	const debouncedSearch = useDebounce(searchInput, 300);
+	const { loading: actionLoading, withLoading } = useLoadingState({ preventConcurrent: true });
 
 	const loadReviews = async () => {
 		setLoading(true);
@@ -30,13 +35,21 @@ const AdminReviews = () => {
 
 	useEffect(() => { loadReviews(); }, [pagination.currentPage]);
 
-	const handleSearch = (e) => { e.preventDefault(); setFilters({ ...filters, search: searchInput.trim() }); setPagination({ ...pagination, currentPage: 1 }); setTimeout(loadReviews, 0); };
-	const handleClearSearch = () => { setSearchInput(''); setFilters({ minRating: '', search: '' }); setPagination({ ...pagination, currentPage: 1 }); setTimeout(loadReviews, 0); };
+	// Auto-search quando o valor debounce muda
+	useEffect(() => {
+		setFilters(prev => ({ ...prev, search: debouncedSearch }));
+		setPagination(prev => ({ ...prev, currentPage: 1 }));
+	}, [debouncedSearch]);
+
+	const handleSearch = (e) => { e.preventDefault(); setFilters({ ...filters, search: debouncedSearch.trim() }); setPagination(prev => ({ ...prev, currentPage: 1 })); };
+	const handleClearSearch = () => { setSearchInput(''); setFilters({ minRating: '', search: '' }); setPagination(prev => ({ ...prev, currentPage: 1 })); };
 
 	const handleDelete = async (id) => {
 		if (!window.confirm('Eliminar esta avaliação?')) return;
-		try { const r = await api.deleteReview(id); if (r.success) { notyf.success('Eliminada'); loadReviews(); } }
-		catch (error) { notyf.error('Erro ao eliminar'); }
+		await withLoading(async () => {
+			const r = await api.deleteReview(id);
+			if (r.success) { notyf.success('Eliminada'); loadReviews(); }
+		});
 	};
 
 	const renderStars = (rating) => (
@@ -93,15 +106,24 @@ const AdminReviews = () => {
 						<option value="">Todas ratings</option>
 						<option value="5">★★★★★ (5)</option><option value="4">★★★★ (4+)</option><option value="3">★★★ (3+)</option><option value="2">★★ (2+)</option><option value="1">★ (1+)</option>
 					</select>
-					<button type="submit" className="bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80] flex items-center justify-center gap-2"><Search className="w-5 h-5" /> Pesquisar</button>
+					<button type="submit" disabled={actionLoading} className="bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+						{actionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+						{actionLoading ? 'Pesquisando...' : 'Pesquisar'}
+					</button>
 				</div>
 			</form>
 
 			{/* Table */}
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-				{loading ? <div className="flex items-center justify-center py-20"><Loader2 className="w-12 h-12 text-[#154c9a] animate-spin" /></div>
-					: reviews.length === 0 ? <div className="flex flex-col items-center justify-center py-20"><Star className="w-16 h-16 text-gray-300 mb-4" /><p className="text-gray-500">Nenhuma avaliação</p></div>
-					: <div className="overflow-x-auto">
+				{loading ? (
+					<AdminTableSkeleton rows={5} columns={6} />
+				) : reviews.length === 0 ? (
+					<div className="flex flex-col items-center justify-center py-20">
+						<Star className="w-16 h-16 text-gray-300 mb-4" />
+						<p className="text-gray-500">Nenhuma avaliação</p>
+					</div>
+				) : (
+					<div className="overflow-x-auto">
 						<table className="w-full">
 							<thead className="bg-gray-50">
 								<tr>
@@ -116,20 +138,33 @@ const AdminReviews = () => {
 							<tbody className="divide-y divide-gray-200">
 								{reviews.map((rev) => (
 									<tr key={rev.id} className="hover:bg-gray-50">
-										<td className="px-4 py-3"><p className="font-medium text-sm">{rev.reviewer?.name} {rev.reviewer?.surname}</p><p className="text-xs text-gray-500">{rev.reviewer?.email}</p></td>
-										<td className="px-4 py-3"><p className="font-medium text-sm">{rev.seller?.name} {rev.seller?.surname}</p><p className="text-xs text-gray-500">{rev.seller?.email}</p></td>
+										<td className="px-4 py-3">
+											<p className="font-medium text-sm">{rev.reviewer?.name} {rev.reviewer?.surname}</p>
+											<p className="text-xs text-gray-500">{rev.reviewer?.email}</p>
+										</td>
+										<td className="px-4 py-3">
+											<p className="font-medium text-sm">{rev.seller?.name} {rev.seller?.surname}</p>
+											<p className="text-xs text-gray-500">{rev.seller?.email}</p>
+										</td>
 										<td className="px-4 py-3">{renderStars(rev.rating)}</td>
 										<td className="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">{rev.comment || '—'}</td>
 										<td className="px-4 py-3 text-sm text-gray-500">{new Date(rev.createdAt).toLocaleDateString('pt-BR')}</td>
 										<td className="px-4 py-3">
-											<button onClick={() => handleDelete(rev.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar"><Trash2 className="w-4 h-4" /></button>
+											<button
+												onClick={() => handleDelete(rev.id)}
+												disabled={actionLoading}
+												className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+												title="Eliminar"
+											>
+												{actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+											</button>
 										</td>
 									</tr>
 								))}
 							</tbody>
 						</table>
 					</div>
-				}
+				)}
 			</div>
 
 			{pagination.totalPages > 1 && (

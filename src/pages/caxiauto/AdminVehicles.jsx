@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useAdmin } from '../../contexts/AdminContext';
 import api, { getImageUrl, notyf } from '../../services/api';
 import {
 	Car,
@@ -23,9 +22,11 @@ import {
 	ShieldCheck,
 	Star as StarFilled
 } from 'lucide-react';
+import { AdminTableSkeleton, AdminFormSkeleton, AdminModalSkeleton } from '../../components/skeletons';
+import useLoadingState from '../../hooks/useLoadingState';
+import useDebounce from '../../hooks/useDebounce';
 
 const AdminVehicles = () => {
-	const { getRecentVehicles } = useAdmin();
 	const [loading, setLoading] = useState(true);
 	const [vehicles, setVehicles] = useState([]);
 	const [pendingVehicles, setPendingVehicles] = useState([]);
@@ -38,6 +39,11 @@ const AdminVehicles = () => {
 		status: '',
 		manufacturer: '',
 	});
+	const [searchInput, setSearchInput] = useState('');
+	const debouncedSearch = useDebounce(searchInput, 300);
+
+	// Loading state hook
+	const { loading: actionLoading, withLoading, isActionLoading } = useLoadingState({ preventConcurrent: true });
 
 	// Modals
 	const [detailsModal, setDetailsModal] = useState({ open: false, vehicle: null });
@@ -90,6 +96,12 @@ const AdminVehicles = () => {
 		}
 	};
 
+	// Carregar dados iniciais
+	useEffect(() => {
+		loadPendingVehicles();
+	}, []);
+
+	// Carregar dados quando tab, paginação ou filtros mudam
 	useEffect(() => {
 		if (activeTab === 'all') {
 			loadVehicles();
@@ -98,36 +110,35 @@ const AdminVehicles = () => {
 		}
 	}, [pagination.currentPage, activeTab]);
 
-	useEffect(() => {
-		loadPendingVehicles();
-	}, []);
-
 	const handleFilterChange = (e) => {
 		setFilters({ ...filters, [e.target.name]: e.target.value });
 	};
 
 	const handleSearch = (e) => {
 		e.preventDefault();
-		setPagination({ ...pagination, currentPage: 1 });
-		loadVehicles();
+		setFilters({ ...filters, search: debouncedSearch });
+		setPagination(prev => ({ ...prev, currentPage: 1 }));
 	};
 
+	// Auto-search quando o valor debounce muda
+	useEffect(() => {
+		setFilters(prev => ({ ...prev, search: debouncedSearch }));
+		setPagination(prev => ({ ...prev, currentPage: 1 }));
+	}, [debouncedSearch]);
+
 	const handleViewDetails = async (id) => {
-		try {
+		await withLoading(async () => {
 			const response = await api.adminGetVehicleDetails(id);
 			if (response.success) {
 				setDetailsModal({ open: true, vehicle: response.data });
 			} else {
 				notyf.error('Erro ao carregar detalhes');
 			}
-		} catch (error) {
-			console.error('Erro ao carregar detalhes:', error);
-			notyf.error('Erro ao carregar detalhes');
-		}
+		});
 	};
 
 	const handleApprove = async (id) => {
-		try {
+		await withLoading(async () => {
 			const response = await api.adminApproveVehicle(id);
 			if (response.success) {
 				notyf.success('Veículo aprovado com sucesso!');
@@ -137,10 +148,7 @@ const AdminVehicles = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao aprovar veículo');
 			}
-		} catch (error) {
-			console.error('Erro ao aprovar:', error);
-			notyf.error('Erro ao aprovar veículo');
-		}
+		});
 	};
 
 	const handleReject = (id, name) => {
@@ -152,7 +160,7 @@ const AdminVehicles = () => {
 			notyf.error('O motivo da negação é obrigatório');
 			return;
 		}
-		try {
+		await withLoading(async () => {
 			const response = await api.adminRejectVehicle(rejectModal.vehicleId, rejectModal.reason);
 			if (response.success) {
 				notyf.success('Veículo negado. Email enviado ao proprietário.');
@@ -163,10 +171,7 @@ const AdminVehicles = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao negar veículo');
 			}
-		} catch (error) {
-			console.error('Erro ao negar:', error);
-			notyf.error('Erro ao negar veículo');
-		}
+		});
 	};
 
 	const handleSetFeatured = (id, name) => {
@@ -182,7 +187,7 @@ const AdminVehicles = () => {
 		const featuredUntil = new Date();
 		featuredUntil.setDate(featuredUntil.getDate() + days);
 
-		try {
+		await withLoading(async () => {
 			const response = await api.adminSetVehicleFeatured(featuredModal.vehicleId, featuredUntil.toISOString());
 			if (response.success) {
 				notyf.success(`Veículo destacado por ${days} dias!`);
@@ -192,14 +197,11 @@ const AdminVehicles = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao definir destaque');
 			}
-		} catch (error) {
-			console.error('Erro ao definir destaque:', error);
-			notyf.error('Erro ao definir destaque');
-		}
+		});
 	};
 
 	const handleRemoveFeatured = async (id) => {
-		try {
+		await withLoading(async () => {
 			const response = await api.adminRemoveVehicleFeatured(id);
 			if (response.success) {
 				notyf.success('Destaque removido com sucesso!');
@@ -208,15 +210,12 @@ const AdminVehicles = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao remover destaque');
 			}
-		} catch (error) {
-			console.error('Erro ao remover destaque:', error);
-			notyf.error('Erro ao remover destaque');
-		}
+		});
 	};
 
 	const handleToggleStatus = async (id, currentStatus) => {
-		const newStatus = currentStatus === 'ACTIVE' ? 'HIDDEN' : 'ACTIVE';
-		try {
+		await withLoading(async () => {
+			const newStatus = currentStatus === 'ACTIVE' ? 'HIDDEN' : 'ACTIVE';
 			const response = await api.toggleVehicleStatus(id, newStatus);
 			if (response.success) {
 				notyf.success(`Status alterado para ${newStatus}`);
@@ -224,16 +223,13 @@ const AdminVehicles = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao atualizar status');
 			}
-		} catch (error) {
-			console.error('Erro ao atualizar status:', error);
-			notyf.error('Erro ao atualizar status');
-		}
+		});
 	};
 
 	const handleDelete = async (id) => {
 		if (!window.confirm('Tem certeza que deseja eliminar este veículo?')) return;
 
-		try {
+		await withLoading(async () => {
 			const response = await api.deleteVehicle(id);
 			if (response.success) {
 				notyf.success('Veículo eliminado com sucesso');
@@ -242,10 +238,7 @@ const AdminVehicles = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao eliminar veículo');
 			}
-		} catch (error) {
-			console.error('Erro ao eliminar veículo:', error);
-			notyf.error('Erro ao eliminar veículo');
-		}
+		});
 	};
 
 	const formatCurrency = (value) => {
@@ -357,9 +350,8 @@ const AdminVehicles = () => {
 								<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
 								<input
 									type="text"
-									name="search"
-									value={filters.search}
-									onChange={handleFilterChange}
+									value={searchInput}
+									onChange={(e) => setSearchInput(e.target.value)}
 									placeholder="Buscar veículos..."
 									className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent outline-none"
 								/>
@@ -398,10 +390,11 @@ const AdminVehicles = () => {
 						<div className="flex items-end">
 							<button
 								type="submit"
-								className="w-full bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80] transition-colors flex items-center justify-center gap-2"
+								disabled={actionLoading}
+								className="w-full bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
 							>
-								<Search className="w-5 h-5" />
-								Filtrar
+								{actionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+								{actionLoading ? 'Filtrando...' : 'Filtrar'}
 							</button>
 						</div>
 					</div>
@@ -411,9 +404,7 @@ const AdminVehicles = () => {
 			{/* Tabela de Veículos */}
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 				{loading ? (
-					<div className="flex items-center justify-center py-20">
-						<Loader2 className="w-12 h-12 text-[#154c9a] animate-spin" />
-					</div>
+					<AdminTableSkeleton rows={6} columns={8} />
 				) : data.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-20">
 						<Car className="w-16 h-16 text-gray-300 mb-4" />
@@ -464,8 +455,8 @@ const AdminVehicles = () => {
 												vehicle.type === 'SALE'
 													? 'bg-green-100 text-green-800'
 													: vehicle.type === 'RENT'
-													? 'bg-blue-100 text-blue-800'
-													: 'bg-purple-100 text-purple-800'
+														? 'bg-blue-100 text-blue-800'
+														: 'bg-purple-100 text-purple-800'
 											}`}>
 												{getTypeLabel(vehicle.type)}
 											</span>
@@ -474,18 +465,18 @@ const AdminVehicles = () => {
 											{vehicle.type === 'SALE'
 												? formatCurrency(vehicle.priceSale)
 												: vehicle.type === 'RENT'
-												? formatCurrency(vehicle.priceRentDay) + '/dia'
-												: `${formatCurrency(vehicle.priceSale)} / ${formatCurrency(vehicle.priceRentDay)}/dia`}
+													? formatCurrency(vehicle.priceRentDay) + '/dia'
+													: `${formatCurrency(vehicle.priceSale)} / ${formatCurrency(vehicle.priceRentDay)}/dia`}
 										</td>
 										<td className="px-4 py-3">
 											<span className={`px-2 py-1 text-xs font-medium rounded-full ${
 												vehicle.status === 'ACTIVE'
 													? 'bg-green-100 text-green-800'
 													: vehicle.status === 'SOLD' || vehicle.status === 'RENTED'
-													? 'bg-gray-100 text-gray-800'
-													: vehicle.status === 'HIDDEN'
-													? 'bg-red-100 text-red-800'
-													: 'bg-yellow-100 text-yellow-800'
+														? 'bg-gray-100 text-gray-800'
+														: vehicle.status === 'HIDDEN'
+															? 'bg-red-100 text-red-800'
+															: 'bg-yellow-100 text-yellow-800'
 											}`}>
 												{getStatusLabel(vehicle.status)}
 											</span>
@@ -528,24 +519,27 @@ const AdminVehicles = () => {
 											<div className="flex items-center gap-1">
 												<button
 													onClick={() => handleViewDetails(vehicle.id)}
-													className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+													className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 													title="Ver detalhes"
+													disabled={actionLoading}
 												>
-													<Eye className="w-4 h-4" />
+													{actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
 												</button>
 												{(!vehicle.isVerified || !vehicle.isAproved) && (
 													<>
 														<button
 															onClick={() => handleApprove(vehicle.id)}
-															className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+															className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 															title="Aprovar"
+															disabled={actionLoading}
 														>
 															<Check className="w-4 h-4" />
 														</button>
 														<button
 															onClick={() => handleReject(vehicle.id, vehicle.name)}
-															className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+															className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 															title="Negar"
+															disabled={actionLoading}
 														>
 															<X className="w-4 h-4" />
 														</button>
@@ -554,33 +548,37 @@ const AdminVehicles = () => {
 												{vehicle.isFeatured ? (
 													<button
 														onClick={() => handleRemoveFeatured(vehicle.id)}
-														className="p-1.5 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
+														className="p-1.5 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 														title="Remover destaque"
+														disabled={actionLoading}
 													>
 														<Star className="w-4 h-4" />
 													</button>
 												) : (
 													<button
 														onClick={() => handleSetFeatured(vehicle.id, vehicle.name)}
-														className="p-1.5 text-gray-400 hover:bg-gray-50 rounded-lg transition-colors"
+														className="p-1.5 text-gray-400 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 														title="Definir destaque"
+														disabled={actionLoading}
 													>
 														<Star className="w-4 h-4" />
 													</button>
 												)}
 												<button
 													onClick={() => handleToggleStatus(vehicle.id, vehicle.status)}
-													className="p-1.5 text-gray-600 hover:bg-blue-50 rounded-lg transition-colors"
+													className="p-1.5 text-gray-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 													title={vehicle.status === 'ACTIVE' ? 'Ocultar' : 'Ativar'}
+													disabled={actionLoading}
 												>
 													{vehicle.status === 'ACTIVE' ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
 												</button>
 												<button
 													onClick={() => handleDelete(vehicle.id)}
-													className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+													className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 													title="Eliminar"
+													disabled={actionLoading}
 												>
-													<Trash2 className="w-4 h-4" />
+													{isActionLoading(`delete-${vehicle.id}`) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
 												</button>
 											</div>
 										</td>
@@ -1014,15 +1012,18 @@ const AdminVehicles = () => {
 						<div className="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3">
 							<button
 								onClick={() => setRejectModal({ open: false, vehicleId: null, vehicleName: '', reason: '' })}
-								className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+								disabled={actionLoading}
+								className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 							>
 								Cancelar
 							</button>
 							<button
 								onClick={submitReject}
-								className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center gap-2"
+								disabled={actionLoading || !rejectModal.reason.trim()}
+								className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
 							>
-								<X className="w-4 h-4" /> Confirmar Negação
+								{actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
+								{actionLoading ? 'A negar...' : 'Confirmar Negação'}
 							</button>
 						</div>
 					</div>
@@ -1082,15 +1083,18 @@ const AdminVehicles = () => {
 						<div className="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3">
 							<button
 								onClick={() => setFeaturedModal({ open: false, vehicleId: null, vehicleName: '', days: '7' })}
-								className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+								disabled={actionLoading}
+								className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 							>
 								Cancelar
 							</button>
 							<button
 								onClick={submitSetFeatured}
-								className="bg-[#154c9a] text-white px-6 py-2 rounded-lg hover:bg-[#123f80] transition-colors font-medium flex items-center gap-2"
+								disabled={actionLoading}
+								className="bg-[#154c9a] text-white px-6 py-2 rounded-lg hover:bg-[#123f80] transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
 							>
-								<StarFilled className="w-4 h-4" /> Confirmar Destaque
+								{actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <StarFilled className="w-4 h-4" />}
+								{actionLoading ? 'A definir...' : 'Confirmar Destaque'}
 							</button>
 						</div>
 					</div>

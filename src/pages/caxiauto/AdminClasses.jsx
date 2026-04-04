@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../../contexts/AdminContext';
 import { Layers, Plus, Pencil, Trash2, Loader2, Search, X } from 'lucide-react';
 import { notyf } from '../../services/api';
+import { AdminTableSkeleton } from '../../components/skeletons';
+import useLoadingState from '../../hooks/useLoadingState';
 
 const AdminClasses = () => {
 	const { listClasses, createClass, updateClass, deleteClass } = useAdmin();
+	const { loading: actionLoading, withLoading, isActionLoading } = useLoadingState({ preventConcurrent: true });
 	const [loading, setLoading] = useState(true);
 	const [classes, setClasses] = useState([]);
 	const [searchInput, setSearchInput] = useState('');
@@ -12,36 +15,73 @@ const AdminClasses = () => {
 	const [showModal, setShowModal] = useState(false);
 	const [editing, setEditing] = useState(null);
 	const [formData, setFormData] = useState({ name: '' });
+	const [submitLoading, setSubmitLoading] = useState(false);
 
 	const load = async () => {
 		setLoading(true);
-		try { const r = await listClasses(); if (r.success) { setClasses(r.data); setFiltered(r.data); } }
-		catch (e) { console.error(e); }
-		finally { setLoading(false); }
+		try {
+			const r = await listClasses();
+			if (r.success) {
+				setClasses(r.data);
+				setFiltered(r.data);
+			}
+		} catch (e) {
+			console.error(e);
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	useEffect(() => { load(); }, []);
 
-	const handleSearch = (e) => { e.preventDefault(); const t = searchInput.toLowerCase(); setFiltered(classes.filter(c => c.name.toLowerCase().includes(t))); };
-	const handleClearSearch = () => { setSearchInput(''); setFiltered(classes); };
+	const handleSearch = (e) => {
+		e.preventDefault();
+		const t = searchInput.toLowerCase();
+		setFiltered(classes.filter(c => c.name.toLowerCase().includes(t)));
+	};
+
+	const handleClearSearch = () => {
+		setSearchInput('');
+		setFiltered(classes);
+	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		try {
+		await withLoading(async () => {
+			setSubmitLoading(true);
 			let r;
 			if (editing) r = await updateClass(editing.id, formData.name);
 			else r = await createClass(formData.name);
-			if (r.success) { notyf.success(editing ? 'Atualizada!' : 'Criada!'); setShowModal(false); setEditing(null); setFormData({ name: '' }); load(); }
-			else notyf.error(r.msg || 'Erro');
-		} catch (error) { notyf.error('Erro ao salvar'); }
+			if (r.success) {
+				notyf.success(editing ? 'Atualizada!' : 'Criada!');
+				setShowModal(false);
+				setEditing(null);
+				setFormData({ name: '' });
+				load();
+			} else {
+				notyf.error(r.msg || 'Erro');
+			}
+			setSubmitLoading(false);
+		});
 	};
 
-	const handleEdit = (c) => { setEditing(c); setFormData({ name: c.name }); setShowModal(true); };
+	const handleEdit = (c) => {
+		setEditing(c);
+		setFormData({ name: c.name });
+		setShowModal(true);
+	};
 
 	const handleDelete = async (id) => {
 		if (!window.confirm('Eliminar esta classe?')) return;
-		try { const r = await deleteClass(id); if (r.success) { notyf.success('Eliminada!'); load(); } else notyf.error(r.msg || 'Erro'); }
-		catch (error) { notyf.error('Erro'); }
+		await withLoading(async () => {
+			const r = await deleteClass(id);
+			if (r.success) {
+				notyf.success('Eliminada!');
+				load();
+			} else {
+				notyf.error(r.msg || 'Erro');
+			}
+		});
 	};
 
 	return (
@@ -64,10 +104,22 @@ const AdminClasses = () => {
 			</form>
 
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-				{loading ? <div className="flex items-center justify-center py-20"><Loader2 className="w-12 h-12 text-[#154c9a] animate-spin" /></div>
-					: filtered.length === 0 ? <div className="flex flex-col items-center justify-center py-20"><Layers className="w-16 h-16 text-gray-300 mb-4" /><p className="text-gray-500">Nenhuma classe</p></div>
-					: <table className="w-full">
-						<thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Veículos</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th></tr></thead>
+				{loading ? (
+					<AdminTableSkeleton rows={5} columns={4} />
+				) : filtered.length === 0 ? (
+					<div className="flex flex-col items-center justify-center py-20">
+						<Layers className="w-16 h-16 text-gray-300 mb-4" />
+						<p className="text-gray-500">Nenhuma classe</p>
+					</div>
+				) : (
+					<table className="w-full">
+						<thead className="bg-gray-50">
+							<tr>
+								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Veículos</th>
+								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+							</tr>
+						</thead>
 						<tbody className="divide-y divide-gray-200">
 							{filtered.map((c) => (
 								<tr key={c.id} className="hover:bg-gray-50">
@@ -75,15 +127,29 @@ const AdminClasses = () => {
 									<td className="px-6 py-4 text-sm text-gray-600">{c._count?.vehicles || 0} veículos</td>
 									<td className="px-6 py-4">
 										<div className="flex items-center gap-2">
-											<button onClick={() => handleEdit(c)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Editar"><Pencil className="w-5 h-5" /></button>
-											<button onClick={() => handleDelete(c.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar"><Trash2 className="w-5 h-5" /></button>
+											<button
+												onClick={() => handleEdit(c)}
+												className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+												title="Editar"
+												disabled={actionLoading}
+											>
+												{isActionLoading(`edit-${c.id}`) ? <Loader2 className="w-5 h-5 animate-spin" /> : <Pencil className="w-5 h-5" />}
+											</button>
+											<button
+												onClick={() => handleDelete(c.id)}
+												className="p-2 text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+												title="Eliminar"
+												disabled={actionLoading}
+											>
+												{isActionLoading(`delete-${c.id}`) ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+											</button>
 										</div>
 									</td>
 								</tr>
 							))}
 						</tbody>
 					</table>
-				}
+				)}
 			</div>
 
 			{showModal && (
@@ -97,7 +163,14 @@ const AdminClasses = () => {
 									className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]" required />
 							</div>
 							<div className="flex gap-3">
-								<button type="submit" className="flex-1 bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80]">{editing ? 'Atualizar' : 'Criar'}</button>
+								<button
+									type="submit"
+									disabled={submitLoading}
+									className="flex-1 bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+								>
+									{submitLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+									{submitLoading ? 'Salvando...' : editing ? 'Atualizar' : 'Criar'}
+								</button>
 								<button type="button" onClick={() => setShowModal(false)} className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">Cancelar</button>
 							</div>
 						</form>
