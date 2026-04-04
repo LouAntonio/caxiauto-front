@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { Gauge, Calendar, MapPin, Droplet, Loader2, Heart } from 'lucide-react'
 import VehicleFilter from '../../components/VehicleFilter'
 import Pagination from '../../components/Pagination'
+import CarCardSkeleton from '../../components/CarCardSkeleton'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { API_URL, getImageUrl, notyf } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
@@ -301,8 +302,8 @@ export default function Compra() {
 
 						{/* Loading State */}
 						{loading ? (
-							<div className="flex justify-center items-center py-20">
-								<Loader2 className="w-12 h-12 animate-spin text-indigo-600" />
+							<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+								<CarCardSkeleton count={8} className="w-full" />
 							</div>
 						) : vehicles.length === 0 ? (
 							<div className="text-center py-20">
@@ -311,7 +312,7 @@ export default function Compra() {
 							</div>
 						) : (
 							<>
-								<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+								<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
 									{vehicles.map((car) => (
 										<article
 											key={car.id}
@@ -342,8 +343,8 @@ export default function Compra() {
 													>
 														<Heart
 															className={`w-5 h-5 transition-all duration-200 ${favorites.has(car.id)
-																	? 'fill-red-500 text-red-500'
-																	: 'text-gray-600 hover:text-red-500'
+																? 'fill-red-500 text-red-500'
+																: 'text-gray-600 hover:text-red-500'
 																} ${loadingFavorites.has(car.id) ? 'opacity-50' : ''}`}
 														/>
 													</button>

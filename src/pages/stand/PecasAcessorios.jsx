@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Package, Search, Layers, Loader, X, Heart, MapPin } from 'lucide-react'
 import Pagination from '../../components/Pagination'
+import PecaCardSkeleton from '../../components/PecaCardSkeleton'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { getImageUrl, notyf } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
@@ -384,9 +385,8 @@ export default function PecasAcessorios() {
 						</div>
 
 						{loading ? (
-							<div className="flex justify-center items-center py-12">
-								<Loader className="w-8 h-8 animate-spin" style={{ color: 'var(--primary)' }} />
-								<span className="ml-2 text-gray-600">Carregando peças...</span>
+							<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+								<PecaCardSkeleton count={8} className="w-full" />
 							</div>
 						) : parts.length === 0 ? (
 							<div className="text-center py-12">
@@ -395,84 +395,84 @@ export default function PecasAcessorios() {
 								<p className="text-gray-400 text-sm mt-2">Tente ajustar os filtros de busca</p>
 							</div>
 						) : (
-							<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+							<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
 								{parts.map((part) => (
 									<article
-											key={part.id}
-											className="flex flex-col w-full bg-white rounded-2xl shadow-lg overflow-hidden group h-full"
-										>
-											{/* Imagem */}
-											<div className="relative h-36 overflow-hidden">
-												<img
-													src={getImageUrl(part.image, '/images/parts.jpg')}
-													alt={part.name}
-													className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-													onError={(e) => { e.target.src = '/images/parts.jpg'; }}
-												/>
-												{/* Badge de estoque */}
-												<div className="absolute top-3 left-3">
-													<span className={`badge px-2 py-0.5 text-xs font-semibold rounded bg-blue-500 text-white`}>
-														Em estoque
+										key={part.id}
+										className="flex flex-col w-full bg-white rounded-2xl shadow-lg overflow-hidden group h-full"
+									>
+										{/* Imagem */}
+										<div className="relative h-36 overflow-hidden">
+											<img
+												src={getImageUrl(part.image, '/images/parts.jpg')}
+												alt={part.name}
+												className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+												onError={(e) => { e.target.src = '/images/parts.jpg'; }}
+											/>
+											{/* Badge de estoque */}
+											<div className="absolute top-3 left-3">
+												<span className={`badge px-2 py-0.5 text-xs font-semibold rounded bg-blue-500 text-white`}>
+													Em estoque
+												</span>
+											</div>
+											{/* Badge de condição */}
+											{part.isFeatured && (
+												<div className="absolute top-3 right-3">
+													<span className={`badge px-2 py-0.5 text-xs font-semibold rounded bg-yellow-500 text-white`}>
+														Destaque
 													</span>
 												</div>
-												{/* Badge de condição */}
-												{part.isFeatured && (
-													<div className="absolute top-3 right-3">
-														<span className={`badge px-2 py-0.5 text-xs font-semibold rounded bg-yellow-500 text-white`}>
-															Destaque
-														</span>
-													</div>
-												)}
+											)}
 
-												{/* Botão de favorito */}
-												{isAuthenticated && (
+											{/* Botão de favorito */}
+											{isAuthenticated && (
+												<button
+													onClick={(e) => toggleFavorite(e, part.id)}
+													className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
+													aria-label={favorites.has(part.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+													disabled={loadingFavorites.has(part.id)}
+												>
+													<Heart
+														className={`w-4 h-4 transition-all duration-200 ${favorites.has(part.id)
+															? 'fill-red-500 text-red-500'
+															: 'text-gray-600 hover:text-red-500'
+															} ${loadingFavorites.has(part.id) ? 'opacity-50' : ''}`}
+													/>
+												</button>
+											)}
+										</div>
+
+										{/* Conteúdo */}
+										<div className="flex flex-col flex-grow p-4">
+											<h3 className="text-sm font-semibold line-clamp-2 capitalize">
+												{part.name}
+											</h3>
+
+											{/* Preço */}
+											<div className="text-primary font-bold mt-2 mb-3">
+												{parseFloat(part.price).toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} akz
+											</div>
+
+											{/* Categoria e Rating */}
+											<div className="flex items-center justify-between text-sm text-gray-600 mb-3">
+												<span className="text-xs bg-gray-100 px-2 py-0.5 rounded capitalize">
+													{part.Categoria?.name || 'Sem categoria'}
+												</span>
+											</div>
+
+											{/* Botão - no fundo do card */}
+											<div className="mt-auto">
+												<Link to={`/stand/pecas-acessorios/${part.id}`}>
 													<button
-														onClick={(e) => toggleFavorite(e, part.id)}
-														className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
-														aria-label={favorites.has(part.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-														disabled={loadingFavorites.has(part.id)}
+														style={{ backgroundColor: 'var(--secondary)' }}
+														className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 w-full cursor-pointer"
 													>
-														<Heart
-															className={`w-4 h-4 transition-all duration-200 ${favorites.has(part.id)
-																? 'fill-red-500 text-red-500'
-																: 'text-gray-600 hover:text-red-500'
-																} ${loadingFavorites.has(part.id) ? 'opacity-50' : ''}`}
-														/>
+														Ver Detalhes
 													</button>
-												)}
+												</Link>
 											</div>
-
-											{/* Conteúdo */}
-											<div className="flex flex-col flex-grow p-4">
-												<h3 className="text-sm font-semibold line-clamp-2 capitalize">
-													{part.name}
-												</h3>
-
-												{/* Preço */}
-												<div className="text-primary font-bold mt-2 mb-3">
-													{parseFloat(part.price).toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} akz
-												</div>
-
-												{/* Categoria e Rating */}
-												<div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-													<span className="text-xs bg-gray-100 px-2 py-0.5 rounded capitalize">
-														{part.Categoria?.name || 'Sem categoria'}
-													</span>
-												</div>
-
-												{/* Botão - no fundo do card */}
-												<div className="mt-auto">
-													<Link to={`/stand/pecas-acessorios/${part.id}`}>
-														<button
-															style={{ backgroundColor: 'var(--secondary)' }}
-															className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 w-full cursor-pointer"
-														>
-															Ver Detalhes
-														</button>
-													</Link>
-												</div>
-											</div>
-										</article>
+										</div>
+									</article>
 								))}
 							</div>
 						)}

@@ -16,6 +16,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import RentalVehicleFilter from '../../components/RentalVehicleFilter';
 import Pagination from '../../components/Pagination';
+import CarCardSkeleton from '../../components/CarCardSkeleton';
 import api, { API_URL, getImageUrl, notyf } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -336,9 +337,8 @@ export default function AluguelDeAutomoveis() {
 
 								{/* Loading State */}
 								{loading && (
-									<div className="flex flex-col items-center justify-center py-20">
-										<Loader2 className="w-12 h-12 text-[#154c9a] animate-spin mb-4" />
-										<p className="text-gray-600 font-medium">Carregando veículos...</p>
+									<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+										<CarCardSkeleton count={8} className="w-full" />
 									</div>
 								)}
 
@@ -365,7 +365,7 @@ export default function AluguelDeAutomoveis() {
 								{/* Grid de Veículos */}
 								{!loading && !error && vehicles.length > 0 && (
 									<>
-										<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+										<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
 											{vehicles.map((car) => {
 												const price = getLowestPrice(car);
 												return (
@@ -409,8 +409,8 @@ export default function AluguelDeAutomoveis() {
 																>
 																	<Heart
 																		className={`w-5 h-5 transition-all duration-200 ${favorites.has(car.id)
-																				? 'fill-red-500 text-red-500'
-																				: 'text-gray-600 hover:text-red-500'
+																			? 'fill-red-500 text-red-500'
+																			: 'text-gray-600 hover:text-red-500'
 																			} ${loadingFavorites.has(car.id) ? 'opacity-50' : ''}`}
 																	/>
 																</button>

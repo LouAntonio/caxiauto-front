@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Gauge, Calendar, MapPin, Droplet, Heart } fr
 import { Link } from 'react-router-dom'
 import api, { getImageUrl, notyf } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import CarCardSkeleton from './CarCardSkeleton';
 
 export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 	const railRef = useRef(null);
@@ -160,8 +161,10 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 				{/* Carousel */}
 				<div className="relative">
 					{loading ? (
-						<div className="flex justify-center items-center py-20">
-							<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+						<div
+							className="flex gap-6 overflow-x-hidden pb-4"
+						>
+							<CarCardSkeleton count={5} className="w-64" />
 						</div>
 					) : cars.length === 0 ? (
 						<div className="flex justify-center items-center py-20 text-gray-500">

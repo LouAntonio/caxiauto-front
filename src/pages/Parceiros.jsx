@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useDocumentTitle from '../hooks/useDocumentTitle';
 import { Phone, MessageCircle, Loader2 } from 'lucide-react';
+import PartnerCardSkeleton from '../components/PartnerCardSkeleton';
 import api, { getImageUrl } from '../services/api';
 
 export default function Parceiros() {
@@ -27,8 +28,18 @@ export default function Parceiros() {
 
 	if (loading) {
 		return (
-			<main className="bg-gray-50 min-h-screen flex items-center justify-center">
-				<Loader2 className="w-12 h-12 text-[#154c9a] animate-spin" />
+			<main className="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+				<div className="max-w-7xl mx-auto">
+					<div className="text-center mb-12">
+						<h1 className="text-4xl font-bold text-gray-900 mb-4">Nossos Parceiros</h1>
+						<p className="text-lg text-gray-600 max-w-2xl mx-auto">
+							Conheça as empresas que trabalham connosco para oferecer os melhores serviços e produtos.
+						</p>
+					</div>
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+						<PartnerCardSkeleton count={8} />
+					</div>
+				</div>
 			</main>
 		);
 	}

@@ -63,7 +63,7 @@ export default function Hero() {
 				className="absolute inset-0 bg-cover bg-center opacity-60"
 				style={{
 					backgroundImage:
-						"url('https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=1650&q=80')",
+						"url('./images/caxiauto-hero.jpeg')",
 				}}
 				aria-hidden="true"
 			/>
@@ -201,8 +201,8 @@ export default function Hero() {
 						<p className="mt-2 text-sm text-gray-600">Garantimos a condição técnica de cada veículo vendido em Angola.</p>
 					</div>
 					<div className="bg-white/90 rounded-lg p-6 text-gray-800 shadow">
-						<h3 className="font-semibold">Garantia de 6 meses</h3>
-						<p className="mt-2 text-sm text-gray-600">Receba uma garantia estendida de 6 meses com cada carro.</p>
+						<h3 className="font-semibold">Garantia de 1 mês</h3>
+						<p className="mt-2 text-sm text-gray-600">Receba uma garantia estendida de 1 mês com cada carro.</p>
 					</div>
 				</div>
 			</div>

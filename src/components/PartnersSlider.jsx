@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Phone, MessageCircle, Loader2 } from 'lucide-react';
+import PartnerCardSkeleton from './PartnerCardSkeleton';
 import { Link } from 'react-router-dom';
 import api, { getImageUrl } from '../services/api';
 
@@ -36,8 +37,8 @@ export default function PartnersSlider() {
 							Conheça as empresas que trabalham connosco para oferecer os melhores serviços e produtos.
 						</p>
 					</div>
-					<div className="flex items-center justify-center py-20">
-						<Loader2 className="w-12 h-12 text-[#154c9a] animate-spin" />
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+						<PartnerCardSkeleton count={4} />
 					</div>
 				</div>
 			</section>
