@@ -252,7 +252,7 @@ const AdminPartners = () => {
 			</div>
 
 			<div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-				<div className="flex gap-4">
+				<form onSubmit={(e) => { e.preventDefault(); setPagination({ ...pagination, currentPage: 1 }); loadPartners(); }} className="flex gap-3">
 					<div className="relative flex-1">
 						<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
 						<input
@@ -260,10 +260,18 @@ const AdminPartners = () => {
 							placeholder="Buscar parceiros..."
 							value={search}
 							onChange={(e) => setSearch(e.target.value)}
-							className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
+							className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
 						/>
+						{search && (
+							<button type="button" onClick={() => { setSearch(''); setPagination({ ...pagination, currentPage: 1 }); loadPartners(); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+								<X className="w-4 h-4" />
+							</button>
+						)}
 					</div>
-				</div>
+					<button type="submit" className="bg-[#154c9a] text-white px-6 py-2 rounded-lg hover:bg-[#123f80] flex items-center gap-2">
+						<Search className="w-5 h-5" /> Pesquisar
+					</button>
+				</form>
 			</div>
 
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">

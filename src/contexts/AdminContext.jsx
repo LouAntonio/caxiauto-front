@@ -201,13 +201,24 @@ export const AdminProvider = ({ children }) => {
 	};
 
 	const createClass = async (name) => {
-		try {
-			const data = await api.createClass(name);
-			return data;
-		} catch (error) {
-			console.error('Erro ao criar classe:', error);
-			return { success: false, message: error.message };
-		}
+		try { const data = await api.createClass(name); return data; }
+		catch (error) { return { success: false, message: error.message }; }
+	};
+
+	const updateManufacturer = async (id, name) => {
+		try { return await api.updateManufacturer(id, name); } catch (e) { return { success: false, message: e.message }; }
+	};
+	const deleteManufacturer = async (id) => {
+		try { return await api.deleteManufacturer(id); } catch (e) { return { success: false, message: e.message }; }
+	};
+	const updateClass = async (id, name) => {
+		try { return await api.updateClass(id, name); } catch (e) { return { success: false, message: e.message }; }
+	};
+	const deleteClass = async (id) => {
+		try { return await api.deleteClass(id); } catch (e) { return { success: false, message: e.message }; }
+	};
+	const adminListAllReviews = async (params = {}) => {
+		try { return await api.adminListAllReviews(params); } catch (e) { return { success: false, message: e.message }; }
 	};
 
 	// ==================== PLANOS DE ASSINATURA ====================
@@ -310,6 +321,11 @@ export const AdminProvider = ({ children }) => {
 		createManufacturer,
 		listClasses,
 		createClass,
+		updateManufacturer,
+		deleteManufacturer,
+		updateClass,
+		deleteClass,
+		adminListAllReviews,
 		// Planos e pacotes
 		adminListPlans,
 		adminCreatePlan,

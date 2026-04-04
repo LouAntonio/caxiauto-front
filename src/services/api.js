@@ -592,12 +592,33 @@ const api = {
 		return api.post('/admin/manufacturers', { name }, {}, true);
 	},
 
+	updateManufacturer: (id, name) => {
+		return api.put(`/admin/manufacturers/${id}`, { name }, {}, true);
+	},
+
+	deleteManufacturer: (id) => {
+		return api.delete(`/admin/manufacturers/${id}`, {}, true);
+	},
+
 	listClasses: () => {
 		return api.get('/admin/classes', {}, true);
 	},
 
 	createClass: (name) => {
 		return api.post('/admin/classes', { name }, {}, true);
+	},
+
+	updateClass: (id, name) => {
+		return api.put(`/admin/classes/${id}`, { name }, {}, true);
+	},
+
+	deleteClass: (id) => {
+		return api.delete(`/admin/classes/${id}`, {}, true);
+	},
+
+	adminListAllReviews: (params = {}) => {
+		const qs = new URLSearchParams(params).toString();
+		return api.get(`/admin/reviews?${qs}`, {}, true);
 	},
 
 	// ==================== ADMIN - PLANOS E PACOTES DE DESTAQUE ====================

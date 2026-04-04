@@ -19,7 +19,8 @@ import {
 	Menu,
 	X,
 	CreditCard,
-	Sparkles
+	Sparkles,
+	Home
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -201,6 +202,10 @@ const AdminLayout = () => {
 						</div>
 
 						<div className="flex items-center gap-4">
+							<Link to="/" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-[#154c9a] hover:bg-gray-100 rounded-lg transition-colors" title="Voltar ao site">
+								<Home className="w-4 h-4" />
+								<span className="hidden sm:inline">Ver Site</span>
+							</Link>
 							<div className="flex items-center gap-3">
 								<div className="w-10 h-10 bg-[#154c9a] rounded-full flex items-center justify-center text-white font-semibold">
 									{admin.name?.charAt(0)}{admin.surname?.charAt(0)}
