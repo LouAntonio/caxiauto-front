@@ -55,11 +55,11 @@ const ContaLayout = () => {
 			title: 'Documentos',
 			path: '/minha-conta/documentos',
 		},
-		{
-			icon: CreditCard,
-			title: 'Assinatura',
-			path: '/minha-conta/assinatura',
-		},
+		// {
+		// 	icon: CreditCard,
+		// 	title: 'Assinatura',
+		// 	path: '/minha-conta/assinatura',
+		// },
 		{
 			icon: Star,
 			title: 'Avaliações',
@@ -105,11 +105,10 @@ const ContaLayout = () => {
 										<Link
 											key={item.path}
 											to={item.path}
-											className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-												active
+											className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${active
 													? 'bg-[#154c9a] text-white shadow-md'
 													: 'text-gray-700 hover:bg-gray-100'
-											}`}
+												}`}
 										>
 											<Icon className={`w-5 h-5 ${active ? 'text-white' : 'text-gray-400'}`} />
 											<span className="font-medium">{item.title}</span>

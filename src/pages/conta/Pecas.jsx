@@ -17,17 +17,21 @@ import {
 	Eye,
 	EyeOff,
 	ChevronLeft,
-	ChevronRight
+	ChevronRight,
+	Shield
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import api, { getImageUrl } from '../../services/api';
 import { PecaCardSkeleton } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
+import VerificationWarning from '../../components/VerificationWarning';
+import useVerificationCheck from '../../hooks/useVerificationCheck';
 
 const Pecas = () => {
 	useDocumentTitle('Minhas Peças - CaxiAuto');
 
 	const { user } = useAuth();
+	const { isVerified, needsVerification } = useVerificationCheck();
 	const [pecas, setPecas] = useState([]);
 	const [categorias, setCategorias] = useState([]);
 	const [showModal, setShowModal] = useState(false);
@@ -174,6 +178,15 @@ const Pecas = () => {
 	};
 
 	const handleOpenModal = (peca = null) => {
+		// Bloquear criação de novas peças se não estiver verificado
+		if (!peca && !isVerified) {
+			setMessage({
+				type: 'error',
+				text: 'Você precisa ter a conta verificada para adicionar novas peças. Envie seus documentos na seção de documentos.'
+			});
+			return;
+		}
+
 		if (peca) {
 			setEditingPeca(peca);
 			setFormData({
@@ -413,18 +426,25 @@ const Pecas = () => {
 					</div>
 					<button
 						onClick={() => handleOpenModal()}
-						className="flex items-center gap-2 bg-[#154c9a] text-white px-6 py-3 rounded-lg hover:bg-[#123f80] transition-colors shadow-md cursor-pointer"
+						disabled={!isVerified}
+						className="flex items-center gap-2 bg-[#154c9a] text-white px-6 py-3 rounded-lg hover:bg-[#123f80] transition-colors shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#154c9a]"
+						title={!isVerified ? 'Conta não verificada. Envie seus documentos para adicionar peças.' : ''}
 					>
-						<Plus className="w-5 h-5" />
+						{!isVerified ? <Shield className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
 						Adicionar Peça
 					</button>
 				</div>
 			</div>
 
+			{/* Aviso de verificação */}
+			{needsVerification && (
+				<VerificationWarning variant="compact" />
+			)}
+
 			{/* Mensagem de feedback */}
 			{message.text && (
 				<div className={`p-4 rounded-lg flex items-center gap-2 ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
-					}`}>
+				}`}>
 					<AlertCircle className="w-5 h-5" />
 					{message.text}
 				</div>
@@ -444,11 +464,17 @@ const Pecas = () => {
 					</p>
 					<button
 						onClick={() => handleOpenModal()}
-						className="inline-flex items-center gap-2 bg-[#154c9a] text-white px-6 py-3 rounded-lg hover:bg-[#123f80] transition-colors cursor-pointer"
+						disabled={!isVerified}
+						className="inline-flex items-center gap-2 bg-[#154c9a] text-white px-6 py-3 rounded-lg hover:bg-[#123f80] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#154c9a]"
 					>
-						<Plus className="w-5 h-5" />
+						{!isVerified ? <Shield className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
 						Adicionar Peça
 					</button>
+					{!isVerified && (
+						<p className="text-sm text-yellow-700 mt-4 font-medium">
+							⚠️ Você precisa enviar seus documentos para adicionar peças.
+						</p>
+					)}
 				</div>
 			) : (
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -501,11 +527,11 @@ const Pecas = () => {
 									{/* Badges */}
 									<div className="absolute top-3 right-3 flex flex-col gap-2">
 										<div className={`px-3 py-1 rounded-full text-xs font-semibold ${peca.isAproved ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
-											}`}>
+										}`}>
 											{peca.isAproved ? 'Aprovado' : 'Pendente'}
 										</div>
 										<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${peca.status === 'ACTIVE' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
-											}`}>
+										}`}>
 											{peca.status === 'ACTIVE' ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
 											{peca.status === 'ACTIVE' ? 'Visível' : 'Oculto'}
 										</div>
@@ -619,7 +645,7 @@ const Pecas = () => {
 								<div className={`mb-6 p-4 rounded-xl flex items-center gap-3 font-medium ${message.type === 'success'
 									? 'bg-green-50 text-green-800 border-2 border-green-200'
 									: 'bg-red-50 text-red-800 border-2 border-red-200'
-									}`}>
+								}`}>
 									<AlertCircle className="w-5 h-5" />
 									{message.text}
 								</div>
@@ -858,10 +884,11 @@ const Pecas = () => {
 									loadingText="Processando..."
 									variant="primary"
 									size="lg"
-									className="flex-1"
+									disabled={!isVerified && !editingPeca}
+									className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
 								>
-									<Save className="w-5 h-5" />
-									{editingPeca ? 'Salvar Alterações' : 'Cadastrar Peça'}
+									{!isVerified && !editingPeca ? <Shield className="w-5 h-5" /> : <Save className="w-5 h-5" />}
+									{editingPeca ? 'Salvar Alterações' : (!isVerified ? 'Conta Não Verificada' : 'Cadastrar Peça')}
 								</ButtonLoader>
 							</div>
 						</form>
@@ -875,9 +902,9 @@ const Pecas = () => {
 					<div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
 						<div className="flex items-center gap-3 mb-4">
 							<div className={`w-12 h-12 rounded-full flex items-center justify-center ${confirmType === 'danger' ? 'bg-red-100' : confirmType === 'warning' ? 'bg-yellow-100' : 'bg-green-100'
-								}`}>
+							}`}>
 								<AlertCircle className={`w-6 h-6 ${confirmType === 'danger' ? 'text-red-600' : confirmType === 'warning' ? 'text-yellow-600' : 'text-green-600'
-									}`} />
+								}`} />
 							</div>
 							<div>
 								<h3 className="text-lg font-bold text-gray-900">{confirmTitle}</h3>
@@ -894,7 +921,7 @@ const Pecas = () => {
 							<button
 								onClick={() => { confirmAction(); setShowConfirmModal(false); }}
 								className={`flex-1 px-4 py-2 text-white rounded-lg transition-colors cursor-pointer ${confirmType === 'danger' ? 'bg-red-600 hover:bg-red-700' : confirmType === 'warning' ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'
-									}`}
+								}`}
 							>
 								Confirmar
 							</button>
