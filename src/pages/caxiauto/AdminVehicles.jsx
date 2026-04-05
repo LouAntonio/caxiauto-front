@@ -184,18 +184,31 @@ const AdminVehicles = () => {
 			notyf.error('Número de dias inválido');
 			return;
 		}
+
 		const featuredUntil = new Date();
 		featuredUntil.setDate(featuredUntil.getDate() + days);
+		featuredUntil.setHours(23, 59, 59, 999); // Final do dia
+
+		// Validar data antes de enviar
+		if (isNaN(featuredUntil.getTime())) {
+			notyf.error('Data de expiração inválida');
+			return;
+		}
 
 		await withLoading(async () => {
-			const response = await api.adminSetVehicleFeatured(featuredModal.vehicleId, featuredUntil.toISOString());
-			if (response.success) {
-				notyf.success(`Veículo destacado por ${days} dias!`);
-				setFeaturedModal({ open: false, vehicleId: null, vehicleName: '', days: '7' });
-				loadVehicles();
-				loadPendingVehicles();
-			} else {
-				notyf.error(response.message || 'Erro ao definir destaque');
+			try {
+				const response = await api.adminSetVehicleFeatured(featuredModal.vehicleId, featuredUntil.toISOString());
+				if (response.success) {
+					notyf.success(`Veículo destacado por ${days} dias!`);
+					setFeaturedModal({ open: false, vehicleId: null, vehicleName: '', days: '7' });
+					loadVehicles();
+					loadPendingVehicles();
+				} else {
+					notyf.error(response.message || 'Erro ao definir destaque');
+				}
+			} catch (error) {
+				console.error('Erro ao definir destaque:', error);
+				notyf.error('Erro ao definir destaque');
 			}
 		});
 	};
@@ -230,7 +243,7 @@ const AdminVehicles = () => {
 		if (!window.confirm('Tem certeza que deseja eliminar este veículo?')) return;
 
 		await withLoading(async () => {
-			const response = await api.deleteVehicle(id);
+			const response = await api.adminDeleteVehicle(id);
 			if (response.success) {
 				notyf.success('Veículo eliminado com sucesso');
 				loadVehicles();

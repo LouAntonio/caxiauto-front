@@ -176,8 +176,16 @@ const AdminPecas = () => {
 			notyf.error('Número de dias inválido');
 			return;
 		}
+
 		const featuredUntil = new Date();
 		featuredUntil.setDate(featuredUntil.getDate() + days);
+		featuredUntil.setHours(23, 59, 59, 999); // Final do dia
+
+		// Validar data antes de enviar
+		if (isNaN(featuredUntil.getTime())) {
+			notyf.error('Data de expiração inválida');
+			return;
+		}
 
 		try {
 			const response = await api.adminSetPecaFeatured(featuredModal.pecaId, featuredUntil.toISOString());
@@ -230,7 +238,7 @@ const AdminPecas = () => {
 	const handleDelete = async (id) => {
 		if (!window.confirm('Tem certeza que deseja eliminar esta peça?')) return;
 		try {
-			const response = await api.deletePeca(id);
+			const response = await api.adminDeletePeca(id);
 			if (response.success) {
 				notyf.success('Peça eliminada com sucesso');
 				loadPecas();
