@@ -14,12 +14,10 @@ import {
 	DollarSign,
 	AlertCircle,
 	Upload,
-	FileText,
 	Power,
 	Eye,
 	EyeOff,
 	AlertTriangle,
-	ImageIcon,
 	Shield
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
@@ -43,7 +41,6 @@ const VeiculosAluguel = () => {
 	const [isFetching, setIsFetching] = useState(false);
 	const abortControllerRef = useRef(null);
 	const [mediaFiles, setMediaFiles] = useState([]);
-	const [documentsFiles, setDocumentsFiles] = useState([]);
 	const [newCharacteristic, setNewCharacteristic] = useState('');
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [confirmAction, setConfirmAction] = useState(null);
@@ -160,15 +157,6 @@ const VeiculosAluguel = () => {
 		setMediaFiles(files);
 	};
 
-	const handleDocumentsChange = (e) => {
-		const files = Array.from(e.target.files);
-		setDocumentsFiles(prev => [...prev, ...files]);
-	};
-
-	const handleRemoveDocument = (index) => {
-		setDocumentsFiles(prev => prev.filter((_, i) => i !== index));
-	};
-
 	const handleAddCharacteristic = () => {
 		if (newCharacteristic.trim() && !formData.characteristics.includes(newCharacteristic.trim())) {
 			setFormData(prev => ({
@@ -203,7 +191,6 @@ const VeiculosAluguel = () => {
 			priceRentDay: ''
 		});
 		setMediaFiles([]);
-		setDocumentsFiles([]);
 		setNewCharacteristic('');
 		setEditingVehicle(null);
 	};
@@ -302,13 +289,6 @@ const VeiculosAluguel = () => {
 				uploadedImages = await Promise.all(imageUploadPromises);
 			}
 
-			// Upload de documentos
-			let uploadedDocs = [];
-			if (documentsFiles.length > 0) {
-				const docUploadPromises = documentsFiles.map(file => uploadToCloudinary(file, 'rentCar'));
-				uploadedDocs = await Promise.all(docUploadPromises);
-			}
-
 			// Preparar dados para envio (mapeados para o schema Vehicle)
 			const vehicleData = {
 				name: formData.name,
@@ -326,8 +306,7 @@ const VeiculosAluguel = () => {
 				provincia: formData.provincia,
 				characteristics: formData.characteristics,
 				image: uploadedImages[0],
-				gallery: uploadedImages.slice(1),
-				documents: uploadedDocs
+				gallery: uploadedImages.slice(1)
 			};
 
 			let response;
@@ -907,50 +886,6 @@ const VeiculosAluguel = () => {
 										<p className="text-sm text-green-600 mt-2 font-semibold">
 											{mediaFiles.length} arquivo(s) selecionado(s)
 										</p>
-									)}
-								</div>
-
-								{/* Documentos do Veículo (imagens + PDF) */}
-								<div className="md:col-span-2">
-									<label className="block text-gray-700 font-semibold mb-2">
-										<FileText className="w-5 h-5 inline mr-2" />
-										Documentos do Veículo (imagens ou PDF)
-									</label>
-									<input
-										type="file"
-										name="documents"
-										accept="image/*,application/pdf"
-										multiple
-										onChange={handleDocumentsChange}
-										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-green-600 file:text-white file:font-semibold file:cursor-pointer hover:file:bg-green-700"
-									/>
-									<p className="text-sm text-gray-500 mt-2">
-										Pode enviar imagens (JPG, PNG) ou PDFs do livrete, licenciamento, inspeção, etc.
-									</p>
-									{documentsFiles.length > 0 && (
-										<div className="mt-3 space-y-2">
-											<p className="text-sm font-semibold text-gray-700">Ficheiros selecionados ({documentsFiles.length}):</p>
-											{documentsFiles.map((file, index) => (
-												<div key={index} className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg">
-													<div className="flex items-center gap-2 min-w-0 flex-1">
-														{file.type === 'application/pdf' ? (
-															<FileText className="w-4 h-4 text-red-500 flex-shrink-0" />
-														) : (
-															<ImageIcon className="w-4 h-4 text-blue-500 flex-shrink-0" />
-														)}
-														<span className="text-sm text-gray-600 truncate">{file.name}</span>
-														<span className="text-xs text-gray-400 flex-shrink-0">({(file.size / 1024).toFixed(1)} KB)</span>
-													</div>
-													<button
-														type="button"
-														onClick={() => handleRemoveDocument(index)}
-														className="text-red-500 hover:text-red-700 ml-2 flex-shrink-0"
-													>
-														<X className="w-4 h-4" />
-													</button>
-												</div>
-											))}
-										</div>
 									)}
 								</div>
 
