@@ -293,6 +293,10 @@ const api = {
 		return api.delete(`/vehicles/admin/${id}/featured`, {}, true);
 	},
 
+	adminDeleteVehicle: (id) => {
+		return api.delete(`/vehicles/admin/${id}`, {}, true);
+	},
+
 	// ==================== FABRICANTES E CLASSES ====================
 	getManufacturers: () => {
 		return api.get('/vehicles/manufacturers');
@@ -366,6 +370,10 @@ const api = {
 
 	adminRemovePecaFeatured: (id) => {
 		return api.delete(`/pecas/admin/${id}/featured`, {}, true);
+	},
+
+	adminDeletePeca: (id) => {
+		return api.delete(`/pecas/admin/${id}`, {}, true);
 	},
 
 	// ==================== CATEGORIAS DE PEÇAS ====================
