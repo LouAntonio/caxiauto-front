@@ -58,7 +58,48 @@ export default function DetalhesCompra() {
 	const [purchaseLoading, setPurchaseLoading] = useState(false)
 	const [visitLoading, setVisitLoading] = useState(false)
 
+	const getAuthContactData = () => ({
+		nome: (user?.name || '').trim(),
+		email: (user?.email || '').trim(),
+		telefone: (user?.phone || '').trim()
+	})
+
+	const mergeRequiredContactFields = (formData) => {
+		const authContactData = getAuthContactData()
+		return {
+			nome: (formData.nome || authContactData.nome || '').trim(),
+			email: (formData.email || authContactData.email || '').trim(),
+			telefone: (formData.telefone || authContactData.telefone || '').trim()
+		}
+	}
+
+	const hasMissingRequiredContact = (contactData) => {
+		return !contactData.nome || !contactData.email || !contactData.telefone
+	}
+
 	// Buscar dados do veículo
+	useEffect(() => {
+		if (!isAuthenticated) {
+			return
+		}
+
+		const authContactData = getAuthContactData()
+
+		setPurchaseFormData((previous) => ({
+			...previous,
+			nome: previous.nome?.trim() ? previous.nome : authContactData.nome,
+			email: previous.email?.trim() ? previous.email : authContactData.email,
+			telefone: previous.telefone?.trim() ? previous.telefone : authContactData.telefone
+		}))
+
+		setVisitFormData((previous) => ({
+			...previous,
+			nome: previous.nome?.trim() ? previous.nome : authContactData.nome,
+			email: previous.email?.trim() ? previous.email : authContactData.email,
+			telefone: previous.telefone?.trim() ? previous.telefone : authContactData.telefone
+		}))
+	}, [isAuthenticated, user?.name, user?.email, user?.phone])
+
 	useEffect(() => {
 		const fetchVehicle = async () => {
 			try {
@@ -187,16 +228,29 @@ export default function DetalhesCompra() {
 	// Handlers dos formulários
 	const handlePurchaseSubmit = async (e) => {
 		e.preventDefault()
+		const contactData = mergeRequiredContactFields(purchaseFormData)
+		if (hasMissingRequiredContact(contactData)) {
+			notyf.error('Complete nome, e-mail e telefone para continuar.')
+			return
+		}
+
 		setPurchaseLoading(true)
 		try {
 			const response = await api.contactVehiclePurchase({
 				vehicleId: id,
-				...purchaseFormData
+				...purchaseFormData,
+				...contactData
 			})
 			if (response.success) {
 				notyf.success(response.msg || 'Proposta enviada com sucesso!')
 				setShowContactModal(false)
-				setPurchaseFormData({ nome: '', email: '', telefone: '', formaPagamento: '', mensagem: '' })
+				setPurchaseFormData({
+					nome: isAuthenticated ? contactData.nome : '',
+					email: isAuthenticated ? contactData.email : '',
+					telefone: isAuthenticated ? contactData.telefone : '',
+					formaPagamento: '',
+					mensagem: ''
+				})
 			} else {
 				notyf.error(response.msg || 'Erro ao enviar proposta')
 			}
@@ -210,16 +264,29 @@ export default function DetalhesCompra() {
 
 	const handleVisitSubmit = async (e) => {
 		e.preventDefault()
+		const contactData = mergeRequiredContactFields(visitFormData)
+		if (hasMissingRequiredContact(contactData)) {
+			notyf.error('Complete nome, e-mail e telefone para continuar.')
+			return
+		}
+
 		setVisitLoading(true)
 		try {
 			const response = await api.contactVehicleVisit({
 				vehicleId: id,
-				...visitFormData
+				...visitFormData,
+				...contactData
 			})
 			if (response.success) {
 				notyf.success(response.msg || 'Pedido de visita enviado com sucesso!')
 				setShowVisitModal(false)
-				setVisitFormData({ nome: '', email: '', telefone: '', dataVisita: '', mensagem: '' })
+				setVisitFormData({
+					nome: isAuthenticated ? contactData.nome : '',
+					email: isAuthenticated ? contactData.email : '',
+					telefone: isAuthenticated ? contactData.telefone : '',
+					dataVisita: '',
+					mensagem: ''
+				})
 			} else {
 				notyf.error(response.msg || 'Erro ao enviar pedido de visita')
 			}
@@ -685,7 +752,7 @@ export default function DetalhesCompra() {
 							onSubmit={handlePurchaseSubmit}
 						>
 							{/* Informações Pessoais */}
-							{!user && (
+							{!isAuthenticated && (
 								<div className="space-y-4">
 									<div>
 										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
@@ -852,7 +919,7 @@ export default function DetalhesCompra() {
 							onSubmit={handleVisitSubmit}
 						>
 							{/* Informações Pessoais */}
-							{!user && (
+							{!isAuthenticated && (
 								<div className="space-y-4">
 									<div>
 										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">

@@ -30,7 +30,7 @@ import { VehicleDetailSkeleton } from '../../components/skeletons'
 export default function DetalhesAluguel() {
 	const { id } = useParams()
 	const navigate = useNavigate()
-	const { isAuthenticated } = useAuth()
+	const { user, isAuthenticated } = useAuth()
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [selectedPeriod, setSelectedPeriod] = useState('diária')
 	const [showContactModal, setShowContactModal] = useState(false)
@@ -52,6 +52,25 @@ export default function DetalhesAluguel() {
 		mensagem: ''
 	})
 	const [rentalLoading, setRentalLoading] = useState(false)
+
+	const getAuthContactData = () => ({
+		nome: (user?.name || '').trim(),
+		email: (user?.email || '').trim(),
+		telefone: (user?.phone || '').trim()
+	})
+
+	const mergeRequiredContactFields = (formData) => {
+		const authContactData = getAuthContactData()
+		return {
+			nome: (formData.nome || authContactData.nome || '').trim(),
+			email: (formData.email || authContactData.email || '').trim(),
+			telefone: (formData.telefone || authContactData.telefone || '').trim()
+		}
+	}
+
+	const hasMissingRequiredContact = (contactData) => {
+		return !contactData.nome || !contactData.email || !contactData.telefone
+	}
 
 	// Handler para quando uma reserva é criada
 	const handleBookingCreated = () => {
@@ -160,6 +179,20 @@ export default function DetalhesAluguel() {
 	}
 
 	// Buscar dados do veículo
+	useEffect(() => {
+		if (!isAuthenticated) {
+			return
+		}
+
+		const authContactData = getAuthContactData()
+		setRentalFormData((previous) => ({
+			...previous,
+			nome: previous.nome?.trim() ? previous.nome : authContactData.nome,
+			email: previous.email?.trim() ? previous.email : authContactData.email,
+			telefone: previous.telefone?.trim() ? previous.telefone : authContactData.telefone
+		}))
+	}, [isAuthenticated, user?.name, user?.email, user?.phone])
+
 	useEffect(() => {
 		const fetchVehicle = async () => {
 			if (!id) {
@@ -290,16 +323,31 @@ export default function DetalhesAluguel() {
 	// Handler do formulário de contacto
 	const handleRentalSubmit = async (e) => {
 		e.preventDefault()
+		const contactData = mergeRequiredContactFields(rentalFormData)
+		if (hasMissingRequiredContact(contactData)) {
+			notyf.error('Complete nome, e-mail e telefone para continuar.')
+			return
+		}
+
 		setRentalLoading(true)
 		try {
 			const response = await api.contactRentalRequest({
 				vehicleId: id,
-				...rentalFormData
+				...rentalFormData,
+				...contactData
 			})
 			if (response.success) {
 				notyf.success(response.msg || 'Pedido de aluguel enviado com sucesso!')
 				setShowContactModal(false)
-				setRentalFormData({ nome: '', email: '', telefone: '', periodo: '', dataInicio: '', dataFim: '', mensagem: '' })
+				setRentalFormData({
+					nome: isAuthenticated ? contactData.nome : '',
+					email: isAuthenticated ? contactData.email : '',
+					telefone: isAuthenticated ? contactData.telefone : '',
+					periodo: '',
+					dataInicio: '',
+					dataFim: '',
+					mensagem: ''
+				})
 			} else {
 				notyf.error(response.msg || 'Erro ao enviar pedido de aluguel')
 			}

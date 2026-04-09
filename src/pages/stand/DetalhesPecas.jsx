@@ -12,7 +12,7 @@ import {
 	Shield,
 	Calendar,
 	User,
-	Loader,
+	Loader2,
 	AlertCircle,
 	Heart,
 	Tag,
@@ -54,6 +54,25 @@ export default function DetalhesPecas() {
 	})
 	const [availabilityLoading, setAvailabilityLoading] = useState(false)
 
+	const getAuthContactData = () => ({
+		nome: (user?.name || '').trim(),
+		email: (user?.email || '').trim(),
+		telefone: (user?.phone || '').trim()
+	})
+
+	const mergeRequiredContactFields = (formData) => {
+		const authContactData = getAuthContactData()
+		return {
+			nome: (formData.nome || authContactData.nome || '').trim(),
+			email: (formData.email || authContactData.email || '').trim(),
+			telefone: (formData.telefone || authContactData.telefone || '').trim()
+		}
+	}
+
+	const hasMissingRequiredContact = (contactData) => {
+		return !contactData.nome || !contactData.email || !contactData.telefone
+	}
+
 	const conditionLabels = {
 		'NEW': 'Novo',
 		'USED': 'Usado',
@@ -68,6 +87,28 @@ export default function DetalhesPecas() {
 	}
 
 	// Buscar dados da peça
+	useEffect(() => {
+		if (!isAuthenticated) {
+			return
+		}
+
+		const authContactData = getAuthContactData()
+
+		setPartPurchaseFormData((previous) => ({
+			...previous,
+			nome: previous.nome?.trim() ? previous.nome : authContactData.nome,
+			email: previous.email?.trim() ? previous.email : authContactData.email,
+			telefone: previous.telefone?.trim() ? previous.telefone : authContactData.telefone
+		}))
+
+		setAvailabilityFormData((previous) => ({
+			...previous,
+			nome: previous.nome?.trim() ? previous.nome : authContactData.nome,
+			email: previous.email?.trim() ? previous.email : authContactData.email,
+			telefone: previous.telefone?.trim() ? previous.telefone : authContactData.telefone
+		}))
+	}, [isAuthenticated, user?.name, user?.email, user?.phone])
+
 	useEffect(() => {
 		const fetchPeca = async () => {
 			try {
@@ -205,17 +246,29 @@ export default function DetalhesPecas() {
 	// Handlers dos formulários
 	const handlePartPurchaseSubmit = async (e) => {
 		e.preventDefault()
+		const contactData = mergeRequiredContactFields(partPurchaseFormData)
+		if (hasMissingRequiredContact(contactData)) {
+			notyf.error('Complete nome, e-mail e telefone para continuar.')
+			return
+		}
+
 		setPartPurchaseLoading(true)
 		try {
 			const response = await api.contactPartPurchase({
 				pecaId: id,
 				quantidade: requestedQuantity,
-				...partPurchaseFormData
+				...partPurchaseFormData,
+				...contactData
 			})
 			if (response.success) {
 				notyf.success(response.msg || 'Pedido de compra enviado com sucesso!')
 				setShowContactModal(false)
-				setPartPurchaseFormData({ nome: '', email: '', telefone: '', mensagem: '' })
+				setPartPurchaseFormData({
+					nome: isAuthenticated ? contactData.nome : '',
+					email: isAuthenticated ? contactData.email : '',
+					telefone: isAuthenticated ? contactData.telefone : '',
+					mensagem: ''
+				})
 			} else {
 				notyf.error(response.msg || 'Erro ao enviar pedido de compra')
 			}
@@ -229,18 +282,30 @@ export default function DetalhesPecas() {
 
 	const handleAvailabilitySubmit = async (e) => {
 		e.preventDefault()
+		const contactData = mergeRequiredContactFields(availabilityFormData)
+		if (hasMissingRequiredContact(contactData)) {
+			notyf.error('Complete nome, e-mail e telefone para continuar.')
+			return
+		}
+
 		setAvailabilityLoading(true)
 		try {
 			const response = await api.contactPartPurchase({
 				pecaId: id,
 				quantidade: requestedQuantity,
 				...availabilityFormData,
+				...contactData,
 				mensagem: `[Consulta Disponibilidade] ${availabilityFormData.mensagem || ''}`
 			})
 			if (response.success) {
 				notyf.success(response.msg || 'Consulta enviada com sucesso!')
 				setShowAvailabilityModal(false)
-				setAvailabilityFormData({ nome: '', email: '', telefone: '', mensagem: '' })
+				setAvailabilityFormData({
+					nome: isAuthenticated ? contactData.nome : '',
+					email: isAuthenticated ? contactData.email : '',
+					telefone: isAuthenticated ? contactData.telefone : '',
+					mensagem: ''
+				})
 			} else {
 				notyf.error(response.msg || 'Erro ao enviar consulta')
 			}
@@ -660,7 +725,7 @@ export default function DetalhesPecas() {
 								</div>
 							</div>
 
-							{!user && (
+							{!isAuthenticated && (
 								<div className="space-y-4">
 									<div>
 										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
@@ -758,7 +823,7 @@ export default function DetalhesPecas() {
 								</div>
 							</div>
 
-							{!user && (
+							{!isAuthenticated && (
 								<div className="space-y-4 pt-4 border-t border-gray-200">
 									<div>
 										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
