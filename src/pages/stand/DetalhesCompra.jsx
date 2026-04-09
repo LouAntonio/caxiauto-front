@@ -40,6 +40,24 @@ export default function DetalhesCompra() {
 	const [isFavorite, setIsFavorite] = useState(false)
 	const [loadingFavorite, setLoadingFavorite] = useState(false)
 
+	// Estados dos formulários
+	const [purchaseFormData, setPurchaseFormData] = useState({
+		nome: '',
+		email: '',
+		telefone: '',
+		formaPagamento: '',
+		mensagem: ''
+	})
+	const [visitFormData, setVisitFormData] = useState({
+		nome: '',
+		email: '',
+		telefone: '',
+		dataVisita: '',
+		mensagem: ''
+	})
+	const [purchaseLoading, setPurchaseLoading] = useState(false)
+	const [visitLoading, setVisitLoading] = useState(false)
+
 	// Buscar dados do veículo
 	useEffect(() => {
 		const fetchVehicle = async () => {
@@ -164,6 +182,53 @@ export default function DetalhesCompra() {
 
 	const handleVisit = () => {
 		setShowVisitModal(true)
+	}
+
+	// Handlers dos formulários
+	const handlePurchaseSubmit = async (e) => {
+		e.preventDefault()
+		setPurchaseLoading(true)
+		try {
+			const response = await api.contactVehiclePurchase({
+				vehicleId: id,
+				...purchaseFormData
+			})
+			if (response.success) {
+				notyf.success(response.msg || 'Proposta enviada com sucesso!')
+				setShowContactModal(false)
+				setPurchaseFormData({ nome: '', email: '', telefone: '', formaPagamento: '', mensagem: '' })
+			} else {
+				notyf.error(response.msg || 'Erro ao enviar proposta')
+			}
+		} catch (error) {
+			console.error('Erro ao enviar proposta:', error)
+			notyf.error('Erro ao enviar proposta')
+		} finally {
+			setPurchaseLoading(false)
+		}
+	}
+
+	const handleVisitSubmit = async (e) => {
+		e.preventDefault()
+		setVisitLoading(true)
+		try {
+			const response = await api.contactVehicleVisit({
+				vehicleId: id,
+				...visitFormData
+			})
+			if (response.success) {
+				notyf.success(response.msg || 'Pedido de visita enviado com sucesso!')
+				setShowVisitModal(false)
+				setVisitFormData({ nome: '', email: '', telefone: '', dataVisita: '', mensagem: '' })
+			} else {
+				notyf.error(response.msg || 'Erro ao enviar pedido de visita')
+			}
+		} catch (error) {
+			console.error('Erro ao enviar pedido de visita:', error)
+			notyf.error('Erro ao enviar pedido de visita')
+		} finally {
+			setVisitLoading(false)
+		}
 	}
 
 	const formatPrice = (price) => {
@@ -617,11 +682,7 @@ export default function DetalhesCompra() {
 
 						<form
 							className="p-4 sm:p-6 space-y-4 sm:space-y-5"
-							onSubmit={(e) => {
-								e.preventDefault();
-								alert('Solicitação enviada com sucesso!');
-								setShowContactModal(false);
-							}}
+							onSubmit={handlePurchaseSubmit}
 						>
 							{/* Informações Pessoais */}
 							{!user && (
@@ -635,6 +696,9 @@ export default function DetalhesCompra() {
 										</label>
 										<input
 											type="text"
+											name="nome"
+											value={purchaseFormData.nome}
+											onChange={(e) => setPurchaseFormData({ ...purchaseFormData, nome: e.target.value })}
 											required
 											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 											placeholder="Digite seu nome completo"
@@ -651,6 +715,9 @@ export default function DetalhesCompra() {
 											</label>
 											<input
 												type="tel"
+												name="telefone"
+												value={purchaseFormData.telefone}
+												onChange={(e) => setPurchaseFormData({ ...purchaseFormData, telefone: e.target.value })}
 												required
 												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 												placeholder="+244 9XX XXX XXX"
@@ -666,6 +733,9 @@ export default function DetalhesCompra() {
 											</label>
 											<input
 												type="email"
+												name="email"
+												value={purchaseFormData.email}
+												onChange={(e) => setPurchaseFormData({ ...purchaseFormData, email: e.target.value })}
 												required
 												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 												placeholder="seu@email.com"
@@ -690,11 +760,14 @@ export default function DetalhesCompra() {
 										</span>
 									</label>
 									<select
+										name="formaPagamento"
+										value={purchaseFormData.formaPagamento}
+										onChange={(e) => setPurchaseFormData({ ...purchaseFormData, formaPagamento: e.target.value })}
 										required
 										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  bg-white cursor-pointer text-sm sm:text-base font-medium"
 									>
 										<option value="">Selecione uma opção</option>
-										<option value="vista">Aceitar  Preço - {formatPrice(vehicle.price)} aKz</option>
+										<option value="vista">Aceitar Preço - {formatPrice(vehicle.price)} aKz</option>
 										<option value="financiamento">Fazer oferta (especificar na Mensagem)</option>
 									</select>
 								</div>
@@ -706,6 +779,9 @@ export default function DetalhesCompra() {
 									Mensagem ou observações
 								</label>
 								<textarea
+									name="mensagem"
+									value={purchaseFormData.mensagem}
+									onChange={(e) => setPurchaseFormData({ ...purchaseFormData, mensagem: e.target.value })}
 									rows="3"
 									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 text-sm sm:text-base"
 									placeholder="Conte-nos sobre suas dúvidas, forma de interesse ou outras informações..."
@@ -716,10 +792,20 @@ export default function DetalhesCompra() {
 							<div className="pt-4 sm:pt-5 border-t border-gray-200 space-y-2.5 sm:space-y-3">
 								<button
 									type="submit"
-									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
+									disabled={purchaseLoading}
+									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 								>
-									<Mail className="w-4 h-4 sm:w-5 sm:h-5" />
-									Enviar Solicitação
+									{purchaseLoading ? (
+										<>
+											<Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+											Enviando...
+										</>
+									) : (
+										<>
+											<Mail className="w-4 h-4 sm:w-5 sm:h-5" />
+											Enviar Solicitação
+										</>
+									)}
 								</button>
 								<button
 									type="button"
@@ -763,11 +849,7 @@ export default function DetalhesCompra() {
 						{/* Form */}
 						<form
 							className="p-4 sm:p-6 space-y-6"
-							onSubmit={(e) => {
-								e.preventDefault();
-								alert('Visita agendada com sucesso! Entraremos em contato para confirmar.');
-								setShowVisitModal(false);
-							}}
+							onSubmit={handleVisitSubmit}
 						>
 							{/* Informações Pessoais */}
 							{!user && (
@@ -781,6 +863,9 @@ export default function DetalhesCompra() {
 										</label>
 										<input
 											type="text"
+											name="nome"
+											value={visitFormData.nome}
+											onChange={(e) => setVisitFormData({ ...visitFormData, nome: e.target.value })}
 											required
 											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base"
 											placeholder="Digite seu nome completo"
@@ -797,6 +882,9 @@ export default function DetalhesCompra() {
 											</label>
 											<input
 												type="tel"
+												name="telefone"
+												value={visitFormData.telefone}
+												onChange={(e) => setVisitFormData({ ...visitFormData, telefone: e.target.value })}
 												required
 												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base"
 												placeholder="+244 9XX XXX XXX"
@@ -812,6 +900,9 @@ export default function DetalhesCompra() {
 											</label>
 											<input
 												type="email"
+												name="email"
+												value={visitFormData.email}
+												onChange={(e) => setVisitFormData({ ...visitFormData, email: e.target.value })}
 												required
 												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base"
 												placeholder="seu@email.com"
@@ -838,6 +929,9 @@ export default function DetalhesCompra() {
 										</label>
 										<input
 											type="date"
+											name="dataVisita"
+											value={visitFormData.dataVisita}
+											onChange={(e) => setVisitFormData({ ...visitFormData, dataVisita: e.target.value })}
 											required
 											min={new Date().toISOString().split('T')[0]}
 											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 bg-white cursor-pointer text-sm sm:text-base font-medium"
@@ -852,6 +946,9 @@ export default function DetalhesCompra() {
 											</span>
 										</label>
 										<select
+											name="horario"
+											value={visitFormData.horario || ''}
+											onChange={(e) => setVisitFormData({ ...visitFormData, horario: e.target.value })}
 											required
 											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 bg-white cursor-pointer text-sm sm:text-base font-medium"
 										>
@@ -873,6 +970,9 @@ export default function DetalhesCompra() {
 										Número de pessoas
 									</label>
 									<select
+										name="numPessoas"
+										value={visitFormData.numPessoas || '1'}
+										onChange={(e) => setVisitFormData({ ...visitFormData, numPessoas: e.target.value })}
 										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 bg-white cursor-pointer text-sm sm:text-base font-medium"
 									>
 										<option value="1">1 pessoa</option>
@@ -889,6 +989,9 @@ export default function DetalhesCompra() {
 									Observações ou pedidos especiais
 								</label>
 								<textarea
+									name="mensagem"
+									value={visitFormData.mensagem}
+									onChange={(e) => setVisitFormData({ ...visitFormData, mensagem: e.target.value })}
 									rows="3"
 									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base"
 									placeholder="Ex: Gostaria de realizar test-drive, verificar documentação específica, etc."
@@ -912,10 +1015,20 @@ export default function DetalhesCompra() {
 							<div className="pt-4 sm:pt-5 border-t border-gray-200 space-y-2.5 sm:space-y-3">
 								<button
 									type="submit"
-									className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
+									disabled={visitLoading}
+									className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 								>
-									<Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
-									Confirmar Agendamento
+									{visitLoading ? (
+										<>
+											<Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+											Enviando...
+										</>
+									) : (
+										<>
+											<Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+											Confirmar Agendamento
+										</>
+									)}
 								</button>
 								<button
 									type="button"

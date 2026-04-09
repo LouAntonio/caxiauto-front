@@ -37,6 +37,23 @@ export default function DetalhesPecas() {
 	const [isFavorite, setIsFavorite] = useState(false)
 	const [loadingFavorite, setLoadingFavorite] = useState(false)
 
+	// Estados dos formulários
+	const [partPurchaseFormData, setPartPurchaseFormData] = useState({
+		nome: '',
+		email: '',
+		telefone: '',
+		mensagem: ''
+	})
+	const [partPurchaseLoading, setPartPurchaseLoading] = useState(false)
+
+	const [availabilityFormData, setAvailabilityFormData] = useState({
+		nome: '',
+		email: '',
+		telefone: '',
+		mensagem: ''
+	})
+	const [availabilityLoading, setAvailabilityLoading] = useState(false)
+
 	const conditionLabels = {
 		'NEW': 'Novo',
 		'USED': 'Usado',
@@ -182,6 +199,56 @@ export default function DetalhesPecas() {
 			notyf.error('Erro ao processar favorito')
 		} finally {
 			setLoadingFavorite(false)
+		}
+	}
+
+	// Handlers dos formulários
+	const handlePartPurchaseSubmit = async (e) => {
+		e.preventDefault()
+		setPartPurchaseLoading(true)
+		try {
+			const response = await api.contactPartPurchase({
+				pecaId: id,
+				quantidade: requestedQuantity,
+				...partPurchaseFormData
+			})
+			if (response.success) {
+				notyf.success(response.msg || 'Pedido de compra enviado com sucesso!')
+				setShowContactModal(false)
+				setPartPurchaseFormData({ nome: '', email: '', telefone: '', mensagem: '' })
+			} else {
+				notyf.error(response.msg || 'Erro ao enviar pedido de compra')
+			}
+		} catch (error) {
+			console.error('Erro ao enviar pedido de compra:', error)
+			notyf.error('Erro ao enviar pedido de compra')
+		} finally {
+			setPartPurchaseLoading(false)
+		}
+	}
+
+	const handleAvailabilitySubmit = async (e) => {
+		e.preventDefault()
+		setAvailabilityLoading(true)
+		try {
+			const response = await api.contactPartPurchase({
+				pecaId: id,
+				quantidade: requestedQuantity,
+				...availabilityFormData,
+				mensagem: `[Consulta Disponibilidade] ${availabilityFormData.mensagem || ''}`
+			})
+			if (response.success) {
+				notyf.success(response.msg || 'Consulta enviada com sucesso!')
+				setShowAvailabilityModal(false)
+				setAvailabilityFormData({ nome: '', email: '', telefone: '', mensagem: '' })
+			} else {
+				notyf.error(response.msg || 'Erro ao enviar consulta')
+			}
+		} catch (error) {
+			console.error('Erro ao enviar consulta:', error)
+			notyf.error('Erro ao enviar consulta')
+		} finally {
+			setAvailabilityLoading(false)
 		}
 	}
 
@@ -583,7 +650,7 @@ export default function DetalhesPecas() {
 
 						<form
 							className="p-4 sm:p-6 space-y-4 sm:space-y-5"
-							onSubmit={(e) => { e.preventDefault(); notyf.success('Solicitação enviada com sucesso!'); setShowContactModal(false) }}
+							onSubmit={handlePartPurchaseSubmit}
 						>
 							<div className="bg-indigo-50 rounded-xl p-4 border border-indigo-200">
 								<h4 className="font-bold text-indigo-900 mb-2">{peca.name}</h4>
@@ -599,20 +666,20 @@ export default function DetalhesPecas() {
 										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
 											Nome completo <span className="text-red-500 ml-1">*</span>
 										</label>
-										<input type="text" required className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base" placeholder="Digite seu nome completo" />
+										<input type="text" name="nome" value={partPurchaseFormData.nome} onChange={(e) => setPartPurchaseFormData({ ...partPurchaseFormData, nome: e.target.value })} required className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base" placeholder="Digite seu nome completo" />
 									</div>
 									<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 										<div>
 											<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
 												Telefone <span className="text-red-500 ml-1">*</span>
 											</label>
-											<input type="tel" required className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base" placeholder="+244 9XX XXX XXX" />
+											<input type="tel" name="telefone" value={partPurchaseFormData.telefone} onChange={(e) => setPartPurchaseFormData({ ...partPurchaseFormData, telefone: e.target.value })} required className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base" placeholder="+244 9XX XXX XXX" />
 										</div>
 										<div>
 											<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
 												E-mail <span className="text-red-500 ml-1">*</span>
 											</label>
-											<input type="email" required className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base" placeholder="seu@email.com" />
+											<input type="email" name="email" value={partPurchaseFormData.email} onChange={(e) => setPartPurchaseFormData({ ...partPurchaseFormData, email: e.target.value })} required className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base" placeholder="seu@email.com" />
 										</div>
 									</div>
 								</div>
@@ -620,12 +687,21 @@ export default function DetalhesPecas() {
 
 							<div>
 								<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">Mensagem ou observações</label>
-								<textarea rows="3" className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 text-sm sm:text-base" placeholder="Informações adicionais sobre sua solicitação..." />
+								<textarea name="mensagem" value={partPurchaseFormData.mensagem} onChange={(e) => setPartPurchaseFormData({ ...partPurchaseFormData, mensagem: e.target.value })} rows="3" className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 text-sm sm:text-base" placeholder="Informações adicionais sobre sua solicitação..." />
 							</div>
 
 							<div className="pt-4 sm:pt-5 border-t border-gray-200 space-y-2.5 sm:space-y-3">
-								<button type="submit" className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer">
-									<Mail className="w-4 h-4 sm:w-5 sm:h-5" /> Enviar Solicitação
+								<button type="submit" disabled={partPurchaseLoading} className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+									{partPurchaseLoading ? (
+										<>
+											<Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+											Enviando...
+										</>
+									) : (
+										<>
+											<Mail className="w-4 h-4 sm:w-5 sm:h-5" /> Enviar Solicitação
+										</>
+									)}
 								</button>
 								<button type="button" onClick={() => setShowContactModal(false)} className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 sm:py-3 rounded-xl transition-all active:scale-[0.98] text-sm sm:text-base cursor-pointer">Cancelar</button>
 							</div>
@@ -657,7 +733,7 @@ export default function DetalhesPecas() {
 
 						<form
 							className="p-4 sm:p-6 space-y-4 sm:space-y-5"
-							onSubmit={(e) => { e.preventDefault(); notyf.success('Consulta enviada com sucesso!'); setShowAvailabilityModal(false) }}
+							onSubmit={handleAvailabilitySubmit}
 						>
 							<div className="bg-green-50 rounded-xl p-4 border border-green-200">
 								<h4 className="font-bold text-green-900 mb-2">{peca.name}</h4>
@@ -688,40 +764,28 @@ export default function DetalhesPecas() {
 										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
 											Nome completo <span className="text-red-500 ml-1">*</span>
 										</label>
-										<input type="text" required className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base" placeholder="Digite seu nome completo" />
+										<input type="text" name="nome" value={availabilityFormData.nome} onChange={(e) => setAvailabilityFormData({ ...availabilityFormData, nome: e.target.value })} required className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base" placeholder="Digite seu nome completo" />
 									</div>
 									<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 										<div>
 											<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
 												Telefone <span className="text-red-500 ml-1">*</span>
 											</label>
-											<input type="tel" required className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base" placeholder="+244 9XX XXX XXX" />
+											<input type="tel" name="telefone" value={availabilityFormData.telefone} onChange={(e) => setAvailabilityFormData({ ...availabilityFormData, telefone: e.target.value })} required className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base" placeholder="+244 9XX XXX XXX" />
 										</div>
 										<div>
 											<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
 												E-mail <span className="text-red-500 ml-1">*</span>
 											</label>
-											<input type="email" required className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base" placeholder="seu@email.com" />
+											<input type="email" name="email" value={availabilityFormData.email} onChange={(e) => setAvailabilityFormData({ ...availabilityFormData, email: e.target.value })} required className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base" placeholder="seu@email.com" />
 										</div>
 									</div>
 								</div>
 							)}
 
 							<div>
-								<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">Prazo desejado para recebimento</label>
-								<select className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 bg-white cursor-pointer text-sm sm:text-base">
-									<option value="">Selecione um prazo</option>
-									<option value="urgente">Urgente (até 3 dias)</option>
-									<option value="semana">1 semana</option>
-									<option value="quinzena">15 dias</option>
-									<option value="mes">1 mês</option>
-									<option value="flexivel">Prazo flexível</option>
-								</select>
-							</div>
-
-							<div>
 								<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">Observações ou informações adicionais</label>
-								<textarea rows="3" className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base" placeholder="Ex: Necessito desta peça para um projeto específico..." />
+								<textarea name="mensagem" value={availabilityFormData.mensagem} onChange={(e) => setAvailabilityFormData({ ...availabilityFormData, mensagem: e.target.value })} rows="3" className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base" placeholder="Ex: Necessito desta peça para um projeto específico..." />
 							</div>
 
 							<div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4">
@@ -735,8 +799,17 @@ export default function DetalhesPecas() {
 							</div>
 
 							<div className="pt-4 sm:pt-5 border-t border-gray-200 space-y-2.5 sm:space-y-3">
-								<button type="submit" className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer">
-									<CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" /> Enviar Consulta
+								<button type="submit" disabled={availabilityLoading} className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+									{availabilityLoading ? (
+										<>
+											<Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+											Enviando...
+										</>
+									) : (
+										<>
+											<CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" /> Enviar Consulta
+										</>
+									)}
 								</button>
 								<button type="button" onClick={() => setShowAvailabilityModal(false)} className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 sm:py-3 rounded-xl transition-all active:scale-[0.98] text-sm sm:text-base cursor-pointer">Cancelar</button>
 							</div>

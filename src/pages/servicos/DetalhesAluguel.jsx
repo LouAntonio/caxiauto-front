@@ -41,6 +41,18 @@ export default function DetalhesAluguel() {
 	const [loadingFavorite, setLoadingFavorite] = useState(false);
 	const [bookingSuccess, setBookingSuccess] = useState(false);
 
+	// Estado do formulário de contacto
+	const [rentalFormData, setRentalFormData] = useState({
+		nome: '',
+		email: '',
+		telefone: '',
+		periodo: '',
+		dataInicio: '',
+		dataFim: '',
+		mensagem: ''
+	})
+	const [rentalLoading, setRentalLoading] = useState(false)
+
 	// Handler para quando uma reserva é criada
 	const handleBookingCreated = () => {
 		setBookingSuccess(true);
@@ -273,6 +285,30 @@ export default function DetalhesAluguel() {
 
 	const handleContact = () => {
 		setShowContactModal(true)
+	}
+
+	// Handler do formulário de contacto
+	const handleRentalSubmit = async (e) => {
+		e.preventDefault()
+		setRentalLoading(true)
+		try {
+			const response = await api.contactRentalRequest({
+				vehicleId: id,
+				...rentalFormData
+			})
+			if (response.success) {
+				notyf.success(response.msg || 'Pedido de aluguel enviado com sucesso!')
+				setShowContactModal(false)
+				setRentalFormData({ nome: '', email: '', telefone: '', periodo: '', dataInicio: '', dataFim: '', mensagem: '' })
+			} else {
+				notyf.error(response.msg || 'Erro ao enviar pedido de aluguel')
+			}
+		} catch (error) {
+			console.error('Erro ao enviar pedido de aluguel:', error)
+			notyf.error('Erro ao enviar pedido de aluguel')
+		} finally {
+			setRentalLoading(false)
+		}
 	}
 
 	const formatPrice = (price) => {
@@ -738,11 +774,7 @@ export default function DetalhesAluguel() {
 
 						<form
 							className="p-4 sm:p-6 space-y-4 sm:space-y-5"
-							onSubmit={(e) => {
-								e.preventDefault();
-								alert('Solicitação enviada com sucesso!');
-								setShowContactModal(false);
-							}}
+							onSubmit={handleRentalSubmit}
 						>
 							{/* Informações Pessoais (não solicitar se usuário estiver logado) */}
 							{!isAuthenticated && (
@@ -756,6 +788,9 @@ export default function DetalhesAluguel() {
 										</label>
 										<input
 											type="text"
+											name="nome"
+											value={rentalFormData.nome}
+											onChange={(e) => setRentalFormData({ ...rentalFormData, nome: e.target.value })}
 											required
 											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 											placeholder="Digite seu nome completo"
@@ -772,6 +807,9 @@ export default function DetalhesAluguel() {
 											</label>
 											<input
 												type="tel"
+												name="telefone"
+												value={rentalFormData.telefone}
+												onChange={(e) => setRentalFormData({ ...rentalFormData, telefone: e.target.value })}
 												required
 												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 												placeholder="+244 9XX XXX XXX"
@@ -787,6 +825,9 @@ export default function DetalhesAluguel() {
 											</label>
 											<input
 												type="email"
+												name="email"
+												value={rentalFormData.email}
+												onChange={(e) => setRentalFormData({ ...rentalFormData, email: e.target.value })}
 												required
 												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 												placeholder="seu@email.com"
@@ -811,9 +852,11 @@ export default function DetalhesAluguel() {
 										</span>
 									</label>
 									<select
+										name="periodo"
+										value={rentalFormData.periodo || selectedPeriod}
+										onChange={(e) => setRentalFormData({ ...rentalFormData, periodo: e.target.value })}
 										required
 										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base font-medium"
-										defaultValue={selectedPeriod}
 									>
 										{rentalPlans.map((plan) => (
 											<option key={plan.id} value={plan.id}>
@@ -832,44 +875,33 @@ export default function DetalhesAluguel() {
 									</p>
 								</div>
 
-								{/* Documentos */}
-								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+								{/* Datas */}
+								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
 									<div>
 										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-											<span className="flex items-center gap-1.5">
-												<FileText className="w-4 h-4" />
-												BI ou Passaporte
-												<span className="text-red-500 text-base">*</span>
-											</span>
+											Data de início
 										</label>
-										<div className="relative">
-											<input
-												type="file"
-												required
-												accept=".pdf,.jpg,.jpeg,.png"
-												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-											/>
-										</div>
-										<p className="mt-1.5 text-xs text-gray-500">PDF, JPG ou PNG (máx. 5MB)</p>
+										<input
+											type="date"
+											name="dataInicio"
+											value={rentalFormData.dataInicio}
+											onChange={(e) => setRentalFormData({ ...rentalFormData, dataInicio: e.target.value })}
+											min={new Date().toISOString().split('T')[0]}
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base"
+										/>
 									</div>
-
 									<div>
 										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-											<span className="flex items-center gap-1.5">
-												<FileText className="w-4 h-4" />
-												Carta de Condução
-												<span className="text-red-500 text-base">*</span>
-											</span>
+											Data de fim
 										</label>
-										<div className="relative">
-											<input
-												type="file"
-												required
-												accept=".pdf,.jpg,.jpeg,.png"
-												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-											/>
-										</div>
-										<p className="mt-1.5 text-xs text-gray-500">PDF, JPG ou PNG (máx. 5MB)</p>
+										<input
+											type="date"
+											name="dataFim"
+											value={rentalFormData.dataFim}
+											onChange={(e) => setRentalFormData({ ...rentalFormData, dataFim: e.target.value })}
+											min={rentalFormData.dataInicio || new Date().toISOString().split('T')[0]}
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base"
+										/>
 									</div>
 								</div>
 							</div>
@@ -880,6 +912,9 @@ export default function DetalhesAluguel() {
 									Mensagem ou observações
 								</label>
 								<textarea
+									name="mensagem"
+									value={rentalFormData.mensagem}
+									onChange={(e) => setRentalFormData({ ...rentalFormData, mensagem: e.target.value })}
 									rows="3"
 									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 text-sm sm:text-base"
 									placeholder="Conte-nos sobre suas necessidades, datas específicas ou dúvidas..."
@@ -890,10 +925,20 @@ export default function DetalhesAluguel() {
 							<div className="pt-4 sm:pt-5 border-t border-gray-200 space-y-2.5 sm:space-y-3">
 								<button
 									type="submit"
-									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
+									disabled={rentalLoading}
+									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 								>
-									<Mail className="w-4 h-4 sm:w-5 sm:h-5" />
-									Enviar Solicitação
+									{rentalLoading ? (
+										<>
+											<Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+											Enviando...
+										</>
+									) : (
+										<>
+											<Mail className="w-4 h-4 sm:w-5 sm:h-5" />
+											Enviar Solicitação
+										</>
+									)}
 								</button>
 								<button
 									type="button"
