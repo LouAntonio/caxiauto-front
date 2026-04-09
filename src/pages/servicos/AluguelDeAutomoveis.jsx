@@ -7,8 +7,7 @@ import {
 	Droplet,
 	AlertCircle,
 	Loader2,
-	Heart,
-	Key
+	Heart
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import RentalVehicleFilter from '../../components/RentalVehicleFilter';
@@ -205,32 +204,25 @@ export default function AluguelDeAutomoveis() {
 	};
 
 	return (
-		<main className="bg-gradient-to-b from-white to-gray-50 min-h-screen">
+		<main className="bg-gray-50 min-h-screen">
 			{/* Hero Section */}
-			<section className="px-6 bg-[#154c9a] text-white relative overflow-hidden isolate h-[calc(100vh-80px)] flex items-center">
+			<div className="relative bg-gradient-to-r from-indigo-900 via-indigo-800 to-indigo-700 text-white">
 				<div
-					className="absolute inset-0 -z-10 opacity-10"
+					className="absolute inset-0 bg-cover bg-center opacity-30"
 					style={{
-						backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"
+						backgroundImage: "url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1650&q=80')"
 					}}
-				></div>
-
-				<div className="absolute top-0 right-0 -mr-20 -mt-20 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-3xl"></div>
-				<div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-3xl"></div>
-
-				<div className="max-w-4xl mx-auto text-center relative z-10 w-full">
-					<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-100 mb-6 backdrop-blur-sm">
-						<Key className="w-5 h-5" />
-						<span className="font-medium">Rent-a-Car Simplificado</span>
-					</div>
-					<h1 className="text-5xl md:text-6xl font-extrabold mb-8 tracking-tight">
-						Aluguer de Viaturas
+					aria-hidden="true"
+				/>
+				<div className="relative max-w-7xl mx-auto px-6 py-16">
+					<h1 className="text-4xl sm:text-5xl font-extrabold leading-tight drop-shadow-md">
+						Aluguel de Automóveis
 					</h1>
-					<p className="text-xl md:text-2xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
-						Encontre o carro perfeito para a sua viagem, negócios ou eventos. Flexibilidade e os melhores preços numa só plataforma.
+					<p className="mt-4 text-lg text-indigo-100 max-w-2xl">
+						Encontre o veículo ideal para sua viagem ou dia a dia. As melhores taxas e condições em Luanda.
 					</p>
 				</div>
-			</section>
+			</div>
 
 			<div className='max-w-7xl mx-auto'>
 				{/* Seção de Veículos com Sidebar Filter */}
@@ -285,7 +277,7 @@ export default function AluguelDeAutomoveis() {
 								{/* Empty State */}
 								{!loading && !error && vehicles.length === 0 && (
 									<div className="text-center py-20">
-										<Key className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+										<Gauge className="w-16 h-16 text-gray-300 mx-auto mb-4" />
 										<h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhum veículo encontrado</h3>
 										<p className="text-gray-600">Tente ajustar os filtros para ver mais resultados</p>
 									</div>

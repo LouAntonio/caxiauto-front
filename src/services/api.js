@@ -718,6 +718,31 @@ const api = {
 		const queryString = new URLSearchParams(params).toString();
 		return api.get(`/categorias?${queryString}`, {}, false);
 	},
+
+	// ==================== CONTACTO ====================
+	contact: (data) => {
+		return api.post('/contact', data);
+	},
+
+	contactInsurance: (data) => {
+		return api.post('/contact/insurance', data);
+	},
+
+	contactVehiclePurchase: (data) => {
+		return api.post('/contact/vehicle-purchase', data);
+	},
+
+	contactVehicleVisit: (data) => {
+		return api.post('/contact/vehicle-visit', data);
+	},
+
+	contactRentalRequest: (data) => {
+		return api.post('/contact/rental-request', data);
+	},
+
+	contactPartPurchase: (data) => {
+		return api.post('/contact/part-purchase', data);
+	},
 };
 
 export default api;

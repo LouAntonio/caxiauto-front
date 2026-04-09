@@ -9,6 +9,7 @@ import {
 	Cog,
 	Car,
 	Shield,
+	User,
 	ChevronLeft,
 	ChevronRight,
 	Phone,
@@ -24,6 +25,7 @@ import {
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { notyf } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
+import { VehicleDetailSkeleton } from '../../components/skeletons'
 
 export default function DetalhesCompra() {
 	const { id } = useParams()
@@ -38,7 +40,66 @@ export default function DetalhesCompra() {
 	const [isFavorite, setIsFavorite] = useState(false)
 	const [loadingFavorite, setLoadingFavorite] = useState(false)
 
+	// Estados dos formulários
+	const [purchaseFormData, setPurchaseFormData] = useState({
+		nome: '',
+		email: '',
+		telefone: '',
+		formaPagamento: '',
+		mensagem: ''
+	})
+	const [visitFormData, setVisitFormData] = useState({
+		nome: '',
+		email: '',
+		telefone: '',
+		dataVisita: '',
+		mensagem: ''
+	})
+	const [purchaseLoading, setPurchaseLoading] = useState(false)
+	const [visitLoading, setVisitLoading] = useState(false)
+
+	const getAuthContactData = () => ({
+		nome: (user?.name || '').trim(),
+		email: (user?.email || '').trim(),
+		telefone: (user?.phone || '').trim()
+	})
+
+	const mergeRequiredContactFields = (formData) => {
+		const authContactData = getAuthContactData()
+		return {
+			nome: (formData.nome || authContactData.nome || '').trim(),
+			email: (formData.email || authContactData.email || '').trim(),
+			telefone: (formData.telefone || authContactData.telefone || '').trim()
+		}
+	}
+
+	const hasMissingRequiredContact = (contactData) => {
+		return !contactData.nome || !contactData.email || !contactData.telefone
+	}
+
 	// Buscar dados do veículo
+	useEffect(() => {
+		if (!isAuthenticated) {
+			return
+		}
+
+		const authContactData = getAuthContactData()
+
+		setPurchaseFormData((previous) => ({
+			...previous,
+			nome: previous.nome?.trim() ? previous.nome : authContactData.nome,
+			email: previous.email?.trim() ? previous.email : authContactData.email,
+			telefone: previous.telefone?.trim() ? previous.telefone : authContactData.telefone
+		}))
+
+		setVisitFormData((previous) => ({
+			...previous,
+			nome: previous.nome?.trim() ? previous.nome : authContactData.nome,
+			email: previous.email?.trim() ? previous.email : authContactData.email,
+			telefone: previous.telefone?.trim() ? previous.telefone : authContactData.telefone
+		}))
+	}, [isAuthenticated, user?.name, user?.email, user?.phone])
+
 	useEffect(() => {
 		const fetchVehicle = async () => {
 			try {
@@ -92,7 +153,7 @@ export default function DetalhesCompra() {
 						requirements: [
 							'BI ou Passaporte válido'
 						],
-						owner: vehicleData.owner
+						owner: vehicleData.Seller || vehicleData.owner
 					})
 					
 					// Registrar visualização
@@ -164,6 +225,79 @@ export default function DetalhesCompra() {
 		setShowVisitModal(true)
 	}
 
+	// Handlers dos formulários
+	const handlePurchaseSubmit = async (e) => {
+		e.preventDefault()
+		const contactData = mergeRequiredContactFields(purchaseFormData)
+		if (hasMissingRequiredContact(contactData)) {
+			notyf.error('Complete nome, e-mail e telefone para continuar.')
+			return
+		}
+
+		setPurchaseLoading(true)
+		try {
+			const response = await api.contactVehiclePurchase({
+				vehicleId: id,
+				...purchaseFormData,
+				...contactData
+			})
+			if (response.success) {
+				notyf.success(response.msg || 'Proposta enviada com sucesso!')
+				setShowContactModal(false)
+				setPurchaseFormData({
+					nome: isAuthenticated ? contactData.nome : '',
+					email: isAuthenticated ? contactData.email : '',
+					telefone: isAuthenticated ? contactData.telefone : '',
+					formaPagamento: '',
+					mensagem: ''
+				})
+			} else {
+				notyf.error(response.msg || 'Erro ao enviar proposta')
+			}
+		} catch (error) {
+			console.error('Erro ao enviar proposta:', error)
+			notyf.error('Erro ao enviar proposta')
+		} finally {
+			setPurchaseLoading(false)
+		}
+	}
+
+	const handleVisitSubmit = async (e) => {
+		e.preventDefault()
+		const contactData = mergeRequiredContactFields(visitFormData)
+		if (hasMissingRequiredContact(contactData)) {
+			notyf.error('Complete nome, e-mail e telefone para continuar.')
+			return
+		}
+
+		setVisitLoading(true)
+		try {
+			const response = await api.contactVehicleVisit({
+				vehicleId: id,
+				...visitFormData,
+				...contactData
+			})
+			if (response.success) {
+				notyf.success(response.msg || 'Pedido de visita enviado com sucesso!')
+				setShowVisitModal(false)
+				setVisitFormData({
+					nome: isAuthenticated ? contactData.nome : '',
+					email: isAuthenticated ? contactData.email : '',
+					telefone: isAuthenticated ? contactData.telefone : '',
+					dataVisita: '',
+					mensagem: ''
+				})
+			} else {
+				notyf.error(response.msg || 'Erro ao enviar pedido de visita')
+			}
+		} catch (error) {
+			console.error('Erro ao enviar pedido de visita:', error)
+			notyf.error('Erro ao enviar pedido de visita')
+		} finally {
+			setVisitLoading(false)
+		}
+	}
+
 	const formatPrice = (price) => {
 		if (price === null || price === undefined || isNaN(price) || price === 0) {
 			return 'Preço sob consulta'
@@ -213,14 +347,7 @@ export default function DetalhesCompra() {
 
 	// Estado de loading
 	if (loading) {
-		return (
-			<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex items-center justify-center">
-				<div className="text-center">
-					<Loader2 className="w-12 h-12 text-indigo-600 animate-spin mx-auto mb-4" />
-					<p className="text-gray-600 text-lg">Carregando detalhes do veículo...</p>
-				</div>
-			</div>
-		)
+		return <VehicleDetailSkeleton />
 	}
 
 	// Estado de erro
@@ -391,9 +518,9 @@ export default function DetalhesCompra() {
 									<span className="font-semibold text-gray-900">{vehicle.specs.location}</span>
 								</div>
 								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
-									<Car className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
-									<span className="text-xs text-gray-600 mb-1">Portas</span>
-									<span className="font-semibold text-gray-900">{vehicle.specs.doors}</span>
+									<Shield className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
+									<span className="text-xs text-gray-600 mb-1">Condição</span>
+									<span className="font-semibold text-gray-900">{vehicle.condition}</span>
 								</div>
 							</div>
 						</div>
@@ -458,6 +585,34 @@ export default function DetalhesCompra() {
 								))}
 							</div>
 						</div>
+
+						{/* Vendedor */}
+						{vehicle.owner && (
+							<div className="hidden bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+								<h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+									<div className="w-1 h-6 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full"></div>
+									Vendedor
+								</h2>
+								<div className="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-indigo-50/30 rounded-xl">
+									<div className="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center">
+										<User className="w-7 h-7 text-indigo-600" />
+									</div>
+									<div className="flex-1">
+										<div className="flex items-center gap-2">
+											<h3 className="font-bold text-gray-900 text-lg">
+												{vehicle.owner.name} {vehicle.owner.surname}
+											</h3>
+											{vehicle.owner.isVerified && (
+												<Shield className="w-5 h-5 text-blue-500" fill="currentColor" />
+											)}
+										</div>
+										<p className="text-sm text-gray-600">
+											{vehicle.owner.isVerified ? 'Vendedor Verificado' : 'Vendedor'}
+										</p>
+									</div>
+								</div>
+							</div>
+						)}
 					</div>
 
 					{/* Sidebar - Card de Preço e Contato */}
@@ -594,14 +749,10 @@ export default function DetalhesCompra() {
 
 						<form
 							className="p-4 sm:p-6 space-y-4 sm:space-y-5"
-							onSubmit={(e) => {
-								e.preventDefault();
-								alert('Solicitação enviada com sucesso!');
-								setShowContactModal(false);
-							}}
+							onSubmit={handlePurchaseSubmit}
 						>
 							{/* Informações Pessoais */}
-							{!user && (
+							{!isAuthenticated && (
 								<div className="space-y-4">
 									<div>
 										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
@@ -612,6 +763,9 @@ export default function DetalhesCompra() {
 										</label>
 										<input
 											type="text"
+											name="nome"
+											value={purchaseFormData.nome}
+											onChange={(e) => setPurchaseFormData({ ...purchaseFormData, nome: e.target.value })}
 											required
 											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 											placeholder="Digite seu nome completo"
@@ -628,6 +782,9 @@ export default function DetalhesCompra() {
 											</label>
 											<input
 												type="tel"
+												name="telefone"
+												value={purchaseFormData.telefone}
+												onChange={(e) => setPurchaseFormData({ ...purchaseFormData, telefone: e.target.value })}
 												required
 												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 												placeholder="+244 9XX XXX XXX"
@@ -643,6 +800,9 @@ export default function DetalhesCompra() {
 											</label>
 											<input
 												type="email"
+												name="email"
+												value={purchaseFormData.email}
+												onChange={(e) => setPurchaseFormData({ ...purchaseFormData, email: e.target.value })}
 												required
 												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 												placeholder="seu@email.com"
@@ -667,11 +827,14 @@ export default function DetalhesCompra() {
 										</span>
 									</label>
 									<select
+										name="formaPagamento"
+										value={purchaseFormData.formaPagamento}
+										onChange={(e) => setPurchaseFormData({ ...purchaseFormData, formaPagamento: e.target.value })}
 										required
 										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400  bg-white cursor-pointer text-sm sm:text-base font-medium"
 									>
 										<option value="">Selecione uma opção</option>
-										<option value="vista">Aceitar  Preço - {formatPrice(vehicle.price)} aKz</option>
+										<option value="vista">Aceitar Preço - {formatPrice(vehicle.price)} aKz</option>
 										<option value="financiamento">Fazer oferta (especificar na Mensagem)</option>
 									</select>
 								</div>
@@ -683,6 +846,9 @@ export default function DetalhesCompra() {
 									Mensagem ou observações
 								</label>
 								<textarea
+									name="mensagem"
+									value={purchaseFormData.mensagem}
+									onChange={(e) => setPurchaseFormData({ ...purchaseFormData, mensagem: e.target.value })}
 									rows="3"
 									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 text-sm sm:text-base"
 									placeholder="Conte-nos sobre suas dúvidas, forma de interesse ou outras informações..."
@@ -693,10 +859,20 @@ export default function DetalhesCompra() {
 							<div className="pt-4 sm:pt-5 border-t border-gray-200 space-y-2.5 sm:space-y-3">
 								<button
 									type="submit"
-									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
+									disabled={purchaseLoading}
+									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 								>
-									<Mail className="w-4 h-4 sm:w-5 sm:h-5" />
-									Enviar Solicitação
+									{purchaseLoading ? (
+										<>
+											<Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+											Enviando...
+										</>
+									) : (
+										<>
+											<Mail className="w-4 h-4 sm:w-5 sm:h-5" />
+											Enviar Solicitação
+										</>
+									)}
 								</button>
 								<button
 									type="button"
@@ -740,14 +916,10 @@ export default function DetalhesCompra() {
 						{/* Form */}
 						<form
 							className="p-4 sm:p-6 space-y-6"
-							onSubmit={(e) => {
-								e.preventDefault();
-								alert('Visita agendada com sucesso! Entraremos em contato para confirmar.');
-								setShowVisitModal(false);
-							}}
+							onSubmit={handleVisitSubmit}
 						>
 							{/* Informações Pessoais */}
-							{!user && (
+							{!isAuthenticated && (
 								<div className="space-y-4">
 									<div>
 										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
@@ -758,6 +930,9 @@ export default function DetalhesCompra() {
 										</label>
 										<input
 											type="text"
+											name="nome"
+											value={visitFormData.nome}
+											onChange={(e) => setVisitFormData({ ...visitFormData, nome: e.target.value })}
 											required
 											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base"
 											placeholder="Digite seu nome completo"
@@ -774,6 +949,9 @@ export default function DetalhesCompra() {
 											</label>
 											<input
 												type="tel"
+												name="telefone"
+												value={visitFormData.telefone}
+												onChange={(e) => setVisitFormData({ ...visitFormData, telefone: e.target.value })}
 												required
 												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base"
 												placeholder="+244 9XX XXX XXX"
@@ -789,6 +967,9 @@ export default function DetalhesCompra() {
 											</label>
 											<input
 												type="email"
+												name="email"
+												value={visitFormData.email}
+												onChange={(e) => setVisitFormData({ ...visitFormData, email: e.target.value })}
 												required
 												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base"
 												placeholder="seu@email.com"
@@ -815,6 +996,9 @@ export default function DetalhesCompra() {
 										</label>
 										<input
 											type="date"
+											name="dataVisita"
+											value={visitFormData.dataVisita}
+											onChange={(e) => setVisitFormData({ ...visitFormData, dataVisita: e.target.value })}
 											required
 											min={new Date().toISOString().split('T')[0]}
 											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 bg-white cursor-pointer text-sm sm:text-base font-medium"
@@ -829,6 +1013,9 @@ export default function DetalhesCompra() {
 											</span>
 										</label>
 										<select
+											name="horario"
+											value={visitFormData.horario || ''}
+											onChange={(e) => setVisitFormData({ ...visitFormData, horario: e.target.value })}
 											required
 											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 bg-white cursor-pointer text-sm sm:text-base font-medium"
 										>
@@ -850,6 +1037,9 @@ export default function DetalhesCompra() {
 										Número de pessoas
 									</label>
 									<select
+										name="numPessoas"
+										value={visitFormData.numPessoas || '1'}
+										onChange={(e) => setVisitFormData({ ...visitFormData, numPessoas: e.target.value })}
 										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 focus:border-green-500 bg-white cursor-pointer text-sm sm:text-base font-medium"
 									>
 										<option value="1">1 pessoa</option>
@@ -866,6 +1056,9 @@ export default function DetalhesCompra() {
 									Observações ou pedidos especiais
 								</label>
 								<textarea
+									name="mensagem"
+									value={visitFormData.mensagem}
+									onChange={(e) => setVisitFormData({ ...visitFormData, mensagem: e.target.value })}
 									rows="3"
 									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 focus:border-green-500 text-sm sm:text-base"
 									placeholder="Ex: Gostaria de realizar test-drive, verificar documentação específica, etc."
@@ -889,10 +1082,20 @@ export default function DetalhesCompra() {
 							<div className="pt-4 sm:pt-5 border-t border-gray-200 space-y-2.5 sm:space-y-3">
 								<button
 									type="submit"
-									className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
+									disabled={visitLoading}
+									className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 								>
-									<Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
-									Confirmar Agendamento
+									{visitLoading ? (
+										<>
+											<Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+											Enviando...
+										</>
+									) : (
+										<>
+											<Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+											Confirmar Agendamento
+										</>
+									)}
 								</button>
 								<button
 									type="button"

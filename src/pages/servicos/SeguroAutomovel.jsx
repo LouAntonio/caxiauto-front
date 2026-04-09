@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import api, { notyf } from '../../services/api';
 import {
 	Shield,
 	FileText,
@@ -29,18 +30,29 @@ export default function SeguroAutomovel() {
 		tipoViatura: '',
 		mensagem: ''
 	});
+	const [loading, setLoading] = useState(false);
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
-		console.log('Pedido de seguro:', formData);
-		// Aqui você implementaria a lógica de envio
+		setLoading(true);
+		try {
+			const response = await api.contactInsurance(formData);
+			if (response.success) {
+				notyf.success(response.msg || 'Pedido de seguro enviado com sucesso!');
+				setFormData({ nome: '', email: '', telefone: '', tipoSeguro: '', tipoViatura: '', mensagem: '' });
+			} else {
+				notyf.error(response.msg || 'Erro ao enviar pedido de seguro');
+			}
+		} catch (error) {
+			console.error('Erro ao enviar pedido de seguro:', error);
+			notyf.error('Erro ao enviar pedido de seguro');
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	const handleChange = (e) => {
-		setFormData({
-			...formData,
-			[e.target.name]: e.target.value
-		});
+		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 
 	const steps = [
@@ -356,9 +368,18 @@ export default function SeguroAutomovel() {
 
 						<button
 							type="submit"
-							className="w-full bg-[#154c9a] text-white font-bold py-4 px-8 rounded-full hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 cursor-pointer"
+							disabled={loading}
+							className="w-full bg-[#154c9a] text-white font-bold py-4 px-8 rounded-full hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 						>
-							Solicitar Orçamento
+							{loading ? (
+								<span className="flex items-center justify-center gap-2">
+									<svg className="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+										<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+										<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+									</svg>
+									Enviando...
+								</span>
+							) : 'Solicitar Orçamento'}
 						</button>
 					</form>
 				</div>

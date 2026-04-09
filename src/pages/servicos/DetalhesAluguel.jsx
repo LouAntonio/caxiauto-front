@@ -9,6 +9,7 @@ import {
 	Cog,
 	Car,
 	Shield,
+	User,
 	ChevronLeft,
 	ChevronRight,
 	Phone,
@@ -24,11 +25,12 @@ import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { API_URL, getImageUrl, notyf } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
 import BookingForm from '../../components/BookingForm'
+import { VehicleDetailSkeleton } from '../../components/skeletons'
 
 export default function DetalhesAluguel() {
 	const { id } = useParams()
 	const navigate = useNavigate()
-	const { isAuthenticated } = useAuth()
+	const { user, isAuthenticated } = useAuth()
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [selectedPeriod, setSelectedPeriod] = useState('diária')
 	const [showContactModal, setShowContactModal] = useState(false)
@@ -38,6 +40,37 @@ export default function DetalhesAluguel() {
 	const [isFavorite, setIsFavorite] = useState(false);
 	const [loadingFavorite, setLoadingFavorite] = useState(false);
 	const [bookingSuccess, setBookingSuccess] = useState(false);
+
+	// Estado do formulário de contacto
+	const [rentalFormData, setRentalFormData] = useState({
+		nome: '',
+		email: '',
+		telefone: '',
+		periodo: '',
+		dataInicio: '',
+		dataFim: '',
+		mensagem: ''
+	})
+	const [rentalLoading, setRentalLoading] = useState(false)
+
+	const getAuthContactData = () => ({
+		nome: (user?.name || '').trim(),
+		email: (user?.email || '').trim(),
+		telefone: (user?.phone || '').trim()
+	})
+
+	const mergeRequiredContactFields = (formData) => {
+		const authContactData = getAuthContactData()
+		return {
+			nome: (formData.nome || authContactData.nome || '').trim(),
+			email: (formData.email || authContactData.email || '').trim(),
+			telefone: (formData.telefone || authContactData.telefone || '').trim()
+		}
+	}
+
+	const hasMissingRequiredContact = (contactData) => {
+		return !contactData.nome || !contactData.email || !contactData.telefone
+	}
 
 	// Handler para quando uma reserva é criada
 	const handleBookingCreated = () => {
@@ -147,6 +180,20 @@ export default function DetalhesAluguel() {
 
 	// Buscar dados do veículo
 	useEffect(() => {
+		if (!isAuthenticated) {
+			return
+		}
+
+		const authContactData = getAuthContactData()
+		setRentalFormData((previous) => ({
+			...previous,
+			nome: previous.nome?.trim() ? previous.nome : authContactData.nome,
+			email: previous.email?.trim() ? previous.email : authContactData.email,
+			telefone: previous.telefone?.trim() ? previous.telefone : authContactData.telefone
+		}))
+	}, [isAuthenticated, user?.name, user?.email, user?.phone])
+
+	useEffect(() => {
 		const fetchVehicle = async () => {
 			if (!id) {
 				setError('ID do veículo não fornecido')
@@ -231,14 +278,7 @@ export default function DetalhesAluguel() {
 
 	// Loading state
 	if (loading) {
-		return (
-			<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex items-center justify-center">
-				<div className="text-center">
-					<Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-600 mb-4" />
-					<p className="text-gray-600">Carregando dados do veículo...</p>
-				</div>
-			</div>
-		)
+		return <VehicleDetailSkeleton />
 	}
 
 	// Error state
@@ -278,6 +318,45 @@ export default function DetalhesAluguel() {
 
 	const handleContact = () => {
 		setShowContactModal(true)
+	}
+
+	// Handler do formulário de contacto
+	const handleRentalSubmit = async (e) => {
+		e.preventDefault()
+		const contactData = mergeRequiredContactFields(rentalFormData)
+		if (hasMissingRequiredContact(contactData)) {
+			notyf.error('Complete nome, e-mail e telefone para continuar.')
+			return
+		}
+
+		setRentalLoading(true)
+		try {
+			const response = await api.contactRentalRequest({
+				vehicleId: id,
+				...rentalFormData,
+				...contactData
+			})
+			if (response.success) {
+				notyf.success(response.msg || 'Pedido de aluguel enviado com sucesso!')
+				setShowContactModal(false)
+				setRentalFormData({
+					nome: isAuthenticated ? contactData.nome : '',
+					email: isAuthenticated ? contactData.email : '',
+					telefone: isAuthenticated ? contactData.telefone : '',
+					periodo: '',
+					dataInicio: '',
+					dataFim: '',
+					mensagem: ''
+				})
+			} else {
+				notyf.error(response.msg || 'Erro ao enviar pedido de aluguel')
+			}
+		} catch (error) {
+			console.error('Erro ao enviar pedido de aluguel:', error)
+			notyf.error('Erro ao enviar pedido de aluguel')
+		} finally {
+			setRentalLoading(false)
+		}
 	}
 
 	const formatPrice = (price) => {
@@ -470,9 +549,9 @@ export default function DetalhesAluguel() {
 									<span className="font-semibold text-gray-900">{vehicle.specs.location}</span>
 								</div>
 								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
-									<Car className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
-									<span className="text-xs text-gray-600 mb-1">Portas</span>
-									<span className="font-semibold text-gray-900">{vehicle.specs.doors}</span>
+									<Shield className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
+									<span className="text-xs text-gray-600 mb-1">Condição</span>
+									<span className="font-semibold text-gray-900">{vehicle.condition}</span>
 								</div>
 							</div>
 						</div>
@@ -533,6 +612,34 @@ export default function DetalhesAluguel() {
 								))}
 							</div>
 						</div>
+
+						{/* Vendedor */}
+						{vehicle.seller && (
+							<div className="hidden bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+								<h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+									<div className="w-1 h-6 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full"></div>
+									Vendedor
+								</h2>
+								<div className="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-indigo-50/30 rounded-xl">
+									<div className="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center">
+										<User className="w-7 h-7 text-indigo-600" />
+									</div>
+									<div className="flex-1">
+										<div className="flex items-center gap-2">
+											<h3 className="font-bold text-gray-900 text-lg">
+												{vehicle.seller.name} {vehicle.seller.surname}
+											</h3>
+											{vehicle.seller.isVerified && (
+												<Shield className="w-5 h-5 text-blue-500" fill="currentColor" />
+											)}
+										</div>
+										<p className="text-sm text-gray-600">
+											{vehicle.seller.isVerified ? 'Vendedor Verificado' : 'Vendedor'}
+										</p>
+									</div>
+								</div>
+							</div>
+						)}
 					</div>
 
 					{/* Sidebar - Card de Preço e Contato */}
@@ -715,11 +822,7 @@ export default function DetalhesAluguel() {
 
 						<form
 							className="p-4 sm:p-6 space-y-4 sm:space-y-5"
-							onSubmit={(e) => {
-								e.preventDefault();
-								alert('Solicitação enviada com sucesso!');
-								setShowContactModal(false);
-							}}
+							onSubmit={handleRentalSubmit}
 						>
 							{/* Informações Pessoais (não solicitar se usuário estiver logado) */}
 							{!isAuthenticated && (
@@ -733,6 +836,9 @@ export default function DetalhesAluguel() {
 										</label>
 										<input
 											type="text"
+											name="nome"
+											value={rentalFormData.nome}
+											onChange={(e) => setRentalFormData({ ...rentalFormData, nome: e.target.value })}
 											required
 											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 											placeholder="Digite seu nome completo"
@@ -749,6 +855,9 @@ export default function DetalhesAluguel() {
 											</label>
 											<input
 												type="tel"
+												name="telefone"
+												value={rentalFormData.telefone}
+												onChange={(e) => setRentalFormData({ ...rentalFormData, telefone: e.target.value })}
 												required
 												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 												placeholder="+244 9XX XXX XXX"
@@ -764,6 +873,9 @@ export default function DetalhesAluguel() {
 											</label>
 											<input
 												type="email"
+												name="email"
+												value={rentalFormData.email}
+												onChange={(e) => setRentalFormData({ ...rentalFormData, email: e.target.value })}
 												required
 												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
 												placeholder="seu@email.com"
@@ -788,9 +900,11 @@ export default function DetalhesAluguel() {
 										</span>
 									</label>
 									<select
+										name="periodo"
+										value={rentalFormData.periodo || selectedPeriod}
+										onChange={(e) => setRentalFormData({ ...rentalFormData, periodo: e.target.value })}
 										required
 										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base font-medium"
-										defaultValue={selectedPeriod}
 									>
 										{rentalPlans.map((plan) => (
 											<option key={plan.id} value={plan.id}>
@@ -809,44 +923,33 @@ export default function DetalhesAluguel() {
 									</p>
 								</div>
 
-								{/* Documentos */}
-								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+								{/* Datas */}
+								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
 									<div>
 										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-											<span className="flex items-center gap-1.5">
-												<FileText className="w-4 h-4" />
-												BI ou Passaporte
-												<span className="text-red-500 text-base">*</span>
-											</span>
+											Data de início
 										</label>
-										<div className="relative">
-											<input
-												type="file"
-												required
-												accept=".pdf,.jpg,.jpeg,.png"
-												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-											/>
-										</div>
-										<p className="mt-1.5 text-xs text-gray-500">PDF, JPG ou PNG (máx. 5MB)</p>
+										<input
+											type="date"
+											name="dataInicio"
+											value={rentalFormData.dataInicio}
+											onChange={(e) => setRentalFormData({ ...rentalFormData, dataInicio: e.target.value })}
+											min={new Date().toISOString().split('T')[0]}
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base"
+										/>
 									</div>
-
 									<div>
 										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-											<span className="flex items-center gap-1.5">
-												<FileText className="w-4 h-4" />
-												Carta de Condução
-												<span className="text-red-500 text-base">*</span>
-											</span>
+											Data de fim
 										</label>
-										<div className="relative">
-											<input
-												type="file"
-												required
-												accept=".pdf,.jpg,.jpeg,.png"
-												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-											/>
-										</div>
-										<p className="mt-1.5 text-xs text-gray-500">PDF, JPG ou PNG (máx. 5MB)</p>
+										<input
+											type="date"
+											name="dataFim"
+											value={rentalFormData.dataFim}
+											onChange={(e) => setRentalFormData({ ...rentalFormData, dataFim: e.target.value })}
+											min={rentalFormData.dataInicio || new Date().toISOString().split('T')[0]}
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base"
+										/>
 									</div>
 								</div>
 							</div>
@@ -857,6 +960,9 @@ export default function DetalhesAluguel() {
 									Mensagem ou observações
 								</label>
 								<textarea
+									name="mensagem"
+									value={rentalFormData.mensagem}
+									onChange={(e) => setRentalFormData({ ...rentalFormData, mensagem: e.target.value })}
 									rows="3"
 									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 text-sm sm:text-base"
 									placeholder="Conte-nos sobre suas necessidades, datas específicas ou dúvidas..."
@@ -867,10 +973,20 @@ export default function DetalhesAluguel() {
 							<div className="pt-4 sm:pt-5 border-t border-gray-200 space-y-2.5 sm:space-y-3">
 								<button
 									type="submit"
-									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
+									disabled={rentalLoading}
+									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 								>
-									<Mail className="w-4 h-4 sm:w-5 sm:h-5" />
-									Enviar Solicitação
+									{rentalLoading ? (
+										<>
+											<Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+											Enviando...
+										</>
+									) : (
+										<>
+											<Mail className="w-4 h-4 sm:w-5 sm:h-5" />
+											Enviar Solicitação
+										</>
+									)}
 								</button>
 								<button
 									type="button"
