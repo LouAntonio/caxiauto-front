@@ -60,8 +60,8 @@ export default function VendaSeuAutomovel() {
 	]
 
 	const commissions = [
-		{ range: 'Até 5.000.000 Kz', percentage: '6,5%', color: 'from-blue-500 to-blue-600' },
-		{ range: '6.000.000 a 10.000.000 Kz', percentage: '5%', color: 'from-blue-600 to-blue-700' },
+		// { range: 'Até 5.000.000 Kz', percentage: '6,5%', color: 'from-blue-500 to-blue-600' },
+		// { range: '6.000.000 a 10.000.000 Kz', percentage: '5%', color: 'from-blue-600 to-blue-700' },
 		{ range: 'Acima de 11.000.000 Kz', percentage: '3,5%', color: 'from-blue-700 to-blue-800' },
 	]
 
@@ -180,9 +180,9 @@ export default function VendaSeuAutomovel() {
 						</p>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+					<div className="flex flex-wrap justify-center gap-8 mb-12">
 						{commissions.map((item) => (
-							<div key={item.range} className="relative group">
+							<div key={item.range} className="relative group w-full max-w-sm">
 								<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-10 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 transition-all duration-500 transform group-hover:-translate-y-2 text-center overflow-hidden">
 									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -m-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 									<div className="relative">
