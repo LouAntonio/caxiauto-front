@@ -21,6 +21,7 @@ import {
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { getImageUrl, notyf } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
+import { PecaDetailSkeleton } from '../../components/skeletons'
 
 export default function DetalhesPecas() {
 	const { id } = useParams()
@@ -186,15 +187,7 @@ export default function DetalhesPecas() {
 
 	// Estado de carregamento
 	if (loading) {
-		return (
-			<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex items-center justify-center">
-				<div className="text-center">
-					<Loader className="w-12 h-12 text-indigo-600 animate-spin mx-auto mb-4" />
-					<h2 className="text-xl font-semibold text-gray-700 mb-2">Carregando detalhes da peça...</h2>
-					<p className="text-gray-500">Por favor, aguarde um momento.</p>
-				</div>
-			</div>
-		)
+		return <PecaDetailSkeleton />
 	}
 
 	// Estado de erro
