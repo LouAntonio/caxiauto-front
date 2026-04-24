@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Package, Search, Layers, Loader, X, Heart, MapPin } from 'lucide-react'
+import { Package, Loader, Heart } from 'lucide-react'
 import Pagination from '../../components/Pagination'
 import PecaCardSkeleton from '../../components/PecaCardSkeleton'
+import MobileFilterBar from '../../components/MobileFilterBar'
+import MobileFilterModal from '../../components/MobileFilterModal'
+import PartsFilterPanel from '../../components/PartsFilterPanel'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { getImageUrl, notyf } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
-
-// Enum de províncias alinhado com o schema
-const PROVINCIAS = [
-	'LUANDA', 'BENGUELA', 'HUAMBO', 'HUILA', 'CABINDA', 'NAMIBE',
-	'BENGO', 'CUANZA_NORTE', 'CUANZA_SUL', 'CUNENE', 'BIE', 'MOXICO',
-	'LUNDA_NORTE', 'LUNDA_SUL', 'UIGE', 'ZAIRE', 'CUANDO_CUBANGO', 'MALANJE'
-]
 
 export default function PecasAcessorios() {
 	useDocumentTitle('Peças e Acessórios - Caxiauto')
@@ -37,6 +33,7 @@ export default function PecasAcessorios() {
 	const itemsPerPage = 16
 	const [favorites, setFavorites] = useState(new Set())
 	const [loadingFavorites, setLoadingFavorites] = useState(new Set())
+	const [showMobileFilters, setShowMobileFilters] = useState(false)
 	const { isAuthenticated } = useAuth()
 
 	const handlePageChange = (page) => {
@@ -64,6 +61,21 @@ export default function PecasAcessorios() {
 		setAppliedProvincia('')
 		setAppliedFeaturedOnly(false)
 		setCurrentPage(1)
+	}
+
+	const handleMobileSearchSubmit = () => {
+		setAppliedSearchTerm(searchTerm)
+		setCurrentPage(1)
+	}
+
+	const handleMobileApplyFilters = () => {
+		handleApplyFilters()
+		setShowMobileFilters(false)
+	}
+
+	const handleMobileClearFilters = () => {
+		handleClearFilters()
+		setShowMobileFilters(false)
 	}
 
 	// Carregar categorias
@@ -243,125 +255,32 @@ export default function PecasAcessorios() {
 
 			{/* Main Content */}
 			<div className="max-w-7xl mx-auto px-6 py-8">
+				<MobileFilterBar
+					value={searchTerm}
+					onChange={setSearchTerm}
+					onSubmit={handleMobileSearchSubmit}
+					onOpenFilters={() => setShowMobileFilters(true)}
+					placeholder="Pesquisar peças e acessórios..."
+				/>
+
 				<div className="flex flex-col lg:flex-row gap-8">
 					{/* Sidebar - Filtros */}
-					<aside className="w-full lg:w-80 flex-shrink-0">
+					<aside className="hidden lg:block w-full lg:w-80 flex-shrink-0">
 						<div className="sticky top-6">
-							<div className="w-full bg-gradient-to-br from-white to-gray-50 text-gray-800 rounded-2xl p-6 shadow-xl border border-gray-100">
-								<div className="space-y-4">
-									{/* Pesquisa de Texto */}
-									<div className="space-y-2">
-										<label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-											<Search className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-											Pesquisar
-										</label>
-										<input
-											type="text"
-											value={searchTerm}
-											onChange={(e) => setSearchTerm(e.target.value)}
-											placeholder="Ex: Filtro de óleo, pastilha..."
-											className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 bg-white outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm placeholder:text-gray-400"
-										/>
-									</div>
-
-									{/* Categorias */}
-									<div className="space-y-2">
-										<label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-											<Layers className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-											Categorias
-										</label>
-										<div className="flex flex-wrap gap-2">
-											<button
-												onClick={() => setSelectedCategory('')}
-												className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${selectedCategory === ''
-													? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md'
-													: 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-sm'
-													}`}
-											>
-												<Layers className="w-4 h-4" />
-												<span>Todas</span>
-												{selectedCategory === '' && (
-													<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-														<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-													</svg>
-												)}
-											</button>
-
-											{/* Categorias da API */}
-											{categories.map((category) => (
-												<button
-													key={category.id}
-													onClick={() => setSelectedCategory(category.id)}
-													className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${selectedCategory === category.id
-														? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md'
-														: 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-sm'
-														}`}
-												>
-													<Layers className="w-4 h-4" />
-													<span className="capitalize">{category.name}</span>
-													{selectedCategory === category.id && (
-														<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-															<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-														</svg>
-													)}
-												</button>
-											))}
-										</div>
-									</div>
-
-									{/* Província */}
-									<div className="space-y-2">
-										<label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-											<MapPin className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-											Província
-										</label>
-										<select
-											value={selectedProvincia}
-											onChange={(e) => setSelectedProvincia(e.target.value)}
-											className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 bg-white outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm cursor-pointer"
-										>
-											<option value="">Todas</option>
-											{PROVINCIAS.map((prov) => (
-												<option key={prov} value={prov}>{prov.charAt(0) + prov.slice(1).toLowerCase().replace('_', ' ')}</option>
-											))}
-										</select>
-									</div>
-
-									{/* Filtro Em Destaque */}
-									<div className="space-y-2">
-										<label className="flex items-center gap-3 cursor-pointer">
-											<input
-												type="checkbox"
-												checked={featuredOnly}
-												onChange={(e) => setFeaturedOnly(e.target.checked)}
-												className="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded"
-											/>
-											<span className="text-sm text-gray-700">
-												Mostrar apenas peças em destaque
-											</span>
-										</label>
-									</div>
-
-									{/* Botões de Ação */}
-									<div className="flex gap-2 pt-2">
-										<button
-											onClick={handleApplyFilters}
-											style={{ backgroundColor: 'var(--primary)' }}
-											className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity  cursor-pointer"
-										>
-											<Search className="w-4 h-4" />
-											Pesquisar
-										</button>
-										<button
-											onClick={handleClearFilters}
-											className="px-3 py-2.5 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors cursor-pointer"
-											title="Limpar filtros"
-										>
-											<X className="w-4 h-4" />
-										</button>
-									</div>
-								</div>
-							</div>
+							<PartsFilterPanel
+								showSearch={true}
+								searchTerm={searchTerm}
+								onSearchTermChange={setSearchTerm}
+								categories={categories}
+								selectedCategory={selectedCategory}
+								onCategoryChange={setSelectedCategory}
+								selectedProvincia={selectedProvincia}
+								onProvinciaChange={setSelectedProvincia}
+								featuredOnly={featuredOnly}
+								onFeaturedOnlyChange={setFeaturedOnly}
+								onApplyFilters={handleApplyFilters}
+								onClearFilters={handleClearFilters}
+							/>
 						</div>
 					</aside>
 
@@ -433,10 +352,9 @@ export default function PecasAcessorios() {
 													disabled={loadingFavorites.has(part.id)}
 												>
 													<Heart
-														className={`w-4 h-4 transition-all duration-200 ${favorites.has(part.id)
-															? 'fill-red-500 text-red-500'
-															: 'text-gray-600 hover:text-red-500'
-															} ${loadingFavorites.has(part.id) ? 'opacity-50' : ''}`}
+														className={`w-4 h-4 transition-all duration-200 ${
+															favorites.has(part.id) ? 'fill-red-500 text-red-500' : 'text-gray-600 hover:text-red-500'
+														} ${loadingFavorites.has(part.id) ? 'opacity-50' : ''}`}
 													/>
 												</button>
 											)}
@@ -489,6 +407,27 @@ export default function PecasAcessorios() {
 					</main>
 				</div>
 			</div>
+
+			<MobileFilterModal
+				isOpen={showMobileFilters}
+				onClose={() => setShowMobileFilters(false)}
+				title="Filtros avançados"
+			>
+				<PartsFilterPanel
+					showSearch={false}
+					searchTerm={searchTerm}
+					onSearchTermChange={setSearchTerm}
+					categories={categories}
+					selectedCategory={selectedCategory}
+					onCategoryChange={setSelectedCategory}
+					selectedProvincia={selectedProvincia}
+					onProvinciaChange={setSelectedProvincia}
+					featuredOnly={featuredOnly}
+					onFeaturedOnlyChange={setFeaturedOnly}
+					onApplyFilters={handleMobileApplyFilters}
+					onClearFilters={handleMobileClearFilters}
+				/>
+			</MobileFilterModal>
 		</div>
 	)
 }

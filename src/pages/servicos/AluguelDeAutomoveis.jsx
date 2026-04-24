@@ -13,6 +13,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import RentalVehicleFilter from '../../components/RentalVehicleFilter';
 import Pagination from '../../components/Pagination';
 import CarCardSkeleton from '../../components/CarCardSkeleton';
+import MobileFilterBar from '../../components/MobileFilterBar';
+import MobileFilterModal from '../../components/MobileFilterModal';
 import api, { API_URL, getImageUrl, notyf } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -31,6 +33,8 @@ export default function AluguelDeAutomoveis() {
 	const vehiclesPerPage = 16;
 	const [favorites, setFavorites] = useState(new Set());
 	const [loadingFavorites, setLoadingFavorites] = useState(new Set());
+	const [showMobileFilters, setShowMobileFilters] = useState(false);
+	const [mobileSearch, setMobileSearch] = useState('');
 	const { isAuthenticated } = useAuth();
 
 	// Carrega veículos apenas na primeira renderização
@@ -68,6 +72,11 @@ export default function AluguelDeAutomoveis() {
 
 		fetchFavorites();
 	}, [isAuthenticated]);
+
+	// Sincronizar campo de busca mobile com os filtros aplicados
+	useEffect(() => {
+		setMobileSearch(filters.search || '');
+	}, [filters.search]);
 
 	const loadVehicles = async () => {
 		await loadVehiclesWithFilters(filters, currentPage, sortBy);
@@ -141,6 +150,23 @@ export default function AluguelDeAutomoveis() {
 		// Realiza nova busca com a ordenação alterada
 		setLoading(true);
 		loadVehiclesWithFilters(filters, 1, newSortBy);
+	};
+
+	const handleMobileSearchSubmit = () => {
+		const nextFilters = {
+			...filters,
+			search: mobileSearch
+		};
+
+		setFilters(nextFilters);
+		setCurrentPage(1);
+		setLoading(true);
+		loadVehiclesWithFilters(nextFilters, 1, sortBy);
+	};
+
+	const handleMobileAdvancedFilterChange = (newFilters) => {
+		handleFilterChange(newFilters);
+		setShowMobileFilters(false);
 	};
 
 	const getLowestPrice = (vehicle) => {
@@ -228,12 +254,23 @@ export default function AluguelDeAutomoveis() {
 				{/* Seção de Veículos com Sidebar Filter */}
 				<section className="py-8 px-6">
 					<div className="max-w-7xl mx-auto">
+						<MobileFilterBar
+							value={mobileSearch}
+							onChange={setMobileSearch}
+							onSubmit={handleMobileSearchSubmit}
+							onOpenFilters={() => setShowMobileFilters(true)}
+							placeholder="Pesquisar veículos para alugar..."
+						/>
+
 						<div className="flex flex-col lg:flex-row gap-8">
 							{/* Sidebar - Filtros */}
-							<aside className="w-full lg:w-80 flex-shrink-0">
+							<aside className="hidden lg:block w-full lg:w-80 flex-shrink-0">
 								<div className="sticky top-6">
 									<h2 className="text-xl font-bold text-gray-800 mb-4">Filtrar Veículos</h2>
-									<RentalVehicleFilter onFilterChange={handleFilterChange} />
+									<RentalVehicleFilter
+										onFilterChange={handleFilterChange}
+										initialFilters={filters}
+									/>
 								</div>
 							</aside>
 
@@ -412,6 +449,18 @@ export default function AluguelDeAutomoveis() {
 					</div>
 				</section>
 			</div>
+
+			<MobileFilterModal
+				isOpen={showMobileFilters}
+				onClose={() => setShowMobileFilters(false)}
+				title="Filtros avançados"
+			>
+				<RentalVehicleFilter
+					onFilterChange={handleMobileAdvancedFilterChange}
+					initialFilters={filters}
+					showSearch={false}
+				/>
+			</MobileFilterModal>
 
 		</main>
 	);

@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
 import { Gauge, Calendar, MapPin, Droplet, Loader2, Heart } from 'lucide-react'
 import VehicleFilter from '../../components/VehicleFilter'
 import Pagination from '../../components/Pagination'
 import CarCardSkeleton from '../../components/CarCardSkeleton'
+import MobileFilterBar from '../../components/MobileFilterBar'
+import MobileFilterModal from '../../components/MobileFilterModal'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { API_URL, getImageUrl, notyf } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
 
 export default function Compra() {
 	useDocumentTitle('Compra de Veículos - Caxiauto')
-	const navigate = useNavigate()
 	const location = useLocation()
 
 	// Verificar se há filtros vindos da navegação (ex: da página inicial)
@@ -26,6 +27,8 @@ export default function Compra() {
 	const vehiclesPerPage = 16
 	const [favorites, setFavorites] = useState(new Set())
 	const [loadingFavorites, setLoadingFavorites] = useState(new Set())
+	const [showMobileFilters, setShowMobileFilters] = useState(false)
+	const [mobileSearch, setMobileSearch] = useState(initialFilters.pesquisa || '')
 	const { isAuthenticated } = useAuth()
 
 	// Função para buscar veículos do backend
@@ -158,6 +161,11 @@ export default function Compra() {
 		fetchFavorites()
 	}, [isAuthenticated])
 
+	// Sincronizar campo de busca mobile com os filtros aplicados
+	useEffect(() => {
+		setMobileSearch(filters.pesquisa || '')
+	}, [filters.pesquisa])
+
 	const handleFilterChange = (newFilters) => {
 		setFilters(newFilters)
 		setCurrentPage(1) // Reset para primeira página ao filtrar
@@ -173,6 +181,22 @@ export default function Compra() {
 	const handleSortChange = (e) => {
 		setSortBy(e.target.value)
 		// TODO: Implementar ordenação no backend se necessário
+	}
+
+	const handleMobileSearchSubmit = () => {
+		const nextFilters = {
+			...filters,
+			pesquisa: mobileSearch
+		}
+
+		setFilters(nextFilters)
+		setCurrentPage(1)
+		fetchVehicles(nextFilters)
+	}
+
+	const handleMobileAdvancedFilterChange = (newFilters) => {
+		handleFilterChange(newFilters)
+		setShowMobileFilters(false)
 	}
 
 	// Formatar preço
@@ -270,14 +294,22 @@ export default function Compra() {
 
 			{/* Main Content */}
 			<div className="max-w-7xl mx-auto px-6 py-8">
+				<MobileFilterBar
+					value={mobileSearch}
+					onChange={setMobileSearch}
+					onSubmit={handleMobileSearchSubmit}
+					onOpenFilters={() => setShowMobileFilters(true)}
+					placeholder="Pesquisar veículos para compra..."
+				/>
+
 				<div className="flex flex-col lg:flex-row gap-8">
 					{/* Sidebar - Filtros */}
-					<aside className="w-full lg:w-80 flex-shrink-0">
+					<aside className="hidden lg:block w-full lg:w-80 flex-shrink-0">
 						<div className="sticky top-6">
 							<h2 className="text-xl font-bold text-gray-800 mb-4">Filtrar Veículos</h2>
 							<VehicleFilter
 								onFilterChange={handleFilterChange}
-								initialFilters={initialFilters}
+								initialFilters={filters}
 							/>
 						</div>
 					</aside>
@@ -342,10 +374,9 @@ export default function Compra() {
 														disabled={loadingFavorites.has(car.id)}
 													>
 														<Heart
-															className={`w-5 h-5 transition-all duration-200 ${favorites.has(car.id)
-																? 'fill-red-500 text-red-500'
-																: 'text-gray-600 hover:text-red-500'
-																} ${loadingFavorites.has(car.id) ? 'opacity-50' : ''}`}
+															className={`w-5 h-5 transition-all duration-200 ${
+																favorites.has(car.id) ? 'fill-red-500 text-red-500' : 'text-gray-600 hover:text-red-500'
+															} ${loadingFavorites.has(car.id) ? 'opacity-50' : ''}`}
 														/>
 													</button>
 												)}
@@ -415,6 +446,18 @@ export default function Compra() {
 					</main>
 				</div>
 			</div>
+
+			<MobileFilterModal
+				isOpen={showMobileFilters}
+				onClose={() => setShowMobileFilters(false)}
+				title="Filtros avançados"
+			>
+				<VehicleFilter
+					onFilterChange={handleMobileAdvancedFilterChange}
+					initialFilters={filters}
+					showSearch={false}
+				/>
+			</MobileFilterModal>
 		</div>
 	)
 }
