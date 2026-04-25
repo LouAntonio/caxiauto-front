@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 
 export default function SellBuySection() {
 	return (
-		<section className="my-4">
+		<section className="my-4 hidden md:block">
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 				{/* Sell Car Card */}
 				<div className="bg-[#0055FF] rounded-2xl p-8 py-4 sm:p-12 relative overflow-visible text-white max-h-[300px]">
@@ -12,11 +12,11 @@ export default function SellBuySection() {
 						<h2 className="text-2xl md:text-3xl font-bold mb-8 leading-tight">
 							Venda o seu carro mais rápido!
 						</h2>
-					<Link to="/venda-seu-automovel">
-						<button className="bg-[#00E676] hover:bg-[#00c865] text-white font-bold px-8 py-3 rounded-lg transition-colors cursor-pointer">
-							Saber mais
-						</button>
-					</Link>
+						<Link to="/venda-seu-automovel">
+							<button className="bg-[#00E676] hover:bg-[#00c865] text-white font-bold px-8 py-3 rounded-lg transition-colors cursor-pointer">
+								Saber mais
+							</button>
+						</Link>
 					</div>
 					{/* Car Image */}
 					<img

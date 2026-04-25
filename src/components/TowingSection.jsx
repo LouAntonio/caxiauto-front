@@ -33,9 +33,9 @@ export default function TowingSection() {
 					<p className="text-gray-500 max-w-2xl">Equipamentos de última geração para garantir a segurança do seu veículo em qualquer situação.</p>
 				</div>
 
-				<div className="flex flex-col lg:flex-row gap-8 items-start">
+				<div className="flex flex-row gap-4 lg:gap-8 items-start">
 					{/* Left: Main Feature / Active Fleet Overview */}
-					<div className="w-full lg:w-1/3 sticky top-6">
+					<div className="w-[280px] sm:w-[320px] lg:w-1/3 lg:sticky lg:top-6 flex-shrink-0">
 						<div className="bg-[#1a1a2e] text-white rounded-2xl p-8 overflow-hidden relative min-h-[400px] flex flex-col justify-between hidden">
 							<div className="absolute top-0 right-0 w-64 h-64 bg-[#e65100] rounded-full filter blur-[80px] opacity-20 transform translate-x-1/2 -translate-y-1/2"></div>
 
@@ -75,17 +75,18 @@ export default function TowingSection() {
 							</div>
 						</div>
 						<div className="block">
-							<img src="./images/reboque/reboque.png" alt="Reboque Caxiauto"  />
+							<img src="./images/reboque/reboque.png" alt="Reboque Caxiauto" />
 						</div>
 					</div>
 
 					{/* Right: Vehicle Cards Grid */}
-					<div className="w-full lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-6">
-						{vehicles.map((vehicle) => (
-							<div
-								key={vehicle.id}
-								className="group bg-white border border-[#ccc] rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:border-[#e65100]/30 z-1"
-							>
+					<div className="flex-1 min-w-0 overflow-hidden">
+						<div className="flex flex-row lg:grid lg:grid-cols-2 gap-4 lg:gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x">
+							{vehicles.map((vehicle) => (
+								<div
+									key={vehicle.id}
+									className="group bg-white border border-[#ccc] rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:border-[#e65100]/30 z-1 w-[280px] sm:w-[320px] lg:w-full flex-shrink-0 snap-start"
+								>
 								{/* Image Area */}
 								<div className="relative h-48 overflow-hidden bg-gray-100 p-2">
 									<img
@@ -125,6 +126,7 @@ export default function TowingSection() {
 								</div>
 							</div>
 						))}
+						</div>
 					</div>
 				</div>
 			</div>

@@ -24,36 +24,37 @@ export default function RentACarSection() {
 	}
 	return (
 		<section className="py-6 section-rent-a-car">
-			<div className="flex flex-col lg:flex-row gap-6">
-				{/* Left Promo Card */}
-				<div className="lg:w-2/5 flex-shrink-0 relative overflow-hidden rounded-xl bg-gradient-to-br from-[#ffcd82] to-[#ffb142] py-4 pr-0 pl-4 shadow-sm min-h-[220px] flex flex-col justify-between group">
+			<div className="flex flex-row gap-3 lg:gap-6">
+				{/* Left Promo Card — compact on mobile, wider on desktop */}
+				<div className="w-[250px] sm:w-[260px] lg:w-2/5 flex-shrink-0 relative overflow-hidden rounded-xl bg-gradient-to-br from-[#ffcd82] to-[#ffb142] py-3 px-3 lg:py-4 lg:pr-0 lg:pl-4 shadow-sm flex flex-col justify-between group min-h-[140px] lg:min-h-[220px]">
 
 					{/* Decorative shapes */}
 					<div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
 
 					<div className="z-10 relative">
-						<div className="inline-flex items-center gap-1.5 bg-[#e65100] text-white text-xs font-bold px-3 py-1.5 rounded-md mb-4 uppercase tracking-wide">
-							<Tag size={12} />
-							Desconto
+						<div className="inline-flex items-center gap-1 bg-[#e65100] text-white text-[10px] lg:text-xs font-bold px-2 py-1 lg:px-3 lg:py-1.5 rounded-md mb-2 lg:mb-4 uppercase tracking-wide">
+							<Tag size={10} />
+							<span className="hidden sm:inline">Desconto</span>
+							<span className="sm:hidden">-</span>
 						</div>
 
-						<h3 className="text-2xl font-extrabold text-[#1a1a2e] leading-tight">
-							Centenas de carros<br /> para alugar
+						<h3 className="text-sm sm:text-base lg:text-2xl font-extrabold text-[#1a1a2e] leading-tight">
+							<span className="lg:hidden">Carros<br />para alugar</span>
+							<span className="hidden lg:inline">Centenas de carros<br /> para alugar</span>
 						</h3>
 
 						<Link to="/servicos/aluguel-de-automoveis">
 							<button
-								className="group/btn mt-3 flex items-center gap-2 text-[#1a1a2e] font-bold border-b-2 border-[#1a1a2e] pb-0.5 w-fit hover:opacity-75 transition-opacity cursor-pointer"
+								className="group/btn mt-2 lg:mt-3 flex items-center gap-1 text-[#1a1a2e] font-bold border-b-2 border-[#1a1a2e] pb-0.5 w-fit hover:opacity-75 transition-opacity cursor-pointer"
 							>
-								<span className="text-lg">Veja todos</span>
-								<ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
+								<span className="text-xs lg:text-lg">Ver todos</span>
+								<ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform lg:w-5 lg:h-5" />
 							</button>
 						</Link>
 					</div>
 
-					{/* Car Image Overlay - mimicking the two cars in the reference */}
-					<div className="absolute bottom-0 right-0 w-2/3 pointer-events-none">
-						{/* Using a placeholder that looks like a car cutout if possible, or just the rect */}
+					{/* Car Image — hidden on mobile to keep the card compact */}
+					<div className="hidden lg:block absolute bottom-0 right-0 w-2/3 pointer-events-none">
 						<img
 							src="./images/rent/rent.webp"
 							alt="Discounted Cars"
@@ -63,26 +64,25 @@ export default function RentACarSection() {
 				</div>
 
 				{/* Right Categories Carousel */}
-				<div className="lg:w-3/5 overflow-hidden">
-					<div ref={carouselRef} className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+				<div className="flex-1 min-w-0 overflow-hidden">
+					<div ref={carouselRef} className="flex gap-3 lg:gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x h-full">
 						{categories.map((cat) => (
 							<div
 								key={cat.id}
-								className="min-w-[200px] flex-1 bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center justify-between hover:shadow-md transition-shadow cursor-pointer snap-start"
+								className="min-w-[110px] sm:min-w-[150px] lg:min-w-[200px] flex-1 bg-white border border-gray-200 rounded-xl p-3 lg:p-4 flex flex-col items-center justify-between hover:shadow-md transition-shadow cursor-pointer snap-start"
 							>
-								<span className="font-bold text-[#1a1a2e] mt-2">{cat.name}</span>
-								<div className="my-4 w-full aspect-video flex items-center justify-center">
+								<span className="font-bold text-[#1a1a2e] mt-1 text-sm lg:text-base lg:mt-2">{cat.name}</span>
+								<div className="my-2 lg:my-4 w-full aspect-video flex items-center justify-center">
 									<img src={cat.image} alt={cat.name} onError={(e) => { e.target.src = './images/i10.png' }} className="max-w-full max-h-full object-contain mix-blend-multiply" />
 								</div>
 							</div>
 						))}
-						{/* Add an extra empty card or 'See all' if needed to fill space */}
-						<div className="min-w-[100px] flex items-center justify-center">
+						<div className="min-w-[56px] flex items-center justify-center">
 							<Link to="/servicos/aluguel-de-automoveis">
 								<button
-									className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors cursor-pointer"
+									className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors cursor-pointer"
 								>
-									<ArrowRight size={24} />
+									<ArrowRight size={20} />
 								</button>
 							</Link>
 						</div>

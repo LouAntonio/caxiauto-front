@@ -152,9 +152,16 @@ const Documentos = () => {
 		}
 	};
 
+	const hasSubmittedDocs = !!(sellerDocs && (
+		(sellerDocs.idCard && sellerDocs.idCard.length > 0) ||
+		(sellerDocs.selfies && sellerDocs.selfies.length > 0)
+	));
+
 	const statusBadge = user?.isVerified
 		? { label: 'Verificado', icon: CheckCircle, bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200' }
-		: { label: 'Pendente de Verificação', icon: Clock, bg: 'bg-yellow-100', text: 'text-yellow-700', border: 'border-yellow-200' };
+		: hasSubmittedDocs
+			? { label: 'Em Análise', icon: Clock, bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200' }
+			: { label: 'Pendente de Verificação', icon: Clock, bg: 'bg-yellow-100', text: 'text-yellow-700', border: 'border-yellow-200' };
 
 	const StatusIcon = statusBadge.icon;
 
@@ -299,68 +306,162 @@ const Documentos = () => {
 							<p className="text-sm text-gray-600 mt-1">
 								{user?.isVerified
 									? 'Seu perfil está verificado com o selo de confiança.'
-									: 'Documentos pendentes de análise pela equipa administrativa.'}
+									: hasSubmittedDocs
+										? 'Os seus documentos foram enviados e estão a ser analisados pela equipa administrativa.'
+										: 'Documentos pendentes de análise pela equipa administrativa.'}
 							</p>
 						</div>
 					</div>
 				</div>
 
-				{/* Info */}
-				<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-					<div className="flex items-start gap-2">
-						<AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-						<div className="text-sm text-blue-700">
-							<p className="font-semibold mb-2">Por que preciso enviar documentos?</p>
-							<p>
-								A verificação garante segurança para todos os usuários. Vendedores verificados
-								recebem o selo de confiança, aumentando credibilidade e atraindo mais compradores.
-							</p>
+				{/* Se já submeteu: mostrar painel informativo com docs enviados, sem formulário */}
+				{hasSubmittedDocs ? (
+					<div className="space-y-6">
+						{/* Aviso de bloqueio */}
+						<div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+							<div className="flex items-start gap-3">
+								<AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+								<div className="text-sm text-amber-800">
+									<p className="font-semibold mb-1">Envio de documentos bloqueado</p>
+									<p>
+										Os seus documentos já foram submetidos.
+										Não é possível enviar novos documentos após a submissão.
+										Caso precise de corrigir alguma informação, contacte o suporte.
+									</p>
+								</div>
+							</div>
 						</div>
+
+						{/* Documentos já enviados (apenas visualização) */}
+						{sellerDocs?.idCard?.length > 0 && (
+							<div>
+								<p className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+									<Shield className="w-4 h-4" /> Documento de Identificação (BI ou Passaporte)
+								</p>
+								<div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+									{sellerDocs.idCard.map((url, idx) => (
+										<a key={idx} href={url} target="_blank" rel="noopener noreferrer"
+											className="relative group border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+											{url.includes('.pdf') ? (
+												<div className="bg-gray-100 p-6 flex items-center justify-center h-24">
+													<FileText className="w-8 h-8 text-gray-400" />
+												</div>
+											) : (
+												<img src={url} alt={`BI/Passaporte ${idx + 1}`} className="w-full h-24 object-cover" />
+											)}
+											<div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+												<Eye className="w-5 h-5 text-white" />
+											</div>
+										</a>
+									))}
+								</div>
+							</div>
+						)}
+
+						{sellerDocs?.organizationDocs?.length > 0 && (
+							<div>
+								<p className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+									<Briefcase className="w-4 h-4" /> Documentos da Empresa
+								</p>
+								<div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+									{sellerDocs.organizationDocs.map((url, idx) => (
+										<a key={idx} href={url} target="_blank" rel="noopener noreferrer"
+											className="relative group border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+											{url.includes('.pdf') ? (
+												<div className="bg-gray-100 p-6 flex items-center justify-center h-24">
+													<FileText className="w-8 h-8 text-gray-400" />
+												</div>
+											) : (
+												<img src={url} alt={`Empresa ${idx + 1}`} className="w-full h-24 object-cover" />
+											)}
+											<div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+												<Eye className="w-5 h-5 text-white" />
+											</div>
+										</a>
+									))}
+								</div>
+							</div>
+						)}
+
+						{sellerDocs?.selfies?.length > 0 && (
+							<div>
+								<p className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+									<Camera className="w-4 h-4" /> Selfies do Vendedor
+								</p>
+								<div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+									{sellerDocs.selfies.map((url, idx) => (
+										<a key={idx} href={url} target="_blank" rel="noopener noreferrer"
+											className="relative group border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+											<img src={url} alt={`Selfie ${idx + 1}`} className="w-full h-24 object-cover" />
+											<div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+												<Eye className="w-5 h-5 text-white" />
+											</div>
+										</a>
+									))}
+								</div>
+							</div>
+						)}
 					</div>
-				</div>
+				) : (
+					<>
+						{/* Info */}
+						<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+							<div className="flex items-start gap-2">
+								<AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+								<div className="text-sm text-blue-700">
+									<p className="font-semibold mb-2">Por que preciso enviar documentos?</p>
+									<p>
+										A verificação garante segurança para todos os usuários. Vendedores verificados
+										recebem o selo de confiança, aumentando credibilidade e atraindo mais compradores.
+									</p>
+								</div>
+							</div>
+						</div>
 
-				{/* Formulário */}
-				<form onSubmit={handleSubmit} className="space-y-8">
-					{/* BI / Passaporte */}
-					<FilePreview
-						files={idCardFiles}
-						existingUrls={sellerDocs?.idCard}
-						setFiles={setIdCardFiles}
-						label="Documento de Identificação (BI ou Passaporte) *"
-						icon={Shield}
-					/>
+						{/* Formulário */}
+						<form onSubmit={handleSubmit} className="space-y-8">
+							{/* BI / Passaporte */}
+							<FilePreview
+								files={idCardFiles}
+								existingUrls={sellerDocs?.idCard}
+								setFiles={setIdCardFiles}
+								label="Documento de Identificação (BI ou Passaporte) *"
+								icon={Shield}
+							/>
 
-					{/* Documentos da Organização */}
-					<FilePreview
-						files={orgDocFiles}
-						existingUrls={sellerDocs?.organizationDocs}
-						setFiles={setOrgDocFiles}
-						label="Documentos da Empresa (NIF, Certidão de Registo Comercial) — Opcional"
-						icon={Briefcase}
-					/>
+							{/* Documentos da Organização */}
+							<FilePreview
+								files={orgDocFiles}
+								existingUrls={sellerDocs?.organizationDocs}
+								setFiles={setOrgDocFiles}
+								label="Documentos da Empresa (NIF, Certidão de Registo Comercial) — Opcional"
+								icon={Briefcase}
+							/>
 
-					{/* Selfies */}
-					<FilePreview
-						files={selfieFiles}
-						existingUrls={sellerDocs?.selfies}
-						setFiles={setSelfieFiles}
-						label="Selfies do Vendedor *"
-						icon={Camera}
-					/>
+							{/* Selfies */}
+							<FilePreview
+								files={selfieFiles}
+								existingUrls={sellerDocs?.selfies}
+								setFiles={setSelfieFiles}
+								label="Selfies do Vendedor *"
+								icon={Camera}
+							/>
 
-					{/* Botão */}
-					<ButtonLoader
-						type="submit"
-						loading={uploading}
-						loadingText="Enviando Documentos..."
-						variant="primary"
-						size="lg"
-						className="w-full"
-					>
-						<Upload className="w-5 h-5" />
-						{sellerDocs ? 'Atualizar Documentos' : 'Enviar Documentos para Verificação'}
-					</ButtonLoader>
-				</form>
+							{/* Botão */}
+							<ButtonLoader
+								type="submit"
+								loading={uploading}
+								loadingText="Enviando Documentos..."
+								variant="primary"
+								size="lg"
+								className="w-full"
+							>
+								<Upload className="w-5 h-5" />
+								Enviar Documentos para Verificação
+							</ButtonLoader>
+						</form>
+					</>
+				)}
 			</div>
 		</div>
 	);
