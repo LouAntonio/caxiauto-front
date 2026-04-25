@@ -654,17 +654,17 @@ export default function DetalhesCompra() {
 								</p>
 								<div className="space-y-3">
 									<a
-										href="tel:+244923456789"
+										href="tel:+244930723503"
 										className="flex items-center gap-3 p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all"
 									>
 										<Phone className="w-5 h-5" />
 										<div className="text-sm">
-											<div className="font-medium">+244 923 456 789</div>
+											<div className="font-medium">+244 930 723 503</div>
 											<div className="text-xs text-indigo-200">Ligar agora</div>
 										</div>
 									</a>
 									<a
-										href="mailto:vendas@caxiauto.com"
+										href="mailto:info@caxiauto.com"
 										className="flex items-center gap-3 p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all"
 									>
 										<Mail className="w-5 h-5" />

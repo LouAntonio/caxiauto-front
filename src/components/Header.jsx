@@ -26,7 +26,7 @@ export default function Header() {
 			className="relative z-50 backdrop-blur-md rounded-xl shadow-xl border border-gray-100 min-h-[80px]"
 		>
 			<div className="mx-auto h-full">
-				<div className="h-20 flex max-w-7xl mx-auto items-center justify-between gap-8 px-4 md:px-0">
+				<div className="h-20 flex max-w-7xl mx-auto items-center justify-between gap-8 px-4 min-[971px]:px-0">
 					{/* Left: Logo */}
 					<div className="flex items-center">
 						<Link to="/" className="inline-block transition-transform hover:scale-105" aria-label="Home">
@@ -35,7 +35,7 @@ export default function Header() {
 					</div>
 
 					{/* Center: Navigation - Desktop */}
-					<nav className="hidden md:flex items-center gap-8">
+					<nav className="hidden min-[971px]:flex items-center gap-8">
 						<Link
 							to="/"
 							className="text-gray-700 font-medium hover:text-[var(--primary)] transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-[var(--primary)] hover:after:w-full after:transition-all"
@@ -133,7 +133,7 @@ export default function Header() {
 
 					{/* Right: actions */}
 					<div className="flex items-center gap-4">
-						<div className="hidden md:flex items-center gap-3">
+						<div className="hidden min-[971px]:flex items-center gap-3">
 							{user ? (
 								<div className="relative group">
 									<button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition-colors cursor-pointer">
@@ -175,7 +175,7 @@ export default function Header() {
 						</div>
 
 						{/* Mobile menu button */}
-						<div className="md:hidden">
+						<div className="min-[971px]:hidden">
 							<button
 								onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
 								style={{ backgroundColor: 'var(--primary)' }}
@@ -198,7 +198,7 @@ export default function Header() {
 
 				{/* Mobile Menu */}
 				{mobileMenuOpen && (
-					<div className="md:hidden border-t border-gray-200">
+					<div className="min-[971px]:hidden border-t border-gray-200">
 						<nav className="px-4 py-4 space-y-2">
 							<Link
 								to="/"

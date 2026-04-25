@@ -16,7 +16,7 @@ const TRANSMISSION_TYPES = [
 	{ value: 'SEMI_AUTOMATIC', label: 'Semi-Automática' },
 ]
 
-export default function RentalVehicleFilter({ onFilterChange }) {
+export default function RentalVehicleFilter({ onFilterChange, initialFilters = {}, showSearch = true }) {
 	const [manufacturers, setManufacturers] = useState([])
 	const [classes, setClasses] = useState([])
 	const [filters, setFilters] = useState({
@@ -29,7 +29,8 @@ export default function RentalVehicleFilter({ onFilterChange }) {
 		maxPrice: '',
 		minYear: '',
 		maxYear: '',
-		featured: false
+		featured: false,
+		...initialFilters
 	})
 
 	// Buscar fabricantes e classes da API
@@ -52,6 +53,17 @@ export default function RentalVehicleFilter({ onFilterChange }) {
 		}
 		fetchData()
 	}, [])
+
+	// Atualizar filtros quando initialFilters mudar
+	useEffect(() => {
+		if (Object.keys(initialFilters).length > 0) {
+			// eslint-disable-next-line react-hooks/set-state-in-effect
+			setFilters(prev => ({
+				...prev,
+				...initialFilters
+			}))
+		}
+	}, [initialFilters])
 
 	const handleChange = (field, value) => {
 		const newFilters = {
@@ -95,19 +107,21 @@ export default function RentalVehicleFilter({ onFilterChange }) {
 		<div className="w-full bg-gradient-to-br from-white to-gray-50 text-gray-800 rounded-2xl p-6 shadow-xl border border-gray-100">
 			<form onSubmit={handleSearch} className="space-y-4">
 				{/* Pesquisa de Texto */}
-				<div className="space-y-2">
-					<label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-						<Search className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-						Pesquisar
-					</label>
-					<input
-						type="text"
-						value={filters.search}
-						onChange={(e) => handleChange('search', e.target.value)}
-						placeholder="Ex: Toyota Corolla, Honda..."
-						className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 bg-white outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm placeholder:text-gray-400"
-					/>
-				</div>
+				{showSearch && (
+					<div className="space-y-2">
+						<label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+							<Search className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+							Pesquisar
+						</label>
+						<input
+							type="text"
+							value={filters.search}
+							onChange={(e) => handleChange('search', e.target.value)}
+							placeholder="Ex: Toyota Corolla, Honda..."
+							className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 bg-white outline-none transition-all hover:border-indigo-300 text-gray-700 text-sm placeholder:text-gray-400"
+						/>
+					</div>
+				)}
 
 				{/* Marca e Classe (Grid 2 colunas) */}
 				<div className="grid grid-cols-2 gap-3">

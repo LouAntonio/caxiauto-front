@@ -671,17 +671,17 @@ export default function DetalhesPecas() {
 								<h3 className="text-lg font-bold mb-4">Precisa de ajuda?</h3>
 								<p className="text-sm text-indigo-100 mb-4">Nossa equipe está pronta para ajudá-lo</p>
 								<div className="space-y-3">
-									<a href="tel:+244923456789" className="flex items-center gap-3 p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
+									<a href="tel:+244930723503" className="flex items-center gap-3 p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
 										<Phone className="w-5 h-5" />
 										<div className="text-sm">
-											<div className="font-medium">+244 923 456 789</div>
+											<div className="font-medium">+244 930 723 503</div>
 											<div className="text-xs text-indigo-200">Ligar agora</div>
 										</div>
 									</a>
-									<a href="mailto:pecas@caxiauto.com" className="flex items-center gap-3 p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
+									<a href="mailto:info@caxiauto.com" className="flex items-center gap-3 p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
 										<Mail className="w-5 h-5" />
 										<div className="text-sm">
-											<div className="font-medium">pecas@caxiauto.com</div>
+											<div className="font-medium">info@caxiauto.com</div>
 											<div className="text-xs text-indigo-200">Enviar e-mail</div>
 										</div>
 									</a>
