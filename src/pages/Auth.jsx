@@ -88,6 +88,7 @@ const Auth = () => {
 		password: '',
 		confirmPassword: '',
 		phone: '',
+		acceptedTerms: false,
 	});
 
 	const { login, checkEmail, verifyOTP, resendOTP, completeRegistration, requestPasswordReset } = useAuth();
@@ -97,9 +98,10 @@ const Auth = () => {
 	const from = location.state?.from?.pathname || '/minha-conta';
 
 	const handleChange = (e) => {
+		const { name, value, type, checked } = e.target;
 		setFormData({
 			...formData,
-			[e.target.name]: e.target.value,
+			[name]: type === 'checkbox' ? checked : value,
 		});
 	};
 
@@ -160,6 +162,10 @@ const Auth = () => {
 			const allPassed = Object.values(passwordChecks).every(v => v);
 			if (!allPassed) {
 				notyf.error('A senha não atende aos requisitos de segurança');
+				return false;
+			}
+			if (!formData.acceptedTerms) {
+				notyf.error('Você deve aceitar os termos de uso e política de privacidade');
 				return false;
 			}
 			return true;
@@ -644,6 +650,25 @@ const Auth = () => {
 											<Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
 										)}
 									</button>
+								</div>
+
+								<div className="flex items-start gap-3 pt-2">
+									<div className="flex items-center h-5">
+										<input
+											id="acceptedTerms"
+											name="acceptedTerms"
+											type="checkbox"
+											checked={formData.acceptedTerms}
+											onChange={handleChange}
+											required
+											className="h-4 w-4 text-blue-600 border-gray-300 rounded cursor-pointer"
+										/>
+									</div>
+									<div className="text-sm">
+										<label htmlFor="acceptedTerms" className="text-gray-600 cursor-pointer">
+											Li e aceito as <Link to="/politica-de-privacidade" target="_blank" className="text-blue-600 font-semibold hover:underline">Políticas de Privacidade</Link> e os <Link to="/termos-de-uso" target="_blank" className="text-blue-600 font-semibold hover:underline">Termos de Uso</Link>.
+										</label>
+									</div>
 								</div>
 							</div>
 						)}

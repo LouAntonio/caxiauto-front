@@ -38,6 +38,7 @@ import Avaliacoes from './pages/conta/Avaliacoes'
 import Denuncias from './pages/conta/Denuncias'
 import Pecas from './pages/conta/Pecas'
 import PerfilVendedor from './pages/PerfilVendedor'
+import Legal from './pages/Legal'
 // Admin Pages
 import AdminLogin from './pages/caxiauto/AdminLogin'
 import AdminLayout from './pages/caxiauto/AdminLayout'
@@ -82,6 +83,8 @@ function AppContent() {
 						<Route path="/contato" element={<Contato />} />
 						<Route path="/parceiros" element={<Parceiros />} />
 						<Route path="/venda-seu-automovel" element={<VendaSeuAutomovel />} />
+						<Route path="/politica-de-privacidade" element={<Legal />} />
+						<Route path="/termos-de-uso" element={<Legal />} />
 
 						{/* Peças e Acessórios routes */}
 						<Route path="/servicos/gps" element={<GPS />} />
