@@ -87,8 +87,8 @@ export default function Footer() {
 
 				<div className="mt-8 pt-6 border-t border-gray-800 items-center justify-center gap-6">
 					<div className="text-sm text-gray-400 text-center">© {new Date().getFullYear()} Caxiauto. Todos os direitos reservados <br />Desenvolvido por <a href="#">Caxinda Divulga</a></div>
-					</div>
 				</div>
+			</div>
 		</footer>
 	)
 }

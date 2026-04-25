@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { User, Mail, Lock, Phone, Eye, EyeOff, Check, X } from 'lucide-react';
+import { User, Mail, Lock, Phone, Eye, EyeOff, Check, X, Rocket, Clock, Sparkles, ArrowRight } from 'lucide-react';
+
 import useDocumentTitle from '../hooks/useDocumentTitle';
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
@@ -23,7 +24,8 @@ const Auth = () => {
 	const [loading, setLoading] = useState(false);
 
 	// Multi-step Registration State
-	const [registrationStep, setRegistrationStep] = useState(1); // 1: Email, 2: OTP, 3: Details
+	const [registrationStep, setRegistrationStep] = useState(0); // 0: Offer, 1: Email, 2: OTP, 3: Details
+
 	const [otp, setOtp] = useState(['', '', '', '', '', '']);
 
 	// OTP Input Handlers
@@ -317,7 +319,8 @@ const Auth = () => {
 	const toggleMode = () => {
 		setIsLogin(!isLogin);
 		setIsForgotPassword(false);
-		setRegistrationStep(1); // Reset step
+		setRegistrationStep(0); // Reset step to Offer
+
 		setOtp(['', '', '', '', '', '']);
 		setFormData({
 			firstName: '',
@@ -347,10 +350,12 @@ const Auth = () => {
 							? 'Digite seu email para receber o link de recuperação'
 							: (isLogin
 								? 'Entre para acessar seu painel administrativo'
-								: (registrationStep === 1 ? 'Passo 1 de 3: Informe seu email' :
-									registrationStep === 2 ? 'Passo 2 de 3: Validação' :
-										'Passo 3 de 3: Seus dados'))}
+								: (registrationStep === 0 ? 'Oferta de Lançamento Caxiauto' :
+									registrationStep === 1 ? 'Passo 1 de 4: Informe seu email' :
+										registrationStep === 2 ? 'Passo 2 de 4: Validação' :
+											'Passo 3 de 4: Seus dados'))}
 					</p>
+
 				</div>
 
 				{/* Formulário */}
@@ -365,18 +370,32 @@ const Auth = () => {
 								<div
 									className="absolute top-5 h-0.5 bg-blue-600 transition-all duration-500 ease-out"
 									style={{
-										left: '16.67%',
-										width: registrationStep === 1 ? '0%' : registrationStep === 2 ? '33.33%' : '66.66%'
+										left: '12.5%',
+										width: registrationStep === 0 ? '0%' : registrationStep === 1 ? '25%' : registrationStep === 2 ? '50%' : '75%'
 									}}
 								/>
+
+								{/* Step 0: Offer */}
+								<div className="flex flex-col items-center relative z-10">
+									<div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${registrationStep > 0
+										? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+										: registrationStep === 0
+											? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
+											: 'bg-gray-100 text-gray-400'
+										}`}>
+										{registrationStep > 0 ? <Check className="w-5 h-5" /> : <Rocket className="w-5 h-5" />}
+									</div>
+									<span className={`mt-2 text-xs font-medium transition-colors ${registrationStep >= 0 ? 'text-blue-600' : 'text-gray-400'
+										}`}>Oferta</span>
+								</div>
 
 								{/* Step 1 */}
 								<div className="flex flex-col items-center relative z-10">
 									<div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${registrationStep > 1
-											? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-											: registrationStep === 1
-												? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
-												: 'bg-gray-100 text-gray-400'
+										? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+										: registrationStep === 1
+											? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
+											: 'bg-gray-100 text-gray-400'
 										}`}>
 										{registrationStep > 1 ? <Check className="w-5 h-5" /> : '1'}
 									</div>
@@ -387,10 +406,10 @@ const Auth = () => {
 								{/* Step 2 */}
 								<div className="flex flex-col items-center relative z-10">
 									<div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${registrationStep > 2
-											? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-											: registrationStep === 2
-												? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
-												: 'bg-gray-100 text-gray-400'
+										? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+										: registrationStep === 2
+											? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
+											: 'bg-gray-100 text-gray-400'
 										}`}>
 										{registrationStep > 2 ? <Check className="w-5 h-5" /> : '2'}
 									</div>
@@ -401,21 +420,64 @@ const Auth = () => {
 								{/* Step 3 */}
 								<div className="flex flex-col items-center relative z-10">
 									<div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${registrationStep === 3
-											? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
-											: 'bg-gray-100 text-gray-400'
+										? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
+										: 'bg-gray-100 text-gray-400'
 										}`}>
 										3
 									</div>
 									<span className={`mt-2 text-xs font-medium transition-colors ${registrationStep >= 3 ? 'text-blue-600' : 'text-gray-400'
 										}`}>Cadastro</span>
 								</div>
+
 							</div>
 						</div>
 					)}
 
 					<form onSubmit={handleSubmit} className="space-y-5">
+						{/* Step 0: Offer */}
+						{!isLogin && !isForgotPassword && registrationStep === 0 && (
+							<div className="space-y-6">
+								<div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+									<div className="flex items-center gap-3 mb-4">
+										<Rocket className="w-8 h-8 text-blue-600" />
+										<h3 className="text-xl font-bold text-gray-900">Oferta de Lançamento!</h3>
+									</div>
+									<p className="text-gray-600 leading-relaxed mb-4">
+										Durante os primeiros <span className="font-bold text-blue-600">4 meses</span>, o registro na plataforma será <span className="font-bold text-green-600">totalmente gratuito</span>.
+									</p>
+									<ul className="space-y-2 mb-6">
+										<li className="flex items-start gap-2 text-sm text-gray-600">
+											<Check className="w-4 h-4 text-green-500 mt-1 shrink-0" />
+											<span>Divulgue seus serviços para milhares de clientes.</span>
+										</li>
+										<li className="flex items-start gap-2 text-sm text-gray-600">
+											<Check className="w-4 h-4 text-green-500 mt-1 shrink-0" />
+											<span>Ecossistema completo: Vendas, Aluguel, Peças e mais.</span>
+										</li>
+										<li className="flex items-start gap-2 text-sm text-gray-600">
+											<Check className="w-4 h-4 text-green-500 mt-1 shrink-0" />
+											<span>Conexão direta com clientes específicos.</span>
+										</li>
+									</ul>
+									<Link to="/comercial" className="text-sm text-blue-600 font-semibold hover:underline flex items-center gap-1">
+										Ver todos os benefícios e planos <ArrowRight className="w-4 h-4" />
+									</Link>
+								</div>
+								
+								<button
+									type="button"
+									onClick={() => setRegistrationStep(1)}
+									className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-lg text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all hover:scale-[1.02] active:scale-[0.98]"
+								>
+									Aproveitar 4 Meses Grátis
+									<ArrowRight className="w-5 h-5" />
+								</button>
+							</div>
+						)}
+
 						{/* Login or Step 1: Email */}
 						{(isLogin || isForgotPassword || registrationStep === 1) && (
+
 							<div>
 								<label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
 									Email
@@ -693,8 +755,8 @@ const Auth = () => {
 									type="button"
 									onClick={() => {
 										setRegistrationStep(prev => prev - 1);
-										setError('');
 									}}
+
 									disabled={loading}
 									className="flex-1 py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
 								>
@@ -702,19 +764,22 @@ const Auth = () => {
 								</button>
 							)}
 
-							<button
-								type="submit"
-								disabled={loading}
-								className={`flex-1 flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer`}
-							>
-								{loading ? 'Processando...' :
-									(isForgotPassword ? 'Enviar Link' :
-										(isLogin ? 'Entrar' :
-											(registrationStep === 1 ? 'Continuar' :
-												registrationStep === 2 ? 'Validar Código' :
-													'Criar Conta')))
-								}
-							</button>
+							{(isLogin || isForgotPassword || registrationStep > 0) && (
+								<button
+									type="submit"
+									disabled={loading}
+									className={`flex-1 flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer`}
+								>
+									{loading ? 'Processando...' :
+										(isForgotPassword ? 'Enviar Link' :
+											(isLogin ? 'Entrar' :
+												(registrationStep === 1 ? 'Continuar' :
+													registrationStep === 2 ? 'Validar Código' :
+														'Criar Conta')))
+									}
+								</button>
+							)}
+
 						</div>
 					</form>
 
