@@ -33,7 +33,7 @@ import { useManufacturers, useClasses } from '../../hooks/queries/useManufacture
 const Veiculos = () => {
 	useDocumentTitle('Meus Veículos - CaxiAuto');
 
-	const { user } = useAuthStore();
+	useAuthStore();
 	const { isVerified, needsVerification } = useVerificationCheck();
 	const { data: vehicles, isLoading } = useMyVehicles();
 	const { data: manufacturers } = useManufacturers();

@@ -254,10 +254,10 @@ function ShareSocialIcons() {
 	)
 }
 
-function SocialLink({ icon: Icon, href }) {
+function SocialLink({ icon: IconComponent, href }) {
 	return (
 		<a href={href} className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white hover:text-[#154c9a] transition-all">
-			<Icon size={16} />
+			{IconComponent && <IconComponent size={16} />}
 		</a>
 	)
 }

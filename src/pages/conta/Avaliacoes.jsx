@@ -19,7 +19,7 @@ import { useQueryClient } from '@tanstack/react-query';
 const Avaliacoes = () => {
 	useDocumentTitle('Minhas Avaliações - CaxiAuto');
 
-	const { user } = useAuthStore();
+	useAuthStore();
 	const queryClient = useQueryClient();
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);

@@ -117,7 +117,7 @@ const AdminSellers = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao verificar');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao verificar');
 		}
 	};

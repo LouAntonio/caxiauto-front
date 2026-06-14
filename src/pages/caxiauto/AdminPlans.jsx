@@ -162,7 +162,7 @@ const AdminPlans = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao remover plano');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao remover plano');
 		}
 	};

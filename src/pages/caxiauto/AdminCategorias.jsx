@@ -39,7 +39,7 @@ const AdminCategorias = () => {
 			} else {
 				notyf.error(response.msg || 'Erro ao salvar categoria');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao salvar categoria');
 		}
 	};
@@ -59,7 +59,7 @@ const AdminCategorias = () => {
 			} else {
 				notyf.error(response.msg || 'Erro ao eliminar categoria');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao eliminar categoria');
 		}
 	};

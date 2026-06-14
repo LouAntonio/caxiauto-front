@@ -70,12 +70,6 @@ const ReportModal = ({ targetType, targetId, targetName, onReportSubmitted }) =>
 
 		setLoading(true);
 		try {
-			const reportData = {
-				reason,
-				description,
-				[`${targetType}Id`]: targetId
-			};
-
 			const response = await createReportMutation.mutateAsync({
 				reason,
 				description,

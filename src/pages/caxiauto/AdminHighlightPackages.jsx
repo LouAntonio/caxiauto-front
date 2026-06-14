@@ -68,7 +68,7 @@ const AdminHighlightPackages = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao salvar pacote');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao salvar pacote');
 		}
 	};
@@ -83,7 +83,7 @@ const AdminHighlightPackages = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao remover pacote');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao remover pacote');
 		}
 	};

@@ -26,13 +26,13 @@ const AdminReports = () => {
 		try {
 			const response = await updateReportStatusMutation.mutateAsync({ id, status });
 			if (response.success) { notyf.success(`Status: ${status}`); setShowModal(false); }
-		} catch (error) { notyf.error('Erro ao atualizar'); }
+		} catch { notyf.error('Erro ao atualizar'); }
 	};
 
 	const handleDelete = async (id) => {
 		if (!window.confirm('Eliminar esta denúncia?')) return;
 		try { const r = await deleteReportMutation.mutateAsync(id); if (r.success) { notyf.success('Eliminada'); } }
-		catch (error) { notyf.error('Erro ao eliminar'); }
+		catch { notyf.error('Erro ao eliminar'); }
 	};
 
 	const getStatusColor = (s) => ({ PENDING: 'bg-yellow-100 text-yellow-800', INVESTIGATING: 'bg-blue-100 text-blue-800', RESOLVED: 'bg-green-100 text-green-800' }[s] || 'bg-gray-100 text-gray-800');

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { notyf } from '../../services/api';
+import api, { notyf } from '../../services/api';
 import {
 	Users,
 	Search,
@@ -40,7 +40,7 @@ const AdminUsers = () => {
 	const params = { page: pagination.currentPage, limit: 10 };
 	if (filters.search) params.search = filters.search;
 	if (filters.status) params.status = filters.status;
-	const { data: users, isLoading: loading, refetch } = useAdminUsers(params);
+	const { data: users, isLoading: loading, refetch: refetchUsers } = useAdminUsers(params);
 
 	const handleSearch = (e) => {
 		e.preventDefault();
@@ -62,7 +62,7 @@ const AdminUsers = () => {
 			} else {
 				notyf.error('Erro ao carregar detalhes');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao carregar detalhes');
 		}
 	};
@@ -80,7 +80,7 @@ const AdminUsers = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao banir');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao banir usuário');
 		}
 	};
@@ -94,7 +94,7 @@ const AdminUsers = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao atualizar status');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao atualizar status');
 		}
 	};
@@ -116,7 +116,7 @@ const AdminUsers = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao atualizar role');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao atualizar role');
 		}
 	};
@@ -131,11 +131,11 @@ const AdminUsers = () => {
 			if (response.success) {
 				notyf.success(verifyModal.isVerified ? 'Verificação removida. Email enviado.' : 'Usuário verificado. Email enviado.');
 				setVerifyModal({ open: false, userId: null, userName: '', isVerified: false });
-				loadUsers();
+				refetchUsers();
 			} else {
 				notyf.error(response.message || 'Erro ao atualizar verificação');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao atualizar verificação');
 		}
 	};
@@ -149,7 +149,7 @@ const AdminUsers = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao enviar link');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao enviar link de redefinição');
 		}
 	};

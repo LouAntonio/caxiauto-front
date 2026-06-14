@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import useAuthStore from '../../stores/authStore';
 import api, { notyf } from '../../services/api';
 import axios from 'axios';
@@ -157,10 +157,10 @@ const Documentos = () => {
 	const StatusIcon = statusBadge.icon;
 
 	// Componente de preview de ficheiros locais ou existentes
-	const FilePreview = ({ files, existingUrls, setFiles, label, icon: Icon }) => (
+	const FilePreview = ({ files, existingUrls, setFiles, label, icon: IconComponent }) => (
 		<div>
 			<label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-				<Icon className="w-4 h-4" />
+				<IconComponent className="w-4 h-4" />
 				{label}
 			</label>
 

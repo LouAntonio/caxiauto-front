@@ -28,7 +28,6 @@ const PerfilVendedor = () => {
 	const [seller, setSeller] = useState(null);
 	const [vehicles, setVehicles] = useState([]);
 	const [parts, setParts] = useState([]);
-	const [page, setPage] = useState(1);
 	const [reviewsPage, setReviewsPage] = useState(1);
 
 	useEffect(() => {

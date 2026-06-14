@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import useAuthStore from '../stores/authStore';
-import { useNavigate } from 'react-router-dom';
 import {
 	Car,
 	Plus,
@@ -23,8 +22,13 @@ const MeusVeiculos = () => {
 	useDocumentTitle('Meus Veículos - CaxiAuto');
 
 	const { user } = useAuthStore();
-	const navigate = useNavigate();
-	const [vehicles, setVehicles] = useState([]);
+	// Carregar veículos do usuário
+	const [vehicles, setVehicles] = useState(() => {
+		if (!user) return [];
+		const allVehicles = JSON.parse(localStorage.getItem('caxiauto_vehicles') || '[]');
+		const userVehicles = allVehicles.filter(v => v.userId === user.id);
+		return userVehicles;
+	});
 	const [showModal, setShowModal] = useState(false);
 	const [editingVehicle, setEditingVehicle] = useState(null);
 	const [message, setMessage] = useState({ type: '', text: '' });
@@ -43,15 +47,6 @@ const MeusVeiculos = () => {
 		location: '',
 		status: 'ativo'
 	});
-
-	// Carregar veículos do usuário
-	useEffect(() => {
-		if (user) {
-			const allVehicles = JSON.parse(localStorage.getItem('caxiauto_vehicles') || '[]');
-			const userVehicles = allVehicles.filter(v => v.userId === user.id);
-			setVehicles(userVehicles);
-		}
-	}, [user]);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;

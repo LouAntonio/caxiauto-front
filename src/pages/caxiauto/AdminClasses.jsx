@@ -47,7 +47,7 @@ const AdminClasses = () => {
 			} else {
 				notyf.error(r.msg || 'Erro');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao salvar');
 		} finally {
 			setSubmitLoading(false);
@@ -69,7 +69,7 @@ const AdminClasses = () => {
 			} else {
 				notyf.error(r.msg || 'Erro');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao eliminar');
 		}
 	};

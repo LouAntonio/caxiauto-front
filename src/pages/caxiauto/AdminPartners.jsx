@@ -156,7 +156,7 @@ const AdminPartners = () => {
 			} else {
 				notyf.error(response.msg || 'Erro ao eliminar parceiro');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao eliminar parceiro');
 		}
 	};
@@ -170,7 +170,7 @@ const AdminPartners = () => {
 			} else {
 				notyf.error(response.msg || 'Erro ao alterar status');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao alterar status');
 		}
 	};

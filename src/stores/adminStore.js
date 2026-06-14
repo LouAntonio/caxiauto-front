@@ -6,7 +6,7 @@ const getStoredAdmin = () => {
 		const stored = localStorage.getItem('caxiauto_admin');
 		const token = localStorage.getItem('caxiauto_admin_token');
 		if (stored && token) return JSON.parse(stored);
-	} catch (e) {
+	} catch {
 		localStorage.removeItem('caxiauto_admin');
 		localStorage.removeItem('caxiauto_admin_token');
 	}

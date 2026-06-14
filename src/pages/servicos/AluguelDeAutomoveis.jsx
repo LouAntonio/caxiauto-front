@@ -67,7 +67,10 @@ export default function AluguelDeAutomoveis() {
 
 	// Sincronizar campo de busca mobile com os filtros aplicados
 	useEffect(() => {
-		setMobileSearch(filters.search || '');
+		const timer = setTimeout(() => {
+			setMobileSearch(filters.search || '');
+		}, 0);
+		return () => clearTimeout(timer);
 	}, [filters.search]);
 
 	const handleFilterChange = (newFilters) => {

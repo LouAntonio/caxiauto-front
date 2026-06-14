@@ -47,7 +47,7 @@ const RecuperarSenha = () => {
 		hasUppercase: /[A-Z]/.test(password),
 		hasLowercase: /[a-z]/.test(password),
 		hasNumber: /[0-9]/.test(password),
-		hasSpecial: /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/~`]/.test(password)
+		hasSpecial: /[!@#$%^&*(),.?":{}|<>_\-+=[\]\\/~`]/.test(password)
 	});
 
 	const getPasswordStrength = (password) => {
@@ -106,7 +106,7 @@ const RecuperarSenha = () => {
 			} else {
 				notyf.error(result.message || 'Erro ao alterar senha. Tente novamente.');
 			}
-		} catch (err) {
+		} catch {
 			notyf.error('Ocorreu um erro. Tente novamente.');
 		} finally {
 			setLoading(false);

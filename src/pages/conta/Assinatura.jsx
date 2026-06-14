@@ -15,19 +15,18 @@ import {
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { SkeletonCard } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
-import { usePlans, useMySubscription, useSubscribePlan, useCancelSubscription, useHighlightPackages, useBuyHighlightPackage, useApplyVehicleHighlight } from '../../hooks/queries/useSubscription';
+import { usePlans, useMySubscription, useSubscribePlan, useCancelSubscription, useHighlightPackages, useBuyHighlightPackage } from '../../hooks/queries/useSubscription';
 
 const Assinatura = () => {
 	useDocumentTitle('Minha Assinatura - CaxiAuto');
 
-	const { user } = useAuthStore();
+	useAuthStore();
 	const { data: plans, isLoading: plansLoading } = usePlans();
 	const { data: highlightPackages, isLoading: packagesLoading } = useHighlightPackages();
 	const { data: mySubscription, isLoading: subscriptionLoading } = useMySubscription();
 	const subscribePlan = useSubscribePlan();
 	const cancelSubscription = useCancelSubscription();
 	const buyHighlightPackage = useBuyHighlightPackage();
-	const applyVehicleHighlight = useApplyVehicleHighlight();
 	const [selectedPlan, setSelectedPlan] = useState(null);
 	const [selectedPackage, setSelectedPackage] = useState(null);
 	const [processing, setProcessing] = useState(false);

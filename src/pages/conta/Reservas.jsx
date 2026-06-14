@@ -23,7 +23,7 @@ import { useQueryClient } from '@tanstack/react-query';
 const Reservas = () => {
 	useDocumentTitle('Minhas Reservas - CaxiAuto');
 
-	const { user } = useAuthStore();
+	useAuthStore();
 	const queryClient = useQueryClient();
 	const [filter, setFilter] = useState('');
 	const [page, setPage] = useState(1);

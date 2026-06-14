@@ -68,15 +68,6 @@ export default function Publicidades() {
 		return () => window.removeEventListener('resize', handleResize)
 	}, [])
 
-	// Auto-play do carrossel
-	useEffect(() => {
-		const interval = setInterval(() => {
-			handleNext()
-		}, 4000)
-
-		return () => clearInterval(interval)
-	}, [currentIndex, itemsPerView])
-
 	const handleNext = () => {
 		setCurrentIndex((prevIndex) => {
 			const maxIndex = publicidadesData.length - itemsPerView
@@ -94,6 +85,15 @@ export default function Publicidades() {
 	const goToSlide = (index) => {
 		setCurrentIndex(index)
 	}
+
+	// Auto-play do carrossel
+	useEffect(() => {
+		const interval = setInterval(() => {
+			handleNext()
+		}, 4000)
+
+		return () => clearInterval(interval)
+	}, [currentIndex, itemsPerView])
 
 	return (
 		<section className="bg-gray-50 mb-4">

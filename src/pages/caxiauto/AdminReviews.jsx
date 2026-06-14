@@ -20,8 +20,11 @@ const AdminReviews = () => {
 
 	// Auto-search quando o valor debounce muda
 	useEffect(() => {
-		setFilters(prev => ({ ...prev, search: debouncedSearch }));
-		setPagination(prev => ({ ...prev, currentPage: 1 }));
+		const timer = setTimeout(() => {
+			setFilters(prev => ({ ...prev, search: debouncedSearch }));
+			setPagination(prev => ({ ...prev, currentPage: 1 }));
+		}, 0);
+		return () => clearTimeout(timer);
 	}, [debouncedSearch]);
 
 	const handleSearch = (e) => { e.preventDefault(); setFilters({ ...filters, search: debouncedSearch.trim() }); setPagination(prev => ({ ...prev, currentPage: 1 })); };

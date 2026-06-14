@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { ChevronLeft, ChevronRight, ArrowRight, Tag } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 
 // Placeholder images for cars - in a real app these would be assets
@@ -14,7 +14,6 @@ const categories = [
 
 export default function RentACarSection() {
 	const carouselRef = useRef(null)
-	const navigate = useNavigate();
 
 	function handleScroll(direction = 'right') {
 		if (!carouselRef.current) return

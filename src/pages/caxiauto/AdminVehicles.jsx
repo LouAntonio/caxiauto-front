@@ -138,7 +138,7 @@ const AdminVehicles = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao aprovar veículo');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao aprovar veículo');
 		}
 	};
@@ -162,7 +162,7 @@ const AdminVehicles = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao negar veículo');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao negar veículo');
 		}
 	};
@@ -241,7 +241,7 @@ const AdminVehicles = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao eliminar veículo');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao eliminar veículo');
 		}
 	};

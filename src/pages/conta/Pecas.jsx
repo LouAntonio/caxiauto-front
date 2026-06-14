@@ -32,7 +32,7 @@ import { useMyPecas, useCreatePeca, useUpdatePeca, useDeletePeca, useTogglePecaS
 const Pecas = () => {
 	useDocumentTitle('Minhas Peças - CaxiAuto');
 
-	const { user } = useAuthStore();
+	useAuthStore();
 	const { isVerified, needsVerification } = useVerificationCheck();
 	const { data: pecas, isLoading } = useMyPecas();
 	const createPeca = useCreatePeca();

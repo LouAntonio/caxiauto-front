@@ -6,7 +6,7 @@ const getStoredUser = () => {
 		const stored = localStorage.getItem('caxiauto_user');
 		const token = localStorage.getItem('caxiauto_token');
 		if (stored && token) return JSON.parse(stored);
-	} catch (e) {
+	} catch {
 		localStorage.removeItem('caxiauto_user');
 		localStorage.removeItem('caxiauto_token');
 	}

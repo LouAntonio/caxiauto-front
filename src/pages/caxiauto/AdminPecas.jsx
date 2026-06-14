@@ -218,7 +218,7 @@ const AdminPecas = () => {
 			} else {
 				notyf.error(response.msg || 'Erro ao eliminar peça');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao eliminar peça');
 		}
 	};

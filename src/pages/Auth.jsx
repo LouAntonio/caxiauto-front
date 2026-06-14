@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
 import { User, Mail, Lock, Phone, Eye, EyeOff, Check, X, Rocket, Clock, Sparkles, ArrowRight } from 'lucide-react';
@@ -71,7 +71,7 @@ const Auth = () => {
 		hasUppercase: /[A-Z]/.test(password),
 		hasLowercase: /[a-z]/.test(password),
 		hasNumber: /[0-9]/.test(password),
-		hasSpecial: /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/~`]/.test(password)
+		hasSpecial: /[!@#$%^&*(),.?":{}|<>_\-+=[\]\\/~`]/.test(password)
 	});
 
 	const getPasswordStrength = (password) => {
@@ -195,7 +195,7 @@ const Auth = () => {
 			} else {
 				notyf.error(result.message || 'Erro ao enviar link de recuperação. Tente novamente.');
 			}
-		} catch (err) {
+		} catch {
 			notyf.error('Ocorreu um erro. Tente novamente.');
 		} finally {
 			setLoading(false);
@@ -212,7 +212,7 @@ const Auth = () => {
 			} else {
 				notyf.error(result.message);
 			}
-		} catch (err) {
+		} catch {
 			notyf.error('Erro ao enviar código. Tente novamente.');
 		} finally {
 			setLoading(false);
@@ -228,7 +228,7 @@ const Auth = () => {
 			} else {
 				notyf.error(result.message);
 			}
-		} catch (err) {
+		} catch {
 			notyf.error('Erro ao reenviar código. Tente novamente.');
 		} finally {
 			setLoading(false);
@@ -246,7 +246,7 @@ const Auth = () => {
 			} else {
 				notyf.error(result.message);
 			}
-		} catch (err) {
+		} catch {
 			notyf.error('Erro ao verificar código.');
 		} finally {
 			setLoading(false);
@@ -309,7 +309,7 @@ const Auth = () => {
 					notyf.error(result.message);
 				}
 			}
-		} catch (err) {
+		} catch {
 			notyf.error('Ocorreu um erro. Tente novamente.');
 		} finally {
 			setLoading(false);

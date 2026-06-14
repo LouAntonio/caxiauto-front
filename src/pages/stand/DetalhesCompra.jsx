@@ -97,7 +97,7 @@ export default function DetalhesCompra() {
 			email: previous.email?.trim() ? previous.email : authContactData.email,
 			telefone: previous.telefone?.trim() ? previous.telefone : authContactData.telefone
 		}))
-	}, [isAuthenticated, user?.name, user?.email, user?.phone])
+	}, [isAuthenticated, user?.name, user?.email, user?.phone, getAuthContactData])
 
 	const { data: apiVehicle, isLoading, isFetched } = useVehicle(id)
 

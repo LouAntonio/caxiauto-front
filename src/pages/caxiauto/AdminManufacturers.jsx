@@ -17,7 +17,10 @@ const AdminManufacturers = () => {
 
 	// Keep filtered in sync with manufacturers data
 	useEffect(() => {
-		setFilteredMfrs(manufacturers || []);
+		const mfrs = manufacturers || [];
+		if (JSON.stringify(mfrs) !== JSON.stringify(filteredMfrs)) {
+			setFilteredMfrs(mfrs);
+		}
 	}, [manufacturers]);
 
 	const handleSearch = (e) => {
@@ -35,7 +38,7 @@ const AdminManufacturers = () => {
 			else { r = await createManufacturerMutation.mutateAsync(formData.name); }
 			if (r.success) { notyf.success(editing ? 'Atualizado!' : 'Criado!'); setShowModal(false); setEditing(null); setFormData({ name: '' }); }
 			else notyf.error(r.msg || 'Erro ao salvar');
-		} catch (error) { notyf.error('Erro ao salvar'); }
+		} catch { notyf.error('Erro ao salvar'); }
 	};
 
 	const handleEdit = (m) => { setEditing(m); setFormData({ name: m.name }); setShowModal(true); };
@@ -43,7 +46,7 @@ const AdminManufacturers = () => {
 	const handleDelete = async (id) => {
 		if (!window.confirm('Eliminar este fabricante?')) return;
 		try { const r = await deleteManufacturerMutation.mutateAsync(id); if (r.success) { notyf.success('Eliminado!'); } else notyf.error(r.msg || 'Erro ao eliminar'); }
-		catch (error) { notyf.error('Erro ao eliminar'); }
+		catch { notyf.error('Erro ao eliminar'); }
 	};
 
 	return (

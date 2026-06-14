@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import useAuthStore from '../../stores/authStore';
-import { notyf } from '../../services/api';
 import {
 	AlertTriangle,
 	Clock,
@@ -16,30 +15,20 @@ import {
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { ListSkeleton } from '../../components/skeletons';
 import { useMyReports } from '../../hooks/queries/useReports';
-import { useQueryClient } from '@tanstack/react-query';
 
 const Denuncias = () => {
 	useDocumentTitle('Minhas Denúncias - CaxiAuto');
 
-	const { user } = useAuthStore();
-	const queryClient = useQueryClient();
+	useAuthStore();
 	const [filter, setFilter] = useState('');
 	const [page, setPage] = useState(1);
-	const [totalPages, setTotalPages] = useState(1);
-	const [total, setTotal] = useState(0);
 
 	const params = { page, limit: 10 };
 	if (filter) params.status = filter;
 
 	const { data: reports, isLoading } = useMyReports(params);
-
-	useEffect(() => {
-		const raw = queryClient.getQueryData(['reports', 'my', params]);
-		if (raw?.success) {
-			setTotal(raw.pagination?.total || 0);
-			setTotalPages(raw.pagination?.totalPages || 1);
-		}
-	}, [reports, page, filter]);
+	const total = reports?.pagination?.total || 0;
+	const totalPages = reports?.pagination?.totalPages || 1;
 
 	const getStatusBadge = (status) => {
 		const statusConfig = {
