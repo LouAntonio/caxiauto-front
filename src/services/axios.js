@@ -60,8 +60,11 @@ axiosInstance.interceptors.response.use(
 	},
 	(error) => {
 		if (error.response?.data?.success === false && error.response?.data?.auth === true) {
-			handleSessionExpired();
-			return Promise.reject(new Error('Sessão expirada'));
+			const hadToken = error.config?.headers?.Authorization;
+			if (hadToken) {
+				handleSessionExpired();
+				return Promise.reject(new Error('Sessão expirada'));
+			}
 		}
 		console.error('Erro na requisição:', error);
 		return {

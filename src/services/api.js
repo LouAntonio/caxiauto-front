@@ -77,10 +77,10 @@ const api = {
 
 	// ==================== VEÍCULOS ====================
 	listVehicles: (params = {}) => {
-		return api.get('/vehicles', { params }, true);
+		return api.get('/vehicles', { params }, false);
 	},
 
-	getVehicle: (id) => api.get(`/vehicles/${id}`, {}, true),
+	getVehicle: (id) => api.get(`/vehicles/${id}`, {}, false),
 
 	createVehicle: (data) => api.post('/vehicles', data),
 
@@ -117,9 +117,9 @@ const api = {
 	getClasses: () => api.get('/vehicles/classes'),
 
 	// ==================== PEÇAS ====================
-	listPecas: (params = {}) => api.get('/pecas', { params }, true),
+	listPecas: (params = {}) => api.get('/pecas', { params }, false),
 
-	getPeca: (id) => api.get(`/pecas/${id}`, {}, true),
+	getPeca: (id) => api.get(`/pecas/${id}`, {}, false),
 
 	createPeca: (data) => api.post('/pecas', data),
 

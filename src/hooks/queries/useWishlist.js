@@ -1,10 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
+import useAuthStore from '../../stores/authStore';
 
 export const useWishlist = () => {
+	const { isAuthenticated } = useAuthStore();
 	return useQuery({
 		queryKey: ['wishlist'],
 		queryFn: () => api.getWishlist(),
+		enabled: isAuthenticated,
 		select: (res) => {
 			if (!res.success) return { vehicles: [], pecas: [] };
 			return {
