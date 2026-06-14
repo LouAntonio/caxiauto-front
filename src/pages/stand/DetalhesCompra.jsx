@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
 	Gauge,
@@ -57,11 +57,11 @@ export default function DetalhesCompra() {
 	const [purchaseLoading, setPurchaseLoading] = useState(false)
 	const [visitLoading, setVisitLoading] = useState(false)
 
-	const getAuthContactData = () => ({
+	const getAuthContactData = useCallback(() => ({
 		nome: (user?.name || '').trim(),
 		email: (user?.email || '').trim(),
 		telefone: (user?.phone || '').trim()
-	})
+	}), [user])
 
 	const mergeRequiredContactFields = (formData) => {
 		const authContactData = getAuthContactData()

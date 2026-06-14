@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api, { getImageUrl, notyf } from '../../services/api';
 import {
 	UserCheck,
@@ -49,7 +49,7 @@ const AdminSellers = () => {
 	const [allSellers, setAllSellers] = useState([]);
 	const [loading, setLoading] = useState(false);
 
-	const loadAllSellers = async () => {
+	const loadAllSellers = useCallback(async () => {
 		setLoading(true);
 		try {
 			const response = await api.listUsers({ page: pagination.currentPage, limit: 15 });
@@ -76,11 +76,11 @@ const AdminSellers = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [pagination.currentPage, filters]);
 
 	useEffect(() => {
 		if (activeTab === 'all') loadAllSellers();
-	}, [activeTab, pagination.currentPage]);
+	}, [activeTab, pagination.currentPage, loadAllSellers]);
 
 	const handleSearch = (e) => {
 		e.preventDefault();
@@ -94,7 +94,7 @@ const AdminSellers = () => {
 			setFilters(prev => ({ ...prev, search: debouncedSearch }));
 			setPagination(prev => ({ ...prev, currentPage: 1 }));
 		}
-	}, [debouncedSearch]);
+	}, [debouncedSearch, activeTab]);
 
 	const handleClearSearch = () => {
 		setSearchInput('');

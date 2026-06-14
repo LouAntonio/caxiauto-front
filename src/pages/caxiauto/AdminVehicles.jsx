@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api, { getImageUrl, notyf } from '../../services/api';
 import {
 	Car,
@@ -60,7 +60,7 @@ const AdminVehicles = () => {
 	const deleteVehicleMutation = useAdminDeleteVehicle();
 	const pendingCount = pendingVehicles?.length || 0;
 
-	const loadVehicles = async () => {
+	const loadVehicles = useCallback(async () => {
 		setLoading(true);
 		try {
 			const params = new URLSearchParams();
@@ -92,14 +92,14 @@ const AdminVehicles = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [pagination.currentPage, filters]);
 
 	// Carregar dados quando tab, paginação ou filtros mudam
 	useEffect(() => {
 		if (activeTab === 'all') {
 			loadVehicles();
 		}
-	}, [pagination.currentPage, activeTab]);
+	}, [pagination.currentPage, activeTab, loadVehicles]);
 
 	const handleFilterChange = (e) => {
 		setFilters({ ...filters, [e.target.name]: e.target.value });

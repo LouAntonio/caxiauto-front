@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import api, { getImageUrl, notyf } from '../services/api';
@@ -32,9 +32,9 @@ const PerfilVendedor = () => {
 
 	useEffect(() => {
 		fetchSellerProfile();
-	}, [id]);
+	}, [fetchSellerProfile]);
 
-	const fetchSellerProfile = async () => {
+	const fetchSellerProfile = useCallback(async () => {
 		setLoading(true);
 		try {
 			const response = await api.get(`/users/sellers/${id}`);
@@ -58,7 +58,7 @@ const PerfilVendedor = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [id]);
 
 	const { data: reviewsRes } = useQuery({
 		queryKey: ['reviews', 'seller', id, { page: reviewsPage, limit: 5 }],

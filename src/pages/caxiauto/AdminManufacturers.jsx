@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Factory, Plus, Pencil, Trash2, Loader2, Search, X } from 'lucide-react';
 import { notyf } from '../../services/api';
 import { useAdminManufacturers, useAdminCreateManufacturer, useAdminUpdateManufacturer, useAdminDeleteManufacturer } from '../../hooks/queries/useAdmin';
 
 const AdminManufacturers = () => {
 	const [searchInput, setSearchInput] = useState('');
-	const [filteredMfrs, setFilteredMfrs] = useState([]);
 	const [showModal, setShowModal] = useState(false);
 	const [editing, setEditing] = useState(null);
 	const [formData, setFormData] = useState({ name: '' });
@@ -15,20 +14,20 @@ const AdminManufacturers = () => {
 	const updateManufacturerMutation = useAdminUpdateManufacturer();
 	const deleteManufacturerMutation = useAdminDeleteManufacturer();
 
-	// Keep filtered in sync with manufacturers data
-	useEffect(() => {
-		const mfrs = manufacturers || [];
-		if (JSON.stringify(mfrs) !== JSON.stringify(filteredMfrs)) {
-			setFilteredMfrs(mfrs);
-		}
-	}, [manufacturers]);
+	const [searchTerm, setSearchTerm] = useState('');
+
+	const filteredMfrs = useMemo(() => {
+		if (!manufacturers) return [];
+		if (!searchTerm) return manufacturers;
+		const term = searchTerm.toLowerCase();
+		return manufacturers.filter(m => m.name.toLowerCase().includes(term));
+	}, [manufacturers, searchTerm]);
 
 	const handleSearch = (e) => {
 		e.preventDefault();
-		const term = searchInput.toLowerCase();
-		setFilteredMfrs((manufacturers || []).filter(m => m.name.toLowerCase().includes(term)));
+		setSearchTerm(searchInput);
 	};
-	const handleClearSearch = () => { setSearchInput(''); setFilteredMfrs(manufacturers || []); };
+	const handleClearSearch = () => { setSearchInput(''); setSearchTerm(''); };
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();

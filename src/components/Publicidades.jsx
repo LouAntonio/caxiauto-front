@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 const publicidadesData = [
 	{
@@ -68,19 +68,19 @@ export default function Publicidades() {
 		return () => window.removeEventListener('resize', handleResize)
 	}, [])
 
-	const handleNext = () => {
+	const handleNext = useCallback(() => {
 		setCurrentIndex((prevIndex) => {
 			const maxIndex = publicidadesData.length - itemsPerView
 			return prevIndex >= maxIndex ? 0 : prevIndex + 1
 		})
-	}
+	}, [itemsPerView])
 
-	const handlePrev = () => {
+	const handlePrev = useCallback(() => {
 		setCurrentIndex((prevIndex) => {
 			const maxIndex = publicidadesData.length - itemsPerView
 			return prevIndex <= 0 ? maxIndex : prevIndex - 1
 		})
-	}
+	}, [itemsPerView])
 
 	const goToSlide = (index) => {
 		setCurrentIndex(index)
@@ -93,7 +93,7 @@ export default function Publicidades() {
 		}, 4000)
 
 		return () => clearInterval(interval)
-	}, [currentIndex, itemsPerView])
+	}, [handleNext])
 
 	return (
 		<section className="bg-gray-50 mb-4">

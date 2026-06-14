@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
 	Gauge,
@@ -52,11 +52,11 @@ export default function DetalhesAluguel() {
 	})
 	const [rentalLoading, setRentalLoading] = useState(false)
 
-	const getAuthContactData = () => ({
+	const getAuthContactData = useCallback(() => ({
 		nome: (user?.name || '').trim(),
 		email: (user?.email || '').trim(),
 		telefone: (user?.phone || '').trim()
-	})
+	}), [user])
 
 	const mergeRequiredContactFields = (formData) => {
 		const authContactData = getAuthContactData()
@@ -78,7 +78,7 @@ export default function DetalhesAluguel() {
 	};
 
 	// Planos de aluguel baseados nos dados do veículo
-	const rentalPlans = vehicle && vehicle.price ? [
+	const rentalPlans = useMemo(() => vehicle && vehicle.price ? [
 		{
 			id: 'diária',
 			name: 'Diária',
@@ -103,7 +103,7 @@ export default function DetalhesAluguel() {
 			unit: 'Kz/mês',
 			daysCount: 30
 		}
-	] : []
+	] : [], [vehicle])
 
 	// Mapear dados da API para formato do componente
 	const mapVehicleData = (apiVehicle) => {
@@ -190,7 +190,7 @@ export default function DetalhesAluguel() {
 			email: previous.email?.trim() ? previous.email : authContactData.email,
 			telefone: previous.telefone?.trim() ? previous.telefone : authContactData.telefone
 		}))
-	}, [isAuthenticated, user?.name, user?.email, user?.phone])
+	}, [isAuthenticated, user?.name, user?.email, user?.phone, getAuthContactData])
 
 	const { data: apiVehicle, isLoading, isFetched } = useVehicle(id)
 	const vehicle = apiVehicle ? mapVehicleData(apiVehicle) : null

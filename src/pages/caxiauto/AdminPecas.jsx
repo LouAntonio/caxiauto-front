@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api, { getImageUrl, notyf } from '../../services/api';
 import {
 	Wrench,
@@ -37,7 +37,7 @@ const AdminPecas = () => {
 	const [rejectModal, setRejectModal] = useState({ open: false, pecaId: null, pecaName: '', reason: '' });
 	const [featuredModal, setFeaturedModal] = useState({ open: false, pecaId: null, pecaName: '', days: '7' });
 
-	const loadPecas = async () => {
+	const loadPecas = useCallback(async () => {
 		setLoading(true);
 		try {
 			const params = new URLSearchParams({
@@ -62,7 +62,7 @@ const AdminPecas = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [pagination.currentPage, filters]);
 
 	const { data: pendingPecas, isLoading: isPendingLoading } = useAdminPendingPecas({ page: 1, limit: 50 });
 	const approvePecaMutation = useAdminApprovePeca();
@@ -74,7 +74,7 @@ const AdminPecas = () => {
 		if (activeTab === 'all') {
 			loadPecas();
 		}
-	}, [pagination.currentPage, activeTab]);
+	}, [pagination.currentPage, activeTab, loadPecas]);
 
 	const handleFilterChange = (e) => {
 		setFilters({ ...filters, [e.target.name]: e.target.value });

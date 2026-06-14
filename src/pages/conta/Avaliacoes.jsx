@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import useAuthStore from '../../stores/authStore';
 import { notyf } from '../../services/api';
 import {
@@ -26,7 +26,7 @@ const Avaliacoes = () => {
 	const [total, setTotal] = useState(0);
 	const [deletingId, setDeletingId] = useState(null);
 
-	const params = { page, limit: 10 };
+	const params = useMemo(() => ({ page, limit: 10 }), [page]);
 	const { data: reviews, isLoading } = useMyReviews(params);
 	const deleteReview = useDeleteReview();
 
@@ -36,7 +36,7 @@ const Avaliacoes = () => {
 			setTotal(raw.pagination?.total || 0);
 			setTotalPages(raw.pagination?.totalPages || 1);
 		}
-	}, [reviews, page]);
+	}, [reviews, page, params, queryClient]);
 
 	const handleDeleteReview = async (reviewId) => {
 		if (deletingId) return;

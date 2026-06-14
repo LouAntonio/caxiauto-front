@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
 	Package,
@@ -53,11 +53,11 @@ export default function DetalhesPecas() {
 	})
 	const [availabilityLoading, setAvailabilityLoading] = useState(false)
 
-	const getAuthContactData = () => ({
+	const getAuthContactData = useCallback(() => ({
 		nome: (user?.name || '').trim(),
 		email: (user?.email || '').trim(),
 		telefone: (user?.phone || '').trim()
-	})
+	}), [user])
 
 	const mergeRequiredContactFields = (formData) => {
 		const authContactData = getAuthContactData()
@@ -106,7 +106,7 @@ export default function DetalhesPecas() {
 			email: previous.email?.trim() ? previous.email : authContactData.email,
 			telefone: previous.telefone?.trim() ? previous.telefone : authContactData.telefone
 		}))
-	}, [isAuthenticated, user?.name, user?.email, user?.phone])
+	}, [isAuthenticated, user?.name, user?.email, user?.phone, getAuthContactData])
 
 	const { data: peca, isLoading, isFetched } = usePeca(id)
 

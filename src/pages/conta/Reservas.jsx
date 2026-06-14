@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import useAuthStore from '../../stores/authStore';
 import { notyf } from '../../services/api';
 import {
@@ -31,7 +31,7 @@ const Reservas = () => {
 	const [total, setTotal] = useState(0);
 	const [cancelingId, setCancelingId] = useState(null);
 
-	const params = { page, limit: 10 };
+	const params = useMemo(() => ({ page, limit: 10, ...(filter && { status: filter }) }), [page, filter]);
 	if (filter) params.status = filter;
 
 	const { data: reservas, isLoading } = useMyBookings(params);
@@ -43,7 +43,7 @@ const Reservas = () => {
 			setTotal(raw.pagination?.total || 0);
 			setTotalPages(raw.pagination?.totalPages || 1);
 		}
-	}, [reservas, page, filter]);
+	}, [reservas, page, filter, params, queryClient]);
 
 	const handleCancelReserva = async (reservaId) => {
 		if (cancelingId) return;

@@ -157,6 +157,7 @@ const Documentos = () => {
 	const StatusIcon = statusBadge.icon;
 
 	// Componente de preview de ficheiros locais ou existentes
+	// eslint-disable-next-line no-unused-vars
 	const FilePreview = ({ files, existingUrls, setFiles, label, icon: IconComponent }) => (
 		<div>
 			<label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
