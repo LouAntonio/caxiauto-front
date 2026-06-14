@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import useAuthStore from '../stores/authStore';
 import { Lock, Eye, EyeOff, Check, X } from 'lucide-react';
 import useDocumentTitle from '../hooks/useDocumentTitle';
 import { Notyf } from 'notyf';
@@ -17,7 +17,7 @@ const RecuperarSenha = () => {
 
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
-	const { resetPassword } = useAuth();
+	const { resetPassword } = useAuthStore();
 
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -195,10 +195,10 @@ const RecuperarSenha = () => {
 													? level === 1
 														? 'bg-red-500'
 														: level === 2
-														? 'bg-orange-500'
-														: level === 3
-														? 'bg-yellow-500'
-														: 'bg-green-500'
+															? 'bg-orange-500'
+															: level === 3
+																? 'bg-yellow-500'
+																: 'bg-green-500'
 													: 'bg-gray-200'
 											}`}
 										/>
@@ -211,19 +211,19 @@ const RecuperarSenha = () => {
 											passwordStrength === 1
 												? 'text-red-600'
 												: passwordStrength === 2
-												? 'text-orange-600'
-												: passwordStrength === 3
-												? 'text-yellow-600'
-												: 'text-green-600'
+													? 'text-orange-600'
+													: passwordStrength === 3
+														? 'text-yellow-600'
+														: 'text-green-600'
 										}`}
 									>
 										{passwordStrength === 1
 											? 'Fraca'
 											: passwordStrength === 2
-											? 'Regular'
-											: passwordStrength === 3
-											? 'Boa'
-											: 'Forte'}
+												? 'Regular'
+												: passwordStrength === 3
+													? 'Boa'
+													: 'Forte'}
 									</span>
 								</p>
 							</div>

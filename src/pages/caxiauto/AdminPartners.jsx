@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import api, { notyf } from '../../services/api';
-import { handleAdminAuthError } from '../../utils/adminUtils';
+import axios from 'axios';
 import { Users, Search, Edit2, Trash2, Loader2, Plus, Eye, EyeOff, X, Upload, Image as ImageIcon } from 'lucide-react';
+import { useAdminPartners, useAdminCreatePartner, useAdminUpdatePartner, useAdminDeletePartner, useAdminTogglePartnerStatus } from '../../hooks/queries/useAdmin';
 
 const AdminPartners = () => {
-	const [loading, setLoading] = useState(true);
-	const [partners, setPartners] = useState([]);
 	const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, total: 0 });
 	const [search, setSearch] = useState('');
 	const [showModal, setShowModal] = useState(false);
@@ -41,18 +40,8 @@ const AdminPartners = () => {
 		formDataUpload.append('signature', signature);
 		formDataUpload.append('folder', folder);
 
-		const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, {
-			method: 'POST',
-			body: formDataUpload
-		});
-
-		if (!uploadResponse.ok) {
-			const errorData = await uploadResponse.json();
-			throw new Error(errorData.error?.message || 'Erro no upload para Cloudinary');
-		}
-
-		const data = await uploadResponse.json();
-		return data.secure_url;
+		const { data: uploadData } = await axios.post(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, formDataUpload);
+		return uploadData.secure_url;
 	};
 
 	const handleFileChange = (type, file) => {
@@ -77,32 +66,13 @@ const AdminPartners = () => {
 		}
 	};
 
-	const loadPartners = async () => {
-		setLoading(true);
-		try {
-			const params = new URLSearchParams({ page: pagination.currentPage, limit: 20 });
-			if (search) params.append('search', search);
-			const response = await api.listPartners(Object.fromEntries(params));
-			if (response.success) {
-				setPartners(response.data);
-				setPagination({
-					currentPage: response.pagination.currentPage,
-					totalPages: response.pagination.totalPages,
-					total: response.pagination.totalItems,
-				});
-			} else if (handleAdminAuthError(response)) {
-				return;
-			}
-		} catch (error) {
-			console.error('Erro ao carregar parceiros:', error);
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		loadPartners();
-	}, [pagination.currentPage, search]);
+	const params = { page: pagination.currentPage, limit: 20 };
+	if (search) params.search = search;
+	const { data: partners, isLoading: loading } = useAdminPartners(params);
+	const createPartnerMutation = useAdminCreatePartner();
+	const updatePartnerMutation = useAdminUpdatePartner();
+	const deletePartnerMutation = useAdminDeletePartner();
+	const togglePartnerStatusMutation = useAdminTogglePartnerStatus();
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -133,9 +103,9 @@ const AdminPartners = () => {
 
 			let response;
 			if (editingPartner) {
-				response = await api.updatePartner(editingPartner.id, dataToSend);
+				response = await updatePartnerMutation.mutateAsync({ id: editingPartner.id, data: dataToSend });
 			} else {
-				response = await api.createPartner(dataToSend);
+				response = await createPartnerMutation.mutateAsync(dataToSend);
 			}
 
 			if (response.success) {
@@ -148,9 +118,6 @@ const AdminPartners = () => {
 				setLogoPreview('');
 				setBannerFile(null);
 				setBannerPreview('');
-				loadPartners();
-			} else if (handleAdminAuthError(response)) {
-				return;
 			} else {
 				notyf.error(response.msg || 'Erro ao salvar parceiro');
 			}
@@ -183,12 +150,9 @@ const AdminPartners = () => {
 	const handleDelete = async (id) => {
 		if (!window.confirm('Tem certeza que deseja eliminar este parceiro?')) return;
 		try {
-			const response = await api.deletePartner(id);
+			const response = await deletePartnerMutation.mutateAsync(id);
 			if (response.success) {
 				notyf.success('Parceiro eliminado!');
-				loadPartners();
-			} else if (handleAdminAuthError(response)) {
-				return;
 			} else {
 				notyf.error(response.msg || 'Erro ao eliminar parceiro');
 			}
@@ -200,12 +164,9 @@ const AdminPartners = () => {
 	const handleToggleStatus = async (id, currentStatus) => {
 		const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
 		try {
-			const response = await api.togglePartnerStatus(id, newStatus);
+			const response = await togglePartnerStatusMutation.mutateAsync({ id, status: newStatus });
 			if (response.success) {
 				notyf.success(`Parceiro ${newStatus === 'ACTIVE' ? 'ativado' : 'desativado'}!`);
-				loadPartners();
-			} else if (handleAdminAuthError(response)) {
-				return;
 			} else {
 				notyf.error(response.msg || 'Erro ao alterar status');
 			}
@@ -252,7 +213,7 @@ const AdminPartners = () => {
 			</div>
 
 			<div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-				<form onSubmit={(e) => { e.preventDefault(); setPagination({ ...pagination, currentPage: 1 }); loadPartners(); }} className="flex gap-3">
+				<form onSubmit={(e) => { e.preventDefault(); setPagination({ ...pagination, currentPage: 1 }); }} className="flex gap-3">
 					<div className="relative flex-1">
 						<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
 						<input
@@ -263,7 +224,7 @@ const AdminPartners = () => {
 							className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
 						/>
 						{search && (
-							<button type="button" onClick={() => { setSearch(''); setPagination({ ...pagination, currentPage: 1 }); loadPartners(); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+							<button type="button" onClick={() => { setSearch(''); setPagination({ ...pagination, currentPage: 1 }); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
 								<X className="w-4 h-4" />
 							</button>
 						)}

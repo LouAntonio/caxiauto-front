@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import useAuthStore from '../stores/authStore';
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
 
@@ -13,7 +13,7 @@ const notyf = new Notyf({
 });
 
 const ProtectedRoute = ({ children }) => {
-	const { user, loading, logout, checkIsLoggedIn } = useAuth();
+	const { user, loading, logout, checkIsLoggedIn } = useAuthStore();
 	const [isVerifying, setIsVerifying] = useState(true);
 	const [isServerAuthenticated, setIsServerAuthenticated] = useState(false);
 	const location = useLocation();

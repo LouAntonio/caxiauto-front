@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useAdmin } from '../../contexts/AdminContext';
+import React from 'react';
 import {
 	Car,
 	Wrench,
@@ -10,53 +9,16 @@ import {
 	UserX,
 	Star,
 	AlertTriangle,
-	TrendingUp,
-	Eye,
-	Loader2,
-	ArrowUpRight,
-	ArrowDownRight
 } from 'lucide-react';
 import { getImageUrl } from '../../services/api';
 import { AdminStatsSkeleton, AdminTableSkeleton } from '../../components/skeletons';
+import { useDashboardStats, useRecentVehicles, useRecentPecas, useRecentUsers } from '../../hooks/queries/useAdmin';
 
 const AdminDashboard = () => {
-	const {
-		getDashboardStats,
-		getRecentVehicles,
-		getRecentPecas,
-		getRecentUsers,
-	} = useAdmin();
-
-	const [loading, setLoading] = useState(true);
-	const [stats, setStats] = useState(null);
-	const [recentVehicles, setRecentVehicles] = useState([]);
-	const [recentPecas, setRecentPecas] = useState([]);
-	const [recentUsers, setRecentUsers] = useState([]);
-
-	useEffect(() => {
-		loadDashboardData();
-	}, []);
-
-	const loadDashboardData = async () => {
-		setLoading(true);
-		try {
-			const [statsData, vehiclesData, pecasData, usersData] = await Promise.all([
-				getDashboardStats(),
-				getRecentVehicles(5),
-				getRecentPecas(5),
-				getRecentUsers(5),
-			]);
-
-			if (statsData.success) setStats(statsData.data);
-			if (vehiclesData.success) setRecentVehicles(vehiclesData.data);
-			if (pecasData.success) setRecentPecas(pecasData.data);
-			if (usersData.success) setRecentUsers(usersData.data);
-		} catch (error) {
-			console.error('Erro ao carregar dashboard:', error);
-		} finally {
-			setLoading(false);
-		}
-	};
+	const { data: stats, isLoading } = useDashboardStats();
+	const { data: recentVehicles } = useRecentVehicles(5);
+	const { data: recentPecas } = useRecentPecas(5);
+	const { data: recentUsers } = useRecentUsers(5);
 
 	const statCards = [
 		{
@@ -135,7 +97,7 @@ const AdminDashboard = () => {
 		});
 	};
 
-	if (loading) {
+	if (isLoading) {
 		return (
 			<div className="space-y-8">
 				{/* Header skeleton */}

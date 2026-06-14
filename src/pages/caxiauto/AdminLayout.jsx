@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
-import { useAdmin } from '../../contexts/AdminContext';
+import useAdminStore from '../../stores/adminStore';
 import {
 	LayoutDashboard,
 	Car,
@@ -25,7 +25,7 @@ import {
 
 const AdminLayout = () => {
 	const location = useLocation();
-	const { admin, logout } = useAdmin();
+	const { admin, logout } = useAdminStore();
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 
 	// Se não houver admin, redirecionar para login

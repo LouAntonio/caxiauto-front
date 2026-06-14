@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import api, { notyf } from '../../services/api';
+import React, { useState } from 'react';
+import useAuthStore from '../../stores/authStore';
+import { notyf } from '../../services/api';
 import {
 	CreditCard,
 	Check,
@@ -15,59 +15,33 @@ import {
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { SkeletonCard } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
+import { usePlans, useMySubscription, useSubscribePlan, useCancelSubscription, useHighlightPackages, useBuyHighlightPackage, useApplyVehicleHighlight } from '../../hooks/queries/useSubscription';
 
 const Assinatura = () => {
 	useDocumentTitle('Minha Assinatura - CaxiAuto');
 
-	const { user } = useAuth();
-	const [loading, setLoading] = useState(true);
-	const [plans, setPlans] = useState([]);
-	const [highlightPackages, setHighlightPackages] = useState([]);
-	const [mySubscription, setMySubscription] = useState(null);
+	const { user } = useAuthStore();
+	const { data: plans, isLoading: plansLoading } = usePlans();
+	const { data: highlightPackages, isLoading: packagesLoading } = useHighlightPackages();
+	const { data: mySubscription, isLoading: subscriptionLoading } = useMySubscription();
+	const subscribePlan = useSubscribePlan();
+	const cancelSubscription = useCancelSubscription();
+	const buyHighlightPackage = useBuyHighlightPackage();
+	const applyVehicleHighlight = useApplyVehicleHighlight();
 	const [selectedPlan, setSelectedPlan] = useState(null);
 	const [selectedPackage, setSelectedPackage] = useState(null);
 	const [processing, setProcessing] = useState(false);
 
-	useEffect(() => {
-		fetchData();
-	}, []);
-
-	const fetchData = async () => {
-		setLoading(true);
-		try {
-			const [plansRes, packagesRes, subscriptionRes] = await Promise.all([
-				api.listPlans(),
-				api.listHighlightPackages(),
-				api.getMySubscription()
-			]);
-
-			if (plansRes.success) {
-				setPlans(plansRes.data || []);
-			}
-
-			if (packagesRes.success) {
-				setHighlightPackages(packagesRes.data || []);
-			}
-
-			if (subscriptionRes.success) {
-				setMySubscription(subscriptionRes.data);
-			}
-		} catch (error) {
-			console.error('Erro ao carregar dados:', error);
-			notyf.error('Erro ao carregar dados de assinaturas');
-		} finally {
-			setLoading(false);
-		}
-	};
+	const loading = plansLoading || packagesLoading || subscriptionLoading;
 
 	const handleSubscribe = async (planId) => {
 		setProcessing(true);
+		setSelectedPlan(planId);
 		try {
-			const response = await api.subscribePlan(planId);
+			const response = await subscribePlan.mutateAsync(planId);
 
 			if (response.success) {
 				notyf.success('Assinatura ativada com sucesso!');
-				fetchData();
 			} else {
 				notyf.error(response.msg || 'Erro ao assinar plano');
 			}
@@ -87,11 +61,10 @@ const Assinatura = () => {
 
 		setProcessing(true);
 		try {
-			const response = await api.cancelSubscription();
+			const response = await cancelSubscription.mutateAsync();
 
 			if (response.success) {
 				notyf.success('Assinatura cancelada com sucesso');
-				fetchData();
 			} else {
 				notyf.error(response.msg || 'Erro ao cancelar assinatura');
 			}
@@ -105,12 +78,12 @@ const Assinatura = () => {
 
 	const handleBuyHighlightPackage = async (packageId) => {
 		setProcessing(true);
+		setSelectedPackage(packageId);
 		try {
-			const response = await api.buyHighlightPackage(packageId);
+			const response = await buyHighlightPackage.mutateAsync(packageId);
 
 			if (response.success) {
 				notyf.success('Pacote de destaque comprado com sucesso!');
-				fetchData();
 			} else {
 				notyf.error(response.msg || 'Erro ao comprar pacote');
 			}

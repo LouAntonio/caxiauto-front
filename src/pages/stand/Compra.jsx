@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useLocation, Link } from 'react-router-dom'
 import { Gauge, Calendar, MapPin, Droplet, Loader2, Heart } from 'lucide-react'
 import VehicleFilter from '../../components/VehicleFilter'
@@ -8,7 +9,8 @@ import MobileFilterBar from '../../components/MobileFilterBar'
 import MobileFilterModal from '../../components/MobileFilterModal'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { API_URL, getImageUrl, notyf } from '../../services/api'
-import { useAuth } from '../../contexts/AuthContext'
+import useAuthStore from '../../stores/authStore'
+import { useWishlist, useAddVehicleToWishlist, useRemoveVehicleFromWishlist } from '../../hooks/queries/useWishlist'
 
 export default function Compra() {
 	useDocumentTitle('Compra de Veículos - Caxiauto')
@@ -19,158 +21,65 @@ export default function Compra() {
 
 	const [filters, setFilters] = useState(initialFilters)
 	const [currentPage, setCurrentPage] = useState(1)
-	const [vehicles, setVehicles] = useState([])
-	const [loading, setLoading] = useState(true)
-	const [totalPages, setTotalPages] = useState(1)
-	const [totalVehicles, setTotalVehicles] = useState(0)
 	const [sortBy, setSortBy] = useState('recent')
 	const vehiclesPerPage = 16
-	const [favorites, setFavorites] = useState(new Set())
-	const [loadingFavorites, setLoadingFavorites] = useState(new Set())
 	const [showMobileFilters, setShowMobileFilters] = useState(false)
 	const [mobileSearch, setMobileSearch] = useState(initialFilters.pesquisa || '')
-	const { isAuthenticated } = useAuth()
+	const { isAuthenticated } = useAuthStore()
 
-	// Função para buscar veículos do backend
-	const fetchVehicles = async (customFilters = null) => {
-		try {
-			setLoading(true)
-
-			// Usar filtros customizados se fornecidos, caso contrário usar os filtros do estado
-			const activeFilters = customFilters || filters
-
-			// Construir query params
-			const params = new URLSearchParams({
-				page: currentPage,
-				limit: vehiclesPerPage,
-				type: 'SALE',
-			})
-
-			// Mapear filtros e adicionar à query
-			if (activeFilters.marca) params.append('manufacturer', activeFilters.marca)
-			if (activeFilters.classe) params.append('class', activeFilters.classe)
-			if (activeFilters.combustivel) {
-				// Já vem como enum UPPERCASE (GASOLINE, DIESEL, etc.)
-				params.append('fuelType', activeFilters.combustivel)
-			}
-			if (activeFilters.transmissao) {
-				// Já vem como enum UPPERCASE (MANUAL, AUTOMATIC, etc.)
-				params.append('transmission', activeFilters.transmissao)
-			}
-
-			// Processar faixa de preço
-			if (activeFilters.preco) {
-				const priceRanges = {
-					'Até 5M Kz': { max: 5000000 },
-					'Até 10M Kz': { max: 10000000 },
-					'Até 15M Kz': { max: 15000000 },
-					'Até 20M Kz': { max: 20000000 },
-					'Até 30M Kz': { max: 30000000 }
-				}
-				const range = priceRanges[activeFilters.preco]
-				if (range) {
-					if (range.min) params.append('minPrice', range.min)
-					if (range.max) params.append('maxPrice', range.max)
-				}
-			}
-
-			// Processar ano
-			if (activeFilters.ano && activeFilters.ano !== '') {
-				const year = parseInt(activeFilters.ano)
-				if (!isNaN(year)) {
-					params.append('minYear', year)
-				}
-			}
-
-			// Processar quilometragem
-			if (activeFilters.quilometros) {
-				const kmRanges = {
-					'Até 50k': 50000,
-					'Até 100k': 100000,
-					'Até 150k': 150000,
-					'Até 200k': 200000,
-					'+200k': null
-				}
-				const maxKm = kmRanges[activeFilters.quilometros]
-				if (maxKm) {
-					// Note: o backend não tem filtro de km, mas você pode adicionar se necessário
-					// params.append('maxKilometers', maxKm)
-				}
-			}
-
-			// Processar pesquisa de texto (busca no nome e descrição)
-			if (activeFilters.pesquisa) {
-				params.append('search', activeFilters.pesquisa)
-			}
-
-			// Filtro de destaque
-			if (activeFilters.destaque) {
-				params.append('featured', 'true')
-			}
-
-			const response = await api.get(`/vehicles?${params.toString()}`)
-
-			if (response.success) {
-				setVehicles(response.data)
-				setTotalPages(response.pagination.totalPages)
-				setTotalVehicles(response.pagination.total)
-			} else {
-				notyf.error(response.message || 'Erro ao carregar veículos')
-			}
-		} catch (error) {
-			console.error('Erro ao buscar veículos:', error)
-			notyf.error('Erro ao carregar veículos')
-		} finally {
-			setLoading(false)
+	const queryParams = useMemo(() => {
+		const params = {
+			page: currentPage,
+			limit: vehiclesPerPage,
+			type: 'SALE',
 		}
-	}
-
-	// Carregar veículos inicialmente e quando a página mudar
-	useEffect(() => {
-		fetchVehicles()
-	}, [currentPage])
-
-	// Carregar veículos quando há filtros vindos da navegação
-	useEffect(() => {
-		if (Object.keys(initialFilters).length > 0) {
-			fetchVehicles(initialFilters)
-		}
-	}, [])
-
-	// Buscar favoritos do usuário quando autenticado
-	useEffect(() => {
-		const fetchFavorites = async () => {
-			if (!isAuthenticated) {
-				setFavorites(new Set())
-				return
+		if (filters.marca) params.manufacturer = filters.marca
+		if (filters.classe) params.class = filters.classe
+		if (filters.combustivel) params.fuelType = filters.combustivel
+		if (filters.transmissao) params.transmission = filters.transmissao
+		if (filters.preco) {
+			const priceRanges = {
+				'Até 5M Kz': { max: 5000000 },
+				'Até 10M Kz': { max: 10000000 },
+				'Até 15M Kz': { max: 15000000 },
+				'Até 20M Kz': { max: 20000000 },
+				'Até 30M Kz': { max: 30000000 }
 			}
-
-			try {
-				const response = await api.getWishlist()
-				if (response.success && response.data) {
-					const favoriteIds = new Set(
-						response.data.vehicles?.map(v => v.id) || []
-					)
-					setFavorites(favoriteIds)
-				}
-			} catch (error) {
-				console.error('Erro ao buscar favoritos:', error)
+			const range = priceRanges[filters.preco]
+			if (range) {
+				if (range.min) params.minPrice = range.min
+				if (range.max) params.maxPrice = range.max
 			}
 		}
+		if (filters.ano && filters.ano !== '') {
+			const year = parseInt(filters.ano)
+			if (!isNaN(year)) params.minYear = year
+		}
+		if (filters.pesquisa) params.search = filters.pesquisa
+		if (filters.destaque) params.featured = 'true'
+		return params
+	}, [filters, currentPage])
 
-		fetchFavorites()
-	}, [isAuthenticated])
+	const { data: response, isLoading } = useQuery({
+		queryKey: ['vehicles', 'sale', currentPage, filters],
+		queryFn: () => api.listVehicles(queryParams),
+	})
 
-	// Sincronizar campo de busca mobile com os filtros aplicados
-	useEffect(() => {
-		setMobileSearch(filters.pesquisa || '')
-	}, [filters.pesquisa])
+	const vehicles = response?.data || []
+	const totalPages = response?.pagination?.totalPages || 1
+	const totalVehicles = response?.pagination?.total || 0
+
+	const { data: wishlistData } = useWishlist()
+	const addFavoriteMutation = useAddVehicleToWishlist()
+	const removeFavoriteMutation = useRemoveVehicleFromWishlist()
+
+	const favorites = new Set(
+		(wishlistData?.vehicles || []).map(v => v.id)
+	)
 
 	const handleFilterChange = (newFilters) => {
 		setFilters(newFilters)
-		setCurrentPage(1) // Reset para primeira página ao filtrar
-		// Executa a busca imediatamente com os novos filtros
-		fetchVehicles(newFilters)
+		setCurrentPage(1)
 	}
 
 	const handlePageChange = (page) => {
@@ -180,7 +89,7 @@ export default function Compra() {
 
 	const handleSortChange = (e) => {
 		setSortBy(e.target.value)
-		// TODO: Implementar ordenação no backend se necessário
+		setCurrentPage(1)
 	}
 
 	const handleMobileSearchSubmit = () => {
@@ -188,10 +97,8 @@ export default function Compra() {
 			...filters,
 			pesquisa: mobileSearch
 		}
-
 		setFilters(nextFilters)
 		setCurrentPage(1)
-		fetchVehicles(nextFilters)
 	}
 
 	const handleMobileAdvancedFilterChange = (newFilters) => {
@@ -230,30 +137,19 @@ export default function Compra() {
 			return
 		}
 
-		// Evitar múltiplos cliques
-		if (loadingFavorites.has(carId)) return
-
-		setLoadingFavorites(prev => new Set(prev).add(carId))
-
 		try {
 			const isFavorite = favorites.has(carId)
 
 			if (isFavorite) {
-				const response = await api.removeVehicleFromWishlist(carId)
+				const response = await removeFavoriteMutation.mutateAsync(carId)
 				if (response.success) {
-					setFavorites(prev => {
-						const newSet = new Set(prev)
-						newSet.delete(carId)
-						return newSet
-					})
 					notyf.success('Removido dos favoritos')
 				} else {
 					notyf.error(response.message || 'Erro ao remover favorito')
 				}
 			} else {
-				const response = await api.addVehicleToWishlist(carId)
+				const response = await addFavoriteMutation.mutateAsync(carId)
 				if (response.success) {
-					setFavorites(prev => new Set(prev).add(carId))
 					notyf.success('Adicionado aos favoritos')
 				} else {
 					notyf.error(response.message || 'Erro ao adicionar favorito')
@@ -262,12 +158,6 @@ export default function Compra() {
 		} catch (error) {
 			console.error('Erro ao alternar favorito:', error)
 			notyf.error('Erro ao processar favorito')
-		} finally {
-			setLoadingFavorites(prev => {
-				const newSet = new Set(prev)
-				newSet.delete(carId)
-				return newSet
-			})
 		}
 	}
 
@@ -333,7 +223,7 @@ export default function Compra() {
 						</div>
 
 						{/* Loading State */}
-						{loading ? (
+						{isLoading ? (
 							<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
 								<CarCardSkeleton count={8} className="w-full" />
 							</div>
@@ -371,12 +261,11 @@ export default function Compra() {
 														onClick={(e) => toggleFavorite(e, car.id)}
 														className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
 														aria-label={favorites.has(car.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-														disabled={loadingFavorites.has(car.id)}
 													>
 														<Heart
 															className={`w-5 h-5 transition-all duration-200 ${
 																favorites.has(car.id) ? 'fill-red-500 text-red-500' : 'text-gray-600 hover:text-red-500'
-															} ${loadingFavorites.has(car.id) ? 'opacity-50' : ''}`}
+															}`}
 														/>
 													</button>
 												)}

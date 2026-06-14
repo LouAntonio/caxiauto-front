@@ -1,20 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { useAdmin } from '../../contexts/AdminContext';
+import React, { useState } from 'react';
 import { Sparkles, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { notyf } from '../../services/api';
 import { AdminTableSkeleton } from '../../components/skeletons';
-import useLoadingState from '../../hooks/useLoadingState';
+import {
+	useAdminHighlightPackages,
+	useAdminCreateHighlightPackage,
+	useAdminUpdateHighlightPackage,
+	useAdminDeleteHighlightPackage,
+} from '../../hooks/queries/useAdmin';
 
 const AdminHighlightPackages = () => {
-	const {
-		adminListHighlightPackages,
-		adminCreateHighlightPackage,
-		adminUpdateHighlightPackage,
-		adminDeleteHighlightPackage,
-	} = useAdmin();
-
-	const [loading, setLoading] = useState(true);
-	const [packages, setPackages] = useState([]);
 	const [showModal, setShowModal] = useState(false);
 	const [editingPackage, setEditingPackage] = useState(null);
 	const [formData, setFormData] = useState({
@@ -24,23 +19,11 @@ const AdminHighlightPackages = () => {
 		daysDuration: '',
 	});
 
-	const { loading: actionLoading, withLoading, isActionLoading } = useLoadingState({ preventConcurrent: true });
-
-	const loadPackages = async () => {
-		setLoading(true);
-		try {
-			const response = await adminListHighlightPackages();
-			if (response.success) setPackages(response.data);
-		} catch (error) {
-			console.error('Erro ao carregar pacotes de destaque:', error);
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		loadPackages();
-	}, []);
+	const { data: packages, isLoading: loading } = useAdminHighlightPackages();
+	const createHighlightPackageMutation = useAdminCreateHighlightPackage();
+	const updateHighlightPackageMutation = useAdminUpdateHighlightPackage();
+	const deleteHighlightPackageMutation = useAdminDeleteHighlightPackage();
+	const mutationPending = createHighlightPackageMutation.isPending || updateHighlightPackageMutation.isPending || deleteHighlightPackageMutation.isPending;
 
 	const handleOpenCreate = () => {
 		setEditingPackage(null);
@@ -69,12 +52,12 @@ const AdminHighlightPackages = () => {
 			daysDuration: Number(formData.daysDuration),
 		};
 
-		await withLoading(async () => {
+		try {
 			let response;
 			if (editingPackage) {
-				response = await adminUpdateHighlightPackage(editingPackage.id, payload);
+				response = await updateHighlightPackageMutation.mutateAsync({ id: editingPackage.id, data: payload });
 			} else {
-				response = await adminCreateHighlightPackage(payload);
+				response = await createHighlightPackageMutation.mutateAsync(payload);
 			}
 
 			if (response.success) {
@@ -82,25 +65,27 @@ const AdminHighlightPackages = () => {
 				setShowModal(false);
 				setEditingPackage(null);
 				setFormData({ name: '', price: '', itemType: 'VEHICLE', daysDuration: '' });
-				loadPackages();
 			} else {
 				notyf.error(response.message || 'Erro ao salvar pacote');
 			}
-		});
+		} catch (error) {
+			notyf.error('Erro ao salvar pacote');
+		}
 	};
 
 	const handleDelete = async (id) => {
 		if (!window.confirm('Tem certeza que deseja remover este pacote de destaque?')) return;
 
-		await withLoading(async () => {
-			const response = await adminDeleteHighlightPackage(id);
+		try {
+			const response = await deleteHighlightPackageMutation.mutateAsync(id);
 			if (response.success) {
 				notyf.success('Pacote de destaque removido com sucesso!');
-				loadPackages();
 			} else {
 				notyf.error(response.message || 'Erro ao remover pacote');
 			}
-		});
+		} catch (error) {
+			notyf.error('Erro ao remover pacote');
+		}
 	};
 
 	const formatCurrency = (value) => {
@@ -167,17 +152,17 @@ const AdminHighlightPackages = () => {
 													onClick={() => handleOpenEdit(pkg)}
 													className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
 													title="Editar"
-													disabled={actionLoading}
+													disabled={mutationPending}
 												>
-													{actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Pencil className="w-4 h-4" />}
+													{mutationPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Pencil className="w-4 h-4" />}
 												</button>
 												<button
 													onClick={() => handleDelete(pkg.id)}
 													className="p-2 text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
 													title="Remover"
-													disabled={actionLoading}
+													disabled={mutationPending}
 												>
-													{isActionLoading(`delete-${pkg.id}`) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+													{mutationPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
 												</button>
 											</div>
 										</td>
@@ -250,10 +235,10 @@ const AdminHighlightPackages = () => {
 							<div className="flex gap-3 mt-6">
 								<button
 									type="submit"
-									disabled={actionLoading}
+									disabled={mutationPending}
 									className="flex-1 bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 								>
-									{actionLoading ? (
+									{mutationPending ? (
 										<>
 											<Loader2 className="w-5 h-5 animate-spin" />
 											{editingPackage ? 'Salvando...' : 'Criando...'}

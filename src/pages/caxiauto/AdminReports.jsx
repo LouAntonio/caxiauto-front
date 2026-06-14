@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useAdmin } from '../../contexts/AdminContext';
-import api, { getImageUrl, notyf } from '../../services/api';
+import React, { useState } from 'react';
+import { getImageUrl, notyf } from '../../services/api';
 import { AlertTriangle, Search, Eye, CheckCircle, XCircle, Loader2, X } from 'lucide-react';
+import { useAllReports, useUpdateReportStatus, useDeleteReport } from '../../hooks/queries/useReports';
 
 const AdminReports = () => {
-	const [loading, setLoading] = useState(true);
-	const [reports, setReports] = useState([]);
 	const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, total: 0 });
 	const [activeTab, setActiveTab] = useState('all');
 	const [searchInput, setSearchInput] = useState('');
@@ -13,36 +11,27 @@ const AdminReports = () => {
 	const [selectedReport, setSelectedReport] = useState(null);
 	const [showModal, setShowModal] = useState(false);
 
-	const loadReports = async () => {
-		setLoading(true);
-		try {
-			const params = { page: pagination.currentPage, limit: 10 };
-			if (activeTab !== 'all') params.status = activeTab;
-			if (filters.reason) params.reason = filters.reason;
-			const response = await api.getAllReports(params);
-			if (response.success) {
-				setReports(response.data);
-				setPagination({ currentPage: response.pagination.currentPage, totalPages: response.pagination.totalPages, total: response.pagination.total });
-			} else notyf.error(response.msg || 'Erro ao carregar');
-		} catch (error) { console.error(error); notyf.error('Erro ao carregar denúncias'); }
-		finally { setLoading(false); }
-	};
+	const updateReportStatusMutation = useUpdateReportStatus();
+	const deleteReportMutation = useDeleteReport();
 
-	useEffect(() => { loadReports(); }, [pagination.currentPage, activeTab]);
+	const params = { page: pagination.currentPage, limit: 10 };
+	if (activeTab !== 'all') params.status = activeTab;
+	if (filters.reason) params.reason = filters.reason;
+	const { data: reports, isLoading: loading } = useAllReports(params);
 
-	const handleSearch = (e) => { e.preventDefault(); setPagination({ ...pagination, currentPage: 1 }); loadReports(); };
-	const handleClearSearch = () => { setSearchInput(''); setFilters({ reason: '' }); setPagination({ ...pagination, currentPage: 1 }); setTimeout(loadReports, 0); };
+	const handleSearch = (e) => { e.preventDefault(); setPagination({ ...pagination, currentPage: 1 }); };
+	const handleClearSearch = () => { setSearchInput(''); setFilters({ reason: '' }); setPagination({ ...pagination, currentPage: 1 }); };
 
 	const handleUpdateStatus = async (id, status) => {
 		try {
-			const response = await api.updateReportStatus(id, status);
-			if (response.success) { notyf.success(`Status: ${status}`); loadReports(); setShowModal(false); }
+			const response = await updateReportStatusMutation.mutateAsync({ id, status });
+			if (response.success) { notyf.success(`Status: ${status}`); setShowModal(false); }
 		} catch (error) { notyf.error('Erro ao atualizar'); }
 	};
 
 	const handleDelete = async (id) => {
 		if (!window.confirm('Eliminar esta denúncia?')) return;
-		try { const r = await api.deleteReport(id); if (r.success) { notyf.success('Eliminada'); loadReports(); } }
+		try { const r = await deleteReportMutation.mutateAsync(id); if (r.success) { notyf.success('Eliminada'); } }
 		catch (error) { notyf.error('Erro ao eliminar'); }
 	};
 
@@ -50,8 +39,6 @@ const AdminReports = () => {
 	const getReasonColor = (r) => ({ FRAUD: 'bg-red-100 text-red-800', SPAM: 'bg-yellow-100 text-yellow-800', INAPPROPRIATE: 'bg-purple-100 text-purple-800', WRONG_CATEGORY: 'bg-orange-100 text-orange-800', SOLD_ALREADY: 'bg-blue-100 text-blue-800', OTHER: 'bg-gray-100 text-gray-800' }[r] || 'bg-gray-100 text-gray-800');
 	const getReasonLabel = (r) => ({ FRAUD: 'Fraude', SPAM: 'Spam', INAPPROPRIATE: 'Inapropriado', WRONG_CATEGORY: 'Categoria Errada', SOLD_ALREADY: 'Já Vendido', OTHER: 'Outro' }[r] || r);
 	const getTargetType = (rep) => { if (rep.vehicleId) return 'Veículo'; if (rep.pecaId) return 'Peça'; if (rep.reportedUserId) return 'Usuário'; return '—'; };
-
-	const tabCounts = { all: pagination.total };
 
 	return (
 		<div className="space-y-6">
@@ -94,43 +81,43 @@ const AdminReports = () => {
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 				{loading ? <div className="flex items-center justify-center py-20"><Loader2 className="w-12 h-12 text-[#154c9a] animate-spin" /></div>
 					: reports.length === 0 ? <div className="flex flex-col items-center justify-center py-20"><AlertTriangle className="w-16 h-16 text-gray-300 mb-4" /><p className="text-gray-500">Nenhuma denúncia</p></div>
-					: <div className="overflow-x-auto">
-						<table className="w-full">
-							<thead className="bg-gray-50">
-								<tr>
-									<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-									<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Motivo</th>
-									<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descrição</th>
-									<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Denunciante</th>
-									<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Denunciado</th>
-									<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-									<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
-									<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
-								</tr>
-							</thead>
-							<tbody className="divide-y divide-gray-200">
-								{reports.map((rep) => (
-									<tr key={rep.id} className="hover:bg-gray-50">
-										<td className="px-4 py-3"><span className="px-2 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800">{getTargetType(rep)}</span></td>
-										<td className="px-4 py-3"><span className={`px-2 py-1 text-xs font-medium rounded-full ${getReasonColor(rep.reason)}`}>{getReasonLabel(rep.reason)}</span></td>
-										<td className="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">{rep.description}</td>
-										<td className="px-4 py-3 text-sm text-gray-900">{rep.reporter?.name} {rep.reporter?.surname}</td>
-										<td className="px-4 py-3 text-sm text-gray-600">
-											{rep.reportedUser ? `${rep.reportedUser.name} ${rep.reportedUser.surname}` : rep.vehicle ? rep.vehicle.name : rep.peca ? rep.peca.name : '—'}
-										</td>
-										<td className="px-4 py-3"><span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(rep.status)}`}>{rep.status}</span></td>
-										<td className="px-4 py-3 text-sm text-gray-500">{new Date(rep.createdAt).toLocaleDateString('pt-BR')}</td>
-										<td className="px-4 py-3">
-											<div className="flex items-center gap-1">
-												<button onClick={() => { setSelectedReport(rep); setShowModal(true); }} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg" title="Detalhes"><Eye className="w-4 h-4" /></button>
-												<button onClick={() => handleDelete(rep.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar"><XCircle className="w-4 h-4" /></button>
-											</div>
-										</td>
+						: <div className="overflow-x-auto">
+							<table className="w-full">
+								<thead className="bg-gray-50">
+									<tr>
+										<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+										<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Motivo</th>
+										<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descrição</th>
+										<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Denunciante</th>
+										<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Denunciado</th>
+										<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+										<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+										<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
 									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
+								</thead>
+								<tbody className="divide-y divide-gray-200">
+									{reports.map((rep) => (
+										<tr key={rep.id} className="hover:bg-gray-50">
+											<td className="px-4 py-3"><span className="px-2 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800">{getTargetType(rep)}</span></td>
+											<td className="px-4 py-3"><span className={`px-2 py-1 text-xs font-medium rounded-full ${getReasonColor(rep.reason)}`}>{getReasonLabel(rep.reason)}</span></td>
+											<td className="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">{rep.description}</td>
+											<td className="px-4 py-3 text-sm text-gray-900">{rep.reporter?.name} {rep.reporter?.surname}</td>
+											<td className="px-4 py-3 text-sm text-gray-600">
+												{rep.reportedUser ? `${rep.reportedUser.name} ${rep.reportedUser.surname}` : rep.vehicle ? rep.vehicle.name : rep.peca ? rep.peca.name : '—'}
+											</td>
+											<td className="px-4 py-3"><span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(rep.status)}`}>{rep.status}</span></td>
+											<td className="px-4 py-3 text-sm text-gray-500">{new Date(rep.createdAt).toLocaleDateString('pt-BR')}</td>
+											<td className="px-4 py-3">
+												<div className="flex items-center gap-1">
+													<button onClick={() => { setSelectedReport(rep); setShowModal(true); }} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg" title="Detalhes"><Eye className="w-4 h-4" /></button>
+													<button onClick={() => handleDelete(rep.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar"><XCircle className="w-4 h-4" /></button>
+												</div>
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
 				}
 			</div>
 

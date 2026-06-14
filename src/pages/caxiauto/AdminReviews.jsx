@@ -1,39 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { useAdmin } from '../../contexts/AdminContext';
 import api, { notyf } from '../../services/api';
 import { Star, Trash2, Loader2, Search, X } from 'lucide-react';
 import { AdminTableSkeleton } from '../../components/skeletons';
 import useLoadingState from '../../hooks/useLoadingState';
 import useDebounce from '../../hooks/useDebounce';
+import { useAdminReviews } from '../../hooks/queries/useAdmin';
 
 const AdminReviews = () => {
-	const { adminListAllReviews } = useAdmin();
-	const [loading, setLoading] = useState(true);
-	const [reviews, setReviews] = useState([]);
-	const [stats, setStats] = useState(null);
 	const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, total: 0 });
 	const [filters, setFilters] = useState({ minRating: '', search: '' });
 	const [searchInput, setSearchInput] = useState('');
 	const debouncedSearch = useDebounce(searchInput, 300);
 	const { loading: actionLoading, withLoading } = useLoadingState({ preventConcurrent: true });
 
-	const loadReviews = async () => {
-		setLoading(true);
-		try {
-			const params = { page: pagination.currentPage, limit: 20 };
-			if (filters.minRating) params.minRating = filters.minRating;
-			if (filters.search) params.search = filters.search;
-			const response = await adminListAllReviews(params);
-			if (response.success) {
-				setReviews(response.data);
-				setStats(response.stats);
-				setPagination({ currentPage: response.pagination.currentPage, totalPages: response.pagination.totalPages, total: response.pagination.totalItems });
-			} else notyf.error(response.message || 'Erro ao carregar');
-		} catch (error) { console.error(error); notyf.error('Erro ao carregar avaliações'); }
-		finally { setLoading(false); }
-	};
-
-	useEffect(() => { loadReviews(); }, [pagination.currentPage]);
+	const params = { page: pagination.currentPage, limit: 20 };
+	if (filters.minRating) params.minRating = filters.minRating;
+	if (filters.search) params.search = filters.search;
+	const { data: reviews, isLoading: loading } = useAdminReviews(params);
 
 	// Auto-search quando o valor debounce muda
 	useEffect(() => {
@@ -48,7 +31,7 @@ const AdminReviews = () => {
 		if (!window.confirm('Eliminar esta avaliação?')) return;
 		await withLoading(async () => {
 			const r = await api.deleteReview(id);
-			if (r.success) { notyf.success('Eliminada'); loadReviews(); }
+			if (r.success) { notyf.success('Eliminada'); }
 		});
 	};
 
@@ -62,36 +45,7 @@ const AdminReviews = () => {
 		<div className="space-y-6">
 			<div><h1 className="text-2xl font-bold text-gray-900">Avaliações</h1><p className="text-gray-600 mt-1">Gerencie as avaliações dos vendedores</p></div>
 
-			{/* Stats */}
-			{stats && (
-				<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-					<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
-						<p className="text-sm text-gray-500">Rating Médio</p>
-						<div className="flex items-center justify-center gap-2 mt-2">
-							<Star className="w-8 h-8 text-yellow-500 fill-yellow-500" />
-							<span className="text-3xl font-bold">{stats.averageRating}</span>
-						</div>
-					</div>
-					<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
-						<p className="text-sm text-gray-500">Total Reviews</p>
-						<p className="text-3xl font-bold mt-2">{stats.totalReviews}</p>
-					</div>
-					<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:col-span-2">
-						<p className="text-sm text-gray-500 mb-3">Distribuição</p>
-						<div className="space-y-2">
-							{[5, 4, 3, 2, 1].map(r => (
-								<div key={r} className="flex items-center gap-3">
-									<div className="flex gap-0.5 w-16">{[1,2,3,4,5].map(s => <Star key={s} className={`w-3 h-3 ${s <= r ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} />)}</div>
-									<div className="flex-1 bg-gray-200 rounded-full h-4 overflow-hidden">
-										<div className="bg-yellow-500 h-full rounded-full transition-all" style={{ width: `${stats.totalReviews > 0 ? (stats.ratingDistribution[r] / stats.totalReviews * 100) : 0}%` }}></div>
-									</div>
-									<span className="text-sm font-medium w-8 text-right">{stats.ratingDistribution[r] || 0}</span>
-								</div>
-							))}
-						</div>
-					</div>
-				</div>
-			)}
+
 
 			{/* Filters */}
 			<form onSubmit={handleSearch} className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">

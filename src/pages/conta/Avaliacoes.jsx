@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import api, { notyf } from '../../services/api';
+import React, { useState, useEffect } from 'react';
+import useAuthStore from '../../stores/authStore';
+import { notyf } from '../../services/api';
 import {
 	Star,
 	MessageSquare,
@@ -13,71 +13,32 @@ import { Link } from 'react-router-dom';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { ListSkeleton } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
+import { useMyReviews, useDeleteReview } from '../../hooks/queries/useReviews';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Avaliacoes = () => {
 	useDocumentTitle('Minhas Avaliações - CaxiAuto');
 
-	const { user } = useAuth();
-	const [loading, setLoading] = useState(true);
-	const [reviews, setReviews] = useState([]);
+	const { user } = useAuthStore();
+	const queryClient = useQueryClient();
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [total, setTotal] = useState(0);
 	const [deletingId, setDeletingId] = useState(null);
-	const [isFetching, setIsFetching] = useState(false);
-	const abortControllerRef = useRef(null);
+
+	const params = { page, limit: 10 };
+	const { data: reviews, isLoading } = useMyReviews(params);
+	const deleteReview = useDeleteReview();
 
 	useEffect(() => {
-		fetchReviews();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [page]);
-
-	const fetchReviews = useCallback(async () => {
-		if (abortControllerRef.current) {
-			abortControllerRef.current.abort();
+		const raw = queryClient.getQueryData(['reviews', 'my', params]);
+		if (raw?.success) {
+			setTotal(raw.pagination?.total || 0);
+			setTotalPages(raw.pagination?.totalPages || 1);
 		}
-		if (isFetching) return;
+	}, [reviews, page]);
 
-		const controller = new AbortController();
-		abortControllerRef.current = controller;
-		setIsFetching(true);
-		setLoading(true);
-
-		try {
-			const response = await api.getMyReviews({ page, limit: 10 });
-
-			if (!controller.signal.aborted) {
-				if (response.success) {
-					setReviews(response.data || []);
-					setTotal(response.pagination?.total || 0);
-					setTotalPages(response.pagination?.totalPages || 1);
-				} else {
-					notyf.error('Erro ao carregar avaliações');
-					setReviews([]);
-				}
-			}
-		} catch (error) {
-			if (!controller.signal.aborted) {
-				console.error('Erro ao carregar avaliações:', error);
-				notyf.error('Erro ao carregar avaliações');
-			}
-		} finally {
-			if (!controller.signal.aborted) {
-				setLoading(false);
-				setIsFetching(false);
-			}
-		}
-	}, [page, isFetching]);
-
-	useEffect(() => {
-		return () => {
-			if (abortControllerRef.current) {
-				abortControllerRef.current.abort();
-			}
-		};
-	}, []);
-
-	const handleDeleteReview = useCallback(async (reviewId) => {
+	const handleDeleteReview = async (reviewId) => {
 		if (deletingId) return;
 		if (!window.confirm('Tem certeza que deseja excluir esta avaliação?')) {
 			return;
@@ -85,11 +46,10 @@ const Avaliacoes = () => {
 
 		setDeletingId(reviewId);
 		try {
-			const response = await api.deleteReview(reviewId);
+			const response = await deleteReview.mutateAsync(reviewId);
 
 			if (response.success) {
 				notyf.success('Avaliação excluída com sucesso');
-				fetchReviews();
 			} else {
 				notyf.error(response.msg || 'Erro ao excluir avaliação');
 			}
@@ -99,7 +59,7 @@ const Avaliacoes = () => {
 		} finally {
 			setDeletingId(null);
 		}
-	}, [deletingId, fetchReviews]);
+	};
 
 	const renderStars = (rating) => {
 		return (
@@ -144,7 +104,7 @@ const Avaliacoes = () => {
 				</div>
 
 				{/* Lista de Avaliações */}
-				{loading ? (
+				{isLoading ? (
 					<ListSkeleton count={5} variant="compact" />
 				) : reviews.length === 0 ? (
 					<div className="text-center py-16">

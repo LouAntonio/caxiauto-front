@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import api, { getImageUrl, notyf } from '../services/api';
 import {
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react';
 import ReviewForm from '../components/ReviewForm';
 import useDocumentTitle from '../hooks/useDocumentTitle';
+import { useReviewSummary } from '../hooks/queries/useReviews';
 
 const PerfilVendedor = () => {
 	const { id } = useParams();
@@ -26,20 +28,12 @@ const PerfilVendedor = () => {
 	const [seller, setSeller] = useState(null);
 	const [vehicles, setVehicles] = useState([]);
 	const [parts, setParts] = useState([]);
-	const [reviews, setReviews] = useState([]);
-	const [reviewSummary, setReviewSummary] = useState(null);
 	const [page, setPage] = useState(1);
-	const [totalReviews, setTotalReviews] = useState(0);
+	const [reviewsPage, setReviewsPage] = useState(1);
 
 	useEffect(() => {
 		fetchSellerProfile();
 	}, [id]);
-
-	useEffect(() => {
-		if (seller) {
-			fetchReviews();
-		}
-	}, [seller, page]);
 
 	const fetchSellerProfile = async () => {
 		setLoading(true);
@@ -49,12 +43,10 @@ const PerfilVendedor = () => {
 			if (response.success && response.data) {
 				setSeller(response.data);
 
-				// Carregar veículos do vendedor
 				if (response.data.vehicles) {
 					setVehicles(response.data.vehicles.filter(v => v.status === 'ACTIVE').slice(0, 6));
 				}
 
-				// Carregar peças do vendedor
 				if (response.data.pecas) {
 					setParts(response.data.pecas.slice(0, 6));
 				}
@@ -69,28 +61,19 @@ const PerfilVendedor = () => {
 		}
 	};
 
-	const fetchReviews = async () => {
-		try {
-			const [reviewsRes, summaryRes] = await Promise.all([
-				api.getReviewsBySeller(id, { page, limit: 5 }),
-				api.getReviewSummary(id)
-			]);
+	const { data: reviewsRes } = useQuery({
+		queryKey: ['reviews', 'seller', id, { page: reviewsPage, limit: 5 }],
+		queryFn: () => api.getReviewsBySeller(id, { page: reviewsPage, limit: 5 }),
+		enabled: !!seller,
+	});
 
-			if (reviewsRes.success) {
-				setReviews(reviewsRes.data || []);
-				setTotalReviews(reviewsRes.pagination?.total || 0);
-			}
+	const { data: reviewSummary } = useReviewSummary(id)
 
-			if (summaryRes.success) {
-				setReviewSummary(summaryRes.data);
-			}
-		} catch (error) {
-			console.error('Erro ao carregar avaliações:', error);
-		}
-	};
+	const reviews = reviewsRes?.data || []
+	const totalReviews = reviewsRes?.pagination?.total || 0
 
 	const handleReviewSubmitted = () => {
-		fetchReviews();
+		setReviewsPage(1)
 	};
 
 	const renderStars = (rating, size = 'w-5 h-5') => {
@@ -373,14 +356,14 @@ const PerfilVendedor = () => {
 							{totalReviews > 5 && (
 								<div className="flex justify-center gap-2">
 									<button
-										onClick={() => setPage(p => Math.max(1, p - 1))}
-										disabled={page === 1}
+										onClick={() => setReviewsPage(p => Math.max(1, p - 1))}
+										disabled={reviewsPage === 1}
 										className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
 									>
 										Anterior
 									</button>
 									<button
-										onClick={() => setPage(p => p + 1)}
+										onClick={() => setReviewsPage(p => p + 1)}
 										className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm"
 									>
 										Próximo

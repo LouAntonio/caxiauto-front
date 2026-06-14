@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import useAuthStore from '../stores/authStore';
 import { User, Mail, Lock, Phone, Eye, EyeOff, Check, X, Rocket, Clock, Sparkles, ArrowRight } from 'lucide-react';
 
 import useDocumentTitle from '../hooks/useDocumentTitle';
@@ -93,7 +93,7 @@ const Auth = () => {
 		acceptedTerms: false,
 	});
 
-	const { login, checkEmail, verifyOTP, resendOTP, completeRegistration, requestPasswordReset } = useAuth();
+	const { login, checkEmail, verifyOTP, resendOTP, completeRegistration, requestPasswordReset } = useAuthStore();
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -382,11 +382,11 @@ const Auth = () => {
 										: registrationStep === 0
 											? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
 											: 'bg-gray-100 text-gray-400'
-										}`}>
+									}`}>
 										{registrationStep > 0 ? <Check className="w-5 h-5" /> : <Rocket className="w-5 h-5" />}
 									</div>
 									<span className={`mt-2 text-xs font-medium transition-colors ${registrationStep >= 0 ? 'text-blue-600' : 'text-gray-400'
-										}`}>Oferta</span>
+									}`}>Oferta</span>
 								</div>
 
 								{/* Step 1 */}
@@ -396,11 +396,11 @@ const Auth = () => {
 										: registrationStep === 1
 											? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
 											: 'bg-gray-100 text-gray-400'
-										}`}>
+									}`}>
 										{registrationStep > 1 ? <Check className="w-5 h-5" /> : '1'}
 									</div>
 									<span className={`mt-2 text-xs font-medium transition-colors ${registrationStep >= 1 ? 'text-blue-600' : 'text-gray-400'
-										}`}>Email</span>
+									}`}>Email</span>
 								</div>
 
 								{/* Step 2 */}
@@ -410,11 +410,11 @@ const Auth = () => {
 										: registrationStep === 2
 											? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
 											: 'bg-gray-100 text-gray-400'
-										}`}>
+									}`}>
 										{registrationStep > 2 ? <Check className="w-5 h-5" /> : '2'}
 									</div>
 									<span className={`mt-2 text-xs font-medium transition-colors ${registrationStep >= 2 ? 'text-blue-600' : 'text-gray-400'
-										}`}>Verificação</span>
+									}`}>Verificação</span>
 								</div>
 
 								{/* Step 3 */}
@@ -422,11 +422,11 @@ const Auth = () => {
 									<div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${registrationStep === 3
 										? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
 										: 'bg-gray-100 text-gray-400'
-										}`}>
+									}`}>
 										3
 									</div>
 									<span className={`mt-2 text-xs font-medium transition-colors ${registrationStep >= 3 ? 'text-blue-600' : 'text-gray-400'
-										}`}>Cadastro</span>
+									}`}>Cadastro</span>
 								</div>
 
 							</div>
@@ -649,13 +649,13 @@ const Auth = () => {
 													<div
 														key={level}
 														className={`h-1.5 flex-1 rounded-full transition-colors ${level <= strength ? colors[strength] : 'bg-gray-200'
-															}`}
+														}`}
 													/>
 												);
 											})}
 										</div>
 										<p className={`text-xs font-medium mb-2 ${{ 1: 'text-red-600', 2: 'text-orange-600', 3: 'text-yellow-600', 4: 'text-green-600' }[getPasswordStrength(formData.password)]
-											}`}>
+										}`}>
 											{['', 'Fraca', 'Regular', 'Boa', 'Forte'][getPasswordStrength(formData.password)]}
 										</p>
 

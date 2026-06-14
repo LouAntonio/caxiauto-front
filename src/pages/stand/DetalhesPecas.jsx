@@ -20,22 +20,21 @@ import {
 } from 'lucide-react'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { getImageUrl, notyf } from '../../services/api'
-import { useAuth } from '../../contexts/AuthContext'
+import useAuthStore from '../../stores/authStore'
 import { PecaDetailSkeleton } from '../../components/skeletons'
+import { usePeca } from '../../hooks/queries/usePecas'
+import { useWishlist, useAddPecaToWishlist, useRemovePecaFromWishlist } from '../../hooks/queries/useWishlist'
 
 export default function DetalhesPecas() {
 	const { id } = useParams()
 	const navigate = useNavigate()
-	const { user, isAuthenticated } = useAuth()
+	const { user, isAuthenticated } = useAuthStore()
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [showContactModal, setShowContactModal] = useState(false)
 	const [showAvailabilityModal, setShowAvailabilityModal] = useState(false)
 	const [requestedQuantity, setRequestedQuantity] = useState(1)
-	const [peca, setPeca] = useState(null)
-	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState(null)
 	const [isFavorite, setIsFavorite] = useState(false)
-	const [loadingFavorite, setLoadingFavorite] = useState(false)
 
 	// Estados dos formulários
 	const [partPurchaseFormData, setPartPurchaseFormData] = useState({
@@ -109,59 +108,30 @@ export default function DetalhesPecas() {
 		}))
 	}, [isAuthenticated, user?.name, user?.email, user?.phone])
 
+	const { data: peca, isLoading, isFetched } = usePeca(id)
+
 	useEffect(() => {
-		const fetchPeca = async () => {
-			try {
-				setLoading(true)
-				setError(null)
-
-				const response = await api.getPeca(id)
-
-				if (response.success && response.data) {
-					setPeca(response.data)
-
-					// Registrar visualização
-					try {
-						await api.addView('part', id)
-					} catch (viewError) {
-						console.error('Erro ao registrar visualização:', viewError)
-					}
-				} else {
-					setError('Peça não encontrada')
-				}
-			} catch (err) {
-				console.error('Erro ao buscar peça:', err)
-				setError('Erro ao carregar os dados da peça')
-			} finally {
-				setLoading(false)
-			}
+		if (isFetched && !peca) {
+			setError('Peça não encontrada')
+		} else if (peca) {
+			setError(null)
+			api.addView('part', id).catch(viewError => {
+				console.error('Erro ao registrar visualização:', viewError)
+			})
 		}
+	}, [isFetched, peca, id])
 
-		if (id) {
-			fetchPeca()
-		}
-	}, [id])
+	const { data: wishlistData } = useWishlist()
+	const addFavoriteMutation = useAddPecaToWishlist()
+	const removeFavoriteMutation = useRemovePecaFromWishlist()
 
-	// Verificar se está nos favoritos (wishlist)
 	useEffect(() => {
-		const checkFavorite = async () => {
-			if (!isAuthenticated || !id) {
-				setIsFavorite(false)
-				return
-			}
-
-			try {
-				const response = await api.checkIfInWishlist('peca', id)
-				if (response.success) {
-					setIsFavorite(response.data || false)
-				}
-			} catch (error) {
-				console.error('Erro ao verificar favorito:', error)
-			}
+		if (wishlistData) {
+			setIsFavorite(wishlistData.pecas?.some(p => p.id === id) || false)
+		} else if (!isAuthenticated) {
+			setIsFavorite(false)
 		}
-
-		checkFavorite()
-	}, [id, isAuthenticated])
+	}, [wishlistData, id, isAuthenticated])
 
 	useDocumentTitle(peca ? `${peca.name} - Peças - Caxiauto` : 'Carregando peça - Caxiauto')
 
@@ -213,13 +183,9 @@ export default function DetalhesPecas() {
 			return
 		}
 
-		if (loadingFavorite) return
-
-		setLoadingFavorite(true)
-
 		try {
 			if (isFavorite) {
-				const response = await api.removePecaFromWishlist(id)
+				const response = await removeFavoriteMutation.mutateAsync(id)
 				if (response.success) {
 					setIsFavorite(false)
 					notyf.success('Removido dos favoritos')
@@ -227,7 +193,7 @@ export default function DetalhesPecas() {
 					notyf.error(response.message || 'Erro ao remover favorito')
 				}
 			} else {
-				const response = await api.addPecaToWishlist(id)
+				const response = await addFavoriteMutation.mutateAsync(id)
 				if (response.success) {
 					setIsFavorite(true)
 					notyf.success('Adicionado aos favoritos')
@@ -238,8 +204,6 @@ export default function DetalhesPecas() {
 		} catch (error) {
 			console.error('Erro ao alternar favorito:', error)
 			notyf.error('Erro ao processar favorito')
-		} finally {
-			setLoadingFavorite(false)
 		}
 	}
 
@@ -318,7 +282,7 @@ export default function DetalhesPecas() {
 	}
 
 	// Estado de carregamento
-	if (loading) {
+	if (isLoading) {
 		return <PecaDetailSkeleton />
 	}
 
@@ -405,10 +369,9 @@ export default function DetalhesPecas() {
 										onClick={toggleFavorite}
 										className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/95 backdrop-blur-sm shadow-xl flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
 										aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-										disabled={loadingFavorite}
 									>
 										<Heart
-											className={`w-6 h-6 transition-all duration-200 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600 hover:text-red-500'} ${loadingFavorite ? 'opacity-50' : ''}`}
+											className={`w-6 h-6 transition-all duration-200 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600 hover:text-red-500'}`}
 										/>
 									</button>
 								)}

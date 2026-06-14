@@ -2,49 +2,18 @@ import React, { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Gauge, Calendar, MapPin, Droplet, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom'
 import api, { getImageUrl, notyf } from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
+import { useFeaturedVehicles } from '../hooks/queries/useVehicles';
+import useAuthStore from '../stores/authStore';
 import CarCardSkeleton from './CarCardSkeleton';
 
 export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 	const railRef = useRef(null);
-	const [cars, setCars] = useState([]);
-	const [loading, setLoading] = useState(true);
+	const { data: vehicles, isLoading } = useFeaturedVehicles();
 	const [wishlist, setWishlist] = useState(new Set());
 	const [loadingWishlist, setLoadingWishlist] = useState(new Set());
-	const { isAuthenticated } = useAuth();
+	const { isAuthenticated } = useAuthStore();
 
-	// Determinar se deve buscar destacados ou recentes baseado no título
 	const isFeatured = title.toLowerCase().includes('destaque');
-
-	useEffect(() => {
-		const fetchCars = async () => {
-			try {
-				setLoading(true);
-				const params = {
-					limit: 10,
-					page: 1,
-					type: 'SALE',
-				};
-
-				// Adicionar filtro de featured se for carros em destaque
-				if (isFeatured) {
-					params.featured = 'true';
-				}
-
-				const response = await api.listVehicles(params);
-
-				if (response.success && response.data) {
-					setCars(response.data);
-				}
-			} catch (error) {
-				console.error('Erro ao buscar carros:', error);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchCars();
-	}, [isFeatured]);
 
 	// Buscar wishlist do usuário quando autenticado
 	useEffect(() => {
@@ -146,7 +115,7 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 						</Link>
 					</div>
 
-					{!loading && cars.length > 0 && (
+					{!isLoading && vehicles.length > 0 && (
 						<div className="hidden md:flex gap-3">
 							<button onClick={() => scroll(-1)} aria-label="Anterior" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
 								<ChevronLeft className="w-5 h-5 text-gray-700" />
@@ -160,13 +129,13 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 
 				{/* Carousel */}
 				<div className="relative">
-					{loading ? (
+					{isLoading ? (
 						<div
 							className="flex gap-6 overflow-x-hidden pb-4"
 						>
 							<CarCardSkeleton count={5} className="w-64" />
 						</div>
-					) : cars.length === 0 ? (
+					) : vehicles.length === 0 ? (
 						<div className="flex justify-center items-center py-20 text-gray-500">
 							<p>Nenhum veículo encontrado</p>
 						</div>
@@ -176,7 +145,7 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 							className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
 							style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
 						>
-							{cars.map((car) => {
+							{vehicles.map((car) => {
 								// Determinar condição baseado na quilometragem
 								const isNew = car.kilometers === 0 || car.kilometers < 100;
 								const condition = isNew ? 'Novo' : 'Usado';
@@ -220,9 +189,9 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 												>
 													<Heart
 														className={`w-5 h-5 transition-all duration-200 ${wishlist.has(car.id)
-																? 'fill-red-500 text-red-500'
-																: 'text-gray-600 hover:text-red-500'
-															} ${loadingWishlist.has(car.id) ? 'opacity-50' : ''}`}
+															? 'fill-red-500 text-red-500'
+															: 'text-gray-600 hover:text-red-500'
+														} ${loadingWishlist.has(car.id) ? 'opacity-50' : ''}`}
 													/>
 												</button>
 											)}
@@ -282,7 +251,7 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 					)}
 
 					{/* Botões mobile */}
-					{!loading && cars.length > 0 && (
+					{!isLoading && vehicles.length > 0 && (
 						<div className="flex md:hidden gap-3 justify-center mt-6">
 							<button onClick={() => scroll(-1)} aria-label="Anterior" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
 								<ChevronLeft className="w-5 h-5 text-gray-700" />

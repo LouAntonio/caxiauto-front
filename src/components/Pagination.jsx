@@ -102,9 +102,9 @@ export default function Pagination({
 								className={`
 									min-w-[40px] px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer
 									${currentPage === page
-										? 'bg-indigo-600 text-white shadow-md'
-										: 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-									}
+								? 'bg-indigo-600 text-white shadow-md'
+								: 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+							}
 								`}
 								aria-label={`Página ${page}`}
 								aria-current={currentPage === page ? 'page' : undefined}

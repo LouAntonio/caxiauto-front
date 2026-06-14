@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Package, Loader, Heart } from 'lucide-react'
 import Pagination from '../../components/Pagination'
@@ -8,7 +9,8 @@ import MobileFilterModal from '../../components/MobileFilterModal'
 import PartsFilterPanel from '../../components/PartsFilterPanel'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { getImageUrl, notyf } from '../../services/api'
-import { useAuth } from '../../contexts/AuthContext'
+import useAuthStore from '../../stores/authStore'
+import { useWishlist, useAddPecaToWishlist, useRemovePecaFromWishlist } from '../../hooks/queries/useWishlist'
 
 export default function PecasAcessorios() {
 	useDocumentTitle('Peças e Acessórios - Caxiauto')
@@ -25,16 +27,42 @@ export default function PecasAcessorios() {
 	const [appliedFeaturedOnly, setAppliedFeaturedOnly] = useState(false)
 
 	const [currentPage, setCurrentPage] = useState(1)
-	const [loading, setLoading] = useState(true)
-	const [categories, setCategories] = useState([])
-	const [parts, setParts] = useState([])
-	const [pagination, setPagination] = useState({})
 	const [sortBy, setSortBy] = useState('')
 	const itemsPerPage = 16
-	const [favorites, setFavorites] = useState(new Set())
-	const [loadingFavorites, setLoadingFavorites] = useState(new Set())
 	const [showMobileFilters, setShowMobileFilters] = useState(false)
-	const { isAuthenticated } = useAuth()
+	const { isAuthenticated } = useAuthStore()
+
+	const queryParams = useMemo(() => {
+		const params = { page: currentPage, limit: itemsPerPage }
+		if (appliedSearchTerm) params.search = appliedSearchTerm
+		if (appliedCategory) params.categoria = appliedCategory
+		if (appliedProvincia) params.provincia = appliedProvincia
+		if (appliedFeaturedOnly) params.featured = 'true'
+		return params
+	}, [currentPage, appliedSearchTerm, appliedCategory, appliedProvincia, appliedFeaturedOnly])
+
+	const { data: partsResponse, isLoading } = useQuery({
+		queryKey: ['pecas', 'list', currentPage, appliedSearchTerm, appliedCategory, appliedProvincia, appliedFeaturedOnly],
+		queryFn: () => api.listPecas(queryParams),
+	})
+
+	const { data: categoriesResponse } = useQuery({
+		queryKey: ['categorias', 'list'],
+		queryFn: () => api.listCategoriasPecas({ limit: 50 }),
+		select: (res) => (res.success ? res.data : []),
+	})
+
+	const parts = partsResponse?.data || []
+	const pagination = partsResponse?.pagination || {}
+	const categories = categoriesResponse || []
+
+	const { data: wishlistData } = useWishlist()
+	const addFavoriteMutation = useAddPecaToWishlist()
+	const removeFavoriteMutation = useRemovePecaFromWishlist()
+
+	const favorites = new Set(
+		(wishlistData?.pecas || []).map(p => p.id)
+	)
 
 	const handlePageChange = (page) => {
 		setCurrentPage(page)
@@ -78,109 +106,6 @@ export default function PecasAcessorios() {
 		setShowMobileFilters(false)
 	}
 
-	// Carregar categorias
-	useEffect(() => {
-		const fetchCategories = async () => {
-			try {
-				const response = await api.listCategoriasPecas({ limit: 50 })
-				if (response.success) {
-					setCategories(response.data || [])
-				}
-			} catch (error) {
-				console.error('Erro ao carregar categorias:', error)
-			}
-		}
-		fetchCategories()
-	}, [])
-
-	// Carregar peças inicialmente
-	useEffect(() => {
-		const fetchParts = async () => {
-			setLoading(true)
-			try {
-				const params = {
-					page: 1,
-					limit: itemsPerPage
-				}
-
-				const response = await api.listPecas(params)
-				if (response.success) {
-					setParts(response.data || [])
-					setPagination(response.pagination || {})
-				}
-			} catch (error) {
-				console.error('Erro ao carregar peças:', error)
-			} finally {
-				setLoading(false)
-			}
-		}
-		fetchParts()
-	}, [])
-
-	// Carregar peças com filtros aplicados
-	useEffect(() => {
-		const fetchParts = async () => {
-			setLoading(true)
-			try {
-				const params = {
-					page: currentPage,
-					limit: itemsPerPage
-				}
-
-				if (appliedSearchTerm) {
-					params.search = appliedSearchTerm
-				}
-
-				if (appliedCategory) {
-					params.categoria = appliedCategory
-				}
-
-				if (appliedProvincia) {
-					params.provincia = appliedProvincia
-				}
-
-				if (appliedFeaturedOnly) {
-					params.featured = 'true'
-				}
-
-				const response = await api.listPecas(params)
-				if (response.success) {
-					setParts(response.data || [])
-					setPagination(response.pagination || {})
-				}
-			} catch (error) {
-				console.error('Erro ao carregar peças:', error)
-			} finally {
-				setLoading(false)
-			}
-		}
-		fetchParts()
-	}, [currentPage, appliedSearchTerm, appliedCategory, appliedProvincia, appliedFeaturedOnly])
-
-	// Buscar favoritos do usuário quando autenticado
-	useEffect(() => {
-		const fetchFavorites = async () => {
-			if (!isAuthenticated) {
-				setFavorites(new Set())
-				return
-			}
-
-			try {
-				const response = await api.getWishlist()
-				if (response.success && response.data) {
-					const favoriteIds = new Set(
-						response.data.pecas?.map(p => p.id) || []
-					)
-					setFavorites(favoriteIds)
-				}
-			} catch (error) {
-				console.error('Erro ao buscar favoritos:', error)
-			}
-		}
-
-		fetchFavorites()
-	}, [isAuthenticated])
-
 	// Função para adicionar/remover favorito
 	const toggleFavorite = async (e, partId) => {
 		e.preventDefault()
@@ -191,30 +116,19 @@ export default function PecasAcessorios() {
 			return
 		}
 
-		// Evitar múltiplos cliques
-		if (loadingFavorites.has(partId)) return
-
-		setLoadingFavorites(prev => new Set(prev).add(partId))
-
 		try {
 			const isFavorite = favorites.has(partId)
 
 			if (isFavorite) {
-				const response = await api.removePecaFromWishlist(partId)
+				const response = await removeFavoriteMutation.mutateAsync(partId)
 				if (response.success) {
-					setFavorites(prev => {
-						const newSet = new Set(prev)
-						newSet.delete(partId)
-						return newSet
-					})
 					notyf.success('Removido dos favoritos')
 				} else {
 					notyf.error(response.message || 'Erro ao remover favorito')
 				}
 			} else {
-				const response = await api.addPecaToWishlist(partId)
+				const response = await addFavoriteMutation.mutateAsync(partId)
 				if (response.success) {
-					setFavorites(prev => new Set(prev).add(partId))
 					notyf.success('Adicionado aos favoritos')
 				} else {
 					notyf.error(response.message || 'Erro ao adicionar favorito')
@@ -223,12 +137,6 @@ export default function PecasAcessorios() {
 		} catch (error) {
 			console.error('Erro ao alternar favorito:', error)
 			notyf.error('Erro ao processar favorito')
-		} finally {
-			setLoadingFavorites(prev => {
-				const newSet = new Set(prev)
-				newSet.delete(partId)
-				return newSet
-			})
 		}
 	}
 
@@ -303,7 +211,7 @@ export default function PecasAcessorios() {
 							</select>
 						</div>
 
-						{loading ? (
+						{isLoading ? (
 							<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
 								<PecaCardSkeleton count={8} className="w-full" />
 							</div>
@@ -349,12 +257,11 @@ export default function PecasAcessorios() {
 													onClick={(e) => toggleFavorite(e, part.id)}
 													className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
 													aria-label={favorites.has(part.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-													disabled={loadingFavorites.has(part.id)}
 												>
 													<Heart
 														className={`w-4 h-4 transition-all duration-200 ${
 															favorites.has(part.id) ? 'fill-red-500 text-red-500' : 'text-gray-600 hover:text-red-500'
-														} ${loadingFavorites.has(part.id) ? 'opacity-50' : ''}`}
+														}`}
 													/>
 												</button>
 											)}

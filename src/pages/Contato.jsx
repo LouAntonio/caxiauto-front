@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import useDocumentTitle from '../hooks/useDocumentTitle';
-import api, { notyf } from '../services/api';
+import { notyf } from '../services/api';
 import {
 	Phone,
 	Mail,
@@ -12,6 +12,7 @@ import {
 	Instagram,
 	Linkedin
 } from 'lucide-react';
+import { useSendContact } from '../hooks/queries/useContact';
 
 export default function Contato() {
 	useDocumentTitle('Contactos - Caxiauto');
@@ -23,13 +24,13 @@ export default function Contato() {
 		assunto: '',
 		mensagem: ''
 	});
-	const [loading, setLoading] = useState(false);
+
+	const sendContactMutation = useSendContact()
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		setLoading(true);
 		try {
-			const response = await api.contact(formData);
+			const response = await sendContactMutation.mutateAsync(formData);
 			if (response.success) {
 				notyf.success(response.msg || 'Mensagem enviada com sucesso!');
 				setFormData({ nome: '', email: '', telefone: '', assunto: '', mensagem: '' });
@@ -39,8 +40,6 @@ export default function Contato() {
 		} catch (error) {
 			console.error('Erro ao enviar contacto:', error);
 			notyf.error('Erro ao enviar mensagem');
-		} finally {
-			setLoading(false);
 		}
 	};
 
@@ -211,8 +210,8 @@ export default function Contato() {
 										<textarea name="mensagem" value={formData.mensagem} onChange={handleChange} rows="4" required className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none transition-all  bg-gray-50  resize-none" placeholder="Como podemos ajudar?"></textarea>
 									</div>
 
-									<button type="submit" disabled={loading} className="w-full py-4 bg-[#154c9a] text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:bg-blue-800 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
-										{loading ? (
+									<button type="submit" disabled={sendContactMutation.isPending} className="w-full py-4 bg-[#154c9a] text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:bg-blue-800 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+										{sendContactMutation.isPending ? (
 											<>
 												<svg className="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 													<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

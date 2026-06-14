@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useAdmin } from '../../contexts/AdminContext';
 import api, { getImageUrl, notyf } from '../../services/api';
 import {
 	UserCheck,
@@ -25,15 +24,10 @@ import {
 import { AdminTableSkeleton, AdminFormSkeleton, AdminModalSkeleton } from '../../components/skeletons';
 import useLoadingState from '../../hooks/useLoadingState';
 import useDebounce from '../../hooks/useDebounce';
+import { useAdminPendingSellers, useAdminSellerDocs, useAdminVerifySeller } from '../../hooks/queries/useAdmin';
 
 const AdminSellers = () => {
-	const { getPendingSellers, getSellerDocs, verifySeller, adminGetSellerDetails } = useAdmin();
-	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState('pending');
-	const [pendingSellers, setPendingSellers] = useState([]);
-	const [allSellers, setAllSellers] = useState([]);
-	const [sellerDocs, setSellerDocs] = useState([]);
-	const [pendingCount, setPendingCount] = useState(0);
 	const [searchInput, setSearchInput] = useState('');
 	const debouncedSearch = useDebounce(searchInput, 300);
 	const [filters, setFilters] = useState({ search: '', isVerified: '' });
@@ -47,28 +41,18 @@ const AdminSellers = () => {
 	const [docsModal, setDocsModal] = useState({ open: false, seller: null, docs: null });
 	const [confirmModal, setConfirmModal] = useState({ open: false, sellerId: null, sellerName: '', action: 'verify' });
 
-	const loadPendingSellers = async () => {
-		setLoading(true);
-		try {
-			const response = await getPendingSellers({ page: pagination.currentPage, limit: 15 });
-			if (response.success) {
-				setPendingSellers(response.data);
-				setPagination(response.pagination);
-				setPendingCount(response.pagination.totalItems);
-			} else {
-				notyf.error(response.message || 'Erro ao carregar vendedores');
-			}
-		} catch (error) {
-			console.error('Erro:', error);
-		} finally {
-			setLoading(false);
-		}
-	};
+	const { data: pendingSellers, isLoading: isPendingLoading } = useAdminPendingSellers({ page: pagination.currentPage, limit: 15 });
+	const { data: sellerDocs, isLoading: isDocsLoading } = useAdminSellerDocs({ page: pagination.currentPage, limit: 20 });
+	const verifySellerMutation = useAdminVerifySeller();
+	const pendingCount = pendingSellers?.length || 0;
+
+	const [allSellers, setAllSellers] = useState([]);
+	const [loading, setLoading] = useState(false);
 
 	const loadAllSellers = async () => {
 		setLoading(true);
 		try {
-			const response = await api.listUsers({ page: pagination.currentPage, limit: 15, status: filters.search ? undefined : undefined });
+			const response = await api.listUsers({ page: pagination.currentPage, limit: 15 });
 			if (response.success) {
 				const sellers = response.data.filter(u => u.role === 'SELLER' || u.role === 'USER');
 				const filtered = sellers.filter(s => {
@@ -94,25 +78,8 @@ const AdminSellers = () => {
 		}
 	};
 
-	const loadSellerDocs = async () => {
-		setLoading(true);
-		try {
-			const response = await getSellerDocs({ page: pagination.currentPage, limit: 20 });
-			if (response.success) {
-				setSellerDocs(response.data);
-				setPagination(response.pagination);
-			}
-		} catch (error) {
-			console.error('Erro:', error);
-		} finally {
-			setLoading(false);
-		}
-	};
-
 	useEffect(() => {
-		if (activeTab === 'pending') loadPendingSellers();
-		else if (activeTab === 'all') loadAllSellers();
-		else loadSellerDocs();
+		if (activeTab === 'all') loadAllSellers();
 	}, [activeTab, pagination.currentPage]);
 
 	const handleSearch = (e) => {
@@ -141,22 +108,23 @@ const AdminSellers = () => {
 
 	const submitVerify = async () => {
 		const isVerified = confirmModal.action === 'verify';
-		await withLoading(async () => {
-			const response = await verifySeller(confirmModal.sellerId, isVerified);
+		try {
+			const response = await verifySellerMutation.mutateAsync({ sellerId: confirmModal.sellerId, isVerified });
 			if (response.success) {
 				notyf.success(isVerified ? 'Vendedor verificado! Email enviado.' : 'Verificação removida! Email enviado.');
 				setConfirmModal({ open: false, sellerId: null, sellerName: '', action: 'verify' });
-				if (activeTab === 'pending') loadPendingSellers();
-				else if (activeTab === 'all') loadAllSellers();
+				if (activeTab === 'all') loadAllSellers();
 			} else {
 				notyf.error(response.message || 'Erro ao verificar');
 			}
-		});
+		} catch (error) {
+			notyf.error('Erro ao verificar');
+		}
 	};
 
 	const handleViewDocs = async (seller) => {
 		await withLoading(async () => {
-			const response = await adminGetSellerDetails(seller.id || seller.sellerId);
+			const response = await api.adminGetSellerDetails(seller.id || seller.sellerId);
 			if (response.success) {
 				setDocsModal({ open: true, seller, docs: response.data.sellerDocs });
 			} else {
@@ -167,7 +135,7 @@ const AdminSellers = () => {
 
 	const handleViewDetails = async (sellerId) => {
 		await withLoading(async () => {
-			const response = await adminGetSellerDetails(sellerId);
+			const response = await api.adminGetSellerDetails(sellerId);
 			if (response.success) {
 				setDetailsModal({ open: true, seller: response.data });
 			} else {
@@ -284,7 +252,7 @@ const AdminSellers = () => {
 
 			{/* Conteúdo */}
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-				{loading ? (
+				{(activeTab === 'pending' ? isPendingLoading : activeTab === 'docs' ? isDocsLoading : loading) ? (
 					<AdminTableSkeleton rows={6} columns={5} />
 				) : activeTab === 'pending' ? (
 					pendingSellers.length === 0 ? (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import useAuthStore from '../stores/authStore';
 import { useNavigate } from 'react-router-dom';
 import {
 	Car,
@@ -22,7 +22,7 @@ import useDocumentTitle from '../hooks/useDocumentTitle';
 const MeusVeiculos = () => {
 	useDocumentTitle('Meus Veículos - CaxiAuto');
 
-	const { user } = useAuth();
+	const { user } = useAuthStore();
 	const navigate = useNavigate();
 	const [vehicles, setVehicles] = useState([]);
 	const [showModal, setShowModal] = useState(false);

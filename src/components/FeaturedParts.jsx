@@ -3,35 +3,15 @@ import { ChevronLeft, ChevronRight, Loader, Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import PecaCardSkeleton from './PecaCardSkeleton'
 import api, { getImageUrl, notyf } from '../services/api'
-import { useAuth } from '../contexts/AuthContext'
+import { useFeaturedPecas } from '../hooks/queries/usePecas'
+import useAuthStore from '../stores/authStore'
 
 export default function FeaturedParts() {
 	const railRef = useRef(null)
-	const [featuredParts, setFeaturedParts] = useState([])
-	const [loading, setLoading] = useState(true)
+	const { data: pecas, isLoading } = useFeaturedPecas()
 	const [favorites, setFavorites] = useState(new Set())
 	const [loadingFavorites, setLoadingFavorites] = useState(new Set())
-	const { isAuthenticated } = useAuth()
-
-	// Carregar peças em destaque
-	useEffect(() => {
-		const fetchFeaturedParts = async () => {
-			try {
-				const response = await api.listPecas({ 
-					destaque: true, 
-					limit: 10 
-				})
-				if (response.success) {
-					setFeaturedParts(response.data || [])
-				}
-			} catch (error) {
-				console.error('Erro ao carregar peças em destaque:', error)
-			} finally {
-				setLoading(false)
-			}
-		}
-		fetchFeaturedParts()
-	}, [])
+	const { isAuthenticated } = useAuthStore()
 
 	// Buscar favoritos do usuário quando autenticado
 	useEffect(() => {
@@ -116,7 +96,7 @@ export default function FeaturedParts() {
 	}
 
 	// Se estiver carregando ou não houver peças, não renderizar nada
-	if (loading) {
+	if (isLoading) {
 		return (
 			<section className="parts-section py-6">
 				<div className="max-w-7xl mx-auto px-4">
@@ -135,7 +115,7 @@ export default function FeaturedParts() {
 		)
 	}
 
-	if (featuredParts.length === 0) {
+	if (pecas.length === 0) {
 		return null
 	}
 
@@ -167,7 +147,7 @@ export default function FeaturedParts() {
 				</div>
 
 				<div ref={railRef} className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4">
-					{featuredParts.map((peca) => (
+					{pecas.map((peca) => (
 						<article key={peca.id} className="flex-shrink-0 w-64 bg-white rounded-2xl shadow-lg overflow-hidden group">
 							<div className="relative h-36 overflow-hidden">
 								<img
@@ -187,9 +167,9 @@ export default function FeaturedParts() {
 									>
 										<Heart
 											className={`w-5 h-5 transition-all duration-200 ${favorites.has(peca.id)
-													? 'fill-red-500 text-red-500'
-													: 'text-gray-600 hover:text-red-500'
-												} ${loadingFavorites.has(peca.id) ? 'opacity-50' : ''}`}
+												? 'fill-red-500 text-red-500'
+												: 'text-gray-600 hover:text-red-500'
+											} ${loadingFavorites.has(peca.id) ? 'opacity-50' : ''}`}
 										/>
 									</button>
 								)}

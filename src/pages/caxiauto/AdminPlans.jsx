@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useAdmin } from '../../contexts/AdminContext';
+import React, { useState } from 'react';
 import { CreditCard, Plus, Pencil, Trash2, Loader2, X, Image as ImageIcon } from 'lucide-react';
 import { notyf } from '../../services/api';
 import api from '../../services/api';
+import axios from 'axios';
+import { useAdminPlans, useAdminCreatePlan, useAdminUpdatePlan, useAdminDeletePlan } from '../../hooks/queries/useAdmin';
 
 const AdminPlans = () => {
-	const { adminListPlans, adminCreatePlan, adminUpdatePlan, adminDeletePlan } = useAdmin();
-	const [loading, setLoading] = useState(true);
-	const [plans, setPlans] = useState([]);
 	const [showModal, setShowModal] = useState(false);
 	const [editingPlan, setEditingPlan] = useState(null);
 	const [submitting, setSubmitting] = useState(false);
@@ -40,35 +38,14 @@ const AdminPlans = () => {
 		formDataUpload.append('signature', signature);
 		formDataUpload.append('folder', folder);
 
-		const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, {
-			method: 'POST',
-			body: formDataUpload
-		});
-
-		if (!uploadResponse.ok) {
-			const errorData = await uploadResponse.json();
-			throw new Error(errorData.error?.message || 'Erro no upload para Cloudinary');
-		}
-
-		const data = await uploadResponse.json();
-		return data.secure_url;
+		const { data: uploadData } = await axios.post(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, formDataUpload);
+		return uploadData.secure_url;
 	};
 
-	const loadPlans = async () => {
-		setLoading(true);
-		try {
-			const response = await adminListPlans();
-			if (response.success) setPlans(response.data);
-		} catch (error) {
-			console.error('Erro ao carregar planos:', error);
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		loadPlans();
-	}, []);
+	const { data: plans, isLoading: loading } = useAdminPlans();
+	const createPlanMutation = useAdminCreatePlan();
+	const updatePlanMutation = useAdminUpdatePlan();
+	const deletePlanMutation = useAdminDeletePlan();
 
 	const handleOpenCreate = () => {
 		setEditingPlan(null);
@@ -152,9 +129,9 @@ const AdminPlans = () => {
 
 			let response;
 			if (editingPlan) {
-				response = await adminUpdatePlan(editingPlan.id, payload);
+				response = await updatePlanMutation.mutateAsync({ id: editingPlan.id, data: payload });
 			} else {
-				response = await adminCreatePlan(payload);
+				response = await createPlanMutation.mutateAsync(payload);
 			}
 
 			if (response.success) {
@@ -165,7 +142,6 @@ const AdminPlans = () => {
 				setBenefitsInput('');
 				setBannerFile(null);
 				setBannerPreview('');
-				loadPlans();
 			} else {
 				notyf.error(response.message || 'Erro ao salvar plano');
 			}
@@ -180,10 +156,9 @@ const AdminPlans = () => {
 		if (!window.confirm('Tem certeza que deseja remover este plano?')) return;
 
 		try {
-			const response = await adminDeletePlan(id);
+			const response = await deletePlanMutation.mutateAsync(id);
 			if (response.success) {
 				notyf.success('Plano removido com sucesso!');
-				loadPlans();
 			} else {
 				notyf.error(response.message || 'Erro ao remover plano');
 			}

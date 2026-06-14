@@ -1,46 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import api, { notyf } from '../../services/api';
-import { handleAdminAuthError } from '../../utils/adminUtils';
+import React, { useState } from 'react';
+import { notyf } from '../../services/api';
 import { FolderTree, Search, Edit2, Trash2, Loader2, Plus, X } from 'lucide-react';
+import { useCategorias, useCreateCategoria, useUpdateCategoria, useDeleteCategoria } from '../../hooks/queries/useAdmin';
 
 const AdminCategorias = () => {
-	const [loading, setLoading] = useState(true);
-	const [categorias, setCategorias] = useState([]);
 	const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, total: 0 });
 	const [search, setSearch] = useState('');
 	const [showModal, setShowModal] = useState(false);
 	const [editingCategory, setEditingCategory] = useState(null);
 	const [formData, setFormData] = useState({ name: '' });
 
-	const loadCategorias = async () => {
-		setLoading(true);
-		try {
-			const params = new URLSearchParams({ page: pagination.currentPage, limit: 20 });
-			if (search.trim()) params.append('search', search.trim());
-			const response = await api.listCategorias(Object.fromEntries(params));
-			if (response.success) {
-				setCategorias(response.data);
-				setPagination({
-					currentPage: response.pagination.currentPage,
-					totalPages: response.pagination.totalPages,
-					total: response.pagination.totalItems,
-				});
-			} else if (handleAdminAuthError(response)) {
-				return;
-			} else {
-				notyf.error(response.msg || 'Erro ao carregar categorias');
-			}
-		} catch (error) {
-			console.error('Erro ao carregar categorias:', error);
-			notyf.error('Erro ao carregar categorias');
-		} finally {
-			setLoading(false);
-		}
-	};
+	const createCategoriaMutation = useCreateCategoria();
+	const updateCategoriaMutation = useUpdateCategoria();
+	const deleteCategoriaMutation = useDeleteCategoria();
 
-	useEffect(() => {
-		loadCategorias();
-	}, [pagination.currentPage]);
+	const params = { page: pagination.currentPage, limit: 20 };
+	if (search.trim()) params.search = search.trim();
+	const { data: categorias, isLoading: loading } = useCategorias(params);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -51,18 +27,15 @@ const AdminCategorias = () => {
 		try {
 			let response;
 			if (editingCategory) {
-				response = await api.updateCategoria(editingCategory.id, formData.name);
+				response = await updateCategoriaMutation.mutateAsync({ id: editingCategory.id, name: formData.name });
 			} else {
-				response = await api.createCategoria(formData.name);
+				response = await createCategoriaMutation.mutateAsync(formData.name);
 			}
 			if (response.success) {
 				notyf.success(editingCategory ? 'Categoria atualizada!' : 'Categoria criada!');
 				setShowModal(false);
 				setFormData({ name: '' });
 				setEditingCategory(null);
-				loadCategorias();
-			} else if (handleAdminAuthError(response)) {
-				return;
 			} else {
 				notyf.error(response.msg || 'Erro ao salvar categoria');
 			}
@@ -80,12 +53,9 @@ const AdminCategorias = () => {
 	const handleDelete = async (id) => {
 		if (!window.confirm('Tem certeza que deseja eliminar esta categoria?')) return;
 		try {
-			const response = await api.deleteCategoria(id);
+			const response = await deleteCategoriaMutation.mutateAsync(id);
 			if (response.success) {
 				notyf.success('Categoria eliminada!');
-				loadCategorias();
-			} else if (handleAdminAuthError(response)) {
-				return;
 			} else {
 				notyf.error(response.msg || 'Erro ao eliminar categoria');
 			}
@@ -103,26 +73,11 @@ const AdminCategorias = () => {
 	const handleSearch = (e) => {
 		e.preventDefault();
 		setPagination({ ...pagination, currentPage: 1 });
-		loadCategorias();
 	};
 
 	const handleClearSearch = () => {
 		setSearch('');
 		setPagination({ ...pagination, currentPage: 1 });
-		// Recarregar sem pesquisa após limpar
-		setTimeout(() => {
-			setLoading(true);
-			api.listCategorias({ page: 1, limit: 20 }).then(response => {
-				if (response.success) {
-					setCategorias(response.data);
-					setPagination({
-						currentPage: response.pagination.currentPage,
-						totalPages: response.pagination.totalPages,
-						total: response.pagination.totalItems,
-					});
-				}
-			}).catch(err => console.error('Erro:', err)).finally(() => setLoading(false));
-		}, 0);
 	};
 
 	return (

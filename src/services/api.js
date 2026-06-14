@@ -1,628 +1,283 @@
-import { Notyf } from 'notyf';
-import 'notyf/notyf.min.css';
+import axiosInstance, { API_URL, getImageUrl, notyf } from './axios';
 
-// Instância do Notyf para notificações
-const notyf = new Notyf({
-	duration: 4000,
-	position: { x: 'right', y: 'top' },
-	dismissible: true,
-	ripple: true,
-});
-
-// URL da API (Vite expõe variáveis via import.meta.env)
-const API_URL = import.meta.env.VITE_API_URL;
-
-/**
- * Constrói URL completa para imagens de veículos
- * @param {string|null} imagePath - Caminho da imagem (ex: "/uploads/veiculos/image.jpg")
- * @param {string} fallback - Imagem padrão a ser usada se não houver imagem
- * @returns {string} - URL completa da imagem
- */
-const getImageUrl = (imagePath, fallback = '/images/i10.jpg') => {
-	if (!imagePath) return fallback;
-	if (imagePath.startsWith('http')) return imagePath;
-	// Remove barra inicial para evitar barras duplas na URL final
-	const cleanPath = imagePath.replace(/^\//, '');
-	return `${API_URL}/${cleanPath}`;
-};
-
-/**
- * Faz logout do usuário limpando o localStorage e redirecionando para login
- */
-const handleSessionExpired = () => {
-	// Limpar dados do localStorage
-	localStorage.removeItem('caxiauto_user');
-	localStorage.removeItem('caxiauto_token');
-	localStorage.removeItem('caxiauto_admin_token');
-
-	// Mostrar notificação
-	notyf.error('Sua sessão expirou. Por favor, faça login novamente.');
-
-	// Redirecionar para página de login
-	setTimeout(() => {
-		window.location.href = '/auth';
-	}, 500);
-};
-
-/**
- * Função principal para fazer requisições HTTP
- * @param {string} endpoint - Endpoint da API (ex: '/users/profile')
- * @param {object} options - Opções do fetch (method, body, headers, etc.)
- * @param {boolean} isAdmin - Se true, usa token de admin
- * @returns {Promise<object>} - Resposta da API
- */
-const apiRequest = async (endpoint, options = {}, isAdmin = false) => {
-	try {
-		// Configurar headers padrão
-		const headers = {
-			...options.headers,
-		};
-
-		// Adicionar Content-Type apenas se não for FormData
-		if (!(options.body instanceof FormData) && !headers['Content-Type']) {
-			headers['Content-Type'] = 'application/json';
-		}
-
-		// Adicionar token de autorização (admin ou usuário)
-		const token = isAdmin 
-			? localStorage.getItem('caxiauto_admin_token') 
-			: localStorage.getItem('caxiauto_token');
-		
-		if (token) {
-			headers['Authorization'] = `Bearer ${token}`;
-		}
-
-		// Fazer a requisição
-		const response = await fetch(`${API_URL}${endpoint}`, {
-			...options,
-			headers,
-		});
-
-		// Verificar se há um token renovado no header
-		const renewedToken = response.headers.get('x-renewed-token');
-		if (renewedToken) {
-			if (isAdmin) {
-				localStorage.setItem('caxiauto_admin_token', renewedToken);
-			} else {
-				localStorage.setItem('caxiauto_token', renewedToken);
-			}
-		}
-
-		// Tentar parsear a resposta como JSON
-		let data;
-		try {
-			data = await response.json();
-		} catch (error) {
-			// Se não for JSON, retornar um objeto de erro
-			throw new Error('Erro ao processar resposta do servidor');
-		}
-
-		// Verificar se é um erro de autenticação (sessão expirada)
-		if (data.success === false && data.auth === true) {
-			handleSessionExpired();
-			// Retornar um erro para evitar processamento adicional
-			throw new Error('Sessão expirada');
-		}
-
-		// Retornar os dados
-		return data;
-	} catch (error) {
-		// Se for erro de sessão expirada, apenas propagar
-		if (error.message === 'Sessão expirada') {
-			throw error;
-		}
-
-		// Para outros erros, retornar objeto padronizado
-		console.error('Erro na requisição:', error);
-		return {
-			success: false,
-			msg: error.message || 'Erro ao comunicar com o servidor',
-		};
-	}
-};
-
-/**
- * Métodos HTTP convenientes
- */
 const api = {
-	// ==================== MÉTODOS HTTP BÁSICOS ====================
 	get: (endpoint, options = {}, isAdmin = false) => {
-		return apiRequest(endpoint, { method: 'GET', ...options }, isAdmin);
+		const config = { ...options, params: options.params };
+		if (isAdmin) config._isAdmin = true;
+		return axiosInstance.get(endpoint, config);
 	},
 
 	post: (endpoint, data = {}, options = {}, isAdmin = false) => {
-		return apiRequest(endpoint, { method: 'POST', body: JSON.stringify(data), ...options }, isAdmin);
+		const config = { ...options };
+		config._isAdmin = isAdmin;
+		if (!(data instanceof FormData)) {
+			config.headers = { ...config.headers, 'Content-Type': 'application/json' };
+		}
+		return axiosInstance.post(endpoint, data, config);
 	},
 
 	put: (endpoint, data = {}, options = {}, isAdmin = false) => {
-		return apiRequest(endpoint, { method: 'PUT', body: JSON.stringify(data), ...options }, isAdmin);
+		const config = { ...options, _isAdmin: isAdmin };
+		return axiosInstance.put(endpoint, data, config);
 	},
 
 	patch: (endpoint, data = {}, options = {}, isAdmin = false) => {
-		return apiRequest(endpoint, { method: 'PATCH', body: JSON.stringify(data), ...options }, isAdmin);
+		const config = { ...options, _isAdmin: isAdmin };
+		return axiosInstance.patch(endpoint, data, config);
 	},
 
 	delete: (endpoint, options = {}, isAdmin = false) => {
-		return apiRequest(endpoint, { method: 'DELETE', ...options }, isAdmin);
+		const config = { ...options, _isAdmin: isAdmin };
+		return axiosInstance.delete(endpoint, config);
 	},
 
 	upload: (endpoint, formData, options = {}, isAdmin = false) => {
-		return apiRequest(endpoint, { method: 'POST', body: formData, ...options }, isAdmin);
+		const config = { ...options, _isAdmin: isAdmin };
+		config.headers = { ...config.headers, 'Content-Type': 'multipart/form-data' };
+		return axiosInstance.post(endpoint, formData, config);
 	},
 
 	// ==================== AUTENTICAÇÃO DE USUÁRIO ====================
-	checkEmail: (email) => {
-		return api.post('/users/check-email', { email });
-	},
+	checkEmail: (email) => api.post('/users/check-email', { email }),
 
-	verifyOTP: (email, code) => {
-		return api.post('/users/verify-otp', { email, code });
-	},
+	verifyOTP: (email, code) => api.post('/users/verify-otp', { email, code }),
 
-	resendOTP: (email) => {
-		return api.post('/users/resend-otp', { email });
-	},
+	resendOTP: (email) => api.post('/users/resend-otp', { email }),
 
-	completeRegistration: (userData) => {
-		return api.post('/users/complete-registration', userData);
-	},
+	completeRegistration: (userData) => api.post('/users/complete-registration', userData),
 
-	login: (email, password) => {
-		return api.post('/users/login', { email, password });
-	},
+	login: (email, password) => api.post('/users/login', { email, password }),
 
-	adminLogin: (email, password) => {
-		return apiRequest('/users/admin/login', {
-			method: 'POST',
-			body: JSON.stringify({ email, password }),
-		}, true);
-	},
+	adminLogin: (email, password) => api.post('/users/admin/login', { email, password }, {}, true),
 
-	isLoggedIn: () => {
-		return api.get('/users/is-logged-in');
-	},
+	isLoggedIn: () => api.get('/users/is-logged-in'),
 
-	getProfile: () => {
-		return api.get('/users/profile');
-	},
+	getProfile: () => api.get('/users/profile'),
 
-	updateProfile: (data) => {
-		return api.put('/users/profile', data);
-	},
+	updateProfile: (data) => api.put('/users/profile', data),
 
-	updateSellerDocs: (data) => {
-		return api.put('/users/seller-docs', data);
-	},
+	updateSellerDocs: (data) => api.put('/users/seller-docs', data),
 
-	requestPasswordReset: (email) => {
-		return api.post('/users/request-password-reset', { email });
-	},
+	requestPasswordReset: (email) => api.post('/users/request-password-reset', { email }),
 
-	resetPassword: (email, token, newPassword) => {
-		return api.post('/users/reset-password', { email, token, newPassword });
-	},
+	resetPassword: (email, token, newPassword) => api.post('/users/reset-password', { email, token, newPassword }),
 
 	// ==================== USUÁRIOS (ADMIN) ====================
-	listUsers: (params = {}) => {
-		return api.post('/users/list', params, {}, true);
-	},
+	listUsers: (params = {}) => api.post('/users/list', params, {}, true),
 
-	updateUserRole: (userId, role) => {
-		return api.patch('/users/update-role', { userId, role }, {}, true);
-	},
+	updateUserRole: (userId, role) => api.patch('/users/update-role', { userId, role }, {}, true),
 
-	toggleUserStatus: (userId, status, reason) => {
-		return api.patch('/users/toggle-status', { userId, status, reason }, {}, true);
-	},
+	toggleUserStatus: (userId, status, reason) => api.patch('/users/toggle-status', { userId, status, reason }, {}, true),
 
-	adminGetUserDetails: (id) => {
-		return api.get(`/users/admin/${id}/details`, {}, true);
-	},
+	adminGetUserDetails: (id) => api.get(`/users/admin/${id}/details`, {}, true),
 
-	adminVerifyUser: (userId, isVerified) => {
-		return api.put(`/users/admin/${userId}/verify`, { isVerified }, {}, true);
-	},
+	adminVerifyUser: (userId, isVerified) => api.put(`/users/admin/${userId}/verify`, { isVerified }, {}, true),
 
-	adminResetUserPassword: (userId) => {
-		return api.post(`/users/admin/${userId}/reset-password`, {}, {}, true);
-	},
+	adminResetUserPassword: (userId) => api.post(`/users/admin/${userId}/reset-password`, {}, {}, true),
 
 	// ==================== VEÍCULOS ====================
 	listVehicles: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/vehicles?${queryString}`, {}, true);
+		return api.get('/vehicles', { params }, true);
 	},
 
-	getVehicle: (id) => {
-		return api.get(`/vehicles/${id}`, {}, true);
-	},
+	getVehicle: (id) => api.get(`/vehicles/${id}`, {}, true),
 
-	createVehicle: (data) => {
-		return api.post('/vehicles', data);
-	},
+	createVehicle: (data) => api.post('/vehicles', data),
 
-	updateVehicle: (id, data) => {
-		return api.put(`/vehicles/${id}`, data);
-	},
+	updateVehicle: (id, data) => api.put(`/vehicles/${id}`, data),
 
-	deleteVehicle: (id) => {
-		return api.delete(`/vehicles/${id}`, {}, true);
-	},
+	deleteVehicle: (id) => api.delete(`/vehicles/${id}`, {}, true),
 
-	toggleVehicleStatus: (id, status) => {
-		return api.put(`/vehicles/${id}/status`, { status }, {}, true);
-	},
+	toggleVehicleStatus: (id, status) => api.put(`/vehicles/${id}/status`, { status }, {}, true),
 
-	toggleVehicleFeatured: (id, featuredUntil = null) => {
-		return api.put(`/vehicles/${id}/featured`, { featuredUntil }, {}, true);
-	},
+	toggleVehicleFeatured: (id, featuredUntil = null) => api.put(`/vehicles/${id}/featured`, { featuredUntil }, {}, true),
 
-	myVehicles: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/vehicles/my?${queryString}`);
-	},
+	myVehicles: (params = {}) => api.get('/vehicles/my', { params }),
 
-	listFeaturedVehicles: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/vehicles/featured?${queryString}`);
-	},
+	listFeaturedVehicles: (params = {}) => api.get('/vehicles/featured', { params }),
 
 	// ==================== VEÍCULOS (ADMIN) ====================
-	adminListPendingVehicles: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/vehicles/admin/pending?${queryString}`, {}, true);
-	},
+	adminListPendingVehicles: (params = {}) => api.get('/vehicles/admin/pending', { params }, true),
 
-	adminGetVehicleDetails: (id) => {
-		return api.get(`/vehicles/admin/${id}/details`, {}, true);
-	},
+	adminGetVehicleDetails: (id) => api.get(`/vehicles/admin/${id}/details`, {}, true),
 
-	adminApproveVehicle: (id) => {
-		return api.put(`/vehicles/admin/${id}/approve`, {}, {}, true);
-	},
+	adminApproveVehicle: (id) => api.put(`/vehicles/admin/${id}/approve`, {}, {}, true),
 
-	adminRejectVehicle: (id, reason) => {
-		return api.put(`/vehicles/admin/${id}/reject`, { reason }, {}, true);
-	},
+	adminRejectVehicle: (id, reason) => api.put(`/vehicles/admin/${id}/reject`, { reason }, {}, true),
 
-	adminSetVehicleFeatured: (id, featuredUntil) => {
-		return api.put(`/vehicles/admin/${id}/featured`, { featuredUntil }, {}, true);
-	},
+	adminSetVehicleFeatured: (id, featuredUntil) => api.put(`/vehicles/admin/${id}/featured`, { featuredUntil }, {}, true),
 
-	adminRemoveVehicleFeatured: (id) => {
-		return api.delete(`/vehicles/admin/${id}/featured`, {}, true);
-	},
+	adminRemoveVehicleFeatured: (id) => api.delete(`/vehicles/admin/${id}/featured`, {}, true),
 
-	adminDeleteVehicle: (id) => {
-		return api.delete(`/vehicles/admin/${id}`, {}, true);
-	},
+	adminDeleteVehicle: (id) => api.delete(`/vehicles/admin/${id}`, {}, true),
 
 	// ==================== FABRICANTES E CLASSES ====================
-	getManufacturers: () => {
-		return api.get('/vehicles/manufacturers');
-	},
+	getManufacturers: () => api.get('/vehicles/manufacturers'),
 
-	getClasses: () => {
-		return api.get('/vehicles/classes');
-	},
+	getClasses: () => api.get('/vehicles/classes'),
 
 	// ==================== PEÇAS ====================
-	listPecas: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/pecas?${queryString}`, {}, true);
-	},
+	listPecas: (params = {}) => api.get('/pecas', { params }, true),
 
-	getPeca: (id) => {
-		return api.get(`/pecas/${id}`, {}, true);
-	},
+	getPeca: (id) => api.get(`/pecas/${id}`, {}, true),
 
-	createPeca: (data) => {
-		return api.post('/pecas', data);
-	},
+	createPeca: (data) => api.post('/pecas', data),
 
-	updatePeca: (id, data) => {
-		return api.put(`/pecas/${id}`, data);
-	},
+	updatePeca: (id, data) => api.put(`/pecas/${id}`, data),
 
-	deletePeca: (id) => {
-		return api.delete(`/pecas/${id}`, {}, true);
-	},
+	deletePeca: (id) => api.delete(`/pecas/${id}`, {}, true),
 
-	togglePecaStatus: (id, status) => {
-		return api.put(`/pecas/${id}/toggle-status`, status ? { status } : {});
-	},
+	togglePecaStatus: (id, status) => api.put(`/pecas/${id}/toggle-status`, status ? { status } : {}),
 
-	togglePecaFeatured: (id, featuredUntil = null) => {
-		return api.put(`/pecas/${id}/toggle-featured`, { featuredUntil });
-	},
+	togglePecaFeatured: (id, featuredUntil = null) => api.put(`/pecas/${id}/toggle-featured`, { featuredUntil }),
 
-	minhasPecas: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/pecas/my-parts?${queryString}`);
-	},
+	minhasPecas: (params = {}) => api.get('/pecas/my-parts', { params }),
 
-	listFeaturedPecas: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/pecas/featured?${queryString}`);
-	},
+	listFeaturedPecas: (params = {}) => api.get('/pecas/featured', { params }),
 
 	// ==================== PEÇAS (ADMIN) ====================
-	adminListPendingPecas: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/pecas/admin/pending?${queryString}`, {}, true);
-	},
+	adminListPendingPecas: (params = {}) => api.get('/pecas/admin/pending', { params }, true),
 
-	adminGetPecaDetails: (id) => {
-		return api.get(`/pecas/admin/${id}/details`, {}, true);
-	},
+	adminGetPecaDetails: (id) => api.get(`/pecas/admin/${id}/details`, {}, true),
 
-	adminApprovePeca: (id) => {
-		return api.put(`/pecas/admin/${id}/approve`, {}, {}, true);
-	},
+	adminApprovePeca: (id) => api.put(`/pecas/admin/${id}/approve`, {}, {}, true),
 
-	adminRejectPeca: (id, reason) => {
-		return api.put(`/pecas/admin/${id}/reject`, { reason }, {}, true);
-	},
+	adminRejectPeca: (id, reason) => api.put(`/pecas/admin/${id}/reject`, { reason }, {}, true),
 
-	adminSetPecaFeatured: (id, featuredUntil) => {
-		return api.put(`/pecas/admin/${id}/featured`, { featuredUntil }, {}, true);
-	},
+	adminSetPecaFeatured: (id, featuredUntil) => api.put(`/pecas/admin/${id}/featured`, { featuredUntil }, {}, true),
 
-	adminRemovePecaFeatured: (id) => {
-		return api.delete(`/pecas/admin/${id}/featured`, {}, true);
-	},
+	adminRemovePecaFeatured: (id) => api.delete(`/pecas/admin/${id}/featured`, {}, true),
 
-	adminDeletePeca: (id) => {
-		return api.delete(`/pecas/admin/${id}`, {}, true);
-	},
+	adminDeletePeca: (id) => api.delete(`/pecas/admin/${id}`, {}, true),
 
 	// ==================== CATEGORIAS DE PEÇAS ====================
-	listCategorias: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/categorias?${queryString}`, {}, true);
-	},
+	listCategorias: (params = {}) => api.get('/categorias', { params }, true),
 
-	getCategoria: (id) => {
-		return api.get(`/categorias/${id}`, {}, true);
-	},
+	getCategoria: (id) => api.get(`/categorias/${id}`, {}, true),
 
-	createCategoria: (name) => {
-		return api.post('/categorias', { name }, {}, true);
-	},
+	createCategoria: (name) => api.post('/categorias', { name }, {}, true),
 
-	updateCategoria: (id, name) => {
-		return api.put(`/categorias/${id}`, { name }, {}, true);
-	},
+	updateCategoria: (id, name) => api.put(`/categorias/${id}`, { name }, {}, true),
 
-	deleteCategoria: (id) => {
-		return api.delete(`/categorias/${id}`, {}, true);
-	},
+	deleteCategoria: (id) => api.delete(`/categorias/${id}`, {}, true),
 
-	// ==================== WISHLIST (SUBSTITUI FAVORITOS) ====================
-	getWishlist: () => {
-		return api.get('/wishlist');
-	},
+	// ==================== WISHLIST ====================
+	getWishlist: () => api.get('/wishlist'),
 
-	addVehicleToWishlist: (vehicleId) => {
-		return api.post(`/wishlist/vehicles/${vehicleId}`);
-	},
+	addVehicleToWishlist: (vehicleId) => api.post(`/wishlist/vehicles/${vehicleId}`),
 
-	removeVehicleFromWishlist: (vehicleId) => {
-		return api.delete(`/wishlist/vehicles/${vehicleId}`);
-	},
+	removeVehicleFromWishlist: (vehicleId) => api.delete(`/wishlist/vehicles/${vehicleId}`),
 
-	addPecaToWishlist: (pecaId) => {
-		return api.post(`/wishlist/pecas/${pecaId}`);
-	},
+	addPecaToWishlist: (pecaId) => api.post(`/wishlist/pecas/${pecaId}`),
 
-	removePecaFromWishlist: (pecaId) => {
-		return api.delete(`/wishlist/pecas/${pecaId}`);
-	},
+	removePecaFromWishlist: (pecaId) => api.delete(`/wishlist/pecas/${pecaId}`),
 
-	checkIfInWishlist: (type, id) => {
-		return api.get(`/wishlist/check?type=${type}&id=${id}`);
-	},
+	checkIfInWishlist: (type, id) => api.get(`/wishlist/check?type=${type}&id=${id}`),
 
 	// ==================== RESERVAS (BOOKINGS) ====================
-	createBooking: (vehicleId, startDate, endDate) => {
-		return api.post('/bookings', { vehicleId, startDate, endDate });
-	},
+	createBooking: (vehicleId, startDate, endDate) => api.post('/bookings', { vehicleId, startDate, endDate }),
 
-	getMyBookings: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/bookings/my?${queryString}`);
-	},
+	getMyBookings: (params = {}) => api.get('/bookings/my', { params }),
 
-	getBookingsByVehicle: (vehicleId, params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/bookings/vehicle/${vehicleId}?${queryString}`);
-	},
+	getBookingsByVehicle: (vehicleId, params = {}) => api.get(`/bookings/vehicle/${vehicleId}`, { params }),
 
-	getBooking: (id) => {
-		return api.get(`/bookings/${id}`);
-	},
+	getBooking: (id) => api.get(`/bookings/${id}`),
 
-	updateBookingStatus: (id, status) => {
-		return api.put(`/bookings/${id}/status`, { status });
-	},
+	updateBookingStatus: (id, status) => api.put(`/bookings/${id}/status`, { status }),
 
-	cancelBooking: (id) => {
-		return api.delete(`/bookings/${id}`);
-	},
+	cancelBooking: (id) => api.delete(`/bookings/${id}`),
 
 	// ==================== AVALIAÇÕES (REVIEWS) ====================
-	createReview: (sellerId, rating, comment = null) => {
-		return api.post('/reviews', { sellerId, rating, comment });
-	},
+	createReview: (sellerId, rating, comment = null) => api.post('/reviews', { sellerId, rating, comment }),
 
-	getReviewsBySeller: (sellerId, params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/reviews/seller/${sellerId}?${queryString}`);
-	},
+	getReviewsBySeller: (sellerId, params = {}) => api.get(`/reviews/seller/${sellerId}`, { params }),
 
-	getMyReviews: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/reviews/my-reviews?${queryString}`);
-	},
+	getMyReviews: (params = {}) => api.get('/reviews/my-reviews', { params }),
 
-	getReviewSummary: (sellerId) => {
-		return api.get(`/reviews/seller/${sellerId}/summary`);
-	},
+	getReviewSummary: (sellerId) => api.get(`/reviews/seller/${sellerId}/summary`),
 
-	deleteReview: (id) => {
-		return api.delete(`/reviews/${id}`, {}, true);
-	},
+	deleteReview: (id) => api.delete(`/reviews/${id}`, {}, true),
 
 	// ==================== DENÚNCIAS (REPORTS) ====================
 	createReport: (reason, description, { reportedUserId, vehicleId, pecaId } = {}) => {
 		return api.post('/reports', { reason, description, reportedUserId, vehicleId, pecaId });
 	},
 
-	getMyReports: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/reports/my-reports?${queryString}`);
-	},
+	getMyReports: (params = {}) => api.get('/reports/my-reports', { params }),
 
-	getAllReports: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/reports?${queryString}`, {}, true);
-	},
+	getAllReports: (params = {}) => api.get('/reports', { params }, true),
 
-	getReport: (id) => {
-		return api.get(`/reports/${id}`, {}, true);
-	},
+	getReport: (id) => api.get(`/reports/${id}`, {}, true),
 
-	updateReportStatus: (id, status) => {
-		return api.put(`/reports/${id}/status`, { status }, {}, true);
-	},
+	updateReportStatus: (id, status) => api.put(`/reports/${id}/status`, { status }, {}, true),
 
-	deleteReport: (id) => {
-		return api.delete(`/reports/${id}`, {}, true);
-	},
+	deleteReport: (id) => api.delete(`/reports/${id}`, {}, true),
 
 	// ==================== ASSINATURAS E PLANOS ====================
-	listPlans: () => {
-		return api.get('/subscriptions/plans');
-	},
+	listPlans: () => api.get('/subscriptions/plans'),
 
-	listHighlightPackages: () => {
-		return api.get('/subscriptions/highlight-packages');
-	},
+	listHighlightPackages: () => api.get('/subscriptions/highlight-packages'),
 
-	subscribePlan: (planId) => {
-		return api.post('/subscriptions', { planId });
-	},
+	subscribePlan: (planId) => api.post('/subscriptions', { planId }),
 
-	getMySubscription: () => {
-		return api.get('/subscriptions');
-	},
+	getMySubscription: () => api.get('/subscriptions'),
 
-	cancelSubscription: () => {
-		return api.post('/subscriptions/cancel');
-	},
+	cancelSubscription: () => api.post('/subscriptions/cancel'),
 
-	buyHighlightPackage: (packageId) => {
-		return api.post('/subscriptions/highlights/purchase', { packageId });
-	},
+	buyHighlightPackage: (packageId) => api.post('/subscriptions/highlights/purchase', { packageId }),
 
 	applyVehicleHighlight: (vehicleId, daysDuration = 7) => {
 		return api.post(`/subscriptions/highlights/apply/${vehicleId}`, { daysDuration });
 	},
 
 	// ==================== VISUALIZAÇÕES (VIEWS) ====================
-	addView: (type, id) => {
-		return api.post(`/views/${type}/${id}`);
-	},
+	addView: (type, id) => api.post(`/views/${type}/${id}`),
 
-	getTotalViews: () => {
-		return api.get('/views/user/total');
-	},
+	getTotalViews: () => api.get('/views/user/total'),
 
-	getTotalViewsToday: () => {
-		return api.get('/views/user/today');
-	},
+	getTotalViewsToday: () => api.get('/views/user/today'),
 
-	getMostViewed: () => {
-		return api.get('/views/user/most-viewed');
-	},
+	getMostViewed: () => api.get('/views/user/most-viewed'),
 
-	// ==================== CLOUDINARY (UPLOAD) ====================
-	getCloudinarySignature: (folder) => {
-		return api.get(`/cloudinary/authorize-upload?folder=${folder}`);
-	},
+	// ==================== CLOUDINARY ====================
+	getCloudinarySignature: (folder) => api.get(`/cloudinary/authorize-upload?folder=${folder}`),
 
-	deleteCloudinaryResource: (publicId) => {
-		return api.post('/cloudinary/delete', { publicId });
-	},
+	deleteCloudinaryResource: (publicId) => api.post('/cloudinary/delete', { publicId }),
 
 	// ==================== ADMIN - DASHBOARD ====================
-	getDashboardStats: () => {
-		return api.get('/admin/dashboard/stats', {}, true);
-	},
+	getDashboardStats: () => api.get('/admin/dashboard/stats', {}, true),
 
-	getRecentVehicles: (limit = 5) => {
-		return api.get(`/admin/dashboard/recent-vehicles?limit=${limit}`, {}, true);
-	},
+	getRecentVehicles: (limit = 5) => api.get(`/admin/dashboard/recent-vehicles?limit=${limit}`, {}, true),
 
-	getRecentPecas: (limit = 5) => {
-		return api.get(`/admin/dashboard/recent-pecas?limit=${limit}`, {}, true);
-	},
+	getRecentPecas: (limit = 5) => api.get(`/admin/dashboard/recent-pecas?limit=${limit}`, {}, true),
 
-	getRecentUsers: (limit = 5) => {
-		return api.get(`/admin/dashboard/recent-users?limit=${limit}`, {}, true);
-	},
+	getRecentUsers: (limit = 5) => api.get(`/admin/dashboard/recent-users?limit=${limit}`, {}, true),
 
 	// ==================== ADMIN - VENDEDORES ====================
-	getPendingSellers: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/admin/sellers/pending?${queryString}`, {}, true);
-	},
+	getPendingSellers: (params = {}) => api.get('/admin/sellers/pending', { params }, true),
 
-	getSellerDocs: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/admin/sellers/docs?${queryString}`, {}, true);
-	},
+	getSellerDocs: (params = {}) => api.get('/admin/sellers/docs', { params }, true),
 
-	verifySeller: (sellerId, isVerified = true) => {
-		return api.put(`/admin/sellers/${sellerId}/verify`, { isVerified }, {}, true);
-	},
+	verifySeller: (sellerId, isVerified = true) => api.put(`/admin/sellers/${sellerId}/verify`, { isVerified }, {}, true),
 
-	adminGetSellerDetails: (id) => {
-		return api.get(`/admin/sellers/${id}/details`, {}, true);
-	},
+	adminGetSellerDetails: (id) => api.get(`/admin/sellers/${id}/details`, {}, true),
 
 	// ==================== ADMIN - FABRICANTES E CLASSES ====================
-	listManufacturers: () => {
-		return api.get('/admin/manufacturers', {}, true);
-	},
+	listManufacturers: () => api.get('/admin/manufacturers', {}, true),
 
-	createManufacturer: (name) => {
-		return api.post('/admin/manufacturers', { name }, {}, true);
-	},
+	createManufacturer: (name) => api.post('/admin/manufacturers', { name }, {}, true),
 
-	updateManufacturer: (id, name) => {
-		return api.put(`/admin/manufacturers/${id}`, { name }, {}, true);
-	},
+	updateManufacturer: (id, name) => api.put(`/admin/manufacturers/${id}`, { name }, {}, true),
 
-	deleteManufacturer: (id) => {
-		return api.delete(`/admin/manufacturers/${id}`, {}, true);
-	},
+	deleteManufacturer: (id) => api.delete(`/admin/manufacturers/${id}`, {}, true),
 
-	listClasses: () => {
-		return api.get('/admin/classes', {}, true);
-	},
+	listClasses: () => api.get('/admin/classes', {}, true),
 
-	createClass: (name) => {
-		return api.post('/admin/classes', { name }, {}, true);
-	},
+	createClass: (name) => api.post('/admin/classes', { name }, {}, true),
 
-	updateClass: (id, name) => {
-		return api.put(`/admin/classes/${id}`, { name }, {}, true);
-	},
+	updateClass: (id, name) => api.put(`/admin/classes/${id}`, { name }, {}, true),
 
-	deleteClass: (id) => {
-		return api.delete(`/admin/classes/${id}`, {}, true);
-	},
+	deleteClass: (id) => api.delete(`/admin/classes/${id}`, {}, true),
 
 	adminListAllReviews: (params = {}) => {
 		const qs = new URLSearchParams(params).toString();
@@ -630,119 +285,65 @@ const api = {
 	},
 
 	// ==================== ADMIN - PLANOS E PACOTES DE DESTAQUE ====================
-	adminListPlans: () => {
-		return api.get('/admin/plans', {}, true);
-	},
+	adminListPlans: () => api.get('/admin/plans', {}, true),
 
-	adminCreatePlan: (data) => {
-		return api.post('/admin/plans', data, {}, true);
-	},
+	adminCreatePlan: (data) => api.post('/admin/plans', data, {}, true),
 
-	adminUpdatePlan: (id, data) => {
-		return api.put(`/admin/plans/${id}`, data, {}, true);
-	},
+	adminUpdatePlan: (id, data) => api.put(`/admin/plans/${id}`, data, {}, true),
 
-	adminDeletePlan: (id) => {
-		return api.delete(`/admin/plans/${id}`, {}, true);
-	},
+	adminDeletePlan: (id) => api.delete(`/admin/plans/${id}`, {}, true),
 
-	adminListHighlightPackages: () => {
-		return api.get('/admin/highlight-packages', {}, true);
-	},
+	adminListHighlightPackages: () => api.get('/admin/highlight-packages', {}, true),
 
-	adminCreateHighlightPackage: (data) => {
-		return api.post('/admin/highlight-packages', data, {}, true);
-	},
+	adminCreateHighlightPackage: (data) => api.post('/admin/highlight-packages', data, {}, true),
 
-	adminUpdateHighlightPackage: (id, data) => {
-		return api.put(`/admin/highlight-packages/${id}`, data, {}, true);
-	},
+	adminUpdateHighlightPackage: (id, data) => api.put(`/admin/highlight-packages/${id}`, data, {}, true),
 
-	adminDeleteHighlightPackage: (id) => {
-		return api.delete(`/admin/highlight-packages/${id}`, {}, true);
-	},
+	adminDeleteHighlightPackage: (id) => api.delete(`/admin/highlight-packages/${id}`, {}, true),
 
 	// ==================== ADMIN - PARCEIROS ====================
-	listPartners: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/partners?${queryString}`, {}, true);
-	},
+	listPartners: (params = {}) => api.get('/partners', { params }, true),
 
-	getPartner: (id) => {
-		return api.get(`/partners/${id}`, {}, true);
-	},
+	getPartner: (id) => api.get(`/partners/${id}`, {}, true),
 
-	createPartner: (data) => {
-		return api.post('/partners', data, {}, true);
-	},
+	createPartner: (data) => api.post('/partners', data, {}, true),
 
-	updatePartner: (id, data) => {
-		return api.put(`/partners/${id}`, data, {}, true);
-	},
+	updatePartner: (id, data) => api.put(`/partners/${id}`, data, {}, true),
 
-	deletePartner: (id) => {
-		return api.delete(`/partners/${id}`, {}, true);
-	},
+	deletePartner: (id) => api.delete(`/partners/${id}`, {}, true),
 
-	togglePartnerStatus: (id, status) => {
-		return api.patch(`/partners/${id}/status`, { status }, {}, true);
-	},
+	togglePartnerStatus: (id, status) => api.patch(`/partners/${id}/status`, { status }, {}, true),
 
 	// ==================== PARCEIROS (PÚBLICO) ====================
-	listActivePartners: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/partners/active?${queryString}`);
-	},
+	listActivePartners: (params = {}) => api.get('/partners/active', { params }),
 
-	// ==================== ALIASES DE FAVORITOS (DELEGAM PARA WISHLIST) ====================
-	getFavorites: () => {
-		return api.get('/wishlist');
-	},
+	// ==================== ALIASES DE FAVORITOS ====================
+	getFavorites: () => api.get('/wishlist'),
 
 	addFavorite: (id, type) => {
-		if (type === 'part') {
-			return api.post(`/wishlist/pecas/${id}`);
-		}
+		if (type === 'part') return api.post(`/wishlist/pecas/${id}`);
 		return api.post(`/wishlist/vehicles/${id}`);
 	},
 
 	removeFavorite: (id, type) => {
-		if (type === 'part') {
-			return api.delete(`/wishlist/pecas/${id}`);
-		}
+		if (type === 'part') return api.delete(`/wishlist/pecas/${id}`);
 		return api.delete(`/wishlist/vehicles/${id}`);
 	},
 
-	// Alias para categorias de peças
-	listCategoriasPecas: (params = {}) => {
-		const queryString = new URLSearchParams(params).toString();
-		return api.get(`/categorias?${queryString}`, {}, false);
-	},
+	listCategoriasPecas: (params = {}) => api.get('/categorias', { params }),
 
 	// ==================== CONTACTO ====================
-	contact: (data) => {
-		return api.post('/contact', data);
-	},
+	contact: (data) => api.post('/contact', data),
 
-	contactInsurance: (data) => {
-		return api.post('/contact/insurance', data);
-	},
+	contactInsurance: (data) => api.post('/contact/insurance', data),
 
-	contactVehiclePurchase: (data) => {
-		return api.post('/contact/vehicle-purchase', data);
-	},
+	contactVehiclePurchase: (data) => api.post('/contact/vehicle-purchase', data),
 
-	contactVehicleVisit: (data) => {
-		return api.post('/contact/vehicle-visit', data);
-	},
+	contactVehicleVisit: (data) => api.post('/contact/vehicle-visit', data),
 
-	contactRentalRequest: (data) => {
-		return api.post('/contact/rental-request', data);
-	},
+	contactRentalRequest: (data) => api.post('/contact/rental-request', data),
 
-	contactPartPurchase: (data) => {
-		return api.post('/contact/part-purchase', data);
-	},
+	contactPartPurchase: (data) => api.post('/contact/part-purchase', data),
 };
 
 export default api;

@@ -1,11 +1,11 @@
-import { useAuth } from '../contexts/AuthContext';
+import useAuthStore from '../stores/authStore';
 
 /**
  * Hook para verificar se o usuário está verificado
  * @returns {Object} { isVerified, canCreate, canEdit, needsVerification }
  */
 const useVerificationCheck = () => {
-	const { user, refreshUser } = useAuth();
+	const { user, refreshUser } = useAuthStore();
 
 	const isVerified = user?.isVerified === true;
 

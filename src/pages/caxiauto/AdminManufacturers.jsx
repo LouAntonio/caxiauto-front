@@ -1,43 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { useAdmin } from '../../contexts/AdminContext';
 import { Factory, Plus, Pencil, Trash2, Loader2, Search, X } from 'lucide-react';
 import { notyf } from '../../services/api';
+import { useAdminManufacturers, useAdminCreateManufacturer, useAdminUpdateManufacturer, useAdminDeleteManufacturer } from '../../hooks/queries/useAdmin';
 
 const AdminManufacturers = () => {
-	const { listManufacturers, createManufacturer, updateManufacturer, deleteManufacturer } = useAdmin();
-	const [loading, setLoading] = useState(true);
-	const [manufacturers, setManufacturers] = useState([]);
 	const [searchInput, setSearchInput] = useState('');
 	const [filteredMfrs, setFilteredMfrs] = useState([]);
 	const [showModal, setShowModal] = useState(false);
 	const [editing, setEditing] = useState(null);
 	const [formData, setFormData] = useState({ name: '' });
 
-	const load = async () => {
-		setLoading(true);
-		try {
-			const r = await listManufacturers();
-			if (r.success) { setManufacturers(r.data); setFilteredMfrs(r.data); }
-		} catch (e) { console.error(e); }
-		finally { setLoading(false); }
-	};
+	const { data: manufacturers, isLoading: loading } = useAdminManufacturers();
+	const createManufacturerMutation = useAdminCreateManufacturer();
+	const updateManufacturerMutation = useAdminUpdateManufacturer();
+	const deleteManufacturerMutation = useAdminDeleteManufacturer();
 
-	useEffect(() => { load(); }, []);
+	// Keep filtered in sync with manufacturers data
+	useEffect(() => {
+		setFilteredMfrs(manufacturers || []);
+	}, [manufacturers]);
 
 	const handleSearch = (e) => {
 		e.preventDefault();
 		const term = searchInput.toLowerCase();
-		setFilteredMfrs(manufacturers.filter(m => m.name.toLowerCase().includes(term)));
+		setFilteredMfrs((manufacturers || []).filter(m => m.name.toLowerCase().includes(term)));
 	};
-	const handleClearSearch = () => { setSearchInput(''); setFilteredMfrs(manufacturers); };
+	const handleClearSearch = () => { setSearchInput(''); setFilteredMfrs(manufacturers || []); };
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		try {
 			let r;
-			if (editing) { r = await updateManufacturer(editing.id, formData.name); }
-			else { r = await createManufacturer(formData.name); }
-			if (r.success) { notyf.success(editing ? 'Atualizado!' : 'Criado!'); setShowModal(false); setEditing(null); setFormData({ name: '' }); load(); }
+			if (editing) { r = await updateManufacturerMutation.mutateAsync({ id: editing.id, name: formData.name }); }
+			else { r = await createManufacturerMutation.mutateAsync(formData.name); }
+			if (r.success) { notyf.success(editing ? 'Atualizado!' : 'Criado!'); setShowModal(false); setEditing(null); setFormData({ name: '' }); }
 			else notyf.error(r.msg || 'Erro ao salvar');
 		} catch (error) { notyf.error('Erro ao salvar'); }
 	};
@@ -46,7 +42,7 @@ const AdminManufacturers = () => {
 
 	const handleDelete = async (id) => {
 		if (!window.confirm('Eliminar este fabricante?')) return;
-		try { const r = await deleteManufacturer(id); if (r.success) { notyf.success('Eliminado!'); load(); } else notyf.error(r.msg || 'Erro ao eliminar'); }
+		try { const r = await deleteManufacturerMutation.mutateAsync(id); if (r.success) { notyf.success('Eliminado!'); } else notyf.error(r.msg || 'Erro ao eliminar'); }
 		catch (error) { notyf.error('Erro ao eliminar'); }
 	};
 
@@ -72,25 +68,25 @@ const AdminManufacturers = () => {
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 				{loading ? <div className="flex items-center justify-center py-20"><Loader2 className="w-12 h-12 text-[#154c9a] animate-spin" /></div>
 					: filteredMfrs.length === 0 ? <div className="flex flex-col items-center justify-center py-20"><Factory className="w-16 h-16 text-gray-300 mb-4" /><p className="text-gray-500">Nenhum fabricante</p></div>
-					: <table className="w-full">
-						<thead className="bg-gray-50">
-							<tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Veículos</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th></tr>
-						</thead>
-						<tbody className="divide-y divide-gray-200">
-							{filteredMfrs.map((m) => (
-								<tr key={m.id} className="hover:bg-gray-50">
-									<td className="px-6 py-4 font-medium text-gray-900">{m.name}</td>
-									<td className="px-6 py-4 text-sm text-gray-600">{m._count?.vehicles || 0} veículos</td>
-									<td className="px-6 py-4">
-										<div className="flex items-center gap-2">
-											<button onClick={() => handleEdit(m)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Editar"><Pencil className="w-5 h-5" /></button>
-											<button onClick={() => handleDelete(m.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar"><Trash2 className="w-5 h-5" /></button>
-										</div>
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
+						: <table className="w-full">
+							<thead className="bg-gray-50">
+								<tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Veículos</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th></tr>
+							</thead>
+							<tbody className="divide-y divide-gray-200">
+								{filteredMfrs.map((m) => (
+									<tr key={m.id} className="hover:bg-gray-50">
+										<td className="px-6 py-4 font-medium text-gray-900">{m.name}</td>
+										<td className="px-6 py-4 text-sm text-gray-600">{m._count?.vehicles || 0} veículos</td>
+										<td className="px-6 py-4">
+											<div className="flex items-center gap-2">
+												<button onClick={() => handleEdit(m)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Editar"><Pencil className="w-5 h-5" /></button>
+												<button onClick={() => handleDelete(m.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar"><Trash2 className="w-5 h-5" /></button>
+											</div>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
 				}
 			</div>
 

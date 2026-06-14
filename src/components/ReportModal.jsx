@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import api, { notyf } from '../../services/api';
+import { notyf } from '../../services/api';
+import { useCreateReport } from '../../hooks/queries/useReports';
 import {
 	AlertTriangle,
 	X,
@@ -12,6 +13,7 @@ import {
 } from 'lucide-react';
 
 const ReportModal = ({ targetType, targetId, targetName, onReportSubmitted }) => {
+	const createReportMutation = useCreateReport();
 	const [showModal, setShowModal] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [reason, setReason] = useState('');
@@ -74,11 +76,11 @@ const ReportModal = ({ targetType, targetId, targetName, onReportSubmitted }) =>
 				[`${targetType}Id`]: targetId
 			};
 
-			const response = await api.createReport(
+			const response = await createReportMutation.mutateAsync({
 				reason,
 				description,
-				{ [`${targetType}Id`]: targetId }
-			);
+				target: { [`${targetType}Id`]: targetId }
+			});
 
 			if (response.success) {
 				notyf.success('Denúncia enviada com sucesso!');

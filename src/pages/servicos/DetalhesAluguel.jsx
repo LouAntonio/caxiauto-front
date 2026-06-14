@@ -23,22 +23,21 @@ import {
 } from 'lucide-react'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { API_URL, getImageUrl, notyf } from '../../services/api'
-import { useAuth } from '../../contexts/AuthContext'
+import useAuthStore from '../../stores/authStore'
 import BookingForm from '../../components/BookingForm'
 import { VehicleDetailSkeleton } from '../../components/skeletons'
+import { useVehicle } from '../../hooks/queries/useVehicles'
+import { useWishlist, useAddVehicleToWishlist, useRemoveVehicleFromWishlist } from '../../hooks/queries/useWishlist'
 
 export default function DetalhesAluguel() {
 	const { id } = useParams()
 	const navigate = useNavigate()
-	const { user, isAuthenticated } = useAuth()
+	const { user, isAuthenticated } = useAuthStore()
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [selectedPeriod, setSelectedPeriod] = useState('diária')
 	const [showContactModal, setShowContactModal] = useState(false)
-	const [vehicle, setVehicle] = useState(null)
-	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState(null)
 	const [isFavorite, setIsFavorite] = useState(false);
-	const [loadingFavorite, setLoadingFavorite] = useState(false);
 	const [bookingSuccess, setBookingSuccess] = useState(false);
 
 	// Estado do formulário de contacto
@@ -193,83 +192,51 @@ export default function DetalhesAluguel() {
 		}))
 	}, [isAuthenticated, user?.name, user?.email, user?.phone])
 
+	const { data: apiVehicle, isLoading, isFetched } = useVehicle(id)
+	const vehicle = apiVehicle ? mapVehicleData(apiVehicle) : null
+	const loading = isLoading
+
+	const { data: wishlistData } = useWishlist()
+	const addFavoriteMutation = useAddVehicleToWishlist()
+	const removeFavoriteMutation = useRemoveVehicleFromWishlist()
+
 	useEffect(() => {
-		const fetchVehicle = async () => {
-			if (!id) {
-				setError('ID do veículo não fornecido')
-				setLoading(false)
-				return
-			}
-
-			try {
-				setLoading(true)
-				setError(null)
-				const response = await api.get(`/vehicles/${id}`)
-
-				if (response.success && response.data) {
-					const mappedVehicle = mapVehicleData(response.data)
-					setVehicle(mappedVehicle)
-					// Reset currentImageIndex se necessário
-					setCurrentImageIndex(0)						
-						// Registrar visualização
-						try {
-							await api.addView('rent', id)
-						} catch (viewError) {
-							console.error('Erro ao registrar visualização:', viewError)
-							// Não interromper o fluxo se falhar ao registrar view
-						}				} else {
-					setError(response.message || 'Veículo não encontrado')
-				}
-			} catch (err) {
-				console.error('Erro ao buscar veículo:', err)
-				if (err.message && err.message.includes('404')) {
-					setError('Veículo não encontrado')
-				} else if (err.message && err.message.includes('403')) {
-					setError('Veículo não está disponível no momento')
-				} else {
-					setError('Erro ao carregar dados do veículo. Tente novamente em alguns instantes.')
-				}
-			} finally {
-				setLoading(false)
-			}
+		if (!id) {
+			setError('ID do veículo não fornecido')
+			return
 		}
-
-		fetchVehicle()
 	}, [id])
+
+	useEffect(() => {
+		if (isFetched && !apiVehicle) {
+			setError('Veículo não encontrado')
+		} else if (apiVehicle) {
+			setError(null)
+			setCurrentImageIndex(0)
+			// Registrar visualização
+			api.addView('rent', id).catch(viewError => {
+				console.error('Erro ao registrar visualização:', viewError)
+			})
+		}
+	}, [isFetched, apiVehicle, id])
+
+	// Atualizar isFavorite quando wishlist carregar
+	useEffect(() => {
+		if (wishlistData) {
+			setIsFavorite(wishlistData.vehicles?.some(v => v.id === id) || false)
+		} else {
+			setIsFavorite(false)
+		}
+	}, [wishlistData, id])
 
 	// Atualizar período selecionado quando os planos mudarem
 	useEffect(() => {
 		if (rentalPlans.length > 0) {
-			// Se o período atual não estiver disponível, selecionar o primeiro disponível
 			if (!rentalPlans.find(plan => plan.id === selectedPeriod)) {
 				setSelectedPeriod(rentalPlans[0].id)
 			}
 		}
 	}, [rentalPlans, selectedPeriod])
-
-	// Buscar status de favorito
-	useEffect(() => {
-		const checkFavorite = async () => {
-			if (!isAuthenticated || !id) {
-				setIsFavorite(false)
-				return
-			}
-
-			try {
-				const response = await api.getWishlist()
-				if (response.success && response.data) {
-					const favoriteIds = new Set(
-						response.data.vehicles?.map(v => v.id) || []
-					)
-					setIsFavorite(favoriteIds.has(id))
-				}
-			} catch (error) {
-				console.error('Erro ao verificar favorito:', error)
-			}
-		}
-
-		checkFavorite()
-	}, [id, isAuthenticated])
 
 	// Atualizar título da página
 	useDocumentTitle(
@@ -373,13 +340,9 @@ export default function DetalhesAluguel() {
 			return
 		}
 
-		if (loadingFavorite) return
-
-		setLoadingFavorite(true)
-
 		try {
 			if (isFavorite) {
-				const response = await api.removeVehicleFromWishlist(id)
+				const response = await removeFavoriteMutation.mutateAsync(id)
 				if (response.success) {
 					setIsFavorite(false)
 					notyf.success('Removido dos favoritos')
@@ -387,7 +350,7 @@ export default function DetalhesAluguel() {
 					notyf.error(response.message || 'Erro ao remover favorito')
 				}
 			} else {
-				const response = await api.addVehicleToWishlist(id)
+				const response = await addFavoriteMutation.mutateAsync(id)
 				if (response.success) {
 					setIsFavorite(true)
 					notyf.success('Adicionado aos favoritos')
@@ -398,8 +361,6 @@ export default function DetalhesAluguel() {
 		} catch (error) {
 			console.error('Erro ao alternar favorito:', error)
 			notyf.error('Erro ao processar favorito')
-		} finally {
-			setLoadingFavorite(false)
 		}
 	}
 
@@ -441,7 +402,7 @@ export default function DetalhesAluguel() {
 								{/* Badge de Condição */}
 								<div className="absolute top-4 left-4">
 									<span className={`px-5 py-2.5 text-sm font-bold rounded-full shadow-xl backdrop-blur-sm ${vehicle.condition === 'Novo' ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white' : 'bg-gradient-to-r from-yellow-500 to-yellow-400 text-white'
-										}`}>
+									}`}>
 										{vehicle.condition}
 									</span>
 								</div>
@@ -452,13 +413,12 @@ export default function DetalhesAluguel() {
 										onClick={toggleFavorite}
 										className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
 										aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-										disabled={loadingFavorite}
 									>
 										<Heart
 											className={`w-5 h-5 transition-all duration-200 ${isFavorite
-													? 'fill-red-500 text-red-500'
-													: 'text-gray-600 hover:text-red-500'
-												} ${loadingFavorite ? 'opacity-50' : ''}`}
+												? 'fill-red-500 text-red-500'
+												: 'text-gray-600 hover:text-red-500'
+											}`}
 										/>
 									</button>
 								)}
@@ -486,7 +446,7 @@ export default function DetalhesAluguel() {
 											key={index}
 											onClick={() => setCurrentImageIndex(index)}
 											className={`w-2 h-2 rounded-full transition-all ${index === currentImageIndex ? 'bg-white w-8' : 'bg-white/50'
-												}`}
+											}`}
 											aria-label={`Ir para imagem ${index + 1}`}
 										/>
 									))}
@@ -500,7 +460,7 @@ export default function DetalhesAluguel() {
 										key={index}
 										onClick={() => setCurrentImageIndex(index)}
 										className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex ? 'border-indigo-600 ring-2 ring-indigo-200' : 'border-gray-200'
-											} cursor-pointer`}
+										} cursor-pointer`}
 									>
 										<img src={`${image}`} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover" />
 									</button>
@@ -659,7 +619,7 @@ export default function DetalhesAluguel() {
 													className={`w-full p-4 rounded-xl border-2 transition-all text-left cursor-pointer ${selectedPeriod === plan.id
 														? 'border-indigo-600 bg-indigo-50'
 														: 'border-gray-200 hover:border-indigo-300'
-														}`}
+													}`}
 												>
 													<div className="flex justify-between items-start">
 														<div>
@@ -712,7 +672,7 @@ export default function DetalhesAluguel() {
 										className={`w-full font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02] cursor-pointer ${rentalPlans.length > 0
 											? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white'
 											: 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white'
-											}`}
+										}`}
 									>
 										{rentalPlans.length > 0 ? 'Solicitar Aluguel' : 'Entre em Contato'}
 									</button>

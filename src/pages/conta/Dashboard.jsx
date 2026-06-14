@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState, useCallback } from 'react';
+import useAuthStore from '../../stores/authStore';
 import { useNavigate } from 'react-router-dom';
-import api from '../../services/api';
 import {
 	User,
 	Mail,
@@ -19,11 +18,12 @@ import {
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { DashboardSkeleton } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
+import { useTotalViews, useTotalViewsToday, useMostViewed } from '../../hooks/queries/useViews';
 
 const Dashboard = () => {
 	useDocumentTitle('Dashboard - CaxiAuto');
 
-	const { user, logout, updateUser } = useAuth();
+	const { user, logout, updateUser } = useAuthStore();
 	const navigate = useNavigate();
 	const [isEditing, setIsEditing] = useState(false);
 	const [message, setMessage] = useState('');
@@ -35,40 +35,18 @@ const Dashboard = () => {
 		phone: user?.phone || '',
 	});
 
-	// Estados para estatísticas de visualização
-	const [viewStats, setViewStats] = useState({
-		totalViews: 0,
-		totalViewsToday: 0,
-		mostViewed: null,
-		loading: true,
-	});
+	// Estatísticas de visualização
+	const { data: totalViews, isLoading: totalViewsLoading } = useTotalViews();
+	const { data: totalViewsToday, isLoading: totalViewsTodayLoading } = useTotalViewsToday();
+	const { data: mostViewed, isLoading: mostViewedLoading } = useMostViewed();
 
-	// Carregar estatísticas de visualização
-	useEffect(() => {
-		const fetchViewStats = async () => {
-			try {
-				const [totalResponse, todayResponse, mostViewedResponse] = await Promise.all([
-					api.getTotalViews(),
-					api.getTotalViewsToday(),
-					api.getMostViewed(),
-				]);
+	const viewStatsLoading = totalViewsLoading || totalViewsTodayLoading || mostViewedLoading;
 
-				setViewStats({
-					totalViews: totalResponse?.totalViews || 0,
-					totalViewsToday: todayResponse?.totalViewsToday || 0,
-					mostViewed: mostViewedResponse?.mostViewed || null,
-					loading: false,
-				});
-			} catch (error) {
-				console.error('Erro ao carregar estatísticas de visualização:', error);
-				setViewStats(prev => ({ ...prev, loading: false }));
-			}
-		};
-
-		if (user) {
-			fetchViewStats();
-		}
-	}, [user]);
+	const viewStats = {
+		totalViews: totalViews?.totalViews || 0,
+		totalViewsToday: totalViewsToday?.totalViewsToday || 0,
+		mostViewed: mostViewed?.mostViewed || null,
+	};
 
 	const handleLogout = () => {
 		logout();
@@ -138,7 +116,7 @@ const Dashboard = () => {
 		return 'N/A';
 	};
 
-	if (viewStats.loading) {
+	if (viewStatsLoading) {
 		return <DashboardSkeleton />;
 	}
 
@@ -149,7 +127,7 @@ const Dashboard = () => {
 				<div className={`p-4 rounded-lg ${message.includes('sucesso')
 					? 'bg-green-50 border border-green-200 text-green-700'
 					: 'bg-red-50 border border-red-200 text-red-700'
-					}`}>
+				}`}>
 					{message}
 				</div>
 			)}

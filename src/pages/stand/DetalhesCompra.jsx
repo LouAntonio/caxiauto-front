@@ -24,21 +24,20 @@ import {
 } from 'lucide-react'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { notyf } from '../../services/api'
-import { useAuth } from '../../contexts/AuthContext'
+import useAuthStore from '../../stores/authStore'
 import { VehicleDetailSkeleton } from '../../components/skeletons'
+import { useVehicle } from '../../hooks/queries/useVehicles'
+import { useWishlist, useAddVehicleToWishlist, useRemoveVehicleFromWishlist } from '../../hooks/queries/useWishlist'
 
 export default function DetalhesCompra() {
 	const { id } = useParams()
 	const navigate = useNavigate()
-	const { user, isAuthenticated } = useAuth()
+	const { user, isAuthenticated } = useAuthStore()
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [showContactModal, setShowContactModal] = useState(false)
 	const [showVisitModal, setShowVisitModal] = useState(false)
-	const [vehicle, setVehicle] = useState(null)
-	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState(null)
 	const [isFavorite, setIsFavorite] = useState(false)
-	const [loadingFavorite, setLoadingFavorite] = useState(false)
 
 	// Estados dos formulários
 	const [purchaseFormData, setPurchaseFormData] = useState({
@@ -100,108 +99,79 @@ export default function DetalhesCompra() {
 		}))
 	}, [isAuthenticated, user?.name, user?.email, user?.phone])
 
+	const { data: apiVehicle, isLoading, isFetched } = useVehicle(id)
+
+	const mapVehicleData = (vehicleData) => ({
+		id: vehicleData.id || id,
+		title: vehicleData.name || 'Veículo sem título',
+		price: vehicleData.priceSale || 0,
+		images: vehicleData.image
+			? [vehicleData.image, ...(vehicleData.gallery || [])]
+			: ['/images/i10.jpg'],
+		condition: vehicleData.year >= new Date().getFullYear() ? 'Novo' : 'Usado',
+		description: vehicleData.description || 'Sem descrição disponível',
+		specs: {
+			km: vehicleData.kilometers
+				? `${vehicleData.kilometers.toLocaleString('pt-AO')} km`
+				: 'N/A',
+			year: vehicleData.year || 'N/A',
+			location: vehicleData.provincia || 'N/A',
+			fuel: vehicleData.fuelType
+				? vehicleData.fuelType.charAt(0).toUpperCase() + vehicleData.fuelType.slice(1)
+				: 'N/A',
+			transmission: vehicleData.transmission
+				? vehicleData.transmission.charAt(0).toUpperCase() + vehicleData.transmission.slice(1)
+				: 'N/A',
+			passengers: vehicleData.passengerCapacity
+				? `${vehicleData.passengerCapacity} ${vehicleData.passengerCapacity === 1 ? 'lugar' : 'lugares'}`
+				: 'N/A',
+			doors: vehicleData.doorCount
+				? `${vehicleData.doorCount} ${vehicleData.doorCount === 1 ? 'porta' : 'portas'}`
+				: 'N/A'
+		},
+		features: vehicleData.characteristics || [],
+		financing: {
+			entry: (vehicleData.price || 0) * 0.3,
+			installments: 48,
+			monthlyPayment: ((vehicleData.price || 0) * 0.7) / 48
+		},
+		included: [
+			'Garantia de fábrica 3 anos',
+			'Transferência de documentação',
+			'Inspeção técnica completa',
+			'Assistência pós-venda'
+		],
+		requirements: [
+			'BI ou Passaporte válido'
+		],
+		owner: vehicleData.Seller || vehicleData.owner
+	})
+
+	const vehicle = apiVehicle ? mapVehicleData(apiVehicle) : null
+	const loading = isLoading
+
+	const { data: wishlistData } = useWishlist()
+	const addFavoriteMutation = useAddVehicleToWishlist()
+	const removeFavoriteMutation = useRemoveVehicleFromWishlist()
+
 	useEffect(() => {
-		const fetchVehicle = async () => {
-			try {
-				setLoading(true)
-				setError(null)
-				const response = await api.get(`/vehicles/${id}`)
-
-				if (response.success && response.data) {
-					// Mapear os dados da API para a estrutura esperada pelo componente
-					const vehicleData = response.data
-					setVehicle({
-						id: vehicleData.id || id,
-						title: vehicleData.name || 'Veículo sem título',
-						price: vehicleData.priceSale || 0,
-						images: vehicleData.image
-							? [vehicleData.image, ...(vehicleData.gallery || [])]
-							: ['/images/i10.jpg'],
-						condition: vehicleData.year >= new Date().getFullYear() ? 'Novo' : 'Usado',
-						description: vehicleData.description || 'Sem descrição disponível',
-						specs: {
-							km: vehicleData.kilometers
-								? `${vehicleData.kilometers.toLocaleString('pt-AO')} km`
-								: 'N/A',
-							year: vehicleData.year || 'N/A',
-							location: vehicleData.provincia || 'N/A',
-							fuel: vehicleData.fuelType
-								? vehicleData.fuelType.charAt(0).toUpperCase() + vehicleData.fuelType.slice(1)
-								: 'N/A',
-							transmission: vehicleData.transmission
-								? vehicleData.transmission.charAt(0).toUpperCase() + vehicleData.transmission.slice(1)
-								: 'N/A',
-							passengers: vehicleData.passengerCapacity
-								? `${vehicleData.passengerCapacity} ${vehicleData.passengerCapacity === 1 ? 'lugar' : 'lugares'}`
-								: 'N/A',
-							doors: vehicleData.doorCount
-								? `${vehicleData.doorCount} ${vehicleData.doorCount === 1 ? 'porta' : 'portas'}`
-								: 'N/A'
-						},
-						features: vehicleData.characteristics || [],
-						financing: {
-							entry: (vehicleData.price || 0) * 0.3,
-							installments: 48,
-							monthlyPayment: ((vehicleData.price || 0) * 0.7) / 48
-						},
-						included: [
-							'Garantia de fábrica 3 anos',
-							'Transferência de documentação',
-							'Inspeção técnica completa',
-							'Assistência pós-venda'
-						],
-						requirements: [
-							'BI ou Passaporte válido'
-						],
-						owner: vehicleData.Seller || vehicleData.owner
-					})
-					
-					// Registrar visualização
-					try {
-						await api.addView('sell', id)
-					} catch (viewError) {
-						console.error('Erro ao registrar visualização:', viewError)
-						// Não interromper o fluxo se falhar ao registrar view
-					}
-				} else {
-					setError('Veículo não encontrado')
-				}
-			} catch (err) {
-				console.error('Erro ao buscar veículo:', err)
-				setError('Erro ao carregar os dados do veículo. Tente novamente.')
-			} finally {
-				setLoading(false)
-			}
+		if (isFetched && !apiVehicle) {
+			setError('Veículo não encontrado')
+		} else if (apiVehicle) {
+			setError(null)
+			api.addView('sell', id).catch(viewError => {
+				console.error('Erro ao registrar visualização:', viewError)
+			})
 		}
+	}, [isFetched, apiVehicle, id])
 
-		if (id) {
-			fetchVehicle()
-		}
-	}, [id])
-
-	// Buscar status de favorito
 	useEffect(() => {
-		const checkFavorite = async () => {
-			if (!isAuthenticated || !id) {
-				setIsFavorite(false)
-				return
-			}
-
-			try {
-				const response = await api.getWishlist()
-				if (response.success && response.data) {
-					const favoriteIds = new Set(
-						response.data.vehicles?.map(v => v.id) || []
-					)
-					setIsFavorite(favoriteIds.has(id))
-				}
-			} catch (error) {
-				console.error('Erro ao verificar favorito:', error)
-			}
+		if (wishlistData) {
+			setIsFavorite(wishlistData.vehicles?.some(v => v.id === id) || false)
+		} else if (!isAuthenticated) {
+			setIsFavorite(false)
 		}
-
-		checkFavorite()
-	}, [id, isAuthenticated])
+	}, [wishlistData, id, isAuthenticated])
 
 	useDocumentTitle(vehicle ? `${vehicle.title} - Compra - Caxiauto` : 'Carregando... - Caxiauto')
 
@@ -315,13 +285,9 @@ export default function DetalhesCompra() {
 			return
 		}
 
-		if (loadingFavorite) return
-
-		setLoadingFavorite(true)
-
 		try {
 			if (isFavorite) {
-				const response = await api.removeVehicleFromWishlist(id)
+				const response = await removeFavoriteMutation.mutateAsync(id)
 				if (response.success) {
 					setIsFavorite(false)
 					notyf.success('Removido dos favoritos')
@@ -329,7 +295,7 @@ export default function DetalhesCompra() {
 					notyf.error(response.message || 'Erro ao remover favorito')
 				}
 			} else {
-				const response = await api.addVehicleToWishlist(id)
+				const response = await addFavoriteMutation.mutateAsync(id)
 				if (response.success) {
 					setIsFavorite(true)
 					notyf.success('Adicionado aos favoritos')
@@ -340,8 +306,6 @@ export default function DetalhesCompra() {
 		} catch (error) {
 			console.error('Erro ao alternar favorito:', error)
 			notyf.error('Erro ao processar favorito')
-		} finally {
-			setLoadingFavorite(false)
 		}
 	}
 
@@ -402,7 +366,7 @@ export default function DetalhesCompra() {
 								{/* Badge de Condição */}
 								<div className="absolute top-4 left-4">
 									<span className={`px-5 py-2.5 text-sm font-bold rounded-full shadow-xl backdrop-blur-sm ${vehicle.condition === 'Novo' ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white' : 'bg-gradient-to-r from-yellow-500 to-yellow-400 text-white'
-										}`}>
+									}`}>
 										{vehicle.condition}
 									</span>
 								</div>
@@ -413,13 +377,12 @@ export default function DetalhesCompra() {
 										onClick={toggleFavorite}
 										className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/95 backdrop-blur-sm shadow-xl flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer"
 										aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-										disabled={loadingFavorite}
 									>
 										<Heart
 											className={`w-6 h-6 transition-all duration-200 ${isFavorite
-													? 'fill-red-500 text-red-500'
-													: 'text-gray-600 hover:text-red-500'
-												} ${loadingFavorite ? 'opacity-50' : ''}`}
+												? 'fill-red-500 text-red-500'
+												: 'text-gray-600 hover:text-red-500'
+											}`}
 										/>
 									</button>
 								)}
@@ -452,7 +415,7 @@ export default function DetalhesCompra() {
 												key={index}
 												onClick={() => setCurrentImageIndex(index)}
 												className={`w-2 h-2 rounded-full transition-all ${index === currentImageIndex ? 'bg-white w-8' : 'bg-white/50'
-													}`}
+												}`}
 												aria-label={`Ir para imagem ${index + 1}`}
 											/>
 										))}
@@ -468,7 +431,7 @@ export default function DetalhesCompra() {
 											key={index}
 											onClick={() => setCurrentImageIndex(index)}
 											className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex ? 'border-indigo-600 ring-2 ring-indigo-200' : 'border-gray-200'
-												} cursor-pointer`}
+											} cursor-pointer`}
 										>
 											<img src={image} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover" />
 										</button>

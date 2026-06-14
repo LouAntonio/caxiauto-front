@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import api, { notyf } from '../../services/api';
+import React, { useState } from 'react';
+import { notyf } from '../../services/api';
 import {
 	Users,
 	Search,
@@ -21,10 +21,9 @@ import {
 	Key,
 	X
 } from 'lucide-react';
+import { useAdminUsers, useAdminUpdateUserRole, useAdminToggleUserStatus } from '../../hooks/queries/useAdmin';
 
 const AdminUsers = () => {
-	const [loading, setLoading] = useState(true);
-	const [users, setUsers] = useState([]);
 	const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, total: 0 });
 	const [filters, setFilters] = useState({ search: '', status: '' });
 	const [searchInput, setSearchInput] = useState('');
@@ -35,58 +34,24 @@ const AdminUsers = () => {
 	const [roleModal, setRoleModal] = useState({ open: false, userId: null, userName: '', currentRole: '', newRole: '' });
 	const [verifyModal, setVerifyModal] = useState({ open: false, userId: null, userName: '', isVerified: false });
 
-	const loadUsers = async () => {
-		setLoading(true);
-		try {
-			const params = { page: pagination.currentPage, limit: 10 };
-			if (filters.search) params.search = filters.search;
-			if (filters.status) params.status = filters.status;
-			const response = await api.listUsers(params);
-			if (response.success) {
-				setUsers(response.data);
-				setPagination({
-					currentPage: response.pagination.currentPage,
-					totalPages: response.pagination.totalPages,
-					total: response.pagination.totalUsers,
-				});
-			} else {
-				notyf.error(response.message || 'Erro ao carregar usuários');
-			}
-		} catch (error) {
-			console.error('Erro ao carregar usuários:', error);
-			notyf.error('Erro ao carregar usuários');
-		} finally {
-			setLoading(false);
-		}
-	};
+	const updateUserRoleMutation = useAdminUpdateUserRole();
+	const toggleUserStatusMutation = useAdminToggleUserStatus();
 
-	useEffect(() => {
-		loadUsers();
-	}, [pagination.currentPage]);
+	const params = { page: pagination.currentPage, limit: 10 };
+	if (filters.search) params.search = filters.search;
+	if (filters.status) params.status = filters.status;
+	const { data: users, isLoading: loading, refetch } = useAdminUsers(params);
 
 	const handleSearch = (e) => {
 		e.preventDefault();
 		setFilters({ ...filters, search: searchInput.trim() });
 		setPagination({ ...pagination, currentPage: 1 });
-		setTimeout(() => loadUsers(), 0);
 	};
 
 	const handleClearSearch = () => {
 		setSearchInput('');
 		setFilters({ search: '', status: '' });
 		setPagination({ ...pagination, currentPage: 1 });
-		setTimeout(() => {
-			api.listUsers({ page: 1, limit: 10 }).then(res => {
-				if (res.success) {
-					setUsers(res.data);
-					setPagination({
-						currentPage: res.pagination.currentPage,
-						totalPages: res.pagination.totalPages,
-						total: res.pagination.totalUsers,
-					});
-				}
-			}).finally(() => setLoading(false));
-		}, 0);
 	};
 
 	const handleViewDetails = async (userId) => {
@@ -108,11 +73,10 @@ const AdminUsers = () => {
 
 	const submitBan = async () => {
 		try {
-			const response = await api.toggleUserStatus(banModal.userId, 'BANNED', banModal.reason);
+			const response = await toggleUserStatusMutation.mutateAsync({ userId: banModal.userId, status: 'BANNED', reason: banModal.reason });
 			if (response.success) {
 				notyf.success('Usuário banido. Email enviado.');
 				setBanModal({ open: false, userId: null, userName: '', reason: '' });
-				loadUsers();
 			} else {
 				notyf.error(response.message || 'Erro ao banir');
 			}
@@ -121,13 +85,12 @@ const AdminUsers = () => {
 		}
 	};
 
-	const handleToggleStatus = async (userId, currentStatus, name) => {
+	const handleToggleStatus = async (userId, currentStatus) => {
 		const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
 		try {
-			const response = await api.toggleUserStatus(userId, newStatus);
+			const response = await toggleUserStatusMutation.mutateAsync({ userId, status: newStatus });
 			if (response.success) {
 				notyf.success(`Usuário ${newStatus === 'ACTIVE' ? 'ativado' : 'inativado'}. Email enviado.`);
-				loadUsers();
 			} else {
 				notyf.error(response.message || 'Erro ao atualizar status');
 			}
@@ -146,11 +109,10 @@ const AdminUsers = () => {
 			return;
 		}
 		try {
-			const response = await api.updateUserRole(roleModal.userId, roleModal.newRole);
+			const response = await updateUserRoleMutation.mutateAsync({ userId: roleModal.userId, role: roleModal.newRole });
 			if (response.success) {
 				notyf.success(`Role atualizado para ${roleModal.newRole}. Email enviado.`);
 				setRoleModal({ open: false, userId: null, userName: '', currentRole: '', newRole: '' });
-				loadUsers();
 			} else {
 				notyf.error(response.message || 'Erro ao atualizar role');
 			}
@@ -304,8 +266,8 @@ const AdminUsers = () => {
 										<td className="px-4 py-3">
 											<span className={`px-2 py-1 text-xs font-medium rounded-full ${
 												user.role === 'ADMIN' ? 'bg-purple-100 text-purple-800'
-												: user.role === 'SELLER' ? 'bg-blue-100 text-blue-800'
-												: 'bg-gray-100 text-gray-800'
+													: user.role === 'SELLER' ? 'bg-blue-100 text-blue-800'
+														: 'bg-gray-100 text-gray-800'
 											}`}>
 												{getRoleLabel(user.role)}
 											</span>
@@ -313,8 +275,8 @@ const AdminUsers = () => {
 										<td className="px-4 py-3">
 											<span className={`px-2 py-1 text-xs font-medium rounded-full ${
 												user.status === 'ACTIVE' ? 'bg-green-100 text-green-800'
-												: user.status === 'BANNED' ? 'bg-red-100 text-red-800'
-												: 'bg-yellow-100 text-yellow-800'
+													: user.status === 'BANNED' ? 'bg-red-100 text-red-800'
+														: 'bg-yellow-100 text-yellow-800'
 											}`}>
 												{user.status}
 											</span>

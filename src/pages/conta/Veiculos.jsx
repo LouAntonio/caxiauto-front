@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState } from 'react';
+import useAuthStore from '../../stores/authStore';
 import {
 	Car,
 	Plus,
@@ -21,25 +21,32 @@ import {
 	Shield
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
-import api, { API_URL, getImageUrl } from '../../services/api';
+import api, { getImageUrl } from '../../services/api';
+import axios from 'axios';
 import { VehicleCardSkeleton } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
 import VerificationWarning from '../../components/VerificationWarning';
 import useVerificationCheck from '../../hooks/useVerificationCheck';
+import { useMyVehicles, useCreateVehicle, useUpdateVehicle, useDeleteVehicle, useToggleVehicleStatus } from '../../hooks/queries/useVehicles';
+import { useManufacturers, useClasses } from '../../hooks/queries/useManufacturers';
 
 const Veiculos = () => {
 	useDocumentTitle('Meus Veículos - CaxiAuto');
 
-	const { user } = useAuth();
+	const { user } = useAuthStore();
 	const { isVerified, needsVerification } = useVerificationCheck();
-	const [vehicles, setVehicles] = useState([]);
+	const { data: vehicles, isLoading } = useMyVehicles();
+	const { data: manufacturers } = useManufacturers();
+	const { data: vehicleClasses } = useClasses();
+	const createVehicle = useCreateVehicle();
+	const updateVehicle = useUpdateVehicle();
+	const deleteVehicle = useDeleteVehicle();
+	const toggleStatus = useToggleVehicleStatus();
 	const [showModal, setShowModal] = useState(false);
 	const [editingVehicle, setEditingVehicle] = useState(null);
 	const [message, setMessage] = useState({ type: '', text: '' });
 	const [loading, setLoading] = useState(false);
 	const [actionLoading, setActionLoading] = useState(new Set());
-	const [isFetching, setIsFetching] = useState(false);
-	const abortControllerRef = useRef(null);
 	const [mediaFiles, setMediaFiles] = useState([]);
 	const [newCharacteristic, setNewCharacteristic] = useState('');
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -47,8 +54,6 @@ const Veiculos = () => {
 	const [confirmMessage, setConfirmMessage] = useState('');
 	const [confirmTitle, setConfirmTitle] = useState('');
 	const [confirmType, setConfirmType] = useState('danger');
-	const [manufacturers, setManufacturers] = useState([]);
-	const [vehicleClasses, setVehicleClasses] = useState([]);
 	const [formData, setFormData] = useState({
 		name: '',
 		description: '',
@@ -68,70 +73,7 @@ const Veiculos = () => {
 		characteristics: []
 	});
 
-	// Carregar veículos e dados de referência
-	useEffect(() => {
-		if (user) {
-			loadVehicles();
-		}
-		loadManufacturers();
-		loadClasses();
-	}, [user]);
-
-	const loadManufacturers = async () => {
-		try {
-			const response = await api.getManufacturers();
-			if (response.success) {
-				setManufacturers(response.data);
-			}
-		} catch (error) {
-			console.error('Erro ao carregar fabricantes:', error);
-		}
-	};
-
-	const loadClasses = async () => {
-		try {
-			const response = await api.getClasses();
-			if (response.success) {
-				setVehicleClasses(response.data);
-			}
-		} catch (error) {
-			console.error('Erro ao carregar classes:', error);
-		}
-	};
-
-	const loadVehicles = useCallback(async () => {
-		if (abortControllerRef.current) {
-			abortControllerRef.current.abort();
-		}
-		if (isFetching) return;
-
-		const controller = new AbortController();
-		abortControllerRef.current = controller;
-		setIsFetching(true);
-
-		try {
-			const response = await api.get('/vehicles/my-vehicles');
-			if (!controller.signal.aborted && response.success) {
-				setVehicles(response.data);
-			}
-		} catch (error) {
-			if (!controller.signal.aborted) {
-				console.error('Erro ao carregar veículos:', error);
-			}
-		} finally {
-			if (!controller.signal.aborted) {
-				setIsFetching(false);
-			}
-		}
-	}, [isFetching]);
-
-	useEffect(() => {
-		return () => {
-			if (abortControllerRef.current) {
-				abortControllerRef.current.abort();
-			}
-		};
-	}, []);
+	// Hooks de dados gerenciados pelo TanStack Query
 
 	const formatFuelType = (type) => {
 		const map = {
@@ -260,18 +202,8 @@ const Veiculos = () => {
 			formData.append('folder', folder);
 
 
-			const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, {
-				method: 'POST',
-				body: formData
-			});
-
-			if (!uploadResponse.ok) {
-				const errorData = await uploadResponse.json();
-				throw new Error(errorData.error?.message || 'Erro no upload para Cloudinary');
-			}
-
-			const data = await uploadResponse.json();
-			return data.secure_url;
+			const { data: uploadData } = await axios.post(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, formData);
+			return uploadData.secure_url;
 		} catch (error) {
 			console.error('Erro no upload:', error);
 			throw error;
@@ -335,11 +267,9 @@ const Veiculos = () => {
 
 			let response;
 			if (editingVehicle) {
-				// Edição - envia para rota de edição com aprovação
-				response = await api.put(`/vehicles/${editingVehicle.id}`, vehicleData);
+				response = await updateVehicle.mutateAsync({ id: editingVehicle.id, data: vehicleData });
 			} else {
-				// Criação - envia normalmente
-				response = await api.post('/vehicles', vehicleData);
+				response = await createVehicle.mutateAsync(vehicleData);
 			}
 
 			if (response.success) {
@@ -348,7 +278,6 @@ const Veiculos = () => {
 					: response.message || 'Veículo cadastrado com sucesso! Aguardando aprovação.';
 
 				setMessage({ type: 'success', text: successMessage });
-				await loadVehicles();
 				setTimeout(() => {
 					handleCloseModal();
 				}, 3000);
@@ -377,10 +306,9 @@ const Veiculos = () => {
 		setConfirmAction(() => async () => {
 			setActionLoading(prev => new Set(prev).add(`delete-${vehicleId}`));
 			try {
-				const response = await api.delete(`/vehicles/${vehicleId}`);
+				const response = await deleteVehicle.mutateAsync(vehicleId);
 				if (response.success) {
 					setMessage({ type: 'success', text: 'Veículo excluído com sucesso!' });
-					await loadVehicles();
 					setTimeout(() => setMessage({ type: '', text: '' }), 3000);
 				} else {
 					setMessage({ type: 'error', text: response.message || 'Erro ao excluir veículo.' });
@@ -408,10 +336,9 @@ const Veiculos = () => {
 		setConfirmAction(() => async () => {
 			setActionLoading(prev => new Set(prev).add(`toggle-${vehicleId}`));
 			try {
-				const response = await api.put(`/vehicles/${vehicleId}/toggle-status`);
+				const response = await toggleStatus.mutateAsync({ id: vehicleId, status: newStatus });
 				if (response.success) {
 					setMessage({ type: 'success', text: response.message || 'Status alterado com sucesso!' });
-					await loadVehicles();
 					setTimeout(() => setMessage({ type: '', text: '' }), 3000);
 				} else {
 					setMessage({ type: 'error', text: response.message || 'Erro ao alterar status.' });
@@ -471,7 +398,7 @@ const Veiculos = () => {
 			)}
 
 			{/* Lista de veículos */}
-			{isFetching ? (
+			{isLoading ? (
 				<VehicleCardSkeleton count={4} />
 			) : vehicles.length === 0 ? (
 				<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAdmin } from '../../contexts/AdminContext';
+import useAdminStore from '../../stores/adminStore';
 import { Shield, Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
 import { notyf } from '../../services/api';
 
 const AdminLogin = () => {
 	const navigate = useNavigate();
-	const { login, admin } = useAdmin();
+	const { login, admin } = useAdminStore();
 	const [loading, setLoading] = useState(false);
 	const [formData, setFormData] = useState({
 		email: '',

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Search, RotateCcw, Car, Fuel, Settings, Gauge, Calendar, Wallet } from 'lucide-react'
-import api from '../services/api'
+import { useManufacturers, useClasses } from '../hooks/queries/useManufacturers'
 
 // Enums alinhados com o schema (FuelType e TransmissionType)
 const FUEL_TYPES = [
@@ -17,8 +17,8 @@ const TRANSMISSION_TYPES = [
 ]
 
 export default function VehicleFilter({ onFilterChange, initialFilters = {}, showSearch = true }) {
-	const [manufacturers, setManufacturers] = useState([])
-	const [classes, setClasses] = useState([])
+	const { data: manufacturers = [] } = useManufacturers()
+	const { data: classes = [] } = useClasses()
 	const [filters, setFilters] = useState({
 		pesquisa: '',
 		marca: '',
@@ -31,27 +31,6 @@ export default function VehicleFilter({ onFilterChange, initialFilters = {}, sho
 		destaque: false,
 		...initialFilters
 	})
-
-	// Buscar fabricantes e classes da API
-	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const [mfrRes, clsRes] = await Promise.all([
-					api.getManufacturers(),
-					api.getClasses()
-				])
-				if (mfrRes.success && mfrRes.data) {
-					setManufacturers(mfrRes.data)
-				}
-				if (clsRes.success && clsRes.data) {
-					setClasses(clsRes.data)
-				}
-			} catch (error) {
-				console.error('Erro ao buscar fabricantes/classes:', error)
-			}
-		}
-		fetchData()
-	}, [])
 
 	// Atualizar filtros quando initialFilters mudar
 	useEffect(() => {

@@ -87,45 +87,45 @@ export default function TowingSection() {
 									key={vehicle.id}
 									className="group bg-white border border-[#ccc] rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:border-[#e65100]/30 z-1 w-[280px] sm:w-[320px] lg:w-full flex-shrink-0 snap-start"
 								>
-								{/* Image Area */}
-								<div className="relative h-48 overflow-hidden bg-gray-100 p-2">
-									<img
-										src={vehicle.image}
-										alt={vehicle.title}
-										className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
-									/>
-									<div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded">
-										{vehicle.type}
-									</div>
-								</div>
-
-								{/* Content */}
-								<div className="p-5">
-									<h3 className="font-bold text-lg text-[#1a1a2e] mb-1 group-hover:text-[#e65100] transition-colors">
-										{vehicle.title}
-									</h3>
-
-									<div className="flex items-center gap-4 mt-3 mb-4 text-xs text-gray-500 font-medium">
-										<div className="flex items-center gap-1.5">
-											<Weight size={14} className="text-[#e65100]" />
-											{vehicle.capacity}
+									{/* Image Area */}
+									<div className="relative h-48 overflow-hidden bg-gray-100 p-2">
+										<img
+											src={vehicle.image}
+											alt={vehicle.title}
+											className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+										/>
+										<div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded">
+											{vehicle.type}
 										</div>
-										<div className="flex items-center gap-1.5">
-											<Gauge size={14} className="text-[#e65100]" />
+									</div>
+
+									{/* Content */}
+									<div className="p-5">
+										<h3 className="font-bold text-lg text-[#1a1a2e] mb-1 group-hover:text-[#e65100] transition-colors">
+											{vehicle.title}
+										</h3>
+
+										<div className="flex items-center gap-4 mt-3 mb-4 text-xs text-gray-500 font-medium">
+											<div className="flex items-center gap-1.5">
+												<Weight size={14} className="text-[#e65100]" />
+												{vehicle.capacity}
+											</div>
+											<div className="flex items-center gap-1.5">
+												<Gauge size={14} className="text-[#e65100]" />
 											Diesel
+											</div>
+										</div>
+
+										<div className="flex flex-wrap gap-2">
+											{vehicle.specs.map((spec, index) => (
+												<span key={index} className="px-2 py-1 bg-gray-50 text-gray-600 text-[10px] uppercase font-bold rounded border border-gray-100">
+													{spec}
+												</span>
+											))}
 										</div>
 									</div>
-
-									<div className="flex flex-wrap gap-2">
-										{vehicle.specs.map((spec, index) => (
-											<span key={index} className="px-2 py-1 bg-gray-50 text-gray-600 text-[10px] uppercase font-bold rounded border border-gray-100">
-												{spec}
-											</span>
-										))}
-									</div>
 								</div>
-							</div>
-						))}
+							))}
 						</div>
 					</div>
 				</div>

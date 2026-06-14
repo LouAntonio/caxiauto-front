@@ -1,31 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Phone, MessageCircle, Loader2 } from 'lucide-react';
 import PartnerCardSkeleton from './PartnerCardSkeleton';
 import { Link } from 'react-router-dom';
-import api, { getImageUrl } from '../services/api';
+import { getImageUrl } from '../services/api';
+import { useActivePartners } from '../hooks/queries/usePartners';
 
 export default function PartnersSlider() {
-	const [partners, setPartners] = useState([]);
-	const [loading, setLoading] = useState(true);
+	const { data: partners, isLoading } = useActivePartners({ limit: 4 });
 
-	useEffect(() => {
-		const loadPartners = async () => {
-			try {
-				const response = await api.listActivePartners({ limit: 4 });
-				if (response.success) {
-					setPartners(response.data);
-				}
-			} catch (error) {
-				console.error('Erro ao carregar parceiros:', error);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		loadPartners();
-	}, []);
-
-	if (loading) {
+	if (isLoading) {
 		return (
 			<section className="py-12 bg-gray-50">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

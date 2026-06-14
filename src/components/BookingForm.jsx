@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import api, { notyf } from '../services/api';
+import { notyf } from '../services/api';
+import { useCreateBooking } from '../hooks/queries/useBookings';
 import {
 	Calendar,
 	Clock,
@@ -11,6 +12,7 @@ import {
 } from 'lucide-react';
 
 const BookingForm = ({ vehicle, onBookingCreated }) => {
+	const createBookingMutation = useCreateBooking();
 	const [showForm, setShowForm] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [startDate, setStartDate] = useState('');
@@ -64,7 +66,7 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 
 		setLoading(true);
 		try {
-			const response = await api.createBooking(vehicle.id, startDate, endDate);
+			const response = await createBookingMutation.mutateAsync({ vehicleId: vehicle.id, startDate, endDate });
 
 			if (response.success) {
 				notyf.success('Reserva criada com sucesso! Aguarde confirmação do proprietário.');

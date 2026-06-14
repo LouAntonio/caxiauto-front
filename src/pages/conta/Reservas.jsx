@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import api, { getImageUrl, notyf } from '../../services/api';
+import React, { useState, useEffect } from 'react';
+import useAuthStore from '../../stores/authStore';
+import { notyf } from '../../services/api';
 import {
 	Calendar,
 	Clock,
@@ -17,91 +17,46 @@ import { Link } from 'react-router-dom';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { ListSkeleton } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
+import { useMyBookings, useCancelBooking } from '../../hooks/queries/useBookings';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Reservas = () => {
 	useDocumentTitle('Minhas Reservas - CaxiAuto');
 
-	const { user } = useAuth();
-	const [reservas, setReservas] = useState([]);
-	const [loading, setLoading] = useState(true);
+	const { user } = useAuthStore();
+	const queryClient = useQueryClient();
 	const [filter, setFilter] = useState('');
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [total, setTotal] = useState(0);
 	const [cancelingId, setCancelingId] = useState(null);
-	const [isFetching, setIsFetching] = useState(false);
-	const abortControllerRef = useRef(null);
+
+	const params = { page, limit: 10 };
+	if (filter) params.status = filter;
+
+	const { data: reservas, isLoading } = useMyBookings(params);
+	const cancelBooking = useCancelBooking();
 
 	useEffect(() => {
-		fetchReservas();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [filter, page]);
-
-	const fetchReservas = useCallback(async () => {
-		// Cancelar requisição anterior
-		if (abortControllerRef.current) {
-			abortControllerRef.current.abort();
+		const raw = queryClient.getQueryData(['bookings', 'my', params]);
+		if (raw?.success) {
+			setTotal(raw.pagination?.total || 0);
+			setTotalPages(raw.pagination?.totalPages || 1);
 		}
+	}, [reservas, page, filter]);
 
-		// Prevenir requisições duplicadas
-		if (isFetching) return;
-
-		const controller = new AbortController();
-		abortControllerRef.current = controller;
-		setIsFetching(true);
-		setLoading(true);
-
-		try {
-			const params = { page, limit: 10 };
-			if (filter) params.status = filter;
-
-			const response = await api.getMyBookings(params);
-
-			if (!controller.signal.aborted) {
-				if (response.success) {
-					setReservas(response.data || []);
-					setTotal(response.pagination?.total || 0);
-					setTotalPages(response.pagination?.totalPages || 1);
-				} else {
-					notyf.error('Erro ao carregar reservas');
-					setReservas([]);
-				}
-			}
-		} catch (error) {
-			if (!controller.signal.aborted) {
-				console.error('Erro ao carregar reservas:', error);
-				notyf.error('Erro ao carregar reservas');
-			}
-		} finally {
-			if (!controller.signal.aborted) {
-				setLoading(false);
-				setIsFetching(false);
-			}
-		}
-	}, [filter, page, isFetching]);
-
-	// Cleanup ao desmontar
-	useEffect(() => {
-		return () => {
-			if (abortControllerRef.current) {
-				abortControllerRef.current.abort();
-			}
-		};
-	}, []);
-
-	const handleCancelReserva = useCallback(async (reservaId) => {
-		if (cancelingId) return; // Prevenir clique duplo
+	const handleCancelReserva = async (reservaId) => {
+		if (cancelingId) return;
 		if (!window.confirm('Tem certeza que deseja cancelar esta reserva?')) {
 			return;
 		}
 
 		setCancelingId(reservaId);
 		try {
-			const response = await api.cancelBooking(reservaId);
+			const response = await cancelBooking.mutateAsync(reservaId);
 
 			if (response.success) {
 				notyf.success('Reserva cancelada com sucesso');
-				fetchReservas();
 			} else {
 				notyf.error(response.msg || 'Erro ao cancelar reserva');
 			}
@@ -111,7 +66,7 @@ const Reservas = () => {
 		} finally {
 			setCancelingId(null);
 		}
-	}, [cancelingId, fetchReservas]);
+	};
 
 	const getStatusBadge = (status) => {
 		const statusConfig = {
@@ -251,7 +206,7 @@ const Reservas = () => {
 				</div>
 
 				{/* Lista de Reservas */}
-				{loading ? (
+				{isLoading ? (
 					<ListSkeleton count={5} />
 				) : reservas.length === 0 ? (
 					<div className="text-center py-16">

@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import api, { notyf } from '../../services/api';
+import React, { useState, useEffect } from 'react';
+import useAuthStore from '../../stores/authStore';
+import { notyf } from '../../services/api';
 import {
 	AlertTriangle,
 	Clock,
@@ -15,72 +15,31 @@ import {
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { ListSkeleton } from '../../components/skeletons';
+import { useMyReports } from '../../hooks/queries/useReports';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Denuncias = () => {
 	useDocumentTitle('Minhas Denúncias - CaxiAuto');
 
-	const { user } = useAuth();
-	const [loading, setLoading] = useState(true);
-	const [reports, setReports] = useState([]);
+	const { user } = useAuthStore();
+	const queryClient = useQueryClient();
 	const [filter, setFilter] = useState('');
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [total, setTotal] = useState(0);
-	const [isFetching, setIsFetching] = useState(false);
-	const abortControllerRef = useRef(null);
+
+	const params = { page, limit: 10 };
+	if (filter) params.status = filter;
+
+	const { data: reports, isLoading } = useMyReports(params);
 
 	useEffect(() => {
-		fetchReports();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [filter, page]);
-
-	const fetchReports = useCallback(async () => {
-		if (abortControllerRef.current) {
-			abortControllerRef.current.abort();
+		const raw = queryClient.getQueryData(['reports', 'my', params]);
+		if (raw?.success) {
+			setTotal(raw.pagination?.total || 0);
+			setTotalPages(raw.pagination?.totalPages || 1);
 		}
-		if (isFetching) return;
-
-		const controller = new AbortController();
-		abortControllerRef.current = controller;
-		setIsFetching(true);
-		setLoading(true);
-
-		try {
-			const params = { page, limit: 10 };
-			if (filter) params.status = filter;
-
-			const response = await api.getMyReports(params);
-
-			if (!controller.signal.aborted) {
-				if (response.success) {
-					setReports(response.data || []);
-					setTotal(response.pagination?.total || 0);
-					setTotalPages(response.pagination?.totalPages || 1);
-				} else {
-					notyf.error('Erro ao carregar denúncias');
-					setReports([]);
-				}
-			}
-		} catch (error) {
-			if (!controller.signal.aborted) {
-				console.error('Erro ao carregar denúncias:', error);
-				notyf.error('Erro ao carregar denúncias');
-			}
-		} finally {
-			if (!controller.signal.aborted) {
-				setLoading(false);
-				setIsFetching(false);
-			}
-		}
-	}, [filter, page, isFetching]);
-
-	useEffect(() => {
-		return () => {
-			if (abortControllerRef.current) {
-				abortControllerRef.current.abort();
-			}
-		};
-	}, []);
+	}, [reports, page, filter]);
 
 	const getStatusBadge = (status) => {
 		const statusConfig = {
@@ -228,7 +187,7 @@ const Denuncias = () => {
 				</div>
 
 				{/* Lista de Denúncias */}
-				{loading ? (
+				{isLoading ? (
 					<ListSkeleton count={5} variant="compact" />
 				) : reports.length === 0 ? (
 					<div className="text-center py-16">

@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useAdmin } from '../../contexts/AdminContext';
 import { Layers, Plus, Pencil, Trash2, Loader2, Search, X } from 'lucide-react';
 import { notyf } from '../../services/api';
 import { AdminTableSkeleton } from '../../components/skeletons';
-import useLoadingState from '../../hooks/useLoadingState';
+import { useAdminClasses, useAdminCreateClass, useAdminUpdateClass, useAdminDeleteClass } from '../../hooks/queries/useAdmin';
 
 const AdminClasses = () => {
-	const { listClasses, createClass, updateClass, deleteClass } = useAdmin();
-	const { loading: actionLoading, withLoading, isActionLoading } = useLoadingState({ preventConcurrent: true });
-	const [loading, setLoading] = useState(true);
-	const [classes, setClasses] = useState([]);
 	const [searchInput, setSearchInput] = useState('');
 	const [filtered, setFiltered] = useState([]);
 	const [showModal, setShowModal] = useState(false);
@@ -17,52 +12,46 @@ const AdminClasses = () => {
 	const [formData, setFormData] = useState({ name: '' });
 	const [submitLoading, setSubmitLoading] = useState(false);
 
-	const load = async () => {
-		setLoading(true);
-		try {
-			const r = await listClasses();
-			if (r.success) {
-				setClasses(r.data);
-				setFiltered(r.data);
-			}
-		} catch (e) {
-			console.error(e);
-		} finally {
-			setLoading(false);
-		}
-	};
+	const { data: classes, isLoading: loading } = useAdminClasses();
+	const createClassMutation = useAdminCreateClass();
+	const updateClassMutation = useAdminUpdateClass();
+	const deleteClassMutation = useAdminDeleteClass();
 
-	useEffect(() => { load(); }, []);
+	useEffect(() => {
+		setFiltered(classes || []);
+	}, [classes]);
 
 	const handleSearch = (e) => {
 		e.preventDefault();
 		const t = searchInput.toLowerCase();
-		setFiltered(classes.filter(c => c.name.toLowerCase().includes(t)));
+		setFiltered((classes || []).filter(c => c.name.toLowerCase().includes(t)));
 	};
 
 	const handleClearSearch = () => {
 		setSearchInput('');
-		setFiltered(classes);
+		setFiltered(classes || []);
 	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		await withLoading(async () => {
-			setSubmitLoading(true);
+		setSubmitLoading(true);
+		try {
 			let r;
-			if (editing) r = await updateClass(editing.id, formData.name);
-			else r = await createClass(formData.name);
+			if (editing) r = await updateClassMutation.mutateAsync({ id: editing.id, name: formData.name });
+			else r = await createClassMutation.mutateAsync(formData.name);
 			if (r.success) {
 				notyf.success(editing ? 'Atualizada!' : 'Criada!');
 				setShowModal(false);
 				setEditing(null);
 				setFormData({ name: '' });
-				load();
 			} else {
 				notyf.error(r.msg || 'Erro');
 			}
+		} catch (error) {
+			notyf.error('Erro ao salvar');
+		} finally {
 			setSubmitLoading(false);
-		});
+		}
 	};
 
 	const handleEdit = (c) => {
@@ -73,15 +62,16 @@ const AdminClasses = () => {
 
 	const handleDelete = async (id) => {
 		if (!window.confirm('Eliminar esta classe?')) return;
-		await withLoading(async () => {
-			const r = await deleteClass(id);
+		try {
+			const r = await deleteClassMutation.mutateAsync(id);
 			if (r.success) {
 				notyf.success('Eliminada!');
-				load();
 			} else {
 				notyf.error(r.msg || 'Erro');
 			}
-		});
+		} catch (error) {
+			notyf.error('Erro ao eliminar');
+		}
 	};
 
 	return (
@@ -131,17 +121,17 @@ const AdminClasses = () => {
 												onClick={() => handleEdit(c)}
 												className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
 												title="Editar"
-												disabled={actionLoading}
+												disabled={updateClassMutation.isPending || createClassMutation.isPending}
 											>
-												{isActionLoading(`edit-${c.id}`) ? <Loader2 className="w-5 h-5 animate-spin" /> : <Pencil className="w-5 h-5" />}
+												{(updateClassMutation.isPending || createClassMutation.isPending) ? <Loader2 className="w-5 h-5 animate-spin" /> : <Pencil className="w-5 h-5" />}
 											</button>
 											<button
 												onClick={() => handleDelete(c.id)}
 												className="p-2 text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
 												title="Eliminar"
-												disabled={actionLoading}
+												disabled={deleteClassMutation.isPending}
 											>
-												{isActionLoading(`delete-${c.id}`) ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+												{deleteClassMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
 											</button>
 										</div>
 									</td>

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import {
 	Gauge,
@@ -16,126 +17,62 @@ import CarCardSkeleton from '../../components/CarCardSkeleton';
 import MobileFilterBar from '../../components/MobileFilterBar';
 import MobileFilterModal from '../../components/MobileFilterModal';
 import api, { API_URL, getImageUrl, notyf } from '../../services/api';
-import { useAuth } from '../../contexts/AuthContext';
+import useAuthStore from '../../stores/authStore';
+import { useWishlist, useAddVehicleToWishlist, useRemoveVehicleFromWishlist } from '../../hooks/queries/useWishlist';
 
 export default function AluguelDeAutomoveis() {
 	useDocumentTitle('Aluguel de Automóveis - Caxiauto');
 	const navigate = useNavigate();
 
-	const [vehicles, setVehicles] = useState([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState(null);
 	const [filters, setFilters] = useState({});
 	const [currentPage, setCurrentPage] = useState(1);
-	const [totalPages, setTotalPages] = useState(1);
-	const [totalVehicles, setTotalVehicles] = useState(0);
 	const [sortBy, setSortBy] = useState('createdAt');
 	const vehiclesPerPage = 16;
-	const [favorites, setFavorites] = useState(new Set());
-	const [loadingFavorites, setLoadingFavorites] = useState(new Set());
 	const [showMobileFilters, setShowMobileFilters] = useState(false);
 	const [mobileSearch, setMobileSearch] = useState('');
-	const { isAuthenticated } = useAuth();
+	const { isAuthenticated } = useAuthStore();
 
-	// Carrega veículos apenas na primeira renderização
-	useEffect(() => {
-		loadVehicles();
-	}, []);
+	const queryParams = useMemo(() => {
+		const params = { page: currentPage, limit: vehiclesPerPage, sort: sortBy, type: 'RENT' };
+		if (filters.search) params.search = filters.search;
+		if (filters.manufacturer) params.manufacturer = filters.manufacturer;
+		if (filters.class) params.class = filters.class;
+		if (filters.fuelType) params.fuelType = filters.fuelType;
+		if (filters.transmission) params.transmission = filters.transmission;
+		if (filters.minPrice) params.minPriceRent = filters.minPrice;
+		if (filters.maxPrice) params.maxPriceRent = filters.maxPrice;
+		if (filters.minYear) params.minYear = filters.minYear;
+		if (filters.maxYear) params.maxYear = filters.maxYear;
+		if (filters.featured) params.featured = 'true';
+		return params;
+	}, [filters, currentPage, sortBy]);
 
-	// Recarrega apenas quando a página muda
-	useEffect(() => {
-		if (currentPage !== 1) {
-			loadVehicles();
-		}
-	}, [currentPage]);
+	const { data: response, isLoading, error: queryError } = useQuery({
+		queryKey: ['vehicles', 'rent', currentPage, sortBy, filters],
+		queryFn: () => api.listVehicles(queryParams),
+	});
 
-	// Buscar favoritos do usuário quando autenticado
-	useEffect(() => {
-		const fetchFavorites = async () => {
-			if (!isAuthenticated) {
-				setFavorites(new Set());
-				return;
-			}
+	const vehicles = response?.data || []
+	const totalPages = response?.pagination?.totalPages || 1
+	const totalVehicles = response?.pagination?.total || 0
+	const error = queryError ? 'Erro ao conectar com o servidor' : (response && !response.success ? 'Erro ao carregar veículos' : null)
 
-			try {
-				const response = await api.getWishlist();
-				if (response.success && response.data) {
-					const favoriteIds = new Set(
-						response.data.vehicles?.map(v => v.id) || []
-					);
-					setFavorites(favoriteIds);
-				}
-			} catch (error) {
-				console.error('Erro ao buscar favoritos:', error);
-			}
-		};
+	const { data: wishlistData } = useWishlist()
+	const addFavoriteMutation = useAddVehicleToWishlist()
+	const removeFavoriteMutation = useRemoveVehicleFromWishlist()
 
-		fetchFavorites();
-	}, [isAuthenticated]);
+	const favorites = new Set(
+		(wishlistData?.vehicles || []).map(v => v.id)
+	)
 
 	// Sincronizar campo de busca mobile com os filtros aplicados
 	useEffect(() => {
 		setMobileSearch(filters.search || '');
 	}, [filters.search]);
 
-	const loadVehicles = async () => {
-		await loadVehiclesWithFilters(filters, currentPage, sortBy);
-	};
-
-	const loadVehiclesWithFilters = async (appliedFilters, page, sort) => {
-		try {
-			setLoading(true);
-			setError(null);
-
-			// Construir query params
-			const params = new URLSearchParams({
-				page: page,
-				limit: vehiclesPerPage,
-				sort: sort,
-				type: 'RENT'
-			});
-
-			// Adicionar filtros
-			if (appliedFilters.search) params.append('search', appliedFilters.search);
-			if (appliedFilters.manufacturer) params.append('manufacturer', appliedFilters.manufacturer);
-			if (appliedFilters.class) params.append('class', appliedFilters.class);
-			if (appliedFilters.fuelType) params.append('fuelType', appliedFilters.fuelType);
-			if (appliedFilters.transmission) params.append('transmission', appliedFilters.transmission);
-			if (appliedFilters.minPrice) params.append('minPriceRent', appliedFilters.minPrice);
-			if (appliedFilters.maxPrice) params.append('maxPriceRent', appliedFilters.maxPrice);
-			if (appliedFilters.minYear) params.append('minYear', appliedFilters.minYear);
-			if (appliedFilters.maxYear) params.append('maxYear', appliedFilters.maxYear);
-
-			// Filtro de destaque
-			if (appliedFilters.featured) {
-				params.append('featured', 'true');
-			}
-
-			// Fazer a requisição para a API
-			const response = await api.get(`/vehicles?${params.toString()}`);
-
-			if (response.success) {
-				setVehicles(response.data || []);
-				setTotalPages(response.pagination?.totalPages || 1);
-				setTotalVehicles(response.pagination?.total || 0);
-			} else {
-				setError('Erro ao carregar veículos');
-			}
-
-		} catch (err) {
-			console.error('Erro ao buscar veículos:', err);
-			setError('Erro ao conectar com o servidor');
-		} finally {
-			setLoading(false);
-		}
-	};
-
 	const handleFilterChange = (newFilters) => {
 		setFilters(newFilters);
 		setCurrentPage(1);
-		// Realiza a busca imediatamente após aplicar os filtros
-		setLoading(true);
-		loadVehiclesWithFilters(newFilters, 1, sortBy);
 	};
 
 	const handlePageChange = (page) => {
@@ -147,9 +84,6 @@ export default function AluguelDeAutomoveis() {
 		const newSortBy = e.target.value;
 		setSortBy(newSortBy);
 		setCurrentPage(1);
-		// Realiza nova busca com a ordenação alterada
-		setLoading(true);
-		loadVehiclesWithFilters(filters, 1, newSortBy);
 	};
 
 	const handleMobileSearchSubmit = () => {
@@ -157,11 +91,8 @@ export default function AluguelDeAutomoveis() {
 			...filters,
 			search: mobileSearch
 		};
-
 		setFilters(nextFilters);
 		setCurrentPage(1);
-		setLoading(true);
-		loadVehiclesWithFilters(nextFilters, 1, sortBy);
 	};
 
 	const handleMobileAdvancedFilterChange = (newFilters) => {
@@ -188,30 +119,19 @@ export default function AluguelDeAutomoveis() {
 			return;
 		}
 
-		// Evitar múltiplos cliques
-		if (loadingFavorites.has(carId)) return;
-
-		setLoadingFavorites(prev => new Set(prev).add(carId));
-
 		try {
 			const isFavorite = favorites.has(carId);
 
 			if (isFavorite) {
-				const response = await api.removeVehicleFromWishlist(carId);
+				const response = await removeFavoriteMutation.mutateAsync(carId);
 				if (response.success) {
-					setFavorites(prev => {
-						const newSet = new Set(prev);
-						newSet.delete(carId);
-						return newSet;
-					});
 					notyf.success('Removido dos favoritos');
 				} else {
 					notyf.error(response.message || 'Erro ao remover favorito');
 				}
 			} else {
-				const response = await api.addVehicleToWishlist(carId);
+				const response = await addFavoriteMutation.mutateAsync(carId);
 				if (response.success) {
-					setFavorites(prev => new Set(prev).add(carId));
 					notyf.success('Adicionado aos favoritos');
 				} else {
 					notyf.error(response.message || 'Erro ao adicionar favorito');
@@ -220,12 +140,6 @@ export default function AluguelDeAutomoveis() {
 		} catch (error) {
 			console.error('Erro ao alternar favorito:', error);
 			notyf.error('Erro ao processar favorito');
-		} finally {
-			setLoadingFavorites(prev => {
-				const newSet = new Set(prev);
-				newSet.delete(carId);
-				return newSet;
-			});
 		}
 	};
 
@@ -294,14 +208,14 @@ export default function AluguelDeAutomoveis() {
 								</div>
 
 								{/* Loading State */}
-								{loading && (
+								{isLoading && (
 									<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
 										<CarCardSkeleton count={8} className="w-full" />
 									</div>
 								)}
 
 								{/* Error State */}
-								{error && !loading && (
+								{error && !isLoading && (
 									<div className="bg-red-50 border-2 border-red-200 rounded-xl p-6 flex items-center gap-3">
 										<AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
 										<div>
@@ -312,7 +226,7 @@ export default function AluguelDeAutomoveis() {
 								)}
 
 								{/* Empty State */}
-								{!loading && !error && vehicles.length === 0 && (
+								{!isLoading && !error && vehicles.length === 0 && (
 									<div className="text-center py-20">
 										<Gauge className="w-16 h-16 text-gray-300 mx-auto mb-4" />
 										<h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhum veículo encontrado</h3>
@@ -321,7 +235,7 @@ export default function AluguelDeAutomoveis() {
 								)}
 
 								{/* Grid de Veículos */}
-								{!loading && !error && vehicles.length > 0 && (
+								{!isLoading && !error && vehicles.length > 0 && (
 									<>
 										<div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
 											{vehicles.map((car) => {
@@ -363,13 +277,12 @@ export default function AluguelDeAutomoveis() {
 																	onClick={(e) => toggleFavorite(e, car.id)}
 																	className={`absolute ${car.isVerified ? 'top-16' : 'top-4'} right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110 cursor-pointer`}
 																	aria-label={favorites.has(car.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-																	disabled={loadingFavorites.has(car.id)}
 																>
 																	<Heart
 																		className={`w-5 h-5 transition-all duration-200 ${favorites.has(car.id)
 																			? 'fill-red-500 text-red-500'
 																			: 'text-gray-600 hover:text-red-500'
-																		} ${loadingFavorites.has(car.id) ? 'opacity-50' : ''}`}
+																		}`}
 																	/>
 																</button>
 															)}

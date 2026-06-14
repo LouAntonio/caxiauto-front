@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import api, { notyf } from '../services/api';
+import { notyf } from '../services/api';
+import { useCreateReview } from '../hooks/queries/useReviews';
 import {
 	Star,
 	MessageSquare,
@@ -9,6 +10,7 @@ import {
 } from 'lucide-react';
 
 const ReviewForm = ({ sellerId, sellerName, onReviewSubmitted }) => {
+	const createReviewMutation = useCreateReview();
 	const [showForm, setShowForm] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [rating, setRating] = useState(0);
@@ -26,7 +28,7 @@ const ReviewForm = ({ sellerId, sellerName, onReviewSubmitted }) => {
 
 		setLoading(true);
 		try {
-			const response = await api.createReview(sellerId, rating, comment || undefined);
+			const response = await createReviewMutation.mutateAsync({ sellerId, rating, comment: comment || undefined });
 
 			if (response.success) {
 				notyf.success('Avaliação enviada com sucesso!');

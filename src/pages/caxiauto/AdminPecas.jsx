@@ -22,16 +22,15 @@ import {
 	ShieldCheck,
 	Star as StarFilled
 } from 'lucide-react';
+import { useAdminPendingPecas, useAdminApprovePeca, useAdminRejectPeca, useAdminDeletePeca, useCategorias } from '../../hooks/queries/useAdmin';
 
 const AdminPecas = () => {
 	const [loading, setLoading] = useState(true);
 	const [pecas, setPecas] = useState([]);
-	const [pendingPecas, setPendingPecas] = useState([]);
-	const [pendingCount, setPendingCount] = useState(0);
 	const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, total: 0 });
 	const [activeTab, setActiveTab] = useState('all');
 	const [filters, setFilters] = useState({ search: '', categoria: '', provincia: '' });
-	const [categorias, setCategorias] = useState([]);
+	const { data: categorias } = useCategorias();
 
 	// Modals
 	const [detailsModal, setDetailsModal] = useState({ open: false, peca: null });
@@ -65,39 +64,17 @@ const AdminPecas = () => {
 		}
 	};
 
-	const loadPendingPecas = async () => {
-		try {
-			const response = await api.adminListPendingPecas({ page: 1, limit: 50 });
-			if (response.success) {
-				setPendingPecas(response.data);
-				setPendingCount(response.pagination.total);
-			}
-		} catch (error) {
-			console.error('Erro ao carregar peças pendentes:', error);
-		}
-	};
-
-	const loadCategorias = async () => {
-		try {
-			const response = await api.listCategorias();
-			if (response.success) setCategorias(response.data);
-		} catch (error) {
-			console.error('Erro ao carregar categorias:', error);
-		}
-	};
+	const { data: pendingPecas, isLoading: isPendingLoading } = useAdminPendingPecas({ page: 1, limit: 50 });
+	const approvePecaMutation = useAdminApprovePeca();
+	const rejectPecaMutation = useAdminRejectPeca();
+	const deletePecaMutation = useAdminDeletePeca();
+	const pendingCount = pendingPecas?.length || 0;
 
 	useEffect(() => {
 		if (activeTab === 'all') {
 			loadPecas();
-		} else {
-			loadPendingPecas();
 		}
 	}, [pagination.currentPage, activeTab]);
-
-	useEffect(() => {
-		loadPendingPecas();
-		loadCategorias();
-	}, []);
 
 	const handleFilterChange = (e) => {
 		setFilters({ ...filters, [e.target.name]: e.target.value });
@@ -125,12 +102,11 @@ const AdminPecas = () => {
 
 	const handleApprove = async (id) => {
 		try {
-			const response = await api.adminApprovePeca(id);
+			const response = await approvePecaMutation.mutateAsync(id);
 			if (response.success) {
 				notyf.success('Peça aprovada com sucesso!');
 				setDetailsModal({ open: false, peca: null });
 				loadPecas();
-				loadPendingPecas();
 			} else {
 				notyf.error(response.message || 'Erro ao aprovar peça');
 			}
@@ -150,13 +126,12 @@ const AdminPecas = () => {
 			return;
 		}
 		try {
-			const response = await api.adminRejectPeca(rejectModal.pecaId, rejectModal.reason);
+			const response = await rejectPecaMutation.mutateAsync({ id: rejectModal.pecaId, reason: rejectModal.reason });
 			if (response.success) {
 				notyf.success('Peça negada. Email enviado ao proprietário.');
 				setRejectModal({ open: false, pecaId: null, pecaName: '', reason: '' });
 				setDetailsModal({ open: false, peca: null });
 				loadPecas();
-				loadPendingPecas();
 			} else {
 				notyf.error(response.message || 'Erro ao negar peça');
 			}
@@ -193,7 +168,6 @@ const AdminPecas = () => {
 				notyf.success(`Peça destacada por ${days} dias!`);
 				setFeaturedModal({ open: false, pecaId: null, pecaName: '', days: '7' });
 				loadPecas();
-				loadPendingPecas();
 			} else {
 				notyf.error(response.message || 'Erro ao definir destaque');
 			}
@@ -209,7 +183,6 @@ const AdminPecas = () => {
 			if (response.success) {
 				notyf.success('Destaque removido com sucesso!');
 				loadPecas();
-				loadPendingPecas();
 			} else {
 				notyf.error(response.message || 'Erro ao remover destaque');
 			}
@@ -238,11 +211,10 @@ const AdminPecas = () => {
 	const handleDelete = async (id) => {
 		if (!window.confirm('Tem certeza que deseja eliminar esta peça?')) return;
 		try {
-			const response = await api.adminDeletePeca(id);
+			const response = await deletePecaMutation.mutateAsync(id);
 			if (response.success) {
 				notyf.success('Peça eliminada com sucesso');
 				loadPecas();
-				loadPendingPecas();
 			} else {
 				notyf.error(response.msg || 'Erro ao eliminar peça');
 			}
@@ -394,7 +366,7 @@ const AdminPecas = () => {
 
 			{/* Tabela */}
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-				{loading ? (
+				{(activeTab === 'pending' ? isPendingLoading : loading) ? (
 					<div className="flex items-center justify-center py-20">
 						<Loader2 className="w-12 h-12 text-[#154c9a] animate-spin" />
 					</div>
@@ -451,8 +423,8 @@ const AdminPecas = () => {
 												peca.condition === 'NEW'
 													? 'bg-green-100 text-green-800'
 													: peca.condition === 'USED'
-													? 'bg-yellow-100 text-yellow-800'
-													: 'bg-blue-100 text-blue-800'
+														? 'bg-yellow-100 text-yellow-800'
+														: 'bg-blue-100 text-blue-800'
 											}`}>
 												{getConditionLabel(peca.condition)}
 											</span>
@@ -462,8 +434,8 @@ const AdminPecas = () => {
 												peca.status === 'ACTIVE'
 													? 'bg-green-100 text-green-800'
 													: peca.status === 'SOLD'
-													? 'bg-gray-100 text-gray-800'
-													: 'bg-yellow-100 text-yellow-800'
+														? 'bg-gray-100 text-gray-800'
+														: 'bg-yellow-100 text-yellow-800'
 											}`}>
 												{getStatusLabel(peca.status)}
 											</span>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import useAuthStore from '../../stores/authStore';
 import {
 	LayoutDashboard,
 	Car,
@@ -17,7 +17,7 @@ import {
 
 const ContaLayout = () => {
 	const location = useLocation();
-	const { user } = useAuth();
+	const { user } = useAuthStore();
 
 	const menuItems = [
 		{
@@ -106,9 +106,9 @@ const ContaLayout = () => {
 											key={item.path}
 											to={item.path}
 											className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${active
-													? 'bg-[#154c9a] text-white shadow-md'
-													: 'text-gray-700 hover:bg-gray-100'
-												}`}
+												? 'bg-[#154c9a] text-white shadow-md'
+												: 'text-gray-700 hover:bg-gray-100'
+											}`}
 										>
 											<Icon className={`w-5 h-5 ${active ? 'text-white' : 'text-gray-400'}`} />
 											<span className="font-medium">{item.title}</span>

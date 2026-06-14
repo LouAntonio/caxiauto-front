@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import useAuthStore from "../stores/authStore";
 import { User, LogOut } from "lucide-react";
 
 export default function Header() {
@@ -8,7 +8,7 @@ export default function Header() {
 	const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
 	const [mobileStandOpen, setMobileStandOpen] = useState(false);
 	const [mobileInstitucionalOpen, setMobileInstitucionalOpen] = useState(false);
-	const { user, logout } = useAuth();
+	const { user, logout } = useAuthStore();
 
 	const handleLogout = () => {
 		logout();

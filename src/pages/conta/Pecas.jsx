@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState, useEffect } from 'react';
+import useAuthStore from '../../stores/authStore';
 import {
 	Wrench,
 	Plus,
@@ -22,25 +22,29 @@ import {
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import api, { getImageUrl } from '../../services/api';
+import axios from 'axios';
 import { PecaCardSkeleton } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
 import VerificationWarning from '../../components/VerificationWarning';
 import useVerificationCheck from '../../hooks/useVerificationCheck';
+import { useMyPecas, useCreatePeca, useUpdatePeca, useDeletePeca, useTogglePecaStatus } from '../../hooks/queries/usePecas';
 
 const Pecas = () => {
 	useDocumentTitle('Minhas Peças - CaxiAuto');
 
-	const { user } = useAuth();
+	const { user } = useAuthStore();
 	const { isVerified, needsVerification } = useVerificationCheck();
-	const [pecas, setPecas] = useState([]);
+	const { data: pecas, isLoading } = useMyPecas();
+	const createPeca = useCreatePeca();
+	const updatePeca = useUpdatePeca();
+	const deletePeca = useDeletePeca();
+	const togglePecaStatus = useTogglePecaStatus();
 	const [categorias, setCategorias] = useState([]);
 	const [showModal, setShowModal] = useState(false);
 	const [editingPeca, setEditingPeca] = useState(null);
 	const [message, setMessage] = useState({ type: '', text: '' });
 	const [loading, setLoading] = useState(false);
 	const [actionLoading, setActionLoading] = useState(new Set());
-	const [isFetching, setIsFetching] = useState(false);
-	const abortControllerRef = useRef(null);
 	const [mediaFiles, setMediaFiles] = useState([]);
 	const [galleryFiles, setGalleryFiles] = useState([]);
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -71,56 +75,19 @@ const Pecas = () => {
 		'REFURBISHED': 'Recondicionado'
 	};
 
+	// Carregar categorias
 	useEffect(() => {
-		if (user) {
-			loadPecas();
-		}
-		loadCategorias();
-	}, [user]);
-
-	const loadCategorias = async () => {
-		try {
-			const response = await api.listCategorias();
-			if (response.success) {
-				setCategorias(response.data);
-			}
-		} catch (error) {
-			console.error('Erro ao carregar categorias:', error);
-		}
-	};
-
-	const loadPecas = useCallback(async () => {
-		if (abortControllerRef.current) {
-			abortControllerRef.current.abort();
-		}
-		if (isFetching) return;
-
-		const controller = new AbortController();
-		abortControllerRef.current = controller;
-		setIsFetching(true);
-
-		try {
-			const response = await api.minhasPecas();
-			if (!controller.signal.aborted && response.success) {
-				setPecas(response.data);
-			}
-		} catch (error) {
-			if (!controller.signal.aborted) {
-				console.error('Erro ao carregar peças:', error);
-			}
-		} finally {
-			if (!controller.signal.aborted) {
-				setIsFetching(false);
-			}
-		}
-	}, [isFetching]);
-
-	useEffect(() => {
-		return () => {
-			if (abortControllerRef.current) {
-				abortControllerRef.current.abort();
+		const loadCategorias = async () => {
+			try {
+				const response = await api.listCategorias();
+				if (response.success) {
+					setCategorias(response.data);
+				}
+			} catch (error) {
+				console.error('Erro ao carregar categorias:', error);
 			}
 		};
+		loadCategorias();
 	}, []);
 
 	const handleChange = (e) => {
@@ -227,18 +194,8 @@ const Pecas = () => {
 			formData.append('signature', signature);
 			formData.append('folder', folder);
 
-			const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, {
-				method: 'POST',
-				body: formData
-			});
-
-			if (!uploadResponse.ok) {
-				const errorData = await uploadResponse.json();
-				throw new Error(errorData.error?.message || 'Erro no upload para Cloudinary');
-			}
-
-			const data = await uploadResponse.json();
-			return data.secure_url;
+			const { data: uploadData } = await axios.post(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, formData);
+			return uploadData.secure_url;
 		} catch (error) {
 			console.error('Erro no upload:', error);
 			throw error;
@@ -293,9 +250,9 @@ const Pecas = () => {
 
 			let response;
 			if (editingPeca) {
-				response = await api.updatePeca(editingPeca.id, pecaData);
+				response = await updatePeca.mutateAsync({ id: editingPeca.id, data: pecaData });
 			} else {
-				response = await api.createPeca(pecaData);
+				response = await createPeca.mutateAsync(pecaData);
 			}
 
 			if (response.success) {
@@ -303,7 +260,6 @@ const Pecas = () => {
 					? response.msg || 'Peça atualizada com sucesso! Aguardando aprovação.'
 					: response.msg || 'Peça cadastrada com sucesso!';
 				setMessage({ type: 'success', text: successText });
-				await loadPecas();
 				setTimeout(() => {
 					handleCloseModal();
 				}, 3000);
@@ -326,10 +282,9 @@ const Pecas = () => {
 		setConfirmAction(() => async () => {
 			setActionLoading(prev => new Set(prev).add(`delete-${pecaId}`));
 			try {
-				const response = await api.deletePeca(pecaId);
+				const response = await deletePeca.mutateAsync(pecaId);
 				if (response.success) {
 					setMessage({ type: 'success', text: 'Peça excluída com sucesso!' });
-					await loadPecas();
 					setTimeout(() => setMessage({ type: '', text: '' }), 3000);
 				} else {
 					setMessage({ type: 'error', text: response.message || 'Erro ao excluir peça.' });
@@ -357,10 +312,9 @@ const Pecas = () => {
 		setConfirmAction(() => async () => {
 			setActionLoading(prev => new Set(prev).add(`toggle-${pecaId}`));
 			try {
-				const response = await api.togglePecaStatus(pecaId, newStatus);
+				const response = await togglePecaStatus.mutateAsync({ id: pecaId, status: newStatus });
 				if (response.success) {
 					setMessage({ type: 'success', text: response.msg || 'Visibilidade alterada com sucesso!' });
-					await loadPecas();
 					setTimeout(() => setMessage({ type: '', text: '' }), 3000);
 				} else {
 					setMessage({ type: 'error', text: response.message || 'Erro ao alterar visibilidade.' });
@@ -451,7 +405,7 @@ const Pecas = () => {
 			)}
 
 			{/* Lista de peças */}
-			{isFetching ? (
+			{isLoading ? (
 				<PecaCardSkeleton count={4} />
 			) : pecas.length === 0 ? (
 				<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import useAuthStore from '../stores/authStore';
 import { useNavigate } from 'react-router-dom';
 import {
 	User,
@@ -28,7 +28,7 @@ import useDocumentTitle from '../hooks/useDocumentTitle';
 const MinhaConta = () => {
 	useDocumentTitle('Minha Conta - CaxiAuto');
 
-	const { user, logout, updateUser } = useAuth();
+	const { user, logout, updateUser } = useAuthStore();
 	const navigate = useNavigate();
 	const [isEditing, setIsEditing] = useState(false);
 	const [message, setMessage] = useState('');
@@ -160,9 +160,9 @@ const MinhaConta = () => {
 				{/* Mensagem de feedback */}
 				{message && (
 					<div className={`mb-6 p-4 rounded-lg ${message.includes('sucesso')
-							? 'bg-green-50 border border-green-200 text-green-700'
-							: 'bg-red-50 border border-red-200 text-red-700'
-						}`}>
+						? 'bg-green-50 border border-green-200 text-green-700'
+						: 'bg-red-50 border border-red-200 text-red-700'
+					}`}>
 						{message}
 					</div>
 				)}

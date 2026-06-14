@@ -25,12 +25,16 @@ import {
 import { AdminTableSkeleton, AdminFormSkeleton, AdminModalSkeleton } from '../../components/skeletons';
 import useLoadingState from '../../hooks/useLoadingState';
 import useDebounce from '../../hooks/useDebounce';
+import {
+	useAdminPendingVehicles,
+	useAdminApproveVehicle,
+	useAdminRejectVehicle,
+	useAdminDeleteVehicle,
+} from '../../hooks/queries/useAdmin';
 
 const AdminVehicles = () => {
 	const [loading, setLoading] = useState(true);
 	const [vehicles, setVehicles] = useState([]);
-	const [pendingVehicles, setPendingVehicles] = useState([]);
-	const [pendingCount, setPendingCount] = useState(0);
 	const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, total: 0 });
 	const [activeTab, setActiveTab] = useState('all'); // 'all' | 'pending'
 	const [filters, setFilters] = useState({
@@ -49,6 +53,12 @@ const AdminVehicles = () => {
 	const [detailsModal, setDetailsModal] = useState({ open: false, vehicle: null });
 	const [rejectModal, setRejectModal] = useState({ open: false, vehicleId: null, vehicleName: '', reason: '' });
 	const [featuredModal, setFeaturedModal] = useState({ open: false, vehicleId: null, vehicleName: '', days: '7' });
+
+	const { data: pendingVehicles, isLoading: isPendingLoading } = useAdminPendingVehicles({ page: 1, limit: 50 });
+	const approveVehicleMutation = useAdminApproveVehicle();
+	const rejectVehicleMutation = useAdminRejectVehicle();
+	const deleteVehicleMutation = useAdminDeleteVehicle();
+	const pendingCount = pendingVehicles?.length || 0;
 
 	const loadVehicles = async () => {
 		setLoading(true);
@@ -84,29 +94,10 @@ const AdminVehicles = () => {
 		}
 	};
 
-	const loadPendingVehicles = async () => {
-		try {
-			const response = await api.adminListPendingVehicles({ page: 1, limit: 50 });
-			if (response.success) {
-				setPendingVehicles(response.data);
-				setPendingCount(response.pagination.total);
-			}
-		} catch (error) {
-			console.error('Erro ao carregar veículos pendentes:', error);
-		}
-	};
-
-	// Carregar dados iniciais
-	useEffect(() => {
-		loadPendingVehicles();
-	}, []);
-
 	// Carregar dados quando tab, paginação ou filtros mudam
 	useEffect(() => {
 		if (activeTab === 'all') {
 			loadVehicles();
-		} else {
-			loadPendingVehicles();
 		}
 	}, [pagination.currentPage, activeTab]);
 
@@ -138,17 +129,18 @@ const AdminVehicles = () => {
 	};
 
 	const handleApprove = async (id) => {
-		await withLoading(async () => {
-			const response = await api.adminApproveVehicle(id);
+		try {
+			const response = await approveVehicleMutation.mutateAsync(id);
 			if (response.success) {
 				notyf.success('Veículo aprovado com sucesso!');
 				setDetailsModal({ open: false, vehicle: null });
 				loadVehicles();
-				loadPendingVehicles();
 			} else {
 				notyf.error(response.message || 'Erro ao aprovar veículo');
 			}
-		});
+		} catch (error) {
+			notyf.error('Erro ao aprovar veículo');
+		}
 	};
 
 	const handleReject = (id, name) => {
@@ -160,18 +152,19 @@ const AdminVehicles = () => {
 			notyf.error('O motivo da negação é obrigatório');
 			return;
 		}
-		await withLoading(async () => {
-			const response = await api.adminRejectVehicle(rejectModal.vehicleId, rejectModal.reason);
+		try {
+			const response = await rejectVehicleMutation.mutateAsync({ id: rejectModal.vehicleId, reason: rejectModal.reason });
 			if (response.success) {
 				notyf.success('Veículo negado. Email enviado ao proprietário.');
 				setRejectModal({ open: false, vehicleId: null, vehicleName: '', reason: '' });
 				setDetailsModal({ open: false, vehicle: null });
 				loadVehicles();
-				loadPendingVehicles();
 			} else {
 				notyf.error(response.message || 'Erro ao negar veículo');
 			}
-		});
+		} catch (error) {
+			notyf.error('Erro ao negar veículo');
+		}
 	};
 
 	const handleSetFeatured = (id, name) => {
@@ -202,7 +195,6 @@ const AdminVehicles = () => {
 					notyf.success(`Veículo destacado por ${days} dias!`);
 					setFeaturedModal({ open: false, vehicleId: null, vehicleName: '', days: '7' });
 					loadVehicles();
-					loadPendingVehicles();
 				} else {
 					notyf.error(response.message || 'Erro ao definir destaque');
 				}
@@ -219,7 +211,6 @@ const AdminVehicles = () => {
 			if (response.success) {
 				notyf.success('Destaque removido com sucesso!');
 				loadVehicles();
-				loadPendingVehicles();
 			} else {
 				notyf.error(response.message || 'Erro ao remover destaque');
 			}
@@ -242,16 +233,17 @@ const AdminVehicles = () => {
 	const handleDelete = async (id) => {
 		if (!window.confirm('Tem certeza que deseja eliminar este veículo?')) return;
 
-		await withLoading(async () => {
-			const response = await api.adminDeleteVehicle(id);
+		try {
+			const response = await deleteVehicleMutation.mutateAsync(id);
 			if (response.success) {
 				notyf.success('Veículo eliminado com sucesso');
 				loadVehicles();
-				loadPendingVehicles();
 			} else {
 				notyf.error(response.message || 'Erro ao eliminar veículo');
 			}
-		});
+		} catch (error) {
+			notyf.error('Erro ao eliminar veículo');
+		}
 	};
 
 	const formatCurrency = (value) => {
@@ -416,7 +408,7 @@ const AdminVehicles = () => {
 
 			{/* Tabela de Veículos */}
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-				{loading ? (
+				{(activeTab === 'pending' ? isPendingLoading : loading) ? (
 					<AdminTableSkeleton rows={6} columns={8} />
 				) : data.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-20">

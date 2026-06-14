@@ -146,15 +146,15 @@ export default function Publicidades() {
 								>
 									<div
 										className={`${item.bgColor} rounded-lg p-6 h-48 flex flex-col items-center justify-center text-white shadow-lg hover:scale-105 transition-transform cursor-pointer`}
-										>
-											<div className="text-4xl mb-3">{item.icon}</div>
-											<h3 className="text-xl font-bold mb-1 text-center">
-												{item.title}
-											</h3>
-											<p className="text-center text-xs opacity-90">
-												{item.description}
-											</p>
-										</div>
+									>
+										<div className="text-4xl mb-3">{item.icon}</div>
+										<h3 className="text-xl font-bold mb-1 text-center">
+											{item.title}
+										</h3>
+										<p className="text-center text-xs opacity-90">
+											{item.description}
+										</p>
+									</div>
 								</div>
 							))}
 						</div>

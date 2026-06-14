@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import useAuthStore from '../../stores/authStore';
 import api, { notyf } from '../../services/api';
+import axios from 'axios';
 import {
 	FileText,
 	Upload,
@@ -20,7 +21,7 @@ import ButtonLoader from '../../components/ButtonLoader';
 const Documentos = () => {
 	useDocumentTitle('Documentos - CaxiAuto');
 
-	const { user } = useAuth();
+	const { user } = useAuthStore();
 	const [loading, setLoading] = useState(true);
 	const [uploading, setUploading] = useState(false);
 	const [sellerDocs, setSellerDocs] = useState(null);
@@ -88,18 +89,8 @@ const Documentos = () => {
 		formData.append('signature', signature);
 		formData.append('folder', folder);
 
-		const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, {
-			method: 'POST',
-			body: formData
-		});
-
-		if (!res.ok) {
-			const err = await res.json();
-			throw new Error(err.error?.message || 'Erro no upload');
-		}
-
-		const data = await res.json();
-		return data.secure_url;
+		const { data: uploadData } = await axios.post(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, formData);
+		return uploadData.secure_url;
 	};
 
 	const handleSubmit = async (e) => {
