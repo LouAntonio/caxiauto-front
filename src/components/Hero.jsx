@@ -58,9 +58,9 @@ export default function Hero() {
 	}
 
 	return (
-		<header className="relative bg-gradient-to-r from-[#154c9a] via-[#0c2d5e] to-transparent text-white overflow-hidden min-h-[calc(100dvh-80px)]">
+		<section id="hero-section" className="relative bg-gradient-to-r from-[#154c9a] via-[#0c2d5e] to-transparent text-white overflow-hidden min-h-screen -mt-20">
 			<div
-				className="absolute inset-0 bg-cover bg-center opacity-50"
+				className="absolute inset-0 bg-cover bg-center opacity-30"
 				style={{
 					backgroundImage:
 						"url('./images/caxiauto-hero.jpeg')",
@@ -68,7 +68,7 @@ export default function Hero() {
 				aria-hidden="true"
 			/>
 
-			<div className="relative max-w-7xl mx-auto px-6 lg:px-8 h-full flex flex-col justify-center gap-8 py-24">
+			<div className="relative max-w-7xl mx-auto px-6 lg:px-8 h-full flex flex-col justify-center gap-8 pb-24 pt-20">
 				<div className="max-w-3xl">
 					<h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight drop-shadow-md [text-wrap:balance]">
 						Escolha o seu carro online
@@ -193,6 +193,6 @@ export default function Hero() {
 					</form>
 				</div>
 			</div>
-		</header>
+		</section>
 	)
 }

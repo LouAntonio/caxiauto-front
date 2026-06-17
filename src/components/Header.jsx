@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import useAuthStore from "../stores/authStore";
 import { User, LogOut } from "lucide-react";
 
@@ -9,6 +9,31 @@ export default function Header() {
 	const [mobileStandOpen, setMobileStandOpen] = useState(false);
 	const [mobileInstitucionalOpen, setMobileInstitucionalOpen] = useState(false);
 	const { user, logout } = useAuthStore();
+	const location = useLocation();
+	const isHomePage = location.pathname === "/";
+	const [scrolledPastHero, setScrolledPastHero] = useState(!isHomePage);
+
+	useEffect(() => {
+		if (!isHomePage) {
+			setScrolledPastHero(true);
+			return;
+		}
+
+		const handleScroll = () => {
+			const hero = document.getElementById("hero-section");
+			if (hero) {
+				setScrolledPastHero(hero.getBoundingClientRect().bottom <= 0);
+			} else {
+				setScrolledPastHero(true);
+			}
+		};
+
+		handleScroll();
+		window.addEventListener("scroll", handleScroll, { passive: true });
+		return () => window.removeEventListener("scroll", handleScroll);
+	}, [isHomePage]);
+
+	const isSolid = !isHomePage || scrolledPastHero;
 
 	const handleLogout = () => {
 		logout();
@@ -19,7 +44,7 @@ export default function Header() {
 	};
 
 	return (
-		<header className="sticky top-0 z-50 bg-white border-b border-[#e5e7eb] min-h-[80px]">
+		<header className={`sticky top-0 z-50 min-h-[80px] transition-all duration-300 ${isSolid ? "bg-white border-b border-[#e5e7eb] shadow-sm" : "bg-transparent border-b border-white/20 shadow-none"}`}>
 			<div className="mx-auto h-full">
 				<div className="h-20 flex max-w-7xl mx-auto items-center justify-between gap-8 px-6 lg:px-8">
 					{/* Left: Logo */}
@@ -33,13 +58,13 @@ export default function Header() {
 					<nav className="hidden min-[971px]:flex items-center gap-8">
 						<Link
 							to="/"
-							className="text-[#6b7280] font-medium font-body hover:text-[#154c9a] transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-[#154c9a] hover:after:w-full after:transition-all"
+							className={`font-medium font-body transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 hover:after:w-full after:transition-all ${isSolid ? "text-[#6b7280] hover:text-[#154c9a] after:bg-[#154c9a]" : "text-white/90 hover:text-white after:bg-white"}`}
 						>
 							Home
 						</Link>
 
 						<div className="relative group">
-							<button className="flex items-center gap-2 text-[#6b7280] font-medium font-body hover:text-[#154c9a] transition-colors duration-200">
+							<button className={`flex items-center gap-2 font-medium font-body transition-colors duration-200 ${isSolid ? "text-[#6b7280] hover:text-[#154c9a]" : "text-white/90 hover:text-white"}`}>
 								Institucional
 								<svg className="w-4 h-4 transition-transform group-hover:rotate-180" viewBox="0 0 20 20" fill="currentColor">
 									<path d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.356a.75.75 0 111.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z" />
@@ -61,13 +86,13 @@ export default function Header() {
 						<Link
 							to="/venda-seu-automovel"
 							onClick={() => setMobileMenuOpen(false)}
-							className="text-[#6b7280] font-medium font-body hover:text-[#154c9a] transition-colors duration-200"
+							className={`font-medium font-body transition-colors duration-200 ${isSolid ? "text-[#6b7280] hover:text-[#154c9a]" : "text-white/90 hover:text-white"}`}
 						>
 							Venda Sua Viatura
 						</Link>
 
 						<div className="relative group">
-							<button className="flex items-center gap-2 text-[#6b7280] font-medium font-body hover:text-[#154c9a] transition-colors duration-200">
+							<button className={`flex items-center gap-2 font-medium font-body transition-colors duration-200 ${isSolid ? "text-[#6b7280] hover:text-[#154c9a]" : "text-white/90 hover:text-white"}`}>
 								Serviços
 								<svg className="w-4 h-4 transition-transform group-hover:rotate-180" viewBox="0 0 20 20" fill="currentColor">
 									<path d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.356a.75.75 0 111.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z" />
@@ -90,7 +115,7 @@ export default function Header() {
 						</div>
 
 						<div className="relative group">
-							<button className="flex items-center gap-2 text-[#6b7280] font-medium font-body hover:text-[#154c9a] transition-colors duration-200">
+							<button className={`flex items-center gap-2 font-medium font-body transition-colors duration-200 ${isSolid ? "text-[#6b7280] hover:text-[#154c9a]" : "text-white/90 hover:text-white"}`}>
 								Stand
 								<svg className="w-4 h-4 transition-transform group-hover:rotate-180" viewBox="0 0 20 20" fill="currentColor">
 									<path d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.356a.75.75 0 111.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z" />
@@ -107,7 +132,7 @@ export default function Header() {
 						</div>
 						<Link
 							to="/contato"
-							className="text-[#6b7280] font-medium font-body hover:text-[#154c9a] transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-[#154c9a] hover:after:w-full after:transition-all"
+							className={`font-medium font-body transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 hover:after:w-full after:transition-all ${isSolid ? "text-[#6b7280] hover:text-[#154c9a] after:bg-[#154c9a]" : "text-white/90 hover:text-white after:bg-white"}`}
 						>
 							Contato
 						</Link>
@@ -118,7 +143,7 @@ export default function Header() {
 						<div className="hidden min-[971px]:flex items-center gap-3">
 							{user ? (
 								<div className="relative group">
-									<button className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[#6b7280] font-medium font-body hover:bg-[#f8f6f2] transition-colors cursor-pointer">
+									<button className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-medium font-body transition-colors cursor-pointer ${isSolid ? "text-[#6b7280] hover:bg-[#f8f6f2]" : "text-white/90 hover:bg-white/10"}`}>
 										<User className="w-5 h-5" />
 										<span>Olá, {user.name.split(' ')[0]}</span>
 										<svg className="w-4 h-4 transition-transform group-hover:rotate-180" viewBox="0 0 20 20" fill="currentColor">
@@ -145,7 +170,7 @@ export default function Header() {
 							) : (
 								<Link
 									to="/auth"
-									className="px-6 py-2.5 rounded-2xl text-white font-semibold font-body shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5 bg-[#154c9a] hover:bg-blue-800"
+									className={`px-6 py-2.5 rounded-2xl font-semibold font-body transition-all duration-200 hover:-translate-y-0.5 ${isSolid ? "text-white shadow-lg hover:shadow-xl bg-[#154c9a] hover:bg-blue-800" : "text-white border border-white/30 bg-white/10 hover:bg-white/20"}`}
 								>
 									Entrar
 								</Link>
@@ -155,7 +180,7 @@ export default function Header() {
 						<div className="min-[971px]:hidden">
 							<button
 								onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-								className="p-2.5 rounded-2xl text-white bg-[#154c9a] hover:bg-blue-800 transition-colors"
+								className={`p-2.5 rounded-2xl text-white transition-colors ${isSolid ? "bg-[#154c9a] hover:bg-blue-800" : "bg-white/20 hover:bg-white/30 backdrop-blur-sm"}`}
 								aria-label="Toggle menu"
 							>
 								{mobileMenuOpen ? (
@@ -174,7 +199,7 @@ export default function Header() {
 
 				{/* Mobile Menu */}
 				{mobileMenuOpen && (
-					<div className="min-[971px]:hidden border-t border-[#e5e7eb]">
+					<div className={`min-[971px]:hidden border-t bg-white ${isSolid ? "border-[#e5e7eb]" : "border-white/20"}`}>
 						<nav className="px-4 py-4 space-y-2">
 							<Link
 								to="/"
