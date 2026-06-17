@@ -117,6 +117,13 @@ export default function Compra() {
 		return vehicle.priceSale;
 	};
 
+	const formatPrice = (price) => {
+		if (price === null || price === undefined || isNaN(price) || price === 0) {
+			return 'Preço sob consulta'
+		}
+		return new Intl.NumberFormat('pt-AO').format(price)
+	};
+
 	const toggleFavorite = async (e, carId) => {
 		e.preventDefault();
 		e.stopPropagation();
@@ -305,10 +312,10 @@ export default function Compra() {
 																{car.name}
 															</h3>
 
-															{price && (
+															{price != null && (
 																<div className="text-center mb-4">
 																	<div className="font-['JetBrains_Mono',monospace] text-xl font-bold text-[#154c9a]">
-																		{price.toLocaleString('pt-AO')},00 Kz
+																		{formatPrice(price)} Kz
 																	</div>
 																</div>
 															)}
