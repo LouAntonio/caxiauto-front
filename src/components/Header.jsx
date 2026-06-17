@@ -14,17 +14,12 @@ export default function Header() {
 	const [scrolledPastHero, setScrolledPastHero] = useState(!isHomePage);
 
 	useEffect(() => {
-		if (!isHomePage) {
-			setScrolledPastHero(true);
-			return;
-		}
+		if (!isHomePage) return;
 
 		const handleScroll = () => {
 			const hero = document.getElementById("hero-section");
 			if (hero) {
 				setScrolledPastHero(hero.getBoundingClientRect().bottom <= 0);
-			} else {
-				setScrolledPastHero(true);
 			}
 		};
 
