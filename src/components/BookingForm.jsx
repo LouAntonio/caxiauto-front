@@ -18,7 +18,6 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 	const [startDate, setStartDate] = useState('');
 	const [endDate, setEndDate] = useState('');
 
-	// Calcular dias entre datas
 	const calculateDays = () => {
 		if (!startDate || !endDate) return 0;
 		const start = new Date(startDate);
@@ -28,14 +27,12 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 		return diffDays > 0 ? diffDays : 0;
 	};
 
-	// Calcular preço total
 	const calculateTotalPrice = () => {
 		const days = calculateDays();
 		if (!days || !vehicle?.price) return 0;
 		return vehicle.price * days;
 	};
 
-	// Validar datas
 	const validateDates = () => {
 		const today = new Date();
 		today.setHours(0, 0, 0, 0);
@@ -60,7 +57,6 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 		return true;
 	};
 
-	// Criar reserva
 	const handleCreateBooking = async () => {
 		if (!validateDates()) return;
 
@@ -87,7 +83,6 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 		}
 	};
 
-	// Formatar preço
 	const formatPrice = (price) => {
 		return new Intl.NumberFormat('pt-AO', {
 			style: 'currency',
@@ -95,7 +90,6 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 		}).format(price);
 	};
 
-	// Obter data mínima (hoje)
 	const getMinDate = () => {
 		const today = new Date();
 		return today.toISOString().split('T')[0];
@@ -105,7 +99,7 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 		return (
 			<button
 				onClick={() => setShowForm(true)}
-				className="w-full bg-[#154c9a] text-white py-3 px-6 rounded-lg hover:bg-[#123f80] transition-colors font-semibold flex items-center justify-center gap-2"
+				className="w-full bg-[#154c9a] text-white py-3 px-6 rounded-2xl hover:bg-[#0c2d5e] transition-all duration-300 font-semibold font-body flex items-center justify-center gap-2"
 			>
 				<Calendar className="w-5 h-5" />
 				Reservar Veículo
@@ -117,25 +111,23 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 	const totalPrice = calculateTotalPrice();
 
 	return (
-		<div className="bg-white border-2 border-[#154c9a] rounded-xl p-6">
-			{/* Header */}
+		<div className="bg-white border border-[#e5e7eb] rounded-2xl p-6">
 			<div className="flex items-center justify-between mb-6">
 				<div className="flex items-center gap-2">
 					<Calendar className="w-6 h-6 text-[#154c9a]" />
-					<h3 className="text-lg font-bold text-gray-900">Reservar Veículo</h3>
+					<h3 className="font-display text-lg font-bold text-[#111827]">Reservar Veículo</h3>
 				</div>
 				<button
 					onClick={() => setShowForm(false)}
-					className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+					className="p-2 hover:bg-[#f8f6f2] rounded-lg transition-colors cursor-pointer"
 				>
-					<X className="w-5 h-5 text-gray-500" />
+					<X className="w-5 h-5 text-[#6b7280]" />
 				</button>
 			</div>
 
-			{/* Seleção de Datas */}
 			<div className="space-y-4 mb-6">
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2">
+					<label className="block font-body text-sm font-medium text-[#6b7280] mb-2">
 						Data de Início
 					</label>
 					<input
@@ -143,12 +135,12 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 						value={startDate}
 						onChange={(e) => setStartDate(e.target.value)}
 						min={getMinDate()}
-						className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+						className="w-full px-4 py-3 border border-[#e5e7eb] rounded-xl font-body focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]/20 outline-none transition-all"
 					/>
 				</div>
 
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2">
+					<label className="block font-body text-sm font-medium text-[#6b7280] mb-2">
 						Data de Fim
 					</label>
 					<input
@@ -156,54 +148,51 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 						value={endDate}
 						onChange={(e) => setEndDate(e.target.value)}
 						min={startDate || getMinDate()}
-						className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+						className="w-full px-4 py-3 border border-[#e5e7eb] rounded-xl font-body focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]/20 outline-none transition-all"
 					/>
 				</div>
 			</div>
 
-			{/* Resumo da Reserva */}
 			{days > 0 && (
-				<div className="bg-gray-50 rounded-lg p-4 mb-6 space-y-3">
-					<div className="flex items-center justify-between text-sm">
-						<div className="flex items-center gap-2 text-gray-600">
+				<div className="bg-[#f8f6f2] rounded-xl p-4 mb-6 space-y-3">
+					<div className="flex items-center justify-between font-body text-sm">
+						<div className="flex items-center gap-2 text-[#6b7280]">
 							<Clock className="w-4 h-4" />
 							<span>Duração</span>
 						</div>
-						<span className="font-semibold text-gray-900">{days} {days === 1 ? 'dia' : 'dias'}</span>
+						<span className="font-semibold text-[#111827]">{days} {days === 1 ? 'dia' : 'dias'}</span>
 					</div>
-					<div className="flex items-center justify-between text-sm">
-						<div className="flex items-center gap-2 text-gray-600">
+					<div className="flex items-center justify-between font-body text-sm">
+						<div className="flex items-center gap-2 text-[#6b7280]">
 							<Euro className="w-4 h-4" />
 							<span>Preço/dia</span>
 						</div>
-						<span className="font-semibold text-gray-900">{formatPrice(vehicle?.price)}</span>
+						<span className="font-semibold text-[#111827]">{formatPrice(vehicle?.price)}</span>
 					</div>
 					{vehicle?.price && (
-						<div className="border-t pt-3 mt-3">
+						<div className="border-t border-[#e5e7eb] pt-3 mt-3">
 							<div className="flex items-center justify-between">
-								<span className="font-medium text-gray-700">Total Estimado</span>
-								<span className="text-xl font-bold text-[#154c9a]">{formatPrice(totalPrice)}</span>
+								<span className="font-medium text-[#6b7280] font-body">Total Estimado</span>
+								<span className="text-xl font-bold text-[#154c9a] font-['JetBrains_Mono',monospace]">{formatPrice(totalPrice)}</span>
 							</div>
 						</div>
 					)}
 				</div>
 			)}
 
-			{/* Aviso */}
-			<div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+			<div className="bg-[#eef3fa] border border-[#154c9a]/20 rounded-xl p-3 mb-6">
 				<div className="flex items-start gap-2">
-					<AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-					<p className="text-sm text-blue-700">
+					<AlertCircle className="w-5 h-5 text-[#154c9a] mt-0.5 flex-shrink-0" />
+					<p className="font-body text-sm text-[#154c9a]">
 						A reserva será enviada ao proprietário para confirmação. Você receberá uma notificação quando for confirmada.
 					</p>
 				</div>
 			</div>
 
-			{/* Botão de Confirmar */}
 			<button
 				onClick={handleCreateBooking}
 				disabled={loading || !startDate || !endDate}
-				className="w-full bg-[#154c9a] text-white py-3 px-6 rounded-lg hover:bg-[#123f80] transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+				className="w-full bg-[#154c9a] text-white py-3 px-6 rounded-2xl hover:bg-[#0c2d5e] transition-all duration-300 font-semibold font-body flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
 			>
 				{loading ? (
 					<>
