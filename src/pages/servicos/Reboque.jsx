@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import {
 	Phone,
@@ -12,163 +12,219 @@ import {
 	ShieldCheck,
 	Map,
 	BadgeDollarSign,
-	Headphones
+	Headphones,
+	CheckCircle2,
+	ArrowRight,
+	Sparkles,
+	Star
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+const steps = [
+	{
+		number: '01',
+		title: 'Faça o Pedido',
+		description: 'Contacte a Caxiauto através da plataforma informando sua localização e tipo de problema.',
+		icon: Phone,
+	},
+	{
+		number: '02',
+		title: 'Localização e Conexão',
+		description: 'O nosso sistema localiza a empresa de reboque mais próxima de si para garantir uma resposta imediata.',
+		icon: MapPin,
+	},
+	{
+		number: '03',
+		title: 'Assistência a Caminho',
+		description: 'O parceiro de reboque desloca-se rapidamente até ao seu local para resolver a situação com profissionalismo.',
+		icon: Truck,
+	}
+];
+
+const services = [
+	{
+		icon: AlertTriangle,
+		title: 'Reboque de Emergência',
+		description: 'Serviço 24 horas para situações de avaria ou acidente na estrada.'
+	},
+	{
+		icon: Wrench,
+		title: 'Assistência Roadside',
+		description: 'Pequenos reparos e assistência na estrada para problemas menores como pneus ou bateria.'
+	},
+	{
+		icon: Truck,
+		title: 'Transporte de Viaturas',
+		description: 'Transporte seguro de veículos para oficinas, residências ou locais de destino.'
+	},
+	{
+		icon: Shield,
+		title: 'Cobertura Completa',
+		description: 'Serviços adaptados para todos os tipos de viaturas (ligeiros, pesados, motos) com equipamento adequado.'
+	}
+];
+
+const benefits = [
+	{ icon: Zap, title: 'Resposta Rápida', description: 'Chegamos até si no menor tempo possível.' },
+	{ icon: ShieldCheck, title: 'Parceiros Verificados', description: 'Trabalhamos apenas com empresas certificadas.' },
+	{ icon: Map, title: 'Ampla Cobertura', description: 'Serviço disponível em diversas zonas.' },
+	{ icon: BadgeDollarSign, title: 'Preço Justo', description: 'Valores transparentes sem surpresas.' },
+	{ icon: Headphones, title: 'Suporte Dedicado', description: 'Acompanhamento do início ao fim.' },
+];
+
+function useScrollReveal(threshold = 0.15) {
+	const ref = useRef(null)
+	const [isVisible, setIsVisible] = useState(
+		() => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+	)
+
+	useEffect(() => {
+		if (isVisible) return
+		const el = ref.current
+		if (!el) return
+
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting) {
+					setIsVisible(true)
+					observer.unobserve(el)
+				}
+			},
+			{ threshold }
+		)
+
+		observer.observe(el)
+		return () => observer.disconnect()
+	}, [threshold, isVisible])
+
+	return [ref, isVisible]
+}
+
 export default function Reboque() {
-	useDocumentTitle('Reboque - Caxiauto');
+	useDocumentTitle('Reboque - Caxiauto')
 
-	const steps = [
-		{
-			number: '01',
-			label: 'PASSO',
-			title: 'Faça o Pedido',
-			description: 'Contacte a Caxiauto através da plataforma informando sua localização e tipo de problema.',
-			icon: Phone,
-		},
-		{
-			number: '02',
-			label: 'PASSO',
-			title: 'Localização e Conexão',
-			description: 'O nosso sistema localiza a empresa de reboque mais próxima de si para garantir uma resposta imediata.',
-			icon: MapPin,
-		},
-		{
-			number: '03',
-			label: 'PASSO',
-			title: 'Assistência a Caminho',
-			description: 'O parceiro de reboque desloca-se rapidamente até ao seu local para resolver a situação com profissionalismo.',
-			icon: Truck,
-		}
-	];
+	const [heroLineDrawn, setHeroLineDrawn] = useState(
+		() => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+	)
 
-	const services = [
-		{
-			icon: AlertTriangle,
-			title: 'Reboque de Emergência',
-			description: 'Serviço 24 horas para situações de avaria ou acidente na estrada.'
-		},
-		{
-			icon: Wrench,
-			title: 'Assistência Roadside',
-			description: 'Pequenos reparos e assistência na estrada para problemas menores como pneus ou bateria.'
-		},
-		{
-			icon: Truck,
-			title: 'Transporte de Viaturas',
-			description: 'Transporte seguro de veículos para oficinas, residências ou locais de destino.'
-		},
-		{
-			icon: Shield,
-			title: 'Cobertura Completa',
-			description: 'Serviços adaptados para todos os tipos de viaturas (ligeiros, pesados, motos) com equipamento adequado.'
-		}
-	];
+	useEffect(() => {
+		if (heroLineDrawn) return
+		const timer = setTimeout(() => setHeroLineDrawn(true), 500)
+		return () => clearTimeout(timer)
+	}, [heroLineDrawn])
 
-	const benefits = [
-		{ icon: Zap, title: 'Resposta Rápida', description: 'Chegamos até si no menor tempo possível.' },
-		{ icon: ShieldCheck, title: 'Parceiros Verificados', description: 'Trabalhamos apenas com empresas certificadas.' },
-		{ icon: Map, title: 'Ampla Cobertura', description: 'Serviço disponível em diversas zonas.' },
-		{ icon: BadgeDollarSign, title: 'Preço Justo', description: 'Valores transparentes sem surpresas.' },
-		{ icon: Headphones, title: 'Suporte Dedicado', description: 'Acompanhamento do início ao fim.' },
-	];
+	const [stepsRef, stepsVisible] = useScrollReveal()
+	const [servicesRef, servicesVisible] = useScrollReveal()
+	const [benefitsRef, benefitsVisible] = useScrollReveal()
 
 	return (
-		<main className="bg-gradient-to-b from-white to-gray-50 min-h-screen">
-			{/* Hero Section */}
-			<section className="h-[calc(100vh-80px)] flex items-center px-6 bg-[#154c9a] text-white relative overflow-hidden isolate">
-				<div
-					className="absolute inset-0 -z-10 opacity-10"
-					style={{
-						backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"
-					}}
-				></div>
+		<main>
+			{/* Hero */}
+			<section className="relative min-h-[calc(100dvh-80px)] flex items-center bg-gradient-to-b from-[#eef3fa] via-white to-white overflow-hidden">
+				<div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -right-32 w-[600px] h-[600px] rounded-full border border-[#d41120] opacity-[0.06]" />
+				<div aria-hidden="true" className="pointer-events-none absolute -bottom-20 -right-20 w-[450px] h-[450px] rounded-full border border-[#d41120] opacity-[0.04]" />
 
-				<div className="absolute top-0 right-0 -mr-20 -mt-20 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-3xl"></div>
-				<div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-3xl"></div>
+				<div className="mx-auto max-w-7xl px-6 lg:px-8 py-24 w-full">
+					<div className="max-w-4xl mx-auto text-center">
+						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#eef3fa] text-[#154c9a] mb-10">
+							<Truck className="w-4 h-4" />
+							<span className="text-sm font-semibold tracking-wide font-body">Assistência 24/7</span>
+						</div>
 
-				<div className="max-w-4xl mx-auto text-center relative z-10 w-full">
-					<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-100 mb-6 backdrop-blur-sm">
-						<Truck className="w-5 h-5" />
-						<span className="font-medium">Assistência 24/7</span>
+						<h1 className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-[#111827] leading-[1.08] mb-8 [text-wrap:balance]">
+							Serviço de{' '}
+							<span className="text-[#d41120]">Reboque</span>
+						</h1>
+
+						<div className="flex justify-center mb-10">
+							<div
+								className={`h-[3px] bg-[#d41120] transition-all duration-1000 ease-out ${
+									heroLineDrawn ? 'w-40' : 'w-0'
+								}`}
+							/>
+						</div>
+
+						<p className="font-body text-lg sm:text-xl text-[#6b7280] max-w-2xl mx-auto leading-relaxed">
+							Conectamos você rapidamente aos melhores serviços de reboque da sua zona. Eficiência e segurança quando mais precisa.
+						</p>
 					</div>
-					<h1 className="text-5xl md:text-6xl font-extrabold mb-8 tracking-tight">
-						Serviço de Reboque Profissional
-					</h1>
-					<p className="text-xl md:text-2xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
-						Conectamos você rapidamente aos melhores serviços de reboque da sua zona. Eficiência e segurança quando mais precisa.
-					</p>
 				</div>
 			</section>
 
-			{/* Timeline Steps - Como Funciona */}
-			<section className="py-24 px-6 overflow-hidden">
-				<div className="max-w-7xl mx-auto">
-					<div className="text-center mb-10">
-						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Processo Simples</span>
-						<h2 className="text-3xl font-bold text-gray-900">Como Solicitar Ajuda</h2>
+			{/* Steps */}
+			<section ref={stepsRef} className="bg-white border-t border-[#e5e7eb] py-20 sm:py-28">
+				<div className="mx-auto max-w-7xl px-6 lg:px-8">
+					<div className="text-center mb-16">
+						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#fde8ea] text-[#d41120] mb-4">
+							<CheckCircle2 className="w-4 h-4" />
+							<span className="text-sm font-semibold font-body">Processo Simples</span>
+						</div>
+						<h2 className="font-display text-3xl sm:text-4xl font-bold text-[#111827]">
+							Como Solicitar Ajuda
+						</h2>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-						{steps.map((step) => (
-							<div key={step.number} className="relative group">
-								<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-8 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 hover:from-white hover:to-blue-50 transition-all duration-300 transform group-hover:-translate-y-2 relative overflow-hidden h-full flex flex-col">
-									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -m-10 opacity-40 group-hover:opacity-70 transition-opacity duration-500"></div>
-
-									<div className="relative mb-6 flex flex-col items-center text-center">
-										<div className="w-20 h-20 bg-gradient-to-br from-white to-blue-50 rounded-full shadow-[0_4px_20px_rgba(21,76,154,0.25)] flex flex-col items-center justify-center border-[5px] border-[#154c9a] group-hover:border-[6px] group-hover:scale-110 group-hover:shadow-[0_6px_25px_rgba(21,76,154,0.35)] transition-all duration-300 mb-4">
-											<span className="text-[10px] font-bold text-[#154c9a] uppercase tracking-widest">{step.label}</span>
-											<span className="text-3xl font-black bg-gradient-to-br from-[#154c9a] to-blue-700 bg-clip-text text-transparent leading-none">{step.number}</span>
-										</div>
-
-										<div className="w-16 h-16 bg-gradient-to-br from-[#154c9a] to-blue-600 rounded-2xl flex items-center justify-center shadow-[0_4px_15px_rgba(21,76,154,0.3)] text-white transform group-hover:rotate-12 group-hover:scale-110 group-hover:shadow-[0_6px_20px_rgba(21,76,154,0.4)] transition-all duration-300 mb-5">
-											<step.icon size={30} strokeWidth={2.5} />
-										</div>
-
-										<h3 className="text-xl font-bold text-gray-800 group-hover:text-[#154c9a] transition-colors mb-1">{step.title}</h3>
-									</div>
-
-									<p className="text-base text-gray-600 leading-relaxed font-medium text-center mt-auto">
-										{step.description}
-									</p>
+					<div className="grid max-w-xl grid-cols-1 gap-6 lg:max-w-none lg:grid-cols-3">
+						{steps.map((step, index) => (
+							<div
+								key={step.number}
+								className={`group relative bg-white p-8 rounded-2xl border border-[#e5e7eb] transition-all duration-500 ease-out hover:border-[#154c9a]/20 ${
+									stepsVisible
+										? 'opacity-100 translate-y-0'
+										: 'opacity-0 translate-y-6'
+								}`}
+								style={{ transitionDelay: stepsVisible ? `${index * 100}ms` : '0ms' }}
+							>
+								<div className="font-display text-sm font-bold text-[#d41120] mb-4 tracking-wider">{step.number}</div>
+								<div className="w-12 h-12 bg-[#154c9a] rounded-xl flex items-center justify-center mb-5 text-white group-hover:scale-110 transition-transform duration-300">
+									<step.icon className="h-6 w-6" aria-hidden="true" />
 								</div>
+								<h3 className="font-display text-lg font-bold text-[#111827] mb-2 group-hover:text-[#154c9a] transition-colors duration-300">
+									{step.title}
+								</h3>
+								<p className="font-body text-[#6b7280] leading-relaxed">{step.description}</p>
 							</div>
 						))}
 					</div>
 				</div>
 			</section>
 
-			{/* Services Grid */}
-			<section className="py-24 px-6 bg-white relative">
-				<div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
-
-				<div className="max-w-7xl mx-auto">
-					<div className="text-center mb-20">
-						<span className="text-[#154c9a] font-bold tracking-wider uppercase text-sm mb-2 block">Nossos Serviços</span>
-						<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Assistência Completa</h2>
-						<p className="text-xl text-gray-600 max-w-2xl mx-auto">
+			{/* Services */}
+			<section ref={servicesRef} className="bg-[#f8f6f2] py-20 sm:py-28">
+				<div className="mx-auto max-w-7xl px-6 lg:px-8">
+					<div className="mx-auto max-w-2xl text-center mb-16">
+						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#eef3fa] text-[#154c9a] mb-4">
+							<Sparkles className="w-4 h-4" />
+							<span className="text-sm font-semibold font-body">Nossos Serviços</span>
+						</div>
+						<h2 className="font-display text-3xl sm:text-4xl font-bold text-[#111827]">
+							Assistência Completa
+						</h2>
+						<p className="font-body mt-4 text-lg text-[#6b7280]">
 							Soluções versáteis para qualquer imprevisto na estrada.
 						</p>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+					<div className="grid max-w-xl grid-cols-1 gap-6 lg:max-w-none lg:grid-cols-2">
 						{services.map((service, index) => (
 							<div
 								key={index}
-								className="group bg-gray-50 hover:bg-white p-8 rounded-3xl border border-transparent hover:border-gray-100 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-300"
+								className={`group relative bg-white p-8 rounded-2xl border border-[#e5e7eb] transition-all duration-500 ease-out hover:border-[#154c9a]/20 ${
+									servicesVisible
+										? 'opacity-100 translate-y-0'
+										: 'opacity-0 translate-y-6'
+								}`}
+								style={{ transitionDelay: servicesVisible ? `${index * 80}ms` : '0ms' }}
 							>
 								<div className="flex items-start gap-6">
-									<div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm text-[#154c9a] group-hover:scale-110 group-hover:bg-[#154c9a] group-hover:text-white transition-all duration-300 border border-gray-100 flex-shrink-0">
-										<service.icon size={32} />
+									<div className="w-12 h-12 bg-[#154c9a] rounded-xl flex items-center justify-center text-white flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+										<service.icon className="h-6 w-6" aria-hidden="true" />
 									</div>
 									<div className="flex-1">
-										<h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#154c9a] transition-colors">
+										<h3 className="font-display text-lg font-bold text-[#111827] mb-2 group-hover:text-[#154c9a] transition-colors duration-300">
 											{service.title}
 										</h3>
-										<p className="text-lg text-gray-600 leading-relaxed">
-											{service.description}
-										</p>
+										<p className="font-body text-[#6b7280] leading-relaxed">{service.description}</p>
 									</div>
 								</div>
 							</div>
@@ -177,37 +233,74 @@ export default function Reboque() {
 				</div>
 			</section>
 
-			{/* Why Choose Us */}
-			<section className="py-24 px-6 bg-gray-900 text-white relative overflow-hidden">
-				<div className="absolute inset-0 bg-[#154c9a] opacity-90"></div>
-				<div className="absolute top-0 right-0 -mr-20 -mt-20 w-[600px] h-[600px] bg-blue-400/20 rounded-full blur-3xl"></div>
-
-				<div className="max-w-7xl mx-auto relative z-10">
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-						<div>
-							<h2 className="text-4xl md:text-5xl font-bold mb-8 text-white">Por que escolher o Reboque Caxiauto?</h2>
-							<p className="text-xl text-blue-100 mb-10 leading-relaxed">
-								Não somos apenas mais um serviço de reboque. Somos a sua garantia de tranquilidade quando algo inesperado acontece na estrada.
-							</p>
-							<div className="flex flex-col gap-4">
-								<Link
-									to="/contato"
-									className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-[#154c9a] bg-white rounded-full hover:bg-blue-50 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-1 transform duration-200 self-start w-full sm:w-auto"
-								>
-									Pedir Assistência Agora
-								</Link>
-							</div>
+			{/* Benefits */}
+			<section ref={benefitsRef} className="bg-white py-20 sm:py-28">
+				<div className="mx-auto max-w-7xl px-6 lg:px-8">
+					<div className="mx-auto max-w-2xl text-center mb-16">
+						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#fde8ea] text-[#d41120] mb-4">
+							<Star className="w-4 h-4" />
+							<span className="text-sm font-semibold font-body">Vantagens</span>
 						</div>
+						<h2 className="font-display text-3xl sm:text-4xl font-bold text-[#111827]">
+							Por que escolher o Reboque Caxiauto?
+						</h2>
+						<p className="font-body mt-4 text-lg text-[#6b7280]">
+							Não somos apenas mais um serviço de reboque. Somos a sua garantia de tranquilidade quando algo inesperado acontece na estrada.
+						</p>
+					</div>
 
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-							{benefits.map((benefit, index) => (
-								<div key={index} className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 hover:bg-white/20 transition-all duration-300">
-									<benefit.icon className="w-8 h-8 text-blue-200 mb-4" />
-									<h4 className="text-xl font-bold text-white mb-2">{benefit.title}</h4>
-									<p className="text-blue-100">{benefit.description}</p>
+					<div className="grid max-w-xl grid-cols-1 gap-6 lg:max-w-none lg:grid-cols-3">
+						{benefits.map((benefit, index) => (
+							<div
+								key={benefit.title}
+								className={`group relative bg-white p-8 rounded-2xl border border-[#e5e7eb] transition-all duration-500 ease-out hover:border-[#154c9a]/20 ${
+									benefitsVisible
+										? 'opacity-100 translate-y-0'
+										: 'opacity-0 translate-y-6'
+								}`}
+								style={{ transitionDelay: benefitsVisible ? `${index * 80}ms` : '0ms' }}
+							>
+								<div className="w-12 h-12 bg-[#d41120] rounded-xl flex items-center justify-center mb-5 text-white group-hover:scale-110 transition-transform duration-300">
+									<benefit.icon className="h-6 w-6" aria-hidden="true" />
 								</div>
-							))}
-						</div>
+								<h3 className="font-display text-lg font-bold text-[#111827] mb-2 group-hover:text-[#154c9a] transition-colors duration-300">
+									{benefit.title}
+								</h3>
+								<p className="font-body text-[#6b7280] leading-relaxed">{benefit.description}</p>
+							</div>
+						))}
+					</div>
+
+					<div className="text-center mt-12">
+						<Link
+							to="/contato"
+							className="inline-flex items-center justify-center gap-2 bg-[#154c9a] text-white px-8 py-4 rounded-2xl font-semibold hover:bg-[#0c2d5e] transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 font-body group"
+						>
+							Pedir Assistência Agora
+							<ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+						</Link>
+					</div>
+				</div>
+			</section>
+
+			{/* CTA */}
+			<section className="bg-[#154c9a] py-20 overflow-hidden">
+				<div className="mx-auto max-w-7xl px-6 lg:px-8">
+					<div className="text-center max-w-3xl mx-auto">
+						<h2 className="font-display text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight">
+							Precisa de ajuda na estrada?
+						</h2>
+						<p className="font-body text-lg text-blue-100/80 max-w-xl mx-auto mb-10 leading-relaxed">
+							Estamos prontos para ajudar. Solicite assistência agora e resolva o seu imprevisto com rapidez.
+						</p>
+						<Link
+							to="/contato"
+							className="inline-flex items-center justify-center gap-2 bg-white text-[#154c9a] px-10 py-5 rounded-2xl font-semibold hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 font-body group text-lg"
+						>
+							<Truck className="w-5 h-5" />
+							Pedir Assistência
+							<ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+						</Link>
 					</div>
 				</div>
 			</section>
