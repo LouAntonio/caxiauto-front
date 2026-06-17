@@ -354,8 +354,8 @@ export default function DetalhesPecas() {
 								<div className="absolute top-4 left-4 flex gap-2 flex-wrap">
 									<span className={`px-5 py-2.5 text-sm font-bold rounded-full shadow-xl backdrop-blur-sm font-body ${
 										peca.condition === 'NEW' ? 'bg-[#154c9a] text-white' :
-										peca.condition === 'REFURBISHED' ? 'bg-[#d41120] text-white' :
-										'bg-[#d41120] text-white'
+											peca.condition === 'REFURBISHED' ? 'bg-[#d41120] text-white' :
+												'bg-[#d41120] text-white'
 									}`}>
 										{conditionLabels[peca.condition] || peca.condition}
 									</span>
