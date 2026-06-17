@@ -16,12 +16,12 @@ export default function Home() {
 	return (
 		<>
 			<Hero />
-			<main className="max-w-7xl mx-auto p-6">
-				<div className="my-2">
+			<main>
+				<div className="max-w-7xl mx-auto px-6 lg:px-8 my-8">
 					<img
 						src="./images/ad/Prancheta 1.png"
 						alt="Publicidade"
-						className="w-full h-auto rounded-lg shadow-md"
+						className="w-full h-auto rounded-2xl shadow-lg"
 					/>
 				</div>
 				<SellBuySection />
@@ -29,21 +29,21 @@ export default function Home() {
 				<RentACarSection />
 				<FeaturedCars title="Adicionados Recentemente" />
 				<TowingSection />
-				<div className="my-2">
+				<div className="max-w-7xl mx-auto px-6 lg:px-8 my-8">
 					<img
 						src="./images/ad/Prancheta 2.png"
 						alt="Publicidade"
-						className="w-full h-auto rounded-lg shadow-md"
+						className="w-full h-auto rounded-2xl shadow-lg"
 					/>
 				</div>
 				<FeaturedParts />
 				{/* <Publicidades /> */}
 				<PartnersSlider />
-				<div className="my-2">
+				<div className="max-w-7xl mx-auto px-6 lg:px-8 my-8">
 					<img
 						src="./images/ad/Prancheta 3.png"
 						alt="Publicidade"
-						className="w-full h-auto rounded-lg shadow-md"
+						className="w-full h-auto rounded-2xl shadow-lg"
 					/>
 				</div>
 			</main>

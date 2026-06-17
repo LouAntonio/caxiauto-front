@@ -8,7 +8,7 @@ export default function PartnersSlider() {
 	const { data: partners, isLoading } = useActivePartners({ limit: 4 });
 
 	return (
-		<section className="py-16 bg-[#f8f6f2] rounded-3xl my-8">
+		<section className="py-16 bg-[#f8f6f2] rounded-2xl my-8">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="text-center mb-12">
 					<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#eef3fa] text-[#154c9a] mb-4">

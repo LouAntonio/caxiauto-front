@@ -58,9 +58,9 @@ export default function Hero() {
 	}
 
 	return (
-		<header className="relative bg-gradient-to-r from-indigo-900 via-indigo-800 to-transparent text-white overflow-hidden h-[calc(100vh-80px)]">
+		<header className="relative bg-gradient-to-r from-[#154c9a] via-[#0c2d5e] to-transparent text-white overflow-hidden min-h-[calc(100dvh-80px)]">
 			<div
-				className="absolute inset-0 bg-cover bg-center opacity-60"
+				className="absolute inset-0 bg-cover bg-center opacity-50"
 				style={{
 					backgroundImage:
 						"url('./images/caxiauto-hero.jpeg')",
@@ -68,15 +68,17 @@ export default function Hero() {
 				aria-hidden="true"
 			/>
 
-			<div className="relative max-w-7xl mx-auto px-6 h-full flex flex-col justify-center gap-8">
+			<div className="relative max-w-7xl mx-auto px-6 lg:px-8 h-full flex flex-col justify-center gap-8 py-24">
 				<div className="max-w-3xl">
-					<h1 className="text-4xl sm:text-5xl font-extrabold leading-tight drop-shadow-md">
+					<h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight drop-shadow-md [text-wrap:balance]">
 						Escolha o seu carro online
 					</h1>
-					<p className="text-indigo-100">Encontre o seu próximo carro sem sair de casa - inspecionado e entregue em Luanda e em todo o país.</p>
+					<p className="font-body text-lg text-blue-100/80 mt-4 max-w-xl">
+						Encontre o seu próximo carro sem sair de casa — inspecionado e entregue em Luanda e em todo o país.
+					</p>
 				</div>
 
-				<div className="w-full max-w-xl bg-white/75 text-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
+				<div className="w-full max-w-xl bg-white/90 text-[#6b7280] rounded-2xl p-6 sm:p-8 shadow-2xl border border-[#e5e7eb]">
 					<form onSubmit={handleSearch} className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-3">
 						<div className="col-span-2 lg:col-span-3">
 							<label className="sr-only">Pesquisar</label>
@@ -85,7 +87,7 @@ export default function Hero() {
 								value={filters.pesquisa}
 								onChange={(e) => handleChange('pesquisa', e.target.value)}
 								placeholder="Pesquisar veículo..."
-								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all hover:bg-white"
+								className="w-full border border-[#e5e7eb] rounded-2xl px-4 py-3 bg-white outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]"
 							/>
 						</div>
 
@@ -94,7 +96,7 @@ export default function Hero() {
 							<select
 								value={filters.marca}
 								onChange={(e) => handleChange('marca', e.target.value)}
-								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
+								className="w-full border border-[#e5e7eb] rounded-2xl px-4 py-3 bg-white outline-none transition-all font-body text-[#111827] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a] cursor-pointer"
 							>
 								<option value="">Marca</option>
 								{manufacturers.map((mfr) => (
@@ -108,7 +110,7 @@ export default function Hero() {
 							<select
 								value={filters.combustivel}
 								onChange={(e) => handleChange('combustivel', e.target.value)}
-								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
+								className="w-full border border-[#e5e7eb] rounded-2xl px-4 py-3 bg-white outline-none transition-all font-body text-[#111827] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a] cursor-pointer"
 							>
 								<option value="">Combustível</option>
 								{FUEL_TYPES.map((fuel) => (
@@ -122,7 +124,7 @@ export default function Hero() {
 							<select
 								value={filters.transmissao}
 								onChange={(e) => handleChange('transmissao', e.target.value)}
-								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
+								className="w-full border border-[#e5e7eb] rounded-2xl px-4 py-3 bg-white outline-none transition-all font-body text-[#111827] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a] cursor-pointer"
 							>
 								<option value="">Transmissão</option>
 								{TRANSMISSION_TYPES.map((trans) => (
@@ -136,7 +138,7 @@ export default function Hero() {
 							<select
 								value={filters.quilometros}
 								onChange={(e) => handleChange('quilometros', e.target.value)}
-								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
+								className="w-full border border-[#e5e7eb] rounded-2xl px-4 py-3 bg-white outline-none transition-all font-body text-[#111827] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a] cursor-pointer"
 							>
 								<option value="">Quilômetros até</option>
 								<option>Até 50k</option>
@@ -151,7 +153,7 @@ export default function Hero() {
 							<select
 								value={filters.ano}
 								onChange={(e) => handleChange('ano', e.target.value)}
-								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
+								className="w-full border border-[#e5e7eb] rounded-2xl px-4 py-3 bg-white outline-none transition-all font-body text-[#111827] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a] cursor-pointer"
 							>
 								<option value="">Ano até</option>
 								<option>2026</option>
@@ -168,7 +170,7 @@ export default function Hero() {
 							<select
 								value={filters.preco}
 								onChange={(e) => handleChange('preco', e.target.value)}
-								className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 outline-none transition-all cursor-pointer hover:bg-white"
+								className="w-full border border-[#e5e7eb] rounded-2xl px-4 py-3 bg-white outline-none transition-all font-body text-[#111827] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a] cursor-pointer"
 							>
 								<option value="">Preço até (Kz)</option>
 								<option>Até 5M Kz</option>
@@ -180,8 +182,8 @@ export default function Hero() {
 						</div>
 
 						<div className="lg:col-span-3">
-							<button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group transform active:scale-[0.98] cursor-pointer">
-								<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<button type="submit" className="w-full bg-[#d41120] hover:bg-red-700 text-white font-semibold py-3.5 rounded-2xl shadow-md hover:shadow-lg transition-all font-body flex items-center justify-center gap-2 group transform active:scale-[0.98] cursor-pointer">
+								<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 								</svg>
 								Pesquisar
@@ -192,17 +194,17 @@ export default function Hero() {
 				</div>
 
 				<div className="grid grid-cols-1 sm:grid-cols-3 gap-6 hidden md:grid">
-					<div className="bg-white/90 rounded-lg p-6 text-gray-800 shadow">
-						<h3 className="font-semibold">Garantia de devolução</h3>
-						<p className="mt-2 text-sm text-gray-600">Se não ficar satisfeito com o veículo, devolva-o dentro do prazo e reembolsamos.</p>
+					<div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-[#111827] border border-white/20">
+						<h3 className="font-display font-bold">Garantia de devolução</h3>
+						<p className="mt-2 text-sm font-body text-[#6b7280]">Se não ficar satisfeito com o veículo, devolva-o dentro do prazo e reembolsamos.</p>
 					</div>
-					<div className="bg-white/90 rounded-lg p-6 text-gray-800 shadow">
-						<h3 className="font-semibold">Compra segura</h3>
-						<p className="mt-2 text-sm text-gray-600">Garantimos a condição técnica de cada veículo vendido em Angola.</p>
+					<div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-[#111827] border border-white/20">
+						<h3 className="font-display font-bold">Compra segura</h3>
+						<p className="mt-2 text-sm font-body text-[#6b7280]">Garantimos a condição técnica de cada veículo vendido em Angola.</p>
 					</div>
-					<div className="bg-white/90 rounded-lg p-6 text-gray-800 shadow">
-						<h3 className="font-semibold">Garantia de 1 mês</h3>
-						<p className="mt-2 text-sm text-gray-600">Receba uma garantia estendida de 1 mês com cada carro.</p>
+					<div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-[#111827] border border-white/20">
+						<h3 className="font-display font-bold">Garantia de 1 mês</h3>
+						<p className="mt-2 text-sm font-body text-[#6b7280]">Receba uma garantia estendida de 1 mês com cada carro.</p>
 					</div>
 				</div>
 			</div>

@@ -98,7 +98,7 @@ export default function FeaturedParts() {
 	// Se estiver carregando ou não houver peças, não renderizar nada
 	if (isLoading) {
 		return (
-			<section className="parts-section py-6">
+			<section className="parts-section py-6 bg-white">
 				<div className="max-w-7xl mx-auto px-4">
 					<div className="flex items-center justify-between mb-6">
 						<div className="h-8 w-48 bg-gray-200 skeleton-shimmer rounded-md" />
@@ -120,16 +120,15 @@ export default function FeaturedParts() {
 	}
 
 	return (
-		<section className="parts-section py-6">
-			<div className="max-w-7xl mx-auto px-4">
+		<section className="parts-section py-6 bg-white">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex items-center justify-between mb-6">
 					<div className="flex gap-3 items-baseline">
-						<h2 className="text-2xl font-semibold">Peças e Acessórios</h2>
-						<span className="text-gray-400 text-2xl">|</span>
+						<h2 className="font-display text-2xl sm:text-3xl font-bold text-[#111827]">Peças e Acessórios</h2>
+						<span className="text-[#e5e7eb] text-2xl">|</span>
 						<Link
 							to="/stand/pecas-acessorios"
-							style={{ color: 'var(--primary)' }}
-							className="group flex items-center gap-1 text-lg font-medium hover:underline"
+							className="group flex items-center gap-1 text-lg font-medium text-[#154c9a] font-body hover:underline"
 						>
 							Ver todas
 							<ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
@@ -137,18 +136,18 @@ export default function FeaturedParts() {
 					</div>
 
 					<div className="hidden md:flex gap-3">
-						<button onClick={() => scroll(-1)} aria-label="Anterior" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
-							<ChevronLeft className="w-5 h-5 text-gray-700" />
+						<button onClick={() => scroll(-1)} aria-label="Anterior" className="w-10 h-10 rounded-full border border-[#e5e7eb] flex items-center justify-center text-[#6b7280] hover:bg-[#f8f6f2] hover:border-[#154c9a] transition-colors">
+							<ChevronLeft className="w-5 h-5" />
 						</button>
-						<button onClick={() => scroll(1)} aria-label="Próximo" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
-							<ChevronRight className="w-5 h-5 text-gray-700" />
+						<button onClick={() => scroll(1)} aria-label="Próximo" className="w-10 h-10 rounded-full border border-[#e5e7eb] flex items-center justify-center text-[#6b7280] hover:bg-[#f8f6f2] hover:border-[#154c9a] transition-colors">
+							<ChevronRight className="w-5 h-5" />
 						</button>
 					</div>
 				</div>
 
 				<div ref={railRef} className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4">
 					{pecas.map((peca) => (
-						<article key={peca.id} className="flex-shrink-0 w-64 bg-white rounded-2xl shadow-lg overflow-hidden group">
+						<article key={peca.id} className="flex-shrink-0 w-64 bg-white rounded-2xl border border-[#e5e7eb] shadow-lg overflow-hidden group hover:border-[#154c9a]/20 transition-all duration-300">
 							<div className="relative h-36 overflow-hidden">
 								<img
 									src={getImageUrl(peca.image, './images/parts.jpg')}
@@ -157,7 +156,6 @@ export default function FeaturedParts() {
 									className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 								/>
 
-								{/* Botão de favorito */}
 								{isAuthenticated && (
 									<button
 										onClick={(e) => toggleFavorite(e, peca.id)}
@@ -176,7 +174,7 @@ export default function FeaturedParts() {
 
 								<div className="absolute top-3 left-3 flex gap-2">
 									{peca.isFeatured && (
-										<span className="badge px-2 py-0.5 text-xs font-semibold rounded bg-yellow-500 text-white">
+										<span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-[#d41120] text-white">
 											Destaque
 										</span>
 									)}
@@ -184,22 +182,21 @@ export default function FeaturedParts() {
 							</div>
 
 							<div className="p-4">
-								<h3 className="text-sm font-semibold line-clamp-2 capitalize">{peca.name}</h3>
-								<div className="text-primary font-bold mt-2 mb-3">
+								<h3 className="font-display text-sm font-bold text-[#111827] line-clamp-2 capitalize">{peca.name}</h3>
+								<div className="font-['JetBrains_Mono',monospace] font-bold text-[#154c9a] mt-2 mb-3">
 									{parseFloat(peca.price).toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} akz
 								</div>
 
-								<div className="flex items-center justify-between text-sm text-gray-600">
+								<div className="flex items-center justify-between text-sm text-[#6b7280]">
 									<div className="flex items-center gap-2">
-										<span className="text-xs bg-gray-100 px-2 py-0.5 rounded capitalize">
+										<span className="text-xs bg-[#eef3fa] text-[#154c9a] px-2 py-0.5 rounded-full font-body capitalize">
 											{peca.Categoria?.name || 'Sem categoria'}
 										</span>
 									</div>
 								</div>
 								<Link to={`/stand/pecas-acessorios/${peca.id}`}>
 									<button
-										style={{ backgroundColor: 'var(--secondary)' }}
-										className="text-white px-3 py-2 rounded-md text-xs font-semibold hover:opacity-90 mt-4 w-full cursor-pointer"
+										className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-xl bg-[#154c9a] hover:bg-blue-800 transition-all font-body cursor-pointer"
 									>
 										Ver Detalhes
 									</button>
