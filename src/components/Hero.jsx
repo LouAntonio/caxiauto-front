@@ -192,21 +192,6 @@ export default function Hero() {
 
 					</form>
 				</div>
-
-				<div className="grid grid-cols-1 sm:grid-cols-3 gap-6 hidden md:grid">
-					<div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-[#111827] border border-white/20">
-						<h3 className="font-display font-bold">Garantia de devolução</h3>
-						<p className="mt-2 text-sm font-body text-[#6b7280]">Se não ficar satisfeito com o veículo, devolva-o dentro do prazo e reembolsamos.</p>
-					</div>
-					<div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-[#111827] border border-white/20">
-						<h3 className="font-display font-bold">Compra segura</h3>
-						<p className="mt-2 text-sm font-body text-[#6b7280]">Garantimos a condição técnica de cada veículo vendido em Angola.</p>
-					</div>
-					<div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-[#111827] border border-white/20">
-						<h3 className="font-display font-bold">Garantia de 1 mês</h3>
-						<p className="mt-2 text-sm font-body text-[#6b7280]">Receba uma garantia estendida de 1 mês com cada carro.</p>
-					</div>
-				</div>
 			</div>
 		</header>
 	)
