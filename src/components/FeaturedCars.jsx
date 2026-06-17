@@ -98,17 +98,15 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 	}
 
 	return (
-		<section className="pt-6 bg-gradient-to-b from-white to-gray-50">
+		<section className="pt-6 bg-white">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				{/* Header */}
 				<div className="flex justify-between mb-8 ">
 					<div className="flex gap-3 items-baseline">
-						<h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-						<span className="text-gray-400 text-2xl">|</span>
+						<h2 className="font-display text-2xl sm:text-3xl font-bold text-[#111827]">{title}</h2>
+						<span className="text-[#e5e7eb] text-2xl">|</span>
 						<Link
 							to={isFeatured ? "/stand/compra?featured=true" : "/stand/compra"}
-							style={{ color: 'var(--primary)' }}
-							className="group flex items-center gap-1 text-lg font-medium hover:underline"
+							className="group flex items-center gap-1 text-lg font-medium text-[#154c9a] font-body hover:underline"
 						>
 							Ver todos
 							<ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
@@ -117,26 +115,23 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 
 					{!isLoading && vehicles.length > 0 && (
 						<div className="hidden md:flex gap-3">
-							<button onClick={() => scroll(-1)} aria-label="Anterior" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
-								<ChevronLeft className="w-5 h-5 text-gray-700" />
+							<button onClick={() => scroll(-1)} aria-label="Anterior" className="w-10 h-10 rounded-full border border-[#e5e7eb] flex items-center justify-center text-[#6b7280] hover:bg-[#f8f6f2] hover:border-[#154c9a] transition-colors">
+								<ChevronLeft className="w-5 h-5" />
 							</button>
-							<button onClick={() => scroll(1)} aria-label="Próximo" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
-								<ChevronRight className="w-5 h-5 text-gray-700" />
+							<button onClick={() => scroll(1)} aria-label="Próximo" className="w-10 h-10 rounded-full border border-[#e5e7eb] flex items-center justify-center text-[#6b7280] hover:bg-[#f8f6f2] hover:border-[#154c9a] transition-colors">
+								<ChevronRight className="w-5 h-5" />
 							</button>
 						</div>
 					)}
 				</div>
 
-				{/* Carousel */}
 				<div className="relative">
 					{isLoading ? (
-						<div
-							className="flex gap-6 overflow-x-hidden pb-4"
-						>
+						<div className="flex gap-6 overflow-x-hidden pb-4">
 							<CarCardSkeleton count={5} className="w-64" />
 						</div>
 					) : vehicles.length === 0 ? (
-						<div className="flex justify-center items-center py-20 text-gray-500">
+						<div className="flex justify-center items-center py-20 text-[#6b7280] font-body">
 							<p>Nenhum veículo encontrado</p>
 						</div>
 					) : (
@@ -146,25 +141,18 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 							style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
 						>
 							{vehicles.map((car) => {
-								// Determinar condição baseado na quilometragem
 								const isNew = car.kilometers === 0 || car.kilometers < 100;
 								const condition = isNew ? 'Novo' : 'Usado';
 
-								// Formatar preço
 								const formattedPrice = new Intl.NumberFormat('pt-AO').format(car.priceSale || 0);
-
-								// Formatar quilometragem
 								const formattedKm = new Intl.NumberFormat('pt-AO').format(car.kilometers || 0);
-
-								// Capitalizar tipo de combustível
 								const fuelType = car.fuelType ? car.fuelType.charAt(0).toUpperCase() + car.fuelType.slice(1) : 'N/A';
 
 								return (
 									<article
 										key={car.id}
-										className="flex-shrink-0 w-64 bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
+										className="flex-shrink-0 w-64 bg-white rounded-2xl border border-[#e5e7eb] shadow-lg overflow-hidden hover:border-[#154c9a]/20 transition-all duration-300 group"
 									>
-										{/* Imagem */}
 										<div className="relative h-40 overflow-hidden">
 											<img
 												src={getImageUrl(car.image)}
@@ -172,14 +160,12 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 												className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
 											/>
 
-											{/* Badge de condição (Novo / Usado) */}
 											<div className="absolute top-4 left-4">
-												<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${condition === 'Novo' ? 'bg-blue-600 text-white' : 'bg-yellow-500 text-white'}`}>
+												<span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg ${condition === 'Novo' ? 'bg-[#154c9a] text-white' : 'bg-[#d41120] text-white'}`}>
 													{condition}
 												</span>
 											</div>
 
-											{/* Botão de wishlist */}
 											{isAuthenticated && (
 												<button
 													onClick={(e) => toggleWishlist(e, car.id)}
@@ -196,50 +182,39 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 												</button>
 											)}
 
-											{/* Gradiente inferior */}
 											<div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent"></div>
 										</div>
 
-										{/* Conteúdo */}
 										<div className="p-5">
-											<h3 className="text-1xl font-bold text-gray-900 mb-3 line-clamp-1 text-center">
+											<h3 className="font-display text-base font-bold text-[#111827] mb-3 line-clamp-1 text-center">
 												{car.name}
 											</h3>
 
-											{/* Preço */}
-											<div
-												style={{ color: 'var(--primary)' }}
-												className="text-1xl font-bold mb-4 text-center"
-											>
+											<div className="font-['JetBrains_Mono',monospace] font-bold text-[#154c9a] text-base mb-4 text-center">
 												{formattedPrice},00 Kz
 											</div>
 
-											{/* Especificações (duas colunas) */}
-											<div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+											<div className="grid grid-cols-2 gap-2 text-sm text-[#6b7280]">
 												<div className="flex items-center justify-end gap-2">
 													<span className="text-right">{formattedKm} km</span>
-													<Gauge className="w-4 h-4 text-gray-400" />
+													<Gauge className="w-4 h-4 text-[#9ca3af]" />
 												</div>
 												<div className="flex items-center gap-2">
-													<Calendar className="w-4 h-4 text-gray-400" />
+													<Calendar className="w-4 h-4 text-[#9ca3af]" />
 													<span>{car.year}</span>
 												</div>
 												<div className="flex items-center justify-end gap-2">
 													<span className="text-right">{car.provincia}</span>
-													<MapPin className="w-4 h-4 text-gray-400" />
+													<MapPin className="w-4 h-4 text-[#9ca3af]" />
 												</div>
 												<div className="flex items-center gap-2">
-													<Droplet className="w-4 h-4 text-gray-400" />
+													<Droplet className="w-4 h-4 text-[#9ca3af]" />
 													<span>{fuelType}</span>
 												</div>
 											</div>
 
-											{/* Botão */}
 											<Link to={`/stand/compra/${car.id}`}>
-												<button
-													style={{ backgroundColor: 'var(--secondary)' }}
-													className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm cursor-pointer"
-												>
+												<button className="w-full mt-4 py-2 text-sm text-white font-semibold rounded-xl bg-[#154c9a] hover:bg-blue-800 transition-all font-body cursor-pointer">
 													Ver Detalhes
 												</button>
 											</Link>
@@ -250,20 +225,17 @@ export default function FeaturedCars({ title = 'Carros em Destaque' }) {
 						</div>
 					)}
 
-					{/* Botões mobile */}
 					{!isLoading && vehicles.length > 0 && (
 						<div className="flex md:hidden gap-3 justify-center mt-6">
-							<button onClick={() => scroll(-1)} aria-label="Anterior" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
-								<ChevronLeft className="w-5 h-5 text-gray-700" />
+							<button onClick={() => scroll(-1)} aria-label="Anterior" className="w-10 h-10 rounded-full border border-[#e5e7eb] flex items-center justify-center text-[#6b7280] hover:bg-[#f8f6f2] hover:border-[#154c9a] transition-colors">
+								<ChevronLeft className="w-5 h-5" />
 							</button>
-							<button onClick={() => scroll(1)} aria-label="Próximo" className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
-								<ChevronRight className="w-5 h-5 text-gray-700" />
+							<button onClick={() => scroll(1)} aria-label="Próximo" className="w-10 h-10 rounded-full border border-[#e5e7eb] flex items-center justify-center text-[#6b7280] hover:bg-[#f8f6f2] hover:border-[#154c9a] transition-colors">
+								<ChevronRight className="w-5 h-5" />
 							</button>
 						</div>
 					)}
 				</div>
-
-				{/* Link para ver todos */}
 
 			</div>
 

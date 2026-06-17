@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+	--font-display: "Bricolage Grotesque", sans-serif;
+	--font-body: "DM Sans", sans-serif;
+}
+
 :root {
 	/* Tipografia */
 	font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -124,4 +129,24 @@
 	background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
 	background-size: 200% 100%;
 	animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+/* Sobre page animations */
+@keyframes clipReveal {
+	from {
+		clip-path: inset(0 100% 0 0);
+	}
+	to {
+		clip-path: inset(0 0 0 0);
+	}
+}
+
+.clip-reveal {
+	animation: clipReveal 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.clip-reveal {
+		animation: none;
+	}
 }

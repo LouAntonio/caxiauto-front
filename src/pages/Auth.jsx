@@ -338,14 +338,14 @@ const Auth = () => {
 	};
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
+		<div className="min-h-screen bg-[#f5f5f5] py-12 px-4 sm:px-6 lg:px-8">
 			<div className="max-w-md mx-auto">
 				{/* Logo e Título */}
 				<div className="text-center mb-8">
-					<h2 className="mt-4 text-3xl font-bold text-gray-900">
+					<h2 className="mt-4 text-3xl font-bold text-[#111827] font-display">
 						{isForgotPassword ? 'Recuperar senha' : (isLogin ? 'Bem-vindo de volta!' : 'Crie sua conta')}
 					</h2>
-					<p className="mt-2 text-sm text-gray-600">
+					<p className="mt-2 text-sm text-[#6b7280] font-body">
 						{isForgotPassword
 							? 'Digite seu email para receber o link de recuperação'
 							: (isLogin
@@ -359,7 +359,7 @@ const Auth = () => {
 				</div>
 
 				{/* Formulário */}
-				<div className="bg-white py-8 px-6 shadow-xl rounded-2xl border border-gray-100">
+				<div className="bg-white py-8 px-6 shadow-xl rounded-2xl border border-[#e5e7eb]">
 					{/* Step Indicator for Registration */}
 					{!isLogin && !isForgotPassword && (
 						<div className="mb-8">
@@ -368,7 +368,7 @@ const Auth = () => {
 								<div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-200" style={{ left: '16.67%', right: '16.67%' }} />
 								{/* Connecting Line Progress */}
 								<div
-									className="absolute top-5 h-0.5 bg-blue-600 transition-all duration-500 ease-out"
+									className="absolute top-5 h-0.5 bg-[#154c9a] transition-all duration-500 ease-out"
 									style={{
 										left: '12.5%',
 										width: registrationStep === 0 ? '0%' : registrationStep === 1 ? '25%' : registrationStep === 2 ? '50%' : '75%'
@@ -378,54 +378,54 @@ const Auth = () => {
 								{/* Step 0: Offer */}
 								<div className="flex flex-col items-center relative z-10">
 									<div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${registrationStep > 0
-										? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+										? 'bg-[#154c9a] text-white shadow-lg shadow-[#154c9a]/20'
 										: registrationStep === 0
-											? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
+											? 'bg-[#154c9a] text-white ring-4 ring-[#154c9a]/20 shadow-lg shadow-[#154c9a]/20'
 											: 'bg-gray-100 text-gray-400'
 									}`}>
 										{registrationStep > 0 ? <Check className="w-5 h-5" /> : <Rocket className="w-5 h-5" />}
 									</div>
-									<span className={`mt-2 text-xs font-medium transition-colors ${registrationStep >= 0 ? 'text-blue-600' : 'text-gray-400'
+									<span className={`mt-2 text-xs font-medium transition-colors font-body ${registrationStep >= 0 ? 'text-[#154c9a]' : 'text-gray-400'
 									}`}>Oferta</span>
 								</div>
 
 								{/* Step 1 */}
 								<div className="flex flex-col items-center relative z-10">
 									<div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${registrationStep > 1
-										? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+										? 'bg-[#154c9a] text-white shadow-lg shadow-[#154c9a]/20'
 										: registrationStep === 1
-											? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
+											? 'bg-[#154c9a] text-white ring-4 ring-[#154c9a]/20 shadow-lg shadow-[#154c9a]/20'
 											: 'bg-gray-100 text-gray-400'
 									}`}>
 										{registrationStep > 1 ? <Check className="w-5 h-5" /> : '1'}
 									</div>
-									<span className={`mt-2 text-xs font-medium transition-colors ${registrationStep >= 1 ? 'text-blue-600' : 'text-gray-400'
+									<span className={`mt-2 text-xs font-medium transition-colors font-body ${registrationStep >= 1 ? 'text-[#154c9a]' : 'text-gray-400'
 									}`}>Email</span>
 								</div>
 
 								{/* Step 2 */}
 								<div className="flex flex-col items-center relative z-10">
 									<div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${registrationStep > 2
-										? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+										? 'bg-[#154c9a] text-white shadow-lg shadow-[#154c9a]/20'
 										: registrationStep === 2
-											? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
+											? 'bg-[#154c9a] text-white ring-4 ring-[#154c9a]/20 shadow-lg shadow-[#154c9a]/20'
 											: 'bg-gray-100 text-gray-400'
 									}`}>
 										{registrationStep > 2 ? <Check className="w-5 h-5" /> : '2'}
 									</div>
-									<span className={`mt-2 text-xs font-medium transition-colors ${registrationStep >= 2 ? 'text-blue-600' : 'text-gray-400'
+									<span className={`mt-2 text-xs font-medium transition-colors font-body ${registrationStep >= 2 ? 'text-[#154c9a]' : 'text-gray-400'
 									}`}>Verificação</span>
 								</div>
 
 								{/* Step 3 */}
 								<div className="flex flex-col items-center relative z-10">
 									<div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${registrationStep === 3
-										? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-lg shadow-blue-200'
+										? 'bg-[#154c9a] text-white ring-4 ring-[#154c9a]/20 shadow-lg shadow-[#154c9a]/20'
 										: 'bg-gray-100 text-gray-400'
 									}`}>
 										3
 									</div>
-									<span className={`mt-2 text-xs font-medium transition-colors ${registrationStep >= 3 ? 'text-blue-600' : 'text-gray-400'
+									<span className={`mt-2 text-xs font-medium transition-colors font-body ${registrationStep >= 3 ? 'text-[#154c9a]' : 'text-gray-400'
 									}`}>Cadastro</span>
 								</div>
 
@@ -437,29 +437,29 @@ const Auth = () => {
 						{/* Step 0: Offer */}
 						{!isLogin && !isForgotPassword && registrationStep === 0 && (
 							<div className="space-y-6">
-								<div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+								<div className="bg-[#f8f6f2] p-6 rounded-2xl border border-[#e5e7eb]">
 									<div className="flex items-center gap-3 mb-4">
-										<Rocket className="w-8 h-8 text-blue-600" />
-										<h3 className="text-xl font-bold text-gray-900">Oferta de Lançamento!</h3>
+										<Rocket className="w-8 h-8 text-[#154c9a]" />
+										<h3 className="text-xl font-bold text-[#111827] font-display">Oferta de Lançamento!</h3>
 									</div>
-									<p className="text-gray-600 leading-relaxed mb-4">
-										Durante os primeiros <span className="font-bold text-blue-600">4 meses</span>, o registro na plataforma será <span className="font-bold text-green-600">totalmente gratuito</span>.
+									<p className="text-[#6b7280] leading-relaxed mb-4 font-body">
+										Durante os primeiros <span className="font-bold text-[#154c9a]">4 meses</span>, o registro na plataforma será <span className="font-bold text-green-600">totalmente gratuito</span>.
 									</p>
 									<ul className="space-y-2 mb-6">
-										<li className="flex items-start gap-2 text-sm text-gray-600">
+										<li className="flex items-start gap-2 text-sm text-[#6b7280] font-body">
 											<Check className="w-4 h-4 text-green-500 mt-1 shrink-0" />
 											<span>Divulgue seus serviços para milhares de clientes.</span>
 										</li>
-										<li className="flex items-start gap-2 text-sm text-gray-600">
+										<li className="flex items-start gap-2 text-sm text-[#6b7280] font-body">
 											<Check className="w-4 h-4 text-green-500 mt-1 shrink-0" />
 											<span>Ecossistema completo: Vendas, Aluguel, Peças e mais.</span>
 										</li>
-										<li className="flex items-start gap-2 text-sm text-gray-600">
+										<li className="flex items-start gap-2 text-sm text-[#6b7280] font-body">
 											<Check className="w-4 h-4 text-green-500 mt-1 shrink-0" />
 											<span>Conexão direta com clientes específicos.</span>
 										</li>
 									</ul>
-									<Link to="/comercial" className="text-sm text-blue-600 font-semibold hover:underline flex items-center gap-1">
+									<Link to="/comercial" className="text-sm text-[#154c9a] font-semibold hover:underline flex items-center gap-1 font-body">
 										Ver todos os benefícios e planos <ArrowRight className="w-4 h-4" />
 									</Link>
 								</div>
@@ -467,7 +467,7 @@ const Auth = () => {
 								<button
 									type="button"
 									onClick={() => setRegistrationStep(1)}
-									className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-lg text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all hover:scale-[1.02] active:scale-[0.98]"
+									className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-2xl shadow-lg text-lg font-bold text-white bg-[#154c9a] hover:bg-blue-800 transition-all hover:scale-[1.02] active:scale-[0.98] font-body"
 								>
 									Aproveitar 4 Meses Grátis
 									<ArrowRight className="w-5 h-5" />
@@ -479,11 +479,11 @@ const Auth = () => {
 						{(isLogin || isForgotPassword || registrationStep === 1) && (
 
 							<div>
-								<label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+								<label htmlFor="email" className="block text-sm font-medium text-[#6b7280] mb-1 font-body">
 									Email
 								</label>
 								<div className="relative">
-									<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+									<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 										<Mail className="h-5 w-5 text-gray-400" />
 									</div>
 									<input
@@ -493,7 +493,7 @@ const Auth = () => {
 										required
 										value={formData.email}
 										onChange={handleChange}
-										className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg transition-colors"
+										className="block w-full pl-10 pr-4 py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]"
 										placeholder="seu@email.com"
 									/>
 								</div>
@@ -503,10 +503,10 @@ const Auth = () => {
 						{/* Step 2: OTP */}
 						{!isLogin && !isForgotPassword && registrationStep === 2 && (
 							<div>
-								<label className="block text-sm font-medium text-gray-700 mb-3 text-center">
+								<label className="block text-sm font-medium text-[#6b7280] mb-3 text-center font-body">
 									Código de Verificação
 								</label>
-								<p className="text-xs text-center text-gray-500 mb-4">Enviado para {formData.email}</p>
+								<p className="text-xs text-center text-[#6b7280] mb-4 font-body">Enviado para {formData.email}</p>
 								<div className="flex justify-center gap-2">
 									{otp.map((digit, index) => (
 										<input
@@ -519,13 +519,13 @@ const Auth = () => {
 											onChange={(e) => handleOtpChange(index, e.target.value)}
 											onKeyDown={(e) => handleOtpKeyDown(index, e)}
 											onPaste={handleOtpPaste}
-											className="w-12 h-14 text-center text-xl font-semibold border border-gray-300 rounded-lg transition-all"
+											className="w-12 h-14 text-center text-xl font-semibold border border-[#e5e7eb] rounded-2xl outline-none transition-all font-body text-[#111827] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]"
 											autoFocus={index === 0}
 										/>
 									))}
 								</div>
-								<p className="mt-4 text-xs text-center text-gray-500">
-									Não recebeu? <button type="button" onClick={handleResendOTP} className="text-blue-600 hover:underline">Reenviar</button>
+								<p className="mt-4 text-xs text-center text-[#6b7280] font-body">
+									Não recebeu? <button type="button" onClick={handleResendOTP} className="text-[#154c9a] hover:underline font-semibold">Reenviar</button>
 								</p>
 							</div>
 						)}
@@ -535,11 +535,11 @@ const Auth = () => {
 							<>
 								<div className="flex gap-4">
 									<div className="flex-1">
-										<label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+										<label htmlFor="firstName" className="block text-sm font-medium text-[#6b7280] mb-1 font-body">
 											Nome
 										</label>
 										<div className="relative">
-											<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+											<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 												<User className="h-5 w-5 text-gray-400" />
 											</div>
 											<input
@@ -549,18 +549,18 @@ const Auth = () => {
 												required
 												value={formData.firstName}
 												onChange={handleChange}
-												className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg transition-colors"
+												className="block w-full pl-10 pr-4 py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]"
 												placeholder="Nome"
 											/>
 										</div>
 									</div>
 
 									<div className="flex-1">
-										<label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+										<label htmlFor="lastName" className="block text-sm font-medium text-[#6b7280] mb-1 font-body">
 											Sobrenome
 										</label>
 										<div className="relative">
-											<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+											<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 												<User className="h-5 w-5 text-gray-400" />
 											</div>
 											<input
@@ -570,7 +570,7 @@ const Auth = () => {
 												required
 												value={formData.lastName}
 												onChange={handleChange}
-												className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg transition-colors"
+												className="block w-full pl-10 pr-4 py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]"
 												placeholder="Sobrenome"
 											/>
 										</div>
@@ -578,11 +578,11 @@ const Auth = () => {
 								</div>
 
 								<div>
-									<label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+									<label htmlFor="phone" className="block text-sm font-medium text-[#6b7280] mb-1 font-body">
 										Telefone (Opcional)
 									</label>
 									<div className="relative">
-										<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+										<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 											<Phone className="h-5 w-5 text-gray-400" />
 										</div>
 										<input
@@ -591,7 +591,7 @@ const Auth = () => {
 											type="tel"
 											value={formData.phone}
 											onChange={handleChange}
-											className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg transition-colors"
+											className="block w-full pl-10 pr-4 py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]"
 											placeholder="+244 9XX XXX XXX"
 										/>
 									</div>
@@ -602,11 +602,11 @@ const Auth = () => {
 						{/* Login Password or Step 3 Password */}
 						{!isForgotPassword && (isLogin || registrationStep === 3) && (
 							<div>
-								<label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+								<label htmlFor="password" className="block text-sm font-medium text-[#6b7280] mb-1 font-body">
 									Senha
 								</label>
 								<div className="relative">
-									<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+									<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 										<Lock className="h-5 w-5 text-gray-400" />
 									</div>
 									<input
@@ -616,18 +616,18 @@ const Auth = () => {
 										required
 										value={formData.password}
 										onChange={handleChange}
-										className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg transition-colors"
+										className="block w-full pl-10 pr-10 py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]"
 										placeholder={isLogin ? "Sua senha" : "Crie uma senha segura"}
 									/>
 									<button
 										type="button"
 										onClick={() => setShowPassword(!showPassword)}
-										className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+										className="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer"
 									>
 										{showPassword ? (
-											<EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+											<EyeOff className="h-5 w-5 text-gray-400 hover:text-[#154c9a]" />
 										) : (
-											<Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+											<Eye className="h-5 w-5 text-gray-400 hover:text-[#154c9a]" />
 										)}
 									</button>
 								</div>
@@ -684,11 +684,11 @@ const Auth = () => {
 						{/* Confirm Password (Step 3) */}
 						{!isLogin && !isForgotPassword && registrationStep === 3 && (
 							<div>
-								<label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+								<label htmlFor="confirmPassword" className="block text-sm font-medium text-[#6b7280] mb-1 font-body">
 									Confirmar Senha
 								</label>
 								<div className="relative">
-									<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+									<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 										<Lock className="h-5 w-5 text-gray-400" />
 									</div>
 									<input
@@ -698,18 +698,18 @@ const Auth = () => {
 										required
 										value={formData.confirmPassword}
 										onChange={handleChange}
-										className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg transition-colors"
+										className="block w-full pl-10 pr-10 py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]"
 										placeholder="Digite a senha novamente"
 									/>
 									<button
 										type="button"
 										onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-										className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+										className="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer"
 									>
 										{showConfirmPassword ? (
-											<EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+											<EyeOff className="h-5 w-5 text-gray-400 hover:text-[#154c9a]" />
 										) : (
-											<Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+											<Eye className="h-5 w-5 text-gray-400 hover:text-[#154c9a]" />
 										)}
 									</button>
 								</div>
@@ -723,12 +723,12 @@ const Auth = () => {
 											checked={formData.acceptedTerms}
 											onChange={handleChange}
 											required
-											className="h-4 w-4 text-blue-600 border-gray-300 rounded cursor-pointer"
+											className="h-4 w-4 text-[#154c9a] border-[#e5e7eb] rounded cursor-pointer"
 										/>
 									</div>
 									<div className="text-sm">
-										<label htmlFor="acceptedTerms" className="text-gray-600 cursor-pointer">
-											Li e aceito as <Link to="/politica-de-privacidade" target="_blank" className="text-blue-600 font-semibold hover:underline">Políticas de Privacidade</Link> e os <Link to="/termos-de-uso" target="_blank" className="text-blue-600 font-semibold hover:underline">Termos de Uso</Link>.
+										<label htmlFor="acceptedTerms" className="text-[#6b7280] cursor-pointer font-body">
+											Li e aceito as <Link to="/politica-de-privacidade" target="_blank" className="text-[#154c9a] font-semibold hover:underline">Políticas de Privacidade</Link> e os <Link to="/termos-de-uso" target="_blank" className="text-[#154c9a] font-semibold hover:underline">Termos de Uso</Link>.
 										</label>
 									</div>
 								</div>
@@ -741,7 +741,7 @@ const Auth = () => {
 								<button
 									type="button"
 									onClick={toggleForgotPassword}
-									className="text-sm text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
+									className="text-sm text-[#154c9a] hover:text-blue-800 font-medium cursor-pointer font-body"
 								>
 									Esqueceu a senha?
 								</button>
@@ -758,7 +758,7 @@ const Auth = () => {
 									}}
 
 									disabled={loading}
-									className="flex-1 py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+									className="flex-1 py-3 px-4 border border-[#e5e7eb] rounded-2xl shadow-sm text-sm font-semibold text-[#6b7280] bg-white hover:bg-[#f8f6f2] transition-colors cursor-pointer font-body"
 								>
 									Voltar
 								</button>
@@ -768,7 +768,7 @@ const Auth = () => {
 								<button
 									type="submit"
 									disabled={loading}
-									className={`flex-1 flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer`}
+									className={`flex-1 flex justify-center py-3 px-4 border border-transparent rounded-2xl shadow-sm text-sm font-semibold text-white bg-[#154c9a] hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer font-body`}
 								>
 									{loading ? 'Processando...' :
 										(isForgotPassword ? 'Enviar Link' :
@@ -789,7 +789,7 @@ const Auth = () => {
 							<button
 								type="button"
 								onClick={toggleForgotPassword}
-								className="text-sm text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
+								className="text-sm text-[#154c9a] hover:text-blue-800 font-medium cursor-pointer font-body"
 							>
 								← Voltar para o login
 							</button>
@@ -797,7 +797,7 @@ const Auth = () => {
 							<button
 								type="button"
 								onClick={toggleMode}
-								className="text-sm text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
+								className="text-sm text-[#154c9a] hover:text-blue-800 font-medium cursor-pointer font-body"
 							>
 								{isLogin
 									? 'Não tem uma conta? Cadastre-se'
@@ -811,7 +811,7 @@ const Auth = () => {
 				<div className="mt-6 text-center">
 					<Link
 						to="/"
-						className="text-sm text-gray-600 hover:text-gray-900 flex items-center justify-center gap-1"
+						className="text-sm text-[#6b7280] hover:text-[#154c9a] flex items-center justify-center gap-1 font-body"
 					>
 						← Voltar para o site
 					</Link>

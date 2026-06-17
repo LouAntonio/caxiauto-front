@@ -39,13 +39,13 @@ export default function MobileFilterModal({
 				onClick={onClose}
 			/>
 
-			<div className="absolute inset-x-0 bottom-0 max-h-[90vh] bg-white rounded-t-3xl shadow-2xl animate-slideUp flex flex-col">
-				<div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 sticky top-0 bg-white rounded-t-3xl z-10">
-					<h2 className="text-lg font-bold text-gray-900">{title}</h2>
+			<div className="absolute inset-x-0 bottom-0 max-h-[90vh] bg-white rounded-t-2xl shadow-2xl animate-slideUp flex flex-col">
+				<div className="flex items-center justify-between px-5 py-4 border-b border-[#e5e7eb] sticky top-0 bg-white rounded-t-2xl z-10">
+					<h2 className="font-display text-lg font-bold text-[#111827]">{title}</h2>
 					<button
 						type="button"
 						onClick={onClose}
-						className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center transition-colors cursor-pointer"
+						className="w-9 h-9 rounded-full bg-[#eef3fa] text-[#6b7280] flex items-center justify-center transition-colors cursor-pointer hover:bg-[#dce5f5]"
 						aria-label="Fechar filtros"
 					>
 						<X className="w-5 h-5" />

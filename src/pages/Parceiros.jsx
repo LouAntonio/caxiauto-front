@@ -1,157 +1,171 @@
-import React, { useState, useEffect } from 'react';
-import useDocumentTitle from '../hooks/useDocumentTitle';
-import { Phone, MessageCircle, Loader2 } from 'lucide-react';
-import PartnerCardSkeleton from '../components/PartnerCardSkeleton';
-import api, { getImageUrl } from '../services/api';
+import React, { useState, useEffect, useRef } from 'react'
+import useDocumentTitle from '../hooks/useDocumentTitle'
+import { Handshake, ArrowRight, Car, Wrench } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import PartnerCard from '../components/PartnerCard'
+import PartnerCardSkeleton from '../components/PartnerCardSkeleton'
+import api from '../services/api'
+
+function useScrollReveal(threshold = 0.15) {
+	const ref = useRef(null)
+	const [isVisible, setIsVisible] = useState(
+		() => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+	)
+
+	useEffect(() => {
+		if (isVisible) return
+		const el = ref.current
+		if (!el) return
+
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting) {
+					setIsVisible(true)
+					observer.unobserve(el)
+				}
+			},
+			{ threshold }
+		)
+
+		observer.observe(el)
+		return () => observer.disconnect()
+	}, [threshold, isVisible])
+
+	return [ref, isVisible]
+}
 
 export default function Parceiros() {
-	useDocumentTitle('Parceiros - Caxiauto');
-	const [partners, setPartners] = useState([]);
-	const [loading, setLoading] = useState(true);
+	useDocumentTitle('Parceiros - Caxiauto')
+
+	const [heroLineDrawn, setHeroLineDrawn] = useState(
+		() => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+	)
+
+	useEffect(() => {
+		if (heroLineDrawn) return
+		const timer = setTimeout(() => setHeroLineDrawn(true), 500)
+		return () => clearTimeout(timer)
+	}, [heroLineDrawn])
+
+	const [partners, setPartners] = useState([])
+	const [loading, setLoading] = useState(true)
+	const [gridRef, gridVisible] = useScrollReveal()
 
 	useEffect(() => {
 		const loadPartners = async () => {
 			try {
-				const response = await api.listActivePartners();
+				const response = await api.listActivePartners()
 				if (response.success) {
-					setPartners(response.data);
+					setPartners(response.data)
 				}
 			} catch (error) {
-				console.error('Erro ao carregar parceiros:', error);
+				console.error('Erro ao carregar parceiros:', error)
 			} finally {
-				setLoading(false);
+				setLoading(false)
 			}
-		};
+		}
 
-		loadPartners();
-	}, []);
-
-	if (loading) {
-		return (
-			<main className="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-				<div className="max-w-7xl mx-auto">
-					<div className="text-center mb-12">
-						<h1 className="text-4xl font-bold text-gray-900 mb-4">Nossos Parceiros</h1>
-						<p className="text-lg text-gray-600 max-w-2xl mx-auto">
-							Conheça as empresas que trabalham connosco para oferecer os melhores serviços e produtos.
-						</p>
-					</div>
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-						<PartnerCardSkeleton count={8} />
-					</div>
-				</div>
-			</main>
-		);
-	}
+		loadPartners()
+	}, [])
 
 	return (
-		<main className="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-			<div className="max-w-7xl mx-auto">
-				<div className="text-center mb-12">
-					<h1 className="text-4xl font-bold text-gray-900 mb-4">Nossos Parceiros</h1>
-					<p className="text-lg text-gray-600 max-w-2xl mx-auto">
-						Conheça as empresas que trabalham connosco para oferecer os melhores serviços e produtos.
-					</p>
+		<main>
+			{/* Hero */}
+			<section className="relative min-h-[calc(100dvh-80px)] flex items-center bg-gradient-to-b from-[#eef3fa] via-white to-white overflow-hidden">
+				<div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -right-32 w-[600px] h-[600px] rounded-full border border-[#d41120] opacity-[0.06]" />
+				<div aria-hidden="true" className="pointer-events-none absolute -bottom-20 -right-20 w-[450px] h-[450px] rounded-full border border-[#d41120] opacity-[0.04]" />
+
+				<div className="mx-auto max-w-7xl px-6 lg:px-8 py-24 w-full">
+					<div className="max-w-4xl mx-auto text-center">
+						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#eef3fa] text-[#154c9a] mb-10">
+							<Handshake className="w-4 h-4" />
+							<span className="text-sm font-semibold tracking-wide font-body">Nossos Parceiros</span>
+						</div>
+
+						<h1 className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-[#111827] leading-[1.08] mb-8 [text-wrap:balance]">
+							Empresas {' '}
+							<span className="text-[#d41120]">que confiam na Caxiauto</span>
+						</h1>
+
+						<div className="flex justify-center mb-10">
+							<div
+								className={`h-[3px] bg-[#d41120] transition-all duration-1000 ease-out ${
+									heroLineDrawn ? 'w-40' : 'w-0'
+								}`}
+							/>
+						</div>
+
+						<p className="font-body text-lg sm:text-xl text-[#6b7280] max-w-2xl mx-auto leading-relaxed">
+							Conheça as empresas que trabalham connosco para oferecer os melhores serviços e produtos automóveis em Angola.
+						</p>
+					</div>
 				</div>
+			</section>
 
-				{partners.length === 0 ? (
-					<div className="text-center py-20">
-						<p className="text-gray-500 text-lg">Nenhum parceiro encontrado</p>
-					</div>
-				) : (
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-						{partners.map((partner) => (
-							<div key={partner.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col">
-								{/* Banner */}
-								{partner.banner ? (
-									<div className="relative h-36 bg-gradient-to-b from-gray-200 to-gray-300 overflow-hidden">
-										<img
-											src={getImageUrl(partner.banner, null)}
-											alt={`Banner ${partner.name}`}
-											className="w-full h-full object-cover"
-											onError={(e) => {
-												e.target.style.display = 'none';
-											}}
-										/>
-										<div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-										<div className="absolute bottom-3 left-0 right-0 text-center">
-											<span className="text-white font-semibold text-sm bg-black/20 px-3 py-1 rounded-full">{partner.name}</span>
-										</div>
-									</div>
-								) : (
-									<div className="relative h-36 bg-gradient-to-b from-gray-200 to-gray-300 flex items-center justify-center">
-										<div className="absolute bottom-3 left-0 right-0 text-center">
-											<span className="text-gray-700 font-semibold text-sm bg-white/60 px-3 py-1 rounded-full">{partner.name}</span>
-										</div>
-									</div>
-								)}
-
-								{/* Logo Circular - Entre banner e corpo */}
-								<div className="relative -mt-16 flex justify-center z-10">
-									<div className="w-28 h-28 rounded-full bg-white p-2 shadow-lg">
-										<img
-											src={getImageUrl(partner.logo, 'https://placehold.co/100x100/f3f4f6/1e293b?text=' + encodeURIComponent(partner.name.substring(0, 2)))}
-											alt={partner.name}
-											className="w-full h-full object-contain rounded-full"
-											onError={(e) => {
-												e.target.src = 'https://placehold.co/100x100/f3f4f6/1e293b?text=' + encodeURIComponent(partner.name.substring(0, 2));
-											}}
-										/>
-									</div>
-								</div>
-
-								{/* Body */}
-								<div className="p-5 pt-3 flex-grow flex flex-col">
-									<h3 className="text-xl font-bold text-gray-900 mb-3 text-center">{partner.name}</h3>
-
-									{partner.characteristics && partner.characteristics.length > 0 && (
-										<ul className="space-y-1 mb-4 flex-grow">
-											{partner.characteristics.map((characteristic, index) => (
-												<li key={index} className="flex items-start gap-2 text-sm text-gray-600">
-													<span className="text-gray-400 mt-1">•</span>
-													{characteristic}
-												</li>
-											))}
-										</ul>
-									)}
-
-									{/* Logo CaxiAuto no centro */}
-									<div className="flex justify-center my-4">
-										<img
-											src="/logo-caxiauto.png"
-											alt="CaxiAuto"
-											className="h-10 object-contain"
-											onError={(e) => {
-												e.target.style.display = 'none';
-											}}
-										/>
-									</div>
-
-									{/* Action Buttons */}
-									<div className="grid grid-cols-2 gap-3 mt-auto">
-										<a
-											href={`https://wa.me/${partner.whatsapp.replace(/\s/g, '')}`}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white py-2.5 px-3 rounded-lg text-sm font-medium transition-colors"
-										>
-											<MessageCircle size={16} />
-											WhatsApp
-										</a>
-										<a
-											href={`tel:${partner.phone}`}
-											className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-3 rounded-lg text-sm font-medium transition-colors"
-										>
-											<Phone size={16} />
-											Ligar
-										</a>
-									</div>
-								</div>
+			{/* Partners Grid */}
+			<section ref={gridRef} className="bg-white border-t border-[#e5e7eb] py-20 sm:py-28">
+				<div className="mx-auto max-w-7xl px-6 lg:px-8">
+					{loading ? (
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+							<PartnerCardSkeleton count={8} />
+						</div>
+					) : partners.length === 0 ? (
+						<div className="text-center py-20">
+							<div className="w-16 h-16 bg-[#eef3fa] rounded-2xl flex items-center justify-center mx-auto mb-6">
+								<Handshake className="w-8 h-8 text-[#154c9a]" />
 							</div>
-						))}
+							<p className="font-body text-lg text-[#6b7280]">Nenhum parceiro encontrado</p>
+						</div>
+					) : (
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+							{partners.map((partner, index) => (
+								<div
+									key={partner.id}
+									className={`transition-all duration-500 ease-out ${
+										gridVisible
+											? 'opacity-100 translate-y-0'
+											: 'opacity-0 translate-y-6'
+									}`}
+									style={{ transitionDelay: gridVisible ? `${index * 60}ms` : '0ms' }}
+								>
+									<PartnerCard partner={partner} />
+								</div>
+							))}
+						</div>
+					)}
+				</div>
+			</section>
+
+			{/* CTA */}
+			<section className="bg-[#154c9a] py-20 overflow-hidden">
+				<div className="mx-auto max-w-7xl px-6 lg:px-8">
+					<div className="text-center max-w-3xl mx-auto">
+						<h2 className="font-display text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight">
+							Quer fazer parte da nossa rede de parceiros?
+						</h2>
+						<p className="font-body text-lg text-blue-100/80 max-w-xl mx-auto mb-10 leading-relaxed">
+							Junte-se às empresas que confiam na Caxiauto para crescer e conectar-se com milhares de clientes em Angola.
+						</p>
+						<div className="flex flex-col sm:flex-row gap-4 justify-center">
+							<Link
+								to="/contato"
+								className="inline-flex items-center justify-center gap-2 bg-white text-[#154c9a] px-8 py-4 rounded-2xl font-semibold hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 font-body group"
+							>
+								<Handshake className="w-5 h-5" />
+								Fale Connosco
+								<ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+							</Link>
+							<Link
+								to="/servicos/compra-de-viaturas"
+								className="inline-flex items-center justify-center gap-2 bg-white/10 text-white px-8 py-4 rounded-2xl font-semibold hover:bg-white/20 transition-all duration-300 border border-white/20 font-body group"
+							>
+								<Car className="w-5 h-5" />
+								Explorar Veículos
+							</Link>
+						</div>
 					</div>
-				)}
-			</div>
+				</div>
+			</section>
 		</main>
-	);
+	)
 }

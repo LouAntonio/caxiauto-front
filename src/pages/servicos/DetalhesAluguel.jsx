@@ -16,8 +16,6 @@ import {
 	Mail,
 	CheckCircle2,
 	X,
-	Upload,
-	FileText,
 	Loader2,
 	Heart
 } from 'lucide-react'
@@ -40,7 +38,6 @@ export default function DetalhesAluguel() {
 	const [isFavorite, setIsFavorite] = useState(false);
 	const [bookingSuccess, setBookingSuccess] = useState(false);
 
-	// Estado do formulário de contacto
 	const [rentalFormData, setRentalFormData] = useState({
 		nome: '',
 		email: '',
@@ -71,13 +68,11 @@ export default function DetalhesAluguel() {
 		return !contactData.nome || !contactData.email || !contactData.telefone
 	}
 
-	// Handler para quando uma reserva é criada
 	const handleBookingCreated = () => {
 		setBookingSuccess(true);
 		setTimeout(() => setBookingSuccess(false), 5000);
 	};
 
-	// Planos de aluguel baseados nos dados do veículo
 	const rentalPlans = useMemo(() => vehicle && vehicle.price ? [
 		{
 			id: 'diária',
@@ -105,9 +100,7 @@ export default function DetalhesAluguel() {
 		}
 	] : [], [vehicle])
 
-	// Mapear dados da API para formato do componente
 	const mapVehicleData = (apiVehicle) => {
-		// Formar lista de imagens (image principal + gallery)
 		const images = []
 		if (apiVehicle.image) {
 			images.push(getImageUrl(apiVehicle.image, '/images/placeholder-car.jpg'))
@@ -119,7 +112,6 @@ export default function DetalhesAluguel() {
 			images.push('/images/placeholder-car.jpg')
 		}
 
-		// Capitalizar fuelType e transmission (vêm como enum UPPERCASE)
 		const fuelLabels = {
 			GASOLINE: 'Gasolina',
 			DIESEL: 'Diesel',
@@ -177,7 +169,6 @@ export default function DetalhesAluguel() {
 		}
 	}
 
-	// Buscar dados do veículo
 	useEffect(() => {
 		if (!isAuthenticated) {
 			return
@@ -213,14 +204,12 @@ export default function DetalhesAluguel() {
 		} else if (apiVehicle) {
 			setError(null)
 			setCurrentImageIndex(0)
-			// Registrar visualização
 			api.addView('rent', id).catch(viewError => {
 				console.error('Erro ao registrar visualização:', viewError)
 			})
 		}
 	}, [isFetched, apiVehicle, id])
 
-	// Atualizar isFavorite quando wishlist carregar
 	useEffect(() => {
 		if (wishlistData) {
 			setIsFavorite(wishlistData.vehicles?.some(v => v.id === id) || false)
@@ -229,7 +218,6 @@ export default function DetalhesAluguel() {
 		}
 	}, [wishlistData, id])
 
-	// Atualizar período selecionado quando os planos mudarem
 	useEffect(() => {
 		if (rentalPlans.length > 0) {
 			if (!rentalPlans.find(plan => plan.id === selectedPeriod)) {
@@ -238,31 +226,28 @@ export default function DetalhesAluguel() {
 		}
 	}, [rentalPlans, selectedPeriod])
 
-	// Atualizar título da página
 	useDocumentTitle(
 		vehicle ? `${vehicle.title} - Aluguel - Caxiauto` : 'Detalhes do Veículo - Caxiauto'
 	)
 
-	// Loading state
 	if (loading) {
 		return <VehicleDetailSkeleton />
 	}
 
-	// Error state
 	if (error || !vehicle) {
 		return (
-			<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex items-center justify-center">
+			<div className="min-h-screen bg-white flex items-center justify-center">
 				<div className="text-center max-w-md mx-auto px-6">
-					<Car className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-					<h1 className="text-2xl font-bold text-gray-900 mb-2">
+					<Car className="w-16 h-16 mx-auto text-[#e5e7eb] mb-4" />
+					<h1 className="font-display text-2xl font-bold text-[#111827] mb-2">
 						Veículo não encontrado
 					</h1>
-					<p className="text-gray-600 mb-6">
+					<p className="font-body text-[#6b7280] mb-6">
 						{error || 'O veículo que você está procurando não foi encontrado ou não está disponível.'}
 					</p>
 					<button
 						onClick={() => navigate('/servicos/aluguel-de-automoveis')}
-						className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+						className="bg-[#154c9a] text-white px-6 py-3 rounded-2xl hover:bg-[#0c2d5e] transition-colors font-body font-semibold cursor-pointer"
 					>
 						Ver outros veículos
 					</button>
@@ -287,7 +272,6 @@ export default function DetalhesAluguel() {
 		setShowContactModal(true)
 	}
 
-	// Handler do formulário de contacto
 	const handleRentalSubmit = async (e) => {
 		e.preventDefault()
 		const contactData = mergeRequiredContactFields(rentalFormData)
@@ -330,7 +314,6 @@ export default function DetalhesAluguel() {
 		return new Intl.NumberFormat('pt-AO').format(price)
 	}
 
-	// Função para adicionar/remover favorito
 	const toggleFavorite = async (e) => {
 		e.preventDefault()
 		e.stopPropagation()
@@ -365,16 +348,16 @@ export default function DetalhesAluguel() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30">
+		<div className="min-h-screen bg-white">
 			{/* Breadcrumb */}
-			<div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-40">
+			<div className="bg-white border-b border-[#e5e7eb] sticky top-0 z-40">
 				<div className="max-w-7xl mx-auto px-6 py-4">
-					<nav className="flex items-center gap-2 text-sm text-gray-600">
-						<Link to="/" className="hover:text-indigo-600 transition-colors">Início</Link>
+					<nav className="flex items-center gap-2 font-body text-sm text-[#6b7280]">
+						<Link to="/" className="hover:text-[#154c9a] transition-colors">Início</Link>
 						<ChevronRight className="w-4 h-4" />
-						<Link to="/servicos/aluguel-de-automoveis" className="hover:text-indigo-600 transition-colors">Aluguel</Link>
+						<Link to="/servicos/aluguel-de-automoveis" className="hover:text-[#154c9a] transition-colors">Aluguel</Link>
 						<ChevronRight className="w-4 h-4" />
-						<span className="text-gray-900 font-medium">{vehicle?.title || 'Detalhes do Veículo'}</span>
+						<span className="text-[#111827] font-medium">{vehicle?.title || 'Detalhes do Veículo'}</span>
 					</nav>
 				</div>
 			</div>
@@ -383,9 +366,9 @@ export default function DetalhesAluguel() {
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 					{/* Coluna Principal */}
 					<div className="lg:col-span-2 space-y-6">
-						{/* Galeria de Imagens */}
-						<div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-							<div className="relative h-96 bg-gradient-to-br from-gray-100 to-gray-200">
+						{/* Galeria */}
+						<div className="bg-white rounded-2xl border border-[#e5e7eb] overflow-hidden">
+							<div className="relative h-96 bg-gray-100">
 								<img
 									src={`${vehicle.images[currentImageIndex]}`}
 									key={currentImageIndex}
@@ -393,21 +376,18 @@ export default function DetalhesAluguel() {
 									alt={`${vehicle.title} - Imagem ${currentImageIndex + 1}`}
 									className="w-full h-full object-cover transition-opacity duration-500"
 									onError={(e) => {
-										// Fallback para imagem padrão em caso de erro
 										e.target.src = '/images/i10.jpg'
 										console.warn(`Erro ao carregar imagem: ${e.target.src}`)
 									}}
 								/>
 
-								{/* Badge de Condição */}
 								<div className="absolute top-4 left-4">
-									<span className={`px-5 py-2.5 text-sm font-bold rounded-full shadow-xl backdrop-blur-sm ${vehicle.condition === 'Novo' ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white' : 'bg-gradient-to-r from-yellow-500 to-yellow-400 text-white'
+									<span className={`px-5 py-2.5 text-sm font-bold rounded-full shadow-xl backdrop-blur-sm font-body ${vehicle.condition === 'Novo' ? 'bg-[#154c9a] text-white' : 'bg-[#d41120] text-white'
 									}`}>
 										{vehicle.condition}
 									</span>
 								</div>
 
-								{/* Botão de favorito (estilo similar ao FeaturedCars) */}
 								{isAuthenticated && (
 									<button
 										onClick={toggleFavorite}
@@ -423,7 +403,6 @@ export default function DetalhesAluguel() {
 									</button>
 								)}
 
-								{/* Navegação de Imagens */}
 								<button
 									onClick={prevImage}
 									className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/95 hover:bg-white backdrop-blur-sm rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all hover:scale-110 cursor-pointer"
@@ -439,7 +418,6 @@ export default function DetalhesAluguel() {
 									<ChevronRight className="w-6 h-6 text-gray-700" />
 								</button>
 
-								{/* Indicadores */}
 								<div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
 									{vehicle.images.map((_, index) => (
 										<button
@@ -453,13 +431,12 @@ export default function DetalhesAluguel() {
 								</div>
 							</div>
 
-							{/* Miniaturas */}
 							<div className="p-4 flex gap-2 overflow-x-auto">
 								{vehicle.images.map((image, index) => (
 									<button
 										key={index}
 										onClick={() => setCurrentImageIndex(index)}
-										className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex ? 'border-indigo-600 ring-2 ring-indigo-200' : 'border-gray-200'
+										className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex ? 'border-[#154c9a] ring-2 ring-[#154c9a]/20' : 'border-[#e5e7eb]'
 										} cursor-pointer`}
 									>
 										<img src={`${image}`} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover" />
@@ -468,132 +445,127 @@ export default function DetalhesAluguel() {
 							</div>
 						</div>
 
-						{/* Título e Especificações Principais */}
-						<div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-							<h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-900 to-indigo-900 bg-clip-text text-transparent mb-6">{vehicle.title}</h1>
+						{/* Título e Especificações */}
+						<div className="bg-white rounded-2xl border border-[#e5e7eb] p-6">
+							<h1 className="font-display text-3xl md:text-4xl font-bold text-[#111827] mb-6">{vehicle.title}</h1>
 
 							<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
-									<Gauge className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
-									<span className="text-xs text-gray-600 mb-1">Quilometragem</span>
-									<span className="font-semibold text-gray-900">{vehicle.specs.km}</span>
+								<div className="flex flex-col items-center p-4 bg-[#f8f6f2] rounded-xl hover:shadow-sm transition-all group cursor-pointer">
+									<Gauge className="w-6 h-6 text-[#154c9a] mb-2 group-hover:scale-110 transition-transform" />
+									<span className="font-body text-xs text-[#6b7280] mb-1">Quilometragem</span>
+									<span className="font-['JetBrains_Mono',monospace] font-semibold text-[#111827]">{vehicle.specs.km}</span>
 								</div>
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
-									<Calendar className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
-									<span className="text-xs text-gray-600 mb-1">Ano</span>
-									<span className="font-semibold text-gray-900">{vehicle.specs.year}</span>
+								<div className="flex flex-col items-center p-4 bg-[#f8f6f2] rounded-xl hover:shadow-sm transition-all group cursor-pointer">
+									<Calendar className="w-6 h-6 text-[#154c9a] mb-2 group-hover:scale-110 transition-transform" />
+									<span className="font-body text-xs text-[#6b7280] mb-1">Ano</span>
+									<span className="font-body font-semibold text-[#111827]">{vehicle.specs.year}</span>
 								</div>
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
-									<Droplet className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
-									<span className="text-xs text-gray-600 mb-1">Combustível</span>
-									<span className="font-semibold text-gray-900">{vehicle.specs.fuel}</span>
+								<div className="flex flex-col items-center p-4 bg-[#f8f6f2] rounded-xl hover:shadow-sm transition-all group cursor-pointer">
+									<Droplet className="w-6 h-6 text-[#154c9a] mb-2 group-hover:scale-110 transition-transform" />
+									<span className="font-body text-xs text-[#6b7280] mb-1">Combustível</span>
+									<span className="font-body font-semibold text-[#111827]">{vehicle.specs.fuel}</span>
 								</div>
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
-									<Cog className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
-									<span className="text-xs text-gray-600 mb-1">Transmissão</span>
-									<span className="font-semibold text-gray-900">{vehicle.specs.transmission}</span>
+								<div className="flex flex-col items-center p-4 bg-[#f8f6f2] rounded-xl hover:shadow-sm transition-all group cursor-pointer">
+									<Cog className="w-6 h-6 text-[#154c9a] mb-2 group-hover:scale-110 transition-transform" />
+									<span className="font-body text-xs text-[#6b7280] mb-1">Transmissão</span>
+									<span className="font-body font-semibold text-[#111827]">{vehicle.specs.transmission}</span>
 								</div>
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
-									<Users className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
-									<span className="text-xs text-gray-600 mb-1">Passageiros</span>
-									<span className="font-semibold text-gray-900">{vehicle.specs.passengers}</span>
+								<div className="flex flex-col items-center p-4 bg-[#f8f6f2] rounded-xl hover:shadow-sm transition-all group cursor-pointer">
+									<Users className="w-6 h-6 text-[#154c9a] mb-2 group-hover:scale-110 transition-transform" />
+									<span className="font-body text-xs text-[#6b7280] mb-1">Passageiros</span>
+									<span className="font-body font-semibold text-[#111827]">{vehicle.specs.passengers}</span>
 								</div>
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
-									<Car className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
-									<span className="text-xs text-gray-600 mb-1">Portas</span>
-									<span className="font-semibold text-gray-900">{vehicle.specs.doors}</span>
+								<div className="flex flex-col items-center p-4 bg-[#f8f6f2] rounded-xl hover:shadow-sm transition-all group cursor-pointer">
+									<Car className="w-6 h-6 text-[#154c9a] mb-2 group-hover:scale-110 transition-transform" />
+									<span className="font-body text-xs text-[#6b7280] mb-1">Portas</span>
+									<span className="font-body font-semibold text-[#111827]">{vehicle.specs.doors}</span>
 								</div>
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
-									<MapPin className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
-									<span className="text-xs text-gray-600 mb-1">Localização</span>
-									<span className="font-semibold text-gray-900">{vehicle.specs.location}</span>
+								<div className="flex flex-col items-center p-4 bg-[#f8f6f2] rounded-xl hover:shadow-sm transition-all group cursor-pointer">
+									<MapPin className="w-6 h-6 text-[#154c9a] mb-2 group-hover:scale-110 transition-transform" />
+									<span className="font-body text-xs text-[#6b7280] mb-1">Localização</span>
+									<span className="font-body font-semibold text-[#111827]">{vehicle.specs.location}</span>
 								</div>
-								<div className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-xl hover:shadow-md transition-all group cursor-pointer">
-									<Shield className="w-6 h-6 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" />
-									<span className="text-xs text-gray-600 mb-1">Condição</span>
-									<span className="font-semibold text-gray-900">{vehicle.condition}</span>
+								<div className="flex flex-col items-center p-4 bg-[#f8f6f2] rounded-xl hover:shadow-sm transition-all group cursor-pointer">
+									<Shield className="w-6 h-6 text-[#154c9a] mb-2 group-hover:scale-110 transition-transform" />
+									<span className="font-body text-xs text-[#6b7280] mb-1">Condição</span>
+									<span className="font-body font-semibold text-[#111827]">{vehicle.condition}</span>
 								</div>
 							</div>
 						</div>
 
 						{/* Descrição */}
-						<div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-							<h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-								<div className="w-1 h-6 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full"></div>
+						<div className="bg-white rounded-2xl border border-[#e5e7eb] p-6">
+							<h2 className="font-display text-2xl font-bold text-[#111827] mb-4">
 								Descrição
 							</h2>
-							<p className="text-gray-700 leading-relaxed">{vehicle.description}</p>
+							<p className="font-body text-[#6b7280] leading-relaxed">{vehicle.description}</p>
 						</div>
 
-						{/* Características e Equipamentos */}
-						<div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-							<h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-								<div className="w-1 h-6 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full"></div>
+						{/* Características */}
+						<div className="bg-white rounded-2xl border border-[#e5e7eb] p-6">
+							<h2 className="font-display text-2xl font-bold text-[#111827] mb-4">
 								Características e Equipamentos
 							</h2>
 							<div className="grid grid-cols-2 md:grid-cols-3 gap-3">
 								{vehicle.features.map((feature, index) => (
-									<div key={index} className="flex items-center gap-2 text-gray-700 p-2 rounded-lg hover:bg-green-50 transition-colors group cursor-pointer">
-										<CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 group-hover:scale-110 transition-transform" />
-										<span className="text-sm">{feature}</span>
+									<div key={index} className="flex items-center gap-2 text-[#6b7280] p-2 rounded-lg hover:bg-[#f8f6f2] transition-colors group cursor-pointer">
+										<CheckCircle2 className="w-5 h-5 text-[#154c9a] flex-shrink-0 group-hover:scale-110 transition-transform" />
+										<span className="font-body text-sm">{feature}</span>
 									</div>
 								))}
 							</div>
 						</div>
 
 						{/* O que está Incluído */}
-						<div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-							<h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-								<div className="w-1 h-6 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full"></div>
+						<div className="bg-white rounded-2xl border border-[#e5e7eb] p-6">
+							<h2 className="font-display text-2xl font-bold text-[#111827] mb-4">
 								O que está incluído
 							</h2>
 							<div className="space-y-3">
 								{vehicle.included.map((item, index) => (
-									<div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-indigo-50 transition-colors group cursor-pointer">
-										<Shield className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
-										<span className="text-gray-700">{item}</span>
+									<div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-[#f8f6f2] transition-colors group cursor-pointer">
+										<Shield className="w-5 h-5 text-[#154c9a] flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+										<span className="font-body text-[#6b7280]">{item}</span>
 									</div>
 								))}
 							</div>
 						</div>
 
 						{/* Requisitos */}
-						<div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-							<h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-								<div className="w-1 h-6 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full"></div>
+						<div className="bg-white rounded-2xl border border-[#e5e7eb] p-6">
+							<h2 className="font-display text-2xl font-bold text-[#111827] mb-4">
 								Requisitos para Aluguel
 							</h2>
 							<div className="space-y-3">
 								{vehicle.requirements.map((req, index) => (
-									<div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-indigo-50 transition-colors group cursor-pointer">
-										<CheckCircle2 className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
-										<span className="text-gray-700">{req}</span>
+									<div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-[#f8f6f2] transition-colors group cursor-pointer">
+										<CheckCircle2 className="w-5 h-5 text-[#154c9a] flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+										<span className="font-body text-[#6b7280]">{req}</span>
 									</div>
 								))}
 							</div>
 						</div>
 
-						{/* Vendedor */}
+						{/* Vendedor (hidden) */}
 						{vehicle.seller && (
-							<div className="hidden bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-								<h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-									<div className="w-1 h-6 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full"></div>
+							<div className="hidden bg-white rounded-2xl border border-[#e5e7eb] p-6">
+								<h2 className="font-display text-2xl font-bold text-[#111827] mb-4">
 									Vendedor
 								</h2>
-								<div className="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-indigo-50/30 rounded-xl">
-									<div className="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center">
-										<User className="w-7 h-7 text-indigo-600" />
+								<div className="flex items-center gap-4 p-4 bg-[#f8f6f2] rounded-xl">
+									<div className="w-14 h-14 bg-[#eef3fa] rounded-full flex items-center justify-center">
+										<User className="w-7 h-7 text-[#154c9a]" />
 									</div>
 									<div className="flex-1">
 										<div className="flex items-center gap-2">
-											<h3 className="font-bold text-gray-900 text-lg">
+											<h3 className="font-display font-bold text-[#111827] text-lg">
 												{vehicle.seller.name} {vehicle.seller.surname}
 											</h3>
 											{vehicle.seller.isVerified && (
 												<Shield className="w-5 h-5 text-blue-500" fill="currentColor" />
 											)}
 										</div>
-										<p className="text-sm text-gray-600">
+										<p className="font-body text-sm text-[#6b7280]">
 											{vehicle.seller.isVerified ? 'Vendedor Verificado' : 'Vendedor'}
 										</p>
 									</div>
@@ -602,12 +574,12 @@ export default function DetalhesAluguel() {
 						)}
 					</div>
 
-					{/* Sidebar - Card de Preço e Contato */}
+					{/* Sidebar */}
 					<div className="lg:col-span-1">
 						<div className="sticky top-16 space-y-4">
-							{/* Card de Preços */}
-							<div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-								<h3 className="text-lg font-bold text-gray-900 mb-4">Planos de Aluguel</h3>
+							{/* Planos */}
+							<div className="bg-white rounded-2xl border border-[#e5e7eb] p-6">
+								<h3 className="font-display text-lg font-bold text-[#111827] mb-4">Planos de Aluguel</h3>
 
 								{rentalPlans.length > 0 ? (
 									<>
@@ -617,20 +589,20 @@ export default function DetalhesAluguel() {
 													key={plan.id}
 													onClick={() => setSelectedPeriod(plan.id)}
 													className={`w-full p-4 rounded-xl border-2 transition-all text-left cursor-pointer ${selectedPeriod === plan.id
-														? 'border-indigo-600 bg-indigo-50'
-														: 'border-gray-200 hover:border-indigo-300'
+														? 'border-[#154c9a] bg-[#eef3fa]'
+														: 'border-[#e5e7eb] hover:border-[#154c9a]/20'
 													}`}
 												>
 													<div className="flex justify-between items-start">
 														<div>
-															<div className="font-semibold text-gray-900">{plan.name}</div>
-															<div className="text-xs text-gray-600 mt-1">{plan.duration}</div>
+															<div className="font-semibold text-[#111827] font-body">{plan.name}</div>
+															<div className="font-body text-xs text-[#6b7280] mt-1">{plan.duration}</div>
 														</div>
 														<div className="text-right">
-															<div className="text-lg font-bold text-indigo-600">
+															<div className="text-lg font-bold text-[#154c9a] font-['JetBrains_Mono',monospace]">
 																{formatPrice(plan.price)}
 															</div>
-															<div className="text-xs text-gray-600">{plan.unit}</div>
+															<div className="font-body text-xs text-[#6b7280]">{plan.unit}</div>
 														</div>
 													</div>
 												</button>
@@ -639,39 +611,37 @@ export default function DetalhesAluguel() {
 									</>
 								) : (
 									<div className="text-center py-8">
-										<div className="text-gray-400 mb-2">
+										<div className="text-[#e5e7eb] mb-2">
 											<Car className="w-12 h-12 mx-auto" />
 										</div>
-										<p className="text-gray-600 text-sm">
+										<p className="font-body text-[#6b7280] text-sm">
 											Preços não disponíveis no momento.
 										</p>
-										<p className="text-gray-500 text-xs mt-1">
+										<p className="font-body text-gray-500 text-xs mt-1">
 											Entre em contato para mais informações.
 										</p>
 									</div>
 								)}
 
-								{/* Mensagem de sucesso da reserva */}
 								{bookingSuccess && (
 									<div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
 										<div className="flex items-center gap-2">
 											<CheckCircle2 className="w-5 h-5 text-green-600" />
-											<p className="text-sm text-green-700 font-medium">
+											<p className="font-body text-sm text-green-700 font-medium">
 												Reserva criada com sucesso! Aguarde confirmação.
 											</p>
 										</div>
 									</div>
 								)}
 
-								{/* Componente de Reserva */}
 								{isAuthenticated ? (
 									<BookingForm vehicle={vehicle} onBookingCreated={handleBookingCreated} />
 								) : (
 									<button
 										onClick={handleContact}
-										className={`w-full font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02] cursor-pointer ${rentalPlans.length > 0
-											? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white'
-											: 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white'
+										className={`w-full font-bold py-4 rounded-2xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] cursor-pointer font-body ${rentalPlans.length > 0
+											? 'bg-[#154c9a] hover:bg-[#0c2d5e] text-white'
+											: 'bg-gray-500 hover:bg-gray-600 text-white'
 										}`}
 									>
 										{rentalPlans.length > 0 ? 'Solicitar Aluguel' : 'Entre em Contato'}
@@ -679,10 +649,10 @@ export default function DetalhesAluguel() {
 								)}
 							</div>
 
-							{/* Card de Contato */}
-							<div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-700 rounded-2xl shadow-xl p-6 text-white border border-indigo-400/20">
-								<h3 className="text-lg font-bold mb-4">Precisa de ajuda?</h3>
-								<p className="text-sm text-indigo-100 mb-4">
+							{/* Contato */}
+							<div className="bg-[#154c9a] rounded-2xl p-6 text-white">
+								<h3 className="font-display text-lg font-bold mb-4">Precisa de ajuda?</h3>
+								<p className="font-body text-sm text-blue-100 mb-4">
 									Nossa equipe está pronta para atendê-lo
 								</p>
 								<div className="space-y-3">
@@ -691,9 +661,9 @@ export default function DetalhesAluguel() {
 										className="flex items-center gap-3 p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all"
 									>
 										<Phone className="w-5 h-5" />
-										<div className="text-sm">
+										<div className="font-body text-sm">
 											<div className="font-medium">+244 930 723 503</div>
-											<div className="text-xs text-indigo-200">Ligar agora</div>
+											<div className="text-xs text-blue-200">Ligar agora</div>
 										</div>
 									</a>
 									<a
@@ -701,45 +671,35 @@ export default function DetalhesAluguel() {
 										className="flex items-center gap-3 p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all"
 									>
 										<Mail className="w-5 h-5" />
-										<div className="text-sm">
+										<div className="font-body text-sm">
 											<div className="font-medium">info@caxiauto.com</div>
-											<div className="text-xs text-indigo-200">Enviar e-mail</div>
+											<div className="text-xs text-blue-200">Enviar e-mail</div>
 										</div>
 									</a>
 								</div>
 							</div>
 
 							{/* Por que alugar conosco? */}
-							<div className="bg-gradient-to-br from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-xl p-5 shadow-lg hover:shadow-xl transition-all">
-								<h3 className="flex items-center gap-2 font-bold text-indigo-900 mb-4">
-									<svg className="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-										<path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-									</svg>
+							<div className="bg-[#f8f6f2] border border-[#e5e7eb] rounded-2xl p-5">
+								<h3 className="flex items-center gap-2 font-display font-bold text-[#111827] mb-4">
+									<Shield className="w-5 h-5 text-[#154c9a]" />
 									Por que alugar conosco?
 								</h3>
 								<ul className="space-y-3">
-									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
-										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-										</svg>
+									<li className="flex items-start gap-3 font-body text-sm text-[#6b7280] bg-white rounded-xl p-3 shadow-sm">
+										<CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
 										<span className="font-medium">Sem taxas ocultas</span>
 									</li>
-									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
-										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-										</svg>
+									<li className="flex items-start gap-3 font-body text-sm text-[#6b7280] bg-white rounded-xl p-3 shadow-sm">
+										<CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
 										<span className="font-medium">Seguro incluso</span>
 									</li>
-									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
-										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-										</svg>
+									<li className="flex items-start gap-3 font-body text-sm text-[#6b7280] bg-white rounded-xl p-3 shadow-sm">
+										<CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
 										<span className="font-medium">Quilometragem ilimitada</span>
 									</li>
-									<li className="flex items-start gap-3 text-sm text-indigo-900 bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
-										<svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-										</svg>
+									<li className="flex items-start gap-3 font-body text-sm text-[#6b7280] bg-white rounded-xl p-3 shadow-sm">
+										<CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
 										<span className="font-medium">Entrega e recolha gratuitas</span>
 									</li>
 								</ul>
@@ -760,21 +720,20 @@ export default function DetalhesAluguel() {
 					}}
 				>
 					<div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-lg w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto relative animate-slideUp">
-						{/* Header Fixo */}
-						<div className="sticky top-0 bg-gradient-to-br from-indigo-600 to-indigo-700 px-4 sm:px-6 pt-5 sm:pt-6 pb-4 sm:pb-5 rounded-t-2xl sm:rounded-t-3xl z-10 shadow-lg">
+						<div className="sticky top-0 bg-[#154c9a] px-4 sm:px-6 pt-5 sm:pt-6 pb-4 sm:pb-5 rounded-t-2xl sm:rounded-t-3xl z-10 shadow-lg">
 							<button
 								onClick={() => setShowContactModal(false)}
-								className="absolute top-3 sm:top-4 right-3 sm:right-4 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all hover:rotate-90"
+								className="absolute top-3 sm:top-4 right-3 sm:right-4 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all hover:rotate-90 cursor-pointer"
 								aria-label="Fechar"
 							>
 								<X className="w-5 h-5 text-white" />
 							</button>
 
 							<div className="pr-10">
-								<h3 className="text-xl sm:text-2xl font-bold text-white mb-1.5 sm:mb-2">
+								<h3 className="text-xl sm:text-2xl font-bold text-white mb-1.5 sm:mb-2 font-display">
 									Solicitar Aluguel
 								</h3>
-								<p className="text-indigo-100 text-xs sm:text-sm">
+								<p className="text-blue-100 text-xs sm:text-sm font-body">
 									Preencha os dados e entraremos em contato em breve
 								</p>
 							</div>
@@ -784,11 +743,10 @@ export default function DetalhesAluguel() {
 							className="p-4 sm:p-6 space-y-4 sm:space-y-5"
 							onSubmit={handleRentalSubmit}
 						>
-							{/* Informações Pessoais (não solicitar se usuário estiver logado) */}
 							{!isAuthenticated && (
 								<div className="space-y-4">
 									<div>
-										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+										<label className="flex items-center font-body text-xs sm:text-sm font-semibold text-[#6b7280] mb-2">
 											<span className="flex items-center gap-1.5">
 												Nome completo
 												<span className="text-red-500 text-base">*</span>
@@ -800,14 +758,14 @@ export default function DetalhesAluguel() {
 											value={rentalFormData.nome}
 											onChange={(e) => setRentalFormData({ ...rentalFormData, nome: e.target.value })}
 											required
-											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]/20 font-body text-sm"
 											placeholder="Digite seu nome completo"
 										/>
 									</div>
 
 									<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 										<div>
-											<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+											<label className="flex items-center font-body text-xs sm:text-sm font-semibold text-[#6b7280] mb-2">
 												<span className="flex items-center gap-1.5">
 													Telefone
 													<span className="text-red-500 text-base">*</span>
@@ -819,13 +777,13 @@ export default function DetalhesAluguel() {
 												value={rentalFormData.telefone}
 												onChange={(e) => setRentalFormData({ ...rentalFormData, telefone: e.target.value })}
 												required
-												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]/20 font-body text-sm"
 												placeholder="+244 9XX XXX XXX"
 											/>
 										</div>
 
 										<div>
-											<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+											<label className="flex items-center font-body text-xs sm:text-sm font-semibold text-[#6b7280] mb-2">
 												<span className="flex items-center gap-1.5">
 													E-mail
 													<span className="text-red-500 text-base">*</span>
@@ -837,7 +795,7 @@ export default function DetalhesAluguel() {
 												value={rentalFormData.email}
 												onChange={(e) => setRentalFormData({ ...rentalFormData, email: e.target.value })}
 												required
-												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 text-sm sm:text-base"
+												className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]/20 font-body text-sm"
 												placeholder="seu@email.com"
 											/>
 										</div>
@@ -845,15 +803,14 @@ export default function DetalhesAluguel() {
 								</div>
 							)}
 
-							{/* Detalhes do Aluguel */}
-							<div className="pt-4 border-t border-gray-200">
-								<h4 className="text-sm sm:text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-									<Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
+							<div className="pt-4 border-t border-[#e5e7eb]">
+								<h4 className="font-body text-sm sm:text-base font-bold text-[#111827] mb-4 flex items-center gap-2">
+									<Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-[#154c9a]" />
 									Detalhes do aluguel
 								</h4>
 
 								<div>
-									<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+									<label className="flex items-center font-body text-xs sm:text-sm font-semibold text-[#6b7280] mb-2">
 										<span className="flex items-center gap-1.5">
 											Período desejado
 											<span className="text-red-500 text-base">*</span>
@@ -864,7 +821,7 @@ export default function DetalhesAluguel() {
 										value={rentalFormData.periodo || selectedPeriod}
 										onChange={(e) => setRentalFormData({ ...rentalFormData, periodo: e.target.value })}
 										required
-										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base font-medium"
+										className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]/20 bg-white cursor-pointer font-body text-sm"
 									>
 										{rentalPlans.map((plan) => (
 											<option key={plan.id} value={plan.id}>
@@ -877,16 +834,15 @@ export default function DetalhesAluguel() {
 											</option>
 										)}
 									</select>
-									<p className="mt-2 text-xs text-gray-500 flex items-center gap-1.5">
+									<p className="mt-2 font-body text-xs text-[#6b7280] flex items-center gap-1.5">
 										<Shield className="w-3.5 h-3.5" />
 										Seguro e assistência 24h inclusos
 									</p>
 								</div>
 
-								{/* Datas */}
 								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
 									<div>
-										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+										<label className="flex items-center font-body text-xs sm:text-sm font-semibold text-[#6b7280] mb-2">
 											Data de início
 										</label>
 										<input
@@ -895,11 +851,11 @@ export default function DetalhesAluguel() {
 											value={rentalFormData.dataInicio}
 											onChange={(e) => setRentalFormData({ ...rentalFormData, dataInicio: e.target.value })}
 											min={new Date().toISOString().split('T')[0]}
-											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base"
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]/20 bg-white cursor-pointer font-body text-sm"
 										/>
 									</div>
 									<div>
-										<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+										<label className="flex items-center font-body text-xs sm:text-sm font-semibold text-[#6b7280] mb-2">
 											Data de fim
 										</label>
 										<input
@@ -908,15 +864,14 @@ export default function DetalhesAluguel() {
 											value={rentalFormData.dataFim}
 											onChange={(e) => setRentalFormData({ ...rentalFormData, dataFim: e.target.value })}
 											min={rentalFormData.dataInicio || new Date().toISOString().split('T')[0]}
-											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none transition-all hover:border-gray-400 bg-white cursor-pointer text-sm sm:text-base"
+											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]/20 bg-white cursor-pointer font-body text-sm"
 										/>
 									</div>
 								</div>
 							</div>
 
-							{/* Mensagem */}
 							<div>
-								<label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+								<label className="flex items-center font-body text-xs sm:text-sm font-semibold text-[#6b7280] mb-2">
 									Mensagem ou observações
 								</label>
 								<textarea
@@ -924,17 +879,16 @@ export default function DetalhesAluguel() {
 									value={rentalFormData.mensagem}
 									onChange={(e) => setRentalFormData({ ...rentalFormData, mensagem: e.target.value })}
 									rows="3"
-									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl outline-none resize-none transition-all hover:border-gray-400 text-sm sm:text-base"
+									className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-[#e5e7eb] rounded-2xl outline-none resize-none transition-all focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]/20 font-body text-sm"
 									placeholder="Conte-nos sobre suas necessidades, datas específicas ou dúvidas..."
 								/>
 							</div>
 
-							{/* Botões de Ação */}
-							<div className="pt-4 sm:pt-5 border-t border-gray-200 space-y-2.5 sm:space-y-3">
+							<div className="pt-4 sm:pt-5 border-t border-[#e5e7eb] space-y-2.5 sm:space-y-3">
 								<button
 									type="submit"
 									disabled={rentalLoading}
-									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+									className="w-full bg-[#154c9a] hover:bg-[#0c2d5e] text-white font-bold py-3 sm:py-4 rounded-2xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 font-body text-sm sm:text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 								>
 									{rentalLoading ? (
 										<>
@@ -951,7 +905,7 @@ export default function DetalhesAluguel() {
 								<button
 									type="button"
 									onClick={() => setShowContactModal(false)}
-									className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 sm:py-3 rounded-xl transition-all active:scale-[0.98] text-sm sm:text-base cursor-pointer"
+									className="w-full bg-[#f8f6f2] hover:bg-[#eef3fa] text-[#6b7280] font-semibold py-2.5 sm:py-3 rounded-2xl transition-all active:scale-[0.98] font-body text-sm sm:text-base cursor-pointer"
 								>
 									Cancelar
 								</button>

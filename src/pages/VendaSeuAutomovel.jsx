@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import useDocumentTitle from '../hooks/useDocumentTitle'
 import {
@@ -7,265 +7,319 @@ import {
 	TrendingUp,
 	Users,
 	Shield,
-	DollarSign,
 	Clock,
 	Zap,
 	Star,
-	ThumbsUp,
 	Car,
 	ArrowRight,
 	Sparkles
 } from 'lucide-react'
 
+const steps = [
+	{
+		number: '01',
+		title: 'Registe a sua viatura online',
+		description: 'Preencha o formulário com todas as informações da viatura e documentos necessários.',
+		icon: FileText,
+	},
+	{
+		number: '02',
+		title: 'A Caxiauto valida os dados',
+		description: 'Nossa equipa verifica todas as informações e aprova o anúncio rapidamente.',
+		icon: CheckCircle2,
+	},
+	{
+		number: '03',
+		title: 'Divulgamos e gerimos interessados',
+		description: 'Promovemos a sua viatura na plataforma, redes sociais e gerimos todos os contactos.',
+		icon: TrendingUp,
+	},
+	{
+		number: '04',
+		title: 'Ajudamos na negociação',
+		description: 'Acompanhamos todo o processo até ao fecho da venda com segurança.',
+		icon: Users,
+	}
+]
+
+const benefits = [
+	{ icon: TrendingUp, title: 'Mais visibilidade', description: 'Sua viatura divulgada em múltiplos canais.' },
+	{ icon: Users, title: 'Compradores qualificados', description: 'Atraímos compradores realmente interessados.' },
+	{ icon: Shield, title: 'Apoio profissional', description: 'Equipa especializada em vendas.' },
+	{ icon: CheckCircle2, title: 'Mais segurança', description: 'Processo transparente e seguro.' },
+	{ icon: Zap, title: 'Venda mais rápida', description: 'Encontre compradores em menos tempo.' },
+]
+
+const planos = [
+	{
+		name: 'Mensal',
+		features: [
+			'Até 5 veículos anunciados',
+			'Até 20 peças e acessórios',
+			'Suporte padrão',
+		],
+		popular: false,
+	},
+	{
+		name: 'Trimestral',
+		features: [
+			'Até 15 veículos anunciados',
+			'Até 50 peças e acessórios',
+			'Créditos de destaque mensais',
+			'Suporte prioritário',
+		],
+		popular: true,
+	},
+	{
+		name: 'Anual',
+		features: [
+			'Veículos ilimitados',
+			'Peças e acessórios ilimitados',
+			'Destaques premium',
+			'Suporte VIP',
+		],
+		popular: false,
+	},
+]
+
+function useScrollReveal(threshold = 0.15) {
+	const ref = useRef(null)
+	const [isVisible, setIsVisible] = useState(
+		() => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+	)
+
+	useEffect(() => {
+		if (isVisible) return
+		const el = ref.current
+		if (!el) return
+
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting) {
+					setIsVisible(true)
+					observer.unobserve(el)
+				}
+			},
+			{ threshold }
+		)
+
+		observer.observe(el)
+		return () => observer.disconnect()
+	}, [threshold, isVisible])
+
+	return [ref, isVisible]
+}
+
 export default function VendaSeuAutomovel() {
 	useDocumentTitle('Venda a Sua Viatura - Caxiauto')
 
-	const steps = [
-		{
-			number: '01',
-			label: 'PASSO',
-			title: 'Registe a sua viatura online',
-			description: 'Preencha o formulário com todas as informações da viatura e documentos necessários.',
-			icon: FileText,
-		},
-		{
-			number: '02',
-			label: 'PASSO',
-			title: 'A Caxiauto valida os dados',
-			description: 'Nossa equipa verifica todas as informações e aprova o anúncio rapidamente.',
-			icon: CheckCircle2,
-		},
-		{
-			number: '03',
-			label: 'PASSO',
-			title: 'Divulgamos e gerimos interessados',
-			description: 'Promovemos a sua viatura na plataforma, redes sociais e gerimos todos os contactos.',
-			icon: TrendingUp,
-		},
-		{
-			number: '04',
-			label: 'PASSO',
-			title: 'Ajudamos na negociação',
-			description: 'Acompanhamos todo o processo até ao fecho da venda com segurança.',
-			icon: Users,
-		}
-	]
+	const [heroLineDrawn, setHeroLineDrawn] = useState(
+		() => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+	)
 
-	const benefits = [
-		{ icon: TrendingUp, title: 'Mais visibilidade', description: 'Sua viatura divulgada em múltiplos canais.' },
-		{ icon: Users, title: 'Compradores qualificados', description: 'Atraímos compradores realmente interessados.' },
-		{ icon: Shield, title: 'Apoio profissional', description: 'Equipa especializada em vendas.' },
-		{ icon: CheckCircle2, title: 'Mais segurança', description: 'Processo transparente e seguro.' },
-		{ icon: Zap, title: 'Venda mais rápida', description: 'Encontre compradores em menos tempo.' },
-	]
+	useEffect(() => {
+		if (heroLineDrawn) return
+		const timer = setTimeout(() => setHeroLineDrawn(true), 500)
+		return () => clearTimeout(timer)
+	}, [heroLineDrawn])
 
-	const commissions = [
-		// { range: 'Até 5.000.000 Kz', percentage: '6,5%', color: 'from-blue-500 to-blue-600' },
-		// { range: '6.000.000 a 10.000.000 Kz', percentage: '5%', color: 'from-blue-600 to-blue-700' },
-		{ range: 'Acima de 11.000.000 Kz', percentage: '3,5%', color: 'from-blue-700 to-blue-800' },
-	]
+	const [stepsRef, stepsVisible] = useScrollReveal()
+	const [benefitsRef, benefitsVisible] = useScrollReveal()
 
 	return (
-		<main className="bg-gradient-to-b from-white to-gray-50 min-h-screen">
-			{/* Hero Section */}
-			<section className="min-h-[calc(100vh-80px)] px-6 bg-[#154c9a] text-white relative overflow-hidden isolate flex items-center justify-center py-28 sm:py-40">
-				<div
-					className="absolute inset-0 -z-10 opacity-10"
-					style={{
-						backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"
-					}}
-				></div>
+		<main>
+			{/* Hero */}
+			<section className="relative min-h-[calc(100dvh-80px)] flex items-center bg-gradient-to-b from-[#eef3fa] via-white to-white overflow-hidden">
+				<div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -right-32 w-[600px] h-[600px] rounded-full border border-[#d41120] opacity-[0.06]" />
+				<div aria-hidden="true" className="pointer-events-none absolute -bottom-20 -right-20 w-[450px] h-[450px] rounded-full border border-[#d41120] opacity-[0.04]" />
 
-				{/* Gradiente de background */}
-				<div className="absolute inset-0 -z-10 bg-gradient-to-br from-[#154c9a] via-[#0f3d7a] to-[#154c9a] opacity-90"></div>
-
-				{/* Elementos decorativos */}
-				<div className="absolute top-0 right-0 -mr-32 -mt-32 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-				<div className="absolute bottom-0 left-0 -ml-32 -mb-32 w-[500px] h-[500px] bg-red-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-				<div className="absolute top-1/2 left-1/4 w-2 h-2 bg-white/20 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
-				<div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-white/30 rounded-full animate-bounce" style={{ animationDelay: '1.5s' }}></div>
-
-				<div className="max-w-4xl mx-auto text-center relative z-10">
-					{/* Badge decorativo */}
-					<div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 border border-white/20 text-blue-100 mb-8 backdrop-blur-sm shadow-lg">
-						<Car className="w-5 h-5" />
-						<span className="font-semibold text-sm tracking-wide uppercase">Intermediação de Vendas</span>
-					</div>
-
-					<h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 tracking-tight leading-tight">
-						VENDA A SUA <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">VIATURA</span> COM A CAXIAUTO
-					</h1>
-					<p className="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed">
-						Rápido • Seguro • Sem complicações
-					</p>
-					<p className="text-lg text-blue-50 max-w-2xl mx-auto mb-10">
-						Tratamos de todo o processo por si — desde o marketing até à venda final. Oferecemos um serviço completo de intermediação onde encontramos o comprador ideal para a sua viatura.
-					</p>
-					<Link
-						to="/auth"
-						className="inline-flex items-center gap-2 bg-white text-[#154c9a] font-bold py-5 px-12 rounded-full hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 group text-lg"
-					>
-						Registar Agora
-						<ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-					</Link>
-
-					{/* Scroll indicator */}
-					<div className="mt-12 animate-bounce">
-						<div className="w-6 h-10 mx-auto border-2 border-white/30 rounded-full flex items-start justify-center p-1">
-							<div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+				<div className="mx-auto max-w-7xl px-6 lg:px-8 py-24 w-full">
+					<div className="max-w-4xl mx-auto text-center">
+						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#eef3fa] text-[#154c9a] mb-10">
+							<Car className="w-4 h-4" />
+							<span className="text-sm font-semibold tracking-wide font-body">Intermediação de Vendas</span>
 						</div>
+
+						<h1 className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-[#111827] leading-[1.08] mb-6 [text-wrap:balance]">
+							Venda {' '} <span className="text-[#d41120]">connosco</span>
+						</h1>
+
+						<div className="flex justify-center mb-8">
+							<div
+								className={`h-[3px] bg-[#d41120] transition-all duration-1000 ease-out ${
+									heroLineDrawn ? 'w-40' : 'w-0'
+								}`}
+							/>
+						</div>
+
+						<p className="font-body text-xl text-[#154c9a] font-semibold mb-6">
+							Rápido <span className="text-[#d41120]">•</span> Seguro <span className="text-[#d41120]">•</span> Sem complicações
+						</p>
+
+						<p className="font-body text-lg text-[#6b7280] max-w-2xl mx-auto mb-10 leading-relaxed">
+							Tratamos de todo o processo por si — desde o marketing até à venda final. Oferecemos um serviço completo de intermediação onde encontramos o comprador ideal para a sua viatura.
+						</p>
+
+						<Link
+							to="/auth"
+							className="inline-flex items-center justify-center gap-2 bg-[#154c9a] hover:bg-[#0c2d5e] text-white px-10 py-5 rounded-2xl font-semibold font-body transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 group text-lg"
+						>
+							Registar Agora
+							<ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+						</Link>
 					</div>
 				</div>
 			</section>
 
-			{/* Timeline Steps - Como Funciona */}
-			<section className="py-24 px-6 overflow-hidden relative">
-				<div className="absolute inset-0 bg-gradient-to-b from-white to-gray-50/50 -z-10"></div>
-
-				<div className="max-w-7xl mx-auto">
+			{/* Steps */}
+			<section ref={stepsRef} className="bg-white border-t border-[#e5e7eb] py-20 sm:py-28">
+				<div className="mx-auto max-w-7xl px-6 lg:px-8">
 					<div className="text-center mb-16">
-						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-[#154c9a] mb-4">
+						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#fde8ea] text-[#d41120] mb-4">
 							<CheckCircle2 className="w-4 h-4" />
-							<span className="text-sm font-semibold">Processo Simples</span>
+							<span className="text-sm font-semibold font-body">Processo Simples</span>
 						</div>
-						<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Como Funciona</h2>
-						<p className="text-xl text-gray-600 max-w-2xl mx-auto">
+						<h2 className="font-display text-3xl sm:text-4xl font-bold text-[#111827]">
+							Como Funciona
+						</h2>
+						<p className="font-body mt-4 text-lg text-[#6b7280] max-w-2xl mx-auto">
 							Apenas 4 passos para vender a sua viatura com segurança
 						</p>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-						{steps.map((step) => (
-							<div key={step.number} className="relative group">
-								<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-8 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 hover:from-white hover:to-blue-50 transition-all duration-300 transform group-hover:-translate-y-2 relative overflow-hidden h-full flex flex-col">
-									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -m-10 opacity-40 group-hover:opacity-70 transition-opacity duration-500"></div>
-
-									<div className="relative mb-6 flex flex-col items-center text-center">
-										<div className="w-20 h-20 bg-gradient-to-br from-white to-blue-50 rounded-full shadow-[0_4px_20px_rgba(21,76,154,0.25)] flex flex-col items-center justify-center border-[5px] border-[#154c9a] group-hover:border-[6px] group-hover:scale-110 group-hover:shadow-[0_6px_25px_rgba(21,76,154,0.35)] transition-all duration-300 mb-4">
-											<span className="text-[10px] font-bold text-[#154c9a] uppercase tracking-widest">{step.label}</span>
-											<span className="text-3xl font-black bg-gradient-to-br from-[#154c9a] to-blue-700 bg-clip-text text-transparent leading-none">{step.number}</span>
-										</div>
-
-										<div className="w-16 h-16 bg-gradient-to-br from-[#154c9a] to-blue-600 rounded-2xl flex items-center justify-center shadow-[0_4px_15px_rgba(21,76,154,0.3)] text-white transform group-hover:rotate-12 group-hover:scale-110 group-hover:shadow-[0_6px_20px_rgba(21,76,154,0.4)] transition-all duration-300 mb-5">
-											<step.icon size={30} strokeWidth={2.5} />
-										</div>
-
-										<h3 className="text-xl font-bold text-gray-800 group-hover:text-[#154c9a] transition-colors mb-1">{step.title}</h3>
-									</div>
-
-									<p className="text-base text-gray-600 leading-relaxed font-medium text-center mt-auto">
-										{step.description}
-									</p>
+					<div className="grid max-w-xl grid-cols-1 gap-6 lg:max-w-none lg:grid-cols-4">
+						{steps.map((step, index) => (
+							<div
+								key={step.number}
+								className={`group relative bg-white p-8 rounded-2xl border border-[#e5e7eb] transition-all duration-500 ease-out hover:border-[#154c9a]/20 ${
+									stepsVisible
+										? 'opacity-100 translate-y-0'
+										: 'opacity-0 translate-y-6'
+								}`}
+								style={{ transitionDelay: stepsVisible ? `${index * 100}ms` : '0ms' }}
+							>
+								<div className="font-display text-sm font-bold text-[#d41120] mb-4 tracking-wider">{step.number}</div>
+								<div className="w-12 h-12 bg-[#154c9a] rounded-xl flex items-center justify-center mb-5 text-white group-hover:scale-110 transition-transform duration-300">
+									<step.icon className="h-6 w-6" aria-hidden="true" />
 								</div>
+								<h3 className="font-display text-lg font-bold text-[#111827] mb-2 group-hover:text-[#154c9a] transition-colors duration-300">
+									{step.title}
+								</h3>
+								<p className="font-body text-[#6b7280] leading-relaxed">{step.description}</p>
 							</div>
 						))}
 					</div>
 				</div>
 			</section>
 
-			{/* Comissão Transparente */}
-			<section className="py-24 px-6 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
-				<div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
-				<div className="absolute top-0 left-0 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl -z-10"></div>
-
-				<div className="max-w-7xl mx-auto">
+			{/* Planos de Subscrição */}
+			<section className="bg-[#f8f6f2] py-20 sm:py-28">
+				<div className="mx-auto max-w-7xl px-6 lg:px-8">
 					<div className="text-center mb-16">
-						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 border border-green-100 text-green-700 mb-4">
-							<DollarSign className="w-4 h-4" />
-							<span className="text-sm font-semibold">Preços Justos</span>
+						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#eef3fa] text-[#154c9a] mb-4">
+							<Sparkles className="w-4 h-4" />
+							<span className="text-sm font-semibold font-body">Planos</span>
 						</div>
-						<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Comissão Transparente</h2>
-						<p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-							Só paga se vender. Sem custos de registo ou mensalidades.
+						<h2 className="font-display text-3xl sm:text-4xl font-bold text-[#111827] mb-4">
+							Planos de Assinatura
+						</h2>
+						<p className="font-body text-lg text-[#6b7280] max-w-2xl mx-auto">
+							Escolha o plano ideal para o seu negócio e comece a vender hoje mesmo.
 						</p>
 					</div>
 
-					<div className="flex flex-wrap justify-center gap-8 mb-12">
-						{commissions.map((item) => (
-							<div key={item.range} className="relative group w-full max-w-sm">
-								<div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl shadow-[0_8px_30px_rgb(21,76,154,0.12)] p-10 border-2 border-blue-100/50 hover:shadow-2xl hover:border-[#154c9a]/30 transition-all duration-500 transform group-hover:-translate-y-2 text-center overflow-hidden">
-									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -m-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-									<div className="relative">
-										<div className={`w-20 h-20 mx-auto mb-6 bg-gradient-to-br ${item.color} rounded-2xl flex items-center justify-center shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
-											<DollarSign className="w-10 h-10 text-white" strokeWidth={2.5} />
-										</div>
-										<p className="text-gray-700 font-semibold mb-4">{item.range}</p>
-										<p className="text-5xl font-black bg-gradient-to-br from-[#154c9a] to-blue-700 bg-clip-text text-transparent">{item.percentage}</p>
+					<div className="grid max-w-5xl grid-cols-1 gap-6 lg:grid-cols-3 mx-auto items-start">
+						{planos.map((plano) => (
+							<div
+								key={plano.name}
+								className={`relative bg-white p-8 rounded-2xl border transition-all duration-300 ${
+									plano.popular
+										? 'border-[#154c9a] ring-2 ring-[#154c9a]/20 scale-[1.02] lg:scale-105 z-10'
+										: 'border-[#e5e7eb] hover:border-[#154c9a]/20'
+								}`}
+							>
+								{plano.popular && (
+									<div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#d41120] text-white text-xs font-semibold px-4 py-1 rounded-full font-body whitespace-nowrap">
+										Mais Popular
 									</div>
-								</div>
+								)}
+								<h3 className={`font-display text-xl font-bold text-[#111827] mb-6 ${plano.popular ? 'mt-2' : ''}`}>
+									{plano.name}
+								</h3>
+								<ul className="space-y-3 mb-8">
+									{plano.features.map((f) => (
+										<li key={f} className="flex items-start gap-2 font-body text-sm text-[#6b7280]">
+											<CheckCircle2 className="w-4 h-4 text-[#154c9a] mt-0.5 flex-shrink-0" />
+											{f}
+										</li>
+									))}
+								</ul>
+								<Link
+									to="/auth"
+									className={`block text-center py-3 px-6 rounded-2xl font-semibold font-body transition-all duration-300 ${
+										plano.popular
+											? 'bg-[#154c9a] hover:bg-[#0c2d5e] text-white'
+											: 'bg-[#eef3fa] text-[#154c9a] hover:bg-[#dce5f5]'
+									}`}
+								>
+									Começar Agora
+								</Link>
 							</div>
 						))}
-					</div>
-
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-						<div className="flex items-center gap-3 bg-green-50 p-5 rounded-2xl border border-green-200 shadow-sm">
-							<CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
-							<span className="text-gray-700 font-medium">Sem custos de registo</span>
-						</div>
-						<div className="flex items-center gap-3 bg-green-50 p-5 rounded-2xl border border-green-200 shadow-sm">
-							<CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
-							<span className="text-gray-700 font-medium">Sem mensalidades</span>
-						</div>
-						<div className="flex items-center gap-3 bg-green-50 p-5 rounded-2xl border border-green-200 shadow-sm">
-							<CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
-							<span className="text-gray-700 font-medium">Só paga se vender</span>
-						</div>
 					</div>
 				</div>
 			</section>
 
-			{/* Benefits Grid */}
-			<section className="py-24 px-6 bg-gradient-to-br from-gray-50 to-blue-50/30 relative overflow-hidden">
-				<div className="absolute top-0 right-0 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl -z-10"></div>
-
-				<div className="max-w-7xl mx-auto">
-					<div className="text-center mb-16">
-						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-50 border border-red-100 text-[#d41120] mb-4">
+			{/* Benefits */}
+			<section ref={benefitsRef} className="bg-white py-20 sm:py-28">
+				<div className="mx-auto max-w-7xl px-6 lg:px-8">
+					<div className="mx-auto max-w-2xl text-center mb-16">
+						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#fde8ea] text-[#d41120] mb-4">
 							<Star className="w-4 h-4" />
-							<span className="text-sm font-semibold">Vantagens</span>
+							<span className="text-sm font-semibold font-body">Vantagens</span>
 						</div>
-						<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Porque Vender com a Caxiauto?</h2>
+						<h2 className="font-display text-3xl sm:text-4xl font-bold text-[#111827]">
+							Porque Vender com a Caxiauto?
+						</h2>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-						{benefits.map((benefit) => (
-							<div key={benefit.title} className="group">
-								<div className="bg-white rounded-3xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] p-8 hover:shadow-[0_20px_40px_-15px_rgba(21,76,154,0.15)] transition-all duration-500 transform hover:-translate-y-2 border-2 border-transparent hover:border-[#154c9a]/20 h-full relative overflow-hidden">
-									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-50 to-transparent rounded-full -m-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-									<div className="relative">
-										<div className="w-16 h-16 bg-gradient-to-br from-[#154c9a] to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg transform group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-xl transition-all duration-500">
-											<benefit.icon className="w-8 h-8 text-white" strokeWidth={2.5} />
-										</div>
-										<h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#154c9a] transition-colors">
-											{benefit.title}
-										</h3>
-										<p className="text-gray-600 leading-relaxed">{benefit.description}</p>
-									</div>
+					<div className="grid max-w-xl grid-cols-1 gap-6 lg:max-w-none lg:grid-cols-3">
+						{benefits.map((benefit, index) => (
+							<div
+								key={benefit.title}
+								className={`group relative bg-white p-8 rounded-2xl border border-[#e5e7eb] transition-all duration-500 ease-out hover:border-[#154c9a]/20 ${
+									benefitsVisible
+										? 'opacity-100 translate-y-0'
+										: 'opacity-0 translate-y-6'
+								}`}
+								style={{ transitionDelay: benefitsVisible ? `${index * 80}ms` : '0ms' }}
+							>
+								<div className="w-12 h-12 bg-[#d41120] rounded-xl flex items-center justify-center mb-5 text-white group-hover:scale-110 transition-transform duration-300">
+									<benefit.icon className="h-6 w-6" aria-hidden="true" />
 								</div>
+								<h3 className="font-display text-lg font-bold text-[#111827] mb-2 group-hover:text-[#154c9a] transition-colors duration-300">
+									{benefit.title}
+								</h3>
+								<p className="font-body text-[#6b7280] leading-relaxed">{benefit.description}</p>
 							</div>
 						))}
 					</div>
 				</div>
 			</section>
 
-			{/* CTA Final */}
-			<section className="relative bg-gradient-to-br from-[#154c9a] via-[#0f3d7a] to-[#154c9a] py-20 overflow-hidden">
-				<div className="absolute inset-0 opacity-10">
-					<div className="absolute top-0 right-0 w-96 h-96 bg-blue-400 rounded-full blur-3xl"></div>
-					<div className="absolute bottom-0 left-0 w-80 h-80 bg-red-400 rounded-full blur-3xl"></div>
-				</div>
-
-				<div className="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
-					<div className="text-center">
-						<div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 border border-white/20 text-blue-100 mb-6 backdrop-blur-sm">
-							<Sparkles className="w-5 h-5" />
-							<span className="font-semibold text-sm">Comece Agora</span>
-						</div>
-						<h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Pronto para vender a sua viatura?</h2>
-						<p className="text-lg text-blue-100 max-w-2xl mx-auto mb-8">Registe-se agora e encontre o comprador ideal para a sua viatura com total segurança.</p>
+			{/* CTA */}
+			<section className="bg-[#154c9a] py-20 overflow-hidden">
+				<div className="mx-auto max-w-7xl px-6 lg:px-8">
+					<div className="text-center max-w-3xl mx-auto">
+						<h2 className="font-display text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight">
+							Pronto para vender a sua viatura?
+						</h2>
+						<p className="font-body text-lg text-blue-100/80 max-w-xl mx-auto mb-10 leading-relaxed">
+							Registe-se agora e encontre o comprador ideal para a sua viatura com total segurança.
+						</p>
 						<Link
 							to="/auth"
-							className="inline-flex items-center justify-center gap-2 bg-white text-[#154c9a] px-10 py-5 rounded-2xl font-semibold hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 group text-lg"
+							className="inline-flex items-center justify-center gap-2 bg-white text-[#154c9a] px-10 py-5 rounded-2xl font-semibold hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 font-body group text-lg"
 						>
 							<Car className="w-5 h-5" />
 							Registar Agora
