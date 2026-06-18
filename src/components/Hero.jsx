@@ -58,7 +58,7 @@ export default function Hero() {
 	}
 
 	return (
-		<section id="hero-section" className="relative bg-gradient-to-r from-[#154c9a] via-[#0c2d5e] to-transparent text-white overflow-hidden min-h-screen -mt-20">
+		<section id="hero-section" className="relative bg-gradient-to-r from-[#154c9a] via-[#0c2d5e] to-transparent text-white overflow-hidden min-h-screen -mt-20 flex flex-col justify-center">
 			<div
 				className="absolute inset-0 bg-cover bg-center opacity-30"
 				style={{
@@ -68,7 +68,7 @@ export default function Hero() {
 				aria-hidden="true"
 			/>
 
-			<div className="relative max-w-7xl mx-auto px-6 lg:px-8 h-full flex flex-col justify-center gap-8 pb-24 pt-20">
+			<div className="relative max-w-7xl mx-auto px-6 lg:px-8 w-full flex flex-col gap-8 pb-24 pt-20">
 				<div className="max-w-3xl">
 					<h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight drop-shadow-md [text-wrap:balance]">
 						Escolha o seu carro online
