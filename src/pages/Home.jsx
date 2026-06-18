@@ -2,6 +2,7 @@ import React from 'react'
 import useDocumentTitle from '../hooks/useDocumentTitle'
 import Hero from '../components/Hero'
 import FeaturedCars from '../components/FeaturedCars'
+import { useRecentVehicles } from '../hooks/queries/useVehicles'
 import FeaturedParts from '../components/FeaturedParts'
 import RentACarSection from '../components/RentACarSection'
 import TowingSection from '../components/TowingSection'
@@ -27,7 +28,7 @@ export default function Home() {
 				<SellBuySection />
 				<FeaturedCars title="Carros em Destaque" />
 				<RentACarSection />
-				<FeaturedCars title="Adicionados Recentemente" />
+				<FeaturedCars title="Adicionados Recentemente" useVehicleQuery={useRecentVehicles} />
 				<TowingSection />
 				<div className="max-w-7xl mx-auto px-6 lg:px-8 my-8">
 					<img

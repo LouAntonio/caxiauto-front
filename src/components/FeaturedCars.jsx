@@ -6,9 +6,9 @@ import { useFeaturedVehicles } from '../hooks/queries/useVehicles';
 import useAuthStore from '../stores/authStore';
 import CarCardSkeleton from './CarCardSkeleton';
 
-export default function FeaturedCars({ title = 'Carros em Destaque' }) {
+export default function FeaturedCars({ title = 'Carros em Destaque', useVehicleQuery = useFeaturedVehicles }) {
 	const railRef = useRef(null);
-	const { data: vehicles, isLoading } = useFeaturedVehicles();
+	const { data: vehicles, isLoading } = useVehicleQuery();
 	const [wishlist, setWishlist] = useState(new Set());
 	const [loadingWishlist, setLoadingWishlist] = useState(new Set());
 	const { isAuthenticated } = useAuthStore();
