@@ -10,8 +10,7 @@ import {
 	MessageSquare,
 	Facebook,
 	Instagram,
-	ArrowRight,
-	Share2
+	ArrowRight
 } from 'lucide-react'
 import { useSendContact } from '../hooks/queries/useContact'
 
@@ -199,159 +198,189 @@ export default function Contato() {
 
 			<section ref={formRef} className="bg-[#f8f6f2] py-20 sm:py-28">
 				<div className="mx-auto max-w-7xl px-6 lg:px-8">
-					<div
-						className={`bg-white rounded-2xl border border-[#e5e7eb] overflow-hidden transition-all duration-700 ease-out shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ${
-							formVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-						}`}
-					>
-						<div className="grid grid-cols-1 lg:grid-cols-2">
-							<div className="bg-[#154c9a] p-12 text-white flex flex-col justify-between relative overflow-hidden">
-								<div className="absolute bottom-0 right-0 opacity-10 transform translate-x-1/4 translate-y-1/4">
-									<MessageSquare size={300} />
-								</div>
+					<div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-8 items-start">
 
-								<div className="relative z-10">
-									<h2 className="font-display text-3xl font-bold mb-6">Envie uma Mensagem</h2>
-									<p className="font-body text-blue-100 text-lg mb-12">
-										Preencha o formulário e a nossa equipa entrará em contacto consigo o mais breve possível.
-									</p>
+						{/* Left: Form Card */}
+						<div
+							className={`bg-white rounded-2xl p-12 lg:p-16 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.12)] transition-all duration-700 ease-out ${
+								formVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+							}`}
+						>
+							<div className="w-16 h-[3px] bg-[#d41120] rounded-full mb-6" />
 
-									<div className="space-y-8">
-										<div className="flex items-center gap-4">
-											<div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm">
-												<Clock className="w-5 h-5" />
-											</div>
-											<div>
-												<h4 className="font-display font-semibold">Horário de Funcionamento</h4>
-												<p className="font-body text-blue-200 text-sm">Seg - Sex: 08:00 - 18:00</p>
-												<p className="font-body text-blue-200 text-sm">Sábado: 09:00 - 13:00</p>
-											</div>
-										</div>
+							<h2 className="font-display text-3xl font-bold text-[#111827] mb-4">
+								Envie uma Mensagem
+							</h2>
+							<p className="font-body text-[#6b7280] mb-10 max-w-lg">
+								Preencha o formulário e a nossa equipa entrará em contacto consigo o mais breve possível.
+							</p>
 
-										<div className="flex items-center gap-4">
-											<div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm">
-												<Share2 className="w-5 h-5" />
-											</div>
-											<div>
-												<h4 className="font-display font-semibold">Redes Sociais</h4>
-												<div className="flex gap-4 mt-2">
-													<a
-														href="https://www.facebook.com/TeamBuil.ea/"
-														className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white hover:text-[#154c9a] transition-all"
-													>
-														<Facebook size={16} />
-													</a>
-													<a
-														href="https://www.instagram.com/caxiauto.ao/"
-														className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white hover:text-[#154c9a] transition-all"
-													>
-														<Instagram size={16} />
-													</a>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<div className="p-12 lg:p-16 bg-white">
-								<form onSubmit={handleSubmit} className="space-y-6">
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-										<div>
-											<label className="block font-body text-sm font-medium text-[#6b7280] mb-2">Nome Completo</label>
-											<input
-												type="text"
-												name="nome"
-												value={formData.nome}
-												onChange={handleChange}
-												required
-												className="w-full px-4 py-3 rounded-2xl border border-[#e5e7eb] outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]"
-												placeholder="Seu nome"
-											/>
-										</div>
-										<div>
-											<label className="block font-body text-sm font-medium text-[#6b7280] mb-2">Email</label>
-											<input
-												type="email"
-												name="email"
-												value={formData.email}
-												onChange={handleChange}
-												required
-												className="w-full px-4 py-3 rounded-2xl border border-[#e5e7eb] outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]"
-												placeholder="seu@email.com"
-											/>
-										</div>
-									</div>
-
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-										<div>
-											<label className="block font-body text-sm font-medium text-[#6b7280] mb-2">Telefone</label>
-											<input
-												type="tel"
-												name="telefone"
-												value={formData.telefone}
-												onChange={handleChange}
-												required
-												className="w-full px-4 py-3 rounded-2xl border border-[#e5e7eb] outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]"
-												placeholder="+244 912 345 678"
-											/>
-										</div>
-										<div>
-											<label className="block font-body text-sm font-medium text-[#6b7280] mb-2">Assunto</label>
-											<select
-												name="assunto"
-												value={formData.assunto}
-												onChange={handleChange}
-												required
-												className="w-full px-4 py-3 rounded-2xl border border-[#e5e7eb] outline-none transition-all font-body text-[#111827] bg-white focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]"
-											>
-												<option value="">Selecione um assunto</option>
-												<option value="vendas">Comprar Viatura</option>
-												<option value="aluguel">Aluguer</option>
-												<option value="pecas">Peças</option>
-												<option value="seguro">Seguro</option>
-												<option value="financeiro">Financeiro</option>
-												<option value="outro">Outro</option>
-											</select>
-										</div>
-									</div>
-
+							<form onSubmit={handleSubmit} className="space-y-5">
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 									<div>
-										<label className="block font-body text-sm font-medium text-[#6b7280] mb-2">Mensagem</label>
-										<textarea
-											name="mensagem"
-											value={formData.mensagem}
+										<label className="block font-body text-sm font-medium text-[#6b7280] mb-2">Nome Completo</label>
+										<input
+											type="text"
+											name="nome"
+											value={formData.nome}
 											onChange={handleChange}
-											rows="4"
 											required
-											className="w-full px-4 py-3 rounded-2xl border border-[#e5e7eb] outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a] resize-none"
-											placeholder="Como podemos ajudar?"
+											className="w-full px-4 py-3 rounded-xl border border-[#e5e7eb] outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#d41120] focus:ring-1 focus:ring-[#d41120]/20"
+											placeholder="Seu nome"
 										/>
 									</div>
+									<div>
+										<label className="block font-body text-sm font-medium text-[#6b7280] mb-2">Email</label>
+										<input
+											type="email"
+											name="email"
+											value={formData.email}
+											onChange={handleChange}
+											required
+											className="w-full px-4 py-3 rounded-xl border border-[#e5e7eb] outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#d41120] focus:ring-1 focus:ring-[#d41120]/20"
+											placeholder="seu@email.com"
+										/>
+									</div>
+								</div>
 
-									<button
-										type="submit"
-										disabled={sendContactMutation.isPending}
-										className="w-full py-4 bg-[#154c9a] text-white rounded-2xl font-semibold font-body text-lg shadow-lg hover:shadow-xl hover:bg-blue-800 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-									>
-										{sendContactMutation.isPending ? (
-											<>
-												<svg className="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-													<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-													<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-												</svg>
-												Enviando...
-											</>
-										) : (
-											<>
-												<Send className="w-5 h-5" />
-												Enviar Mensagem
-											</>
-										)}
-									</button>
-								</form>
-							</div>
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+									<div>
+										<label className="block font-body text-sm font-medium text-[#6b7280] mb-2">Telefone</label>
+										<input
+											type="tel"
+											name="telefone"
+											value={formData.telefone}
+											onChange={handleChange}
+											required
+											className="w-full px-4 py-3 rounded-xl border border-[#e5e7eb] outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#d41120] focus:ring-1 focus:ring-[#d41120]/20"
+											placeholder="+244 912 345 678"
+										/>
+									</div>
+									<div>
+										<label className="block font-body text-sm font-medium text-[#6b7280] mb-2">Assunto</label>
+										<select
+											name="assunto"
+											value={formData.assunto}
+											onChange={handleChange}
+											required
+											className="w-full px-4 py-3 rounded-xl border border-[#e5e7eb] outline-none transition-all font-body text-[#111827] bg-white focus:border-[#d41120] focus:ring-1 focus:ring-[#d41120]/20"
+										>
+											<option value="">Selecione um assunto</option>
+											<option value="vendas">Comprar Viatura</option>
+											<option value="aluguel">Aluguer</option>
+											<option value="pecas">Peças</option>
+											<option value="seguro">Seguro</option>
+											<option value="financeiro">Financeiro</option>
+											<option value="outro">Outro</option>
+										</select>
+									</div>
+								</div>
+
+								<div>
+									<label className="block font-body text-sm font-medium text-[#6b7280] mb-2">Mensagem</label>
+									<textarea
+										name="mensagem"
+										value={formData.mensagem}
+										onChange={handleChange}
+										rows="4"
+										required
+										className="w-full px-4 py-3 rounded-xl border border-[#e5e7eb] outline-none transition-all font-body text-[#111827] placeholder:text-[#9ca3af] focus:border-[#d41120] focus:ring-1 focus:ring-[#d41120]/20 resize-none"
+										placeholder="Como podemos ajudar?"
+									/>
+								</div>
+
+								<button
+									type="submit"
+									disabled={sendContactMutation.isPending}
+									className="w-full py-4 bg-[#154c9a] text-white rounded-xl font-semibold font-body text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
+								>
+									{sendContactMutation.isPending ? (
+										<>
+											<svg className="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+												<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+												<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+											</svg>
+											Enviando...
+										</>
+									) : (
+										<>
+											<Send className="w-5 h-5 group-hover:text-[#d41120] transition-colors" />
+											Enviar Mensagem
+										</>
+									)}
+								</button>
+							</form>
 						</div>
+
+						{/* Right: Info Cards */}
+						<div className="space-y-6">
+
+							<div
+								className={`bg-gradient-to-br from-[#eef3fa] to-white rounded-2xl p-8 border border-[#e5e7eb]/60 transition-all duration-700 ease-out ${
+									formVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+								}`}
+								style={{ transitionDelay: formVisible ? '100ms' : '0ms' }}
+							>
+								<div className="relative pl-5 border-l-[3px] border-[#d41120] mb-6">
+									<h3 className="font-display text-lg font-bold text-[#111827]">
+										Horário de Funcionamento
+									</h3>
+								</div>
+
+								<div className="space-y-5">
+									<div className="flex items-center gap-4">
+										<div className="w-10 h-10 rounded-xl bg-[#154c9a] flex items-center justify-center text-white shrink-0">
+											<Clock className="w-5 h-5" />
+										</div>
+										<div>
+											<p className="font-body text-sm text-[#6b7280]">Seg - Sex</p>
+											<p className="font-body font-semibold text-[#111827]">08:00 - 18:00</p>
+										</div>
+									</div>
+									<div className="flex items-center gap-4">
+										<div className="w-10 h-10 rounded-xl bg-[#154c9a] flex items-center justify-center text-white shrink-0">
+											<Clock className="w-5 h-5" />
+										</div>
+										<div>
+											<p className="font-body text-sm text-[#6b7280]">Sábado</p>
+											<p className="font-body font-semibold text-[#111827]">09:00 - 13:00</p>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div
+								className={`bg-gradient-to-br from-[#eef3fa] to-white rounded-2xl p-8 border border-[#e5e7eb]/60 transition-all duration-700 ease-out ${
+									formVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+								}`}
+								style={{ transitionDelay: formVisible ? '200ms' : '0ms' }}
+							>
+								<div className="relative pl-5 border-l-[3px] border-[#d41120] mb-6">
+									<h3 className="font-display text-lg font-bold text-[#111827]">
+										Redes Sociais
+									</h3>
+								</div>
+
+								<p className="font-body text-sm text-[#6b7280] mb-5">Acompanhe-nos nas redes sociais</p>
+
+								<div className="flex gap-3">
+									<a
+										href="https://www.facebook.com/TeamBuil.ea/"
+										className="w-10 h-10 rounded-xl bg-[#154c9a] flex items-center justify-center text-white hover:bg-[#d41120] transition-all duration-300"
+									>
+										<Facebook size={18} />
+									</a>
+									<a
+										href="https://www.instagram.com/caxiauto.ao/"
+										className="w-10 h-10 rounded-xl bg-[#154c9a] flex items-center justify-center text-white hover:bg-[#d41120] transition-all duration-300"
+									>
+										<Instagram size={18} />
+									</a>
+								</div>
+							</div>
+
+						</div>
+
 					</div>
 				</div>
 			</section>
