@@ -87,6 +87,7 @@ export default function Compra() {
 	useEffect(() => {
 		const routeFilters = location.state?.filters;
 		if (routeFilters) {
+			// eslint-disable-next-line react-hooks/set-state-in-effect
 			setFilters(routeFilters);
 			setCurrentPage(1);
 			window.history.replaceState({}, '');

@@ -30,7 +30,7 @@ const AdminPecas = () => {
 	const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, total: 0 });
 	const [activeTab, setActiveTab] = useState('all');
 	const [filters, setFilters] = useState({ search: '', categoria: '', provincia: '' });
-	const { data: categorias } = useCategorias();
+	const { data: categorias = [] } = useCategorias();
 
 	// Modals
 	const [detailsModal, setDetailsModal] = useState({ open: false, peca: null });

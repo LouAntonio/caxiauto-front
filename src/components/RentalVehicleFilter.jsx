@@ -22,6 +22,7 @@ export default function RentalVehicleFilter({ onFilterChange, initialFilters = {
 
 	useEffect(() => {
 		if (Object.keys(initialFilters).length > 0) {
+			// eslint-disable-next-line react-hooks/set-state-in-effect
 			setFilters(prev => ({
 				...prev,
 				...initialFilters
