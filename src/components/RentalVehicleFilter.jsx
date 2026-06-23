@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Search, RotateCcw, Car, Fuel, Settings, Calendar, Wallet } from 'lucide-react'
 import { useManufacturers, useClasses } from '../hooks/queries/useManufacturers'
 import { FUEL_TYPES, TRANSMISSION_TYPES } from '../constants/filters'
@@ -20,6 +20,14 @@ export default function RentalVehicleFilter({ onFilterChange, initialFilters = {
 		...initialFilters
 	})
 
+	useEffect(() => {
+		if (Object.keys(initialFilters).length > 0) {
+			setFilters(prev => ({
+				...prev,
+				...initialFilters
+			}))
+		}
+	}, [initialFilters])
 
 	const handleChange = (field, value) => {
 		const newFilters = {
