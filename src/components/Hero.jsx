@@ -1,31 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
-
-// Enums alinhados com o schema (FuelType e TransmissionType)
-const FUEL_TYPES = [
-	{ value: 'GASOLINE', label: 'Gasolina' },
-	{ value: 'DIESEL', label: 'Diesel' },
-	{ value: 'ELECTRIC', label: 'Elétrico' },
-	{ value: 'HYBRID', label: 'Híbrido' },
-]
-
-const TRANSMISSION_TYPES = [
-	{ value: 'MANUAL', label: 'Manual' },
-	{ value: 'AUTOMATIC', label: 'Automática' },
-	{ value: 'SEMI_AUTOMATIC', label: 'Semi-Automática' },
-]
+import { FUEL_TYPES, TRANSMISSION_TYPES } from '../constants/filters'
+import { Car, CalendarClock } from 'lucide-react'
 
 export default function Hero() {
 	const navigate = useNavigate()
 	const [manufacturers, setManufacturers] = useState([])
+	const [mode, setMode] = useState('COMPRA')
 	const [filters, setFilters] = useState({
 		marca: '',
 		combustivel: '',
 		transmissao: ''
 	})
 
-	// Buscar fabricantes da API
 	useEffect(() => {
 		const fetchManufacturers = async () => {
 			try {
@@ -59,8 +47,28 @@ export default function Hero() {
 
 	const handleSearch = (e) => {
 		e.preventDefault()
-		// Enviar filtros com valores corretos (marca = ID, combustivel/transmissao = enum UPPERCASE)
-		navigate('/stand/compra', { state: { filters } })
+
+		if (mode === 'COMPRA') {
+			navigate('/stand/compra', {
+				state: {
+					filters: {
+						marca: filters.marca,
+						combustivel: filters.combustivel,
+						transmissao: filters.transmissao
+					}
+				}
+			})
+		} else {
+			navigate('/servicos/aluguel-de-automoveis', {
+				state: {
+					filters: {
+						manufacturer: filters.marca,
+						fuelType: filters.combustivel,
+						transmission: filters.transmissao
+					}
+				}
+			})
+		}
 	}
 
 	return (
@@ -90,6 +98,56 @@ export default function Hero() {
 				</div>
 
 				<div className="w-full max-w-xl bg-white/90 text-[#6b7280] rounded-2xl p-6 sm:p-8 shadow-2xl border border-[#e5e7eb]">
+					{/* Switcher */}
+					<div className="flex mb-6 bg-gray-100/80 rounded-xl p-1 gap-1" role="tablist" aria-label="Modo de pesquisa">
+						<button
+							type="button"
+							role="tab"
+							aria-selected={mode === 'COMPRA'}
+							onClick={() => setMode('COMPRA')}
+							className={`flex-1 py-3 px-4 rounded-lg transition-all duration-300 font-body cursor-pointer ${
+								mode === 'COMPRA'
+									? 'bg-[#d41120] text-white shadow-md'
+									: 'bg-transparent text-[#6b7280] hover:text-[#111827] hover:bg-gray-200/50'
+							}`}
+						>
+							<div className="flex flex-col items-center gap-0.5">
+								<div className="flex items-center gap-2">
+									<Car className={`w-4 h-4 ${mode === 'COMPRA' ? 'text-white' : 'text-[#6b7280]'}`} />
+									<span className="text-sm font-semibold">Compra</span>
+								</div>
+								<span className={`text-[10px] leading-tight font-medium ${
+									mode === 'COMPRA' ? 'text-white/70' : 'text-[#9ca3af]'
+								}`}>
+									Propriedade
+								</span>
+							</div>
+						</button>
+						<button
+							type="button"
+							role="tab"
+							aria-selected={mode === 'ALUGUER'}
+							onClick={() => setMode('ALUGUER')}
+							className={`flex-1 py-3 px-4 rounded-lg transition-all duration-300 font-body cursor-pointer ${
+								mode === 'ALUGUER'
+									? 'bg-[#d41120] text-white shadow-md'
+									: 'bg-transparent text-[#6b7280] hover:text-[#111827] hover:bg-gray-200/50'
+							}`}
+						>
+							<div className="flex flex-col items-center gap-0.5">
+								<div className="flex items-center gap-2">
+									<CalendarClock className={`w-4 h-4 ${mode === 'ALUGUER' ? 'text-white' : 'text-[#6b7280]'}`} />
+									<span className="text-sm font-semibold">Aluguer</span>
+								</div>
+								<span className={`text-[10px] leading-tight font-medium ${
+									mode === 'ALUGUER' ? 'text-white/70' : 'text-[#9ca3af]'
+								}`}>
+									Temporário
+								</span>
+							</div>
+						</button>
+					</div>
+
 					<form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 items-end">
 						<div className="w-full sm:flex-1">
 							<label className="sr-only">Marca</label>
