@@ -38,7 +38,6 @@ export default function Home() {
 				</div>
 				<FeaturedParts />
 				{/* <Publicidades /> */}
-				<FeedbackSection />
 				<div className="max-w-7xl mx-auto px-6 lg:px-8 my-8">
 					<img
 						src="./images/ad/Prancheta 3.png"
@@ -48,6 +47,7 @@ export default function Home() {
 				</div>
 				<PartnersSlider />
 			</main>
+			<FeedbackSection />
 		</>
 	)
 }

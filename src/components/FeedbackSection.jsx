@@ -1,5 +1,5 @@
-import React from 'react'
-import { Star, Quote } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { MessageCircle, Star, X } from 'lucide-react'
 
 const reviews = [
 	{
@@ -32,88 +32,167 @@ const reviews = [
 	},
 ]
 
-function Stars({ rating }) {
-	return (
-		<div className="flex gap-0.5">
-			{[1, 2, 3, 4, 5].map(star => (
-				<Star
-					key={star}
-					size={14}
-					fill={star <= rating ? '#d41120' : 'none'}
-					className={star <= rating ? 'text-[#d41120]' : 'text-[#e5e7eb]'}
-				/>
-			))}
-		</div>
-	)
-}
-
-function Avatar({ initials, rating }) {
-	const bg = rating === 5 ? 'bg-[#154c9a]' : 'bg-[#6b7280]'
-	return (
-		<div className={`w-10 h-10 rounded-full ${bg} flex items-center justify-center text-white text-xs font-semibold font-body flex-shrink-0`}>
-			{initials}
-		</div>
-	)
-}
-
-function getBorderStyle(rating) {
-	const opacity = rating === 5 ? 1 : 0.4
-	return { borderLeft: `3px solid rgba(212, 17, 32, ${opacity})` }
-}
+const SHOW_MS = 6000
+const HIDE_MS = 6000
+const INITIAL_DELAY_MS = 3000
+const R = 26
+const CIRCUMFERENCE = 2 * Math.PI * R
 
 export default function FeedbackSection() {
+	const [index, setIndex] = useState(0)
+	const [phase, setPhase] = useState('idle')
+	const [paused, setPaused] = useState(false)
+	const [progress, setProgress] = useState(0)
+	const [reducedMotion, setReducedMotion] = useState(
+		() => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+	)
+
+	useEffect(() => {
+		const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+		const handler = (e) => setReducedMotion(e.matches)
+		mq.addEventListener('change', handler)
+		return () => mq.removeEventListener('change', handler)
+	}, [])
+
+	useEffect(() => {
+		if (reducedMotion || paused) return
+
+		if (phase === 'idle') {
+			const timer = setTimeout(() => setPhase('show'), INITIAL_DELAY_MS)
+			return () => clearTimeout(timer)
+		}
+
+		if (phase === 'show') {
+			const start = Date.now()
+
+			const progressTimer = setInterval(() => {
+				setProgress(Math.min((Date.now() - start) / SHOW_MS, 1))
+			}, 50)
+
+			const timer = setTimeout(() => {
+				clearInterval(progressTimer)
+				setPhase('hide')
+			}, SHOW_MS)
+
+			return () => {
+				clearTimeout(timer)
+				clearInterval(progressTimer)
+			}
+		}
+
+		if (phase === 'hide') {
+			const timer = setTimeout(() => {
+				setIndex((prev) => (prev + 1) % reviews.length)
+				setPhase('show')
+			}, HIDE_MS)
+
+			return () => clearTimeout(timer)
+		}
+	}, [phase, paused, reducedMotion])
+
+	const handleDismiss = useCallback(() => {
+		setPhase('hide')
+		setProgress(0)
+	}, [])
+
+	const handleTogglePause = useCallback(() => {
+		if (reducedMotion) {
+			setPhase((prev) => (prev === 'show' ? 'hide' : 'show'))
+			setProgress(0)
+		} else {
+			setPaused((prev) => !prev)
+		}
+	}, [reducedMotion])
+
+	const review = reviews[index]
+
 	return (
-		<section className="py-20 bg-white">
-			<div className="max-w-7xl mx-auto px-6 lg:px-8">
-				<div className="text-center">
-					<div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#eef3fa] text-[#154c9a] text-xs font-semibold font-body tracking-wide">
-						<Quote size={14} />
-						Testemunhos
+		<div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
+			<div
+				className={`relative w-72 bg-white rounded-xl shadow-xl border border-[#e5e7eb] overflow-hidden transition-all duration-300 ease-out ${
+					phase === 'show'
+						? 'opacity-100 translate-x-0 scale-100'
+						: 'opacity-0 translate-x-4 scale-95 pointer-events-none'
+				}`}
+			>
+				<div className="feedback-sweep" />
+
+				<button
+					onClick={handleDismiss}
+					className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full flex items-center justify-center text-[#9ca3af] hover:text-[#111827] hover:bg-[#f3f4f6] transition-colors"
+					aria-label="Fechar"
+				>
+					<X size={14} />
+				</button>
+
+				<div className="p-5 relative z-10">
+					<div className="flex items-start gap-3 mb-3">
+						<div className="w-9 h-9 rounded-full bg-[#154c9a] flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+							{review.initials}
+						</div>
+						<div className="flex-1 min-w-0">
+							<p className="font-display font-semibold text-[#111827] text-sm truncate pr-5">
+								{review.name}
+							</p>
+							<div className="flex gap-0.5 mt-0.5">
+								{[1, 2, 3, 4, 5].map((star) => (
+									<Star
+										key={star}
+										size={12}
+										fill={star <= review.rating ? '#d41120' : 'none'}
+										className={
+											star <= review.rating
+												? 'text-[#d41120]'
+												: 'text-[#e5e7eb]'
+										}
+									/>
+								))}
+							</div>
+						</div>
 					</div>
-					<h2 className="font-display text-3xl sm:text-4xl font-bold text-[#111827] mt-4">
-						O que dizem quem já <span className="text-[#154c9a]">rodou</span> connosco
-					</h2>
-					<p className="font-body text-[#6b7280] max-w-2xl mx-auto text-lg mt-3">
-						De quem comprou a quem vendeu, de quem alugou a quem encontrou a peça certa — a opinião de quem usa a Caxiauto
+					<p className="font-body text-sm text-[#6b7280] leading-relaxed">
+						&ldquo;{review.text}&rdquo;
+					</p>
+					<p className="font-body text-xs text-[#9ca3af] mt-2">
+						{review.date}
 					</p>
 				</div>
-
-				<div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-12">
-					{reviews.map((review) => (
-						<div
-							key={review.name}
-							style={getBorderStyle(review.rating)}
-							className="relative bg-white border border-[#e5e7eb] p-6 sm:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
-						>
-							<div
-								className="absolute top-4 right-6 text-[#e5e7eb] select-none pointer-events-none"
-								aria-hidden="true"
-							>
-								<Quote size={48} />
-							</div>
-
-							<div className="flex items-start gap-4 mb-4 relative z-10">
-								<Avatar initials={review.initials} rating={review.rating} />
-								<div className="flex-1 min-w-0">
-									<div className="flex items-center justify-between gap-2">
-										<h3 className="font-display font-semibold text-[#111827] text-sm truncate">
-											{review.name}
-										</h3>
-										<Stars rating={review.rating} />
-									</div>
-									<span className="font-body text-xs text-[#9ca3af]">
-										{review.date}
-									</span>
-								</div>
-							</div>
-
-							<p className="font-body text-sm text-[#6b7280] leading-relaxed relative z-10">
-								&ldquo;{review.text}&rdquo;
-							</p>
-						</div>
-					))}
-				</div>
 			</div>
-		</section>
+
+			<button
+				onClick={handleTogglePause}
+				className="relative w-14 h-14 rounded-full bg-[#154c9a] shadow-lg flex items-center justify-center text-white hover:bg-[#123f80] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#154c9a] focus:ring-offset-2"
+				aria-label={paused ? 'Retomar testemunhos' : 'Pausar testemunhos'}
+			>
+				<MessageCircle size={24} />
+
+				{phase !== 'idle' && (
+					<svg
+						viewBox="0 0 56 56"
+						className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none"
+					>
+						<circle
+							cx="28"
+							cy="28"
+							r={R}
+							fill="none"
+							stroke="rgba(255,255,255,0.2)"
+							strokeWidth="2"
+						/>
+						<circle
+							cx="28"
+							cy="28"
+							r={R}
+							fill="none"
+							stroke="white"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeDasharray={CIRCUMFERENCE}
+							strokeDashoffset={CIRCUMFERENCE * progress}
+						/>
+					</svg>
+				)}
+			</button>
+		</div>
 	)
 }
