@@ -6,7 +6,7 @@ import api, { getImageUrl, notyf } from '../services/api'
 import { useFeaturedPecas } from '../hooks/queries/usePecas'
 import useAuthStore from '../stores/authStore'
 
-export default function FeaturedParts() {
+export default function FeaturedParts({ linkState }) {
 	const railRef = useRef(null)
 	const { data: pecas, isLoading } = useFeaturedPecas()
 	const [favorites, setFavorites] = useState(new Set())
@@ -124,6 +124,7 @@ export default function FeaturedParts() {
 						<span className="text-[#e5e7eb] text-2xl">|</span>
 						<Link
 							to="/stand/pecas-acessorios"
+							state={linkState}
 							className="group flex items-center gap-1 text-lg font-medium text-[#154c9a] font-body hover:underline"
 						>
 							Ver todas

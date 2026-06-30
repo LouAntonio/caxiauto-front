@@ -28,9 +28,9 @@ export default function Home() {
 					/>
 				</div>
 				<SellBuySection />
-				<FeaturedCars title="Carros em Destaque" />
+				<FeaturedCars title="Carros em Destaque" linkState={{ filters: { destaque: true } }} />
 				<RentACarSection />
-				<FeaturedCars title="Alugueres em Destaques" useVehicleQuery={useRentalVehicles} linkTo="/servicos/aluguel-de-automoveis" />
+				<FeaturedCars title="Alugueres em Destaques" useVehicleQuery={useRentalVehicles} linkTo="/servicos/aluguel-de-automoveis" linkState={{ filters: { featured: true } }} />
 				<div className="max-w-7xl mx-auto px-6 lg:px-8 my-8">
 					<img
 						src="./images/ad/Prancheta 2.png"
@@ -38,7 +38,7 @@ export default function Home() {
 						className="w-full h-auto rounded-none shadow-lg"
 					/>
 				</div>
-				<FeaturedParts />
+				<FeaturedParts linkState={{ filters: { featuredOnly: true } }} />
 				{/* <Publicidades /> */}
 				<div className="max-w-7xl mx-auto px-6 lg:px-8 my-8">
 					<img

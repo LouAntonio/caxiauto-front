@@ -81,6 +81,7 @@ export default function AluguelDeAutomoveis() {
 				...(routeFilters.manufacturer && { manufacturer: routeFilters.manufacturer }),
 				...(routeFilters.fuelType && { fuelType: routeFilters.fuelType }),
 				...(routeFilters.transmission && { transmission: routeFilters.transmission }),
+				...(routeFilters.featured !== undefined && { featured: routeFilters.featured }),
 			};
 			// eslint-disable-next-line react-hooks/set-state-in-effect
 			setFilters(mapped);
