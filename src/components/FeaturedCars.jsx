@@ -6,7 +6,7 @@ import { useFeaturedVehicles } from '../hooks/queries/useVehicles';
 import useAuthStore from '../stores/authStore';
 import CarCardSkeleton from './CarCardSkeleton';
 
-export default function FeaturedCars({ title = 'Carros em Destaque', useVehicleQuery = useFeaturedVehicles }) {
+export default function FeaturedCars({ title = 'Carros em Destaque', useVehicleQuery = useFeaturedVehicles, linkTo }) {
 	const railRef = useRef(null);
 	const { data: vehicles, isLoading } = useVehicleQuery();
 	const [wishlist, setWishlist] = useState(new Set());
@@ -107,7 +107,7 @@ export default function FeaturedCars({ title = 'Carros em Destaque', useVehicleQ
 					</div>
 					<div className="flex items-center gap-4">
 						<Link
-							to={isFeatured ? "/stand/compra?featured=true" : "/stand/compra"}
+							to={linkTo || (isFeatured ? "/stand/compra?featured=true" : "/stand/compra")}
 							className="group flex items-center gap-1 text-lg font-medium text-[#154c9a] font-body hover:underline"
 						>
 							Ver todos

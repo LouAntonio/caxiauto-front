@@ -30,7 +30,7 @@ export default function Home() {
 				<SellBuySection />
 				<FeaturedCars title="Carros em Destaque" />
 				<RentACarSection />
-				<FeaturedCars title="Alugueres em Destaques" useVehicleQuery={useRentalVehicles} />
+				<FeaturedCars title="Alugueres em Destaques" useVehicleQuery={useRentalVehicles} linkTo="/servicos/aluguel-de-automoveis" />
 				<div className="max-w-7xl mx-auto px-6 lg:px-8 my-8">
 					<img
 						src="./images/ad/Prancheta 2.png"
