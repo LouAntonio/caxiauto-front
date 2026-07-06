@@ -52,7 +52,8 @@ import AdminManufacturers from './pages/caxiauto/AdminManufacturers'
 import AdminClasses from './pages/caxiauto/AdminClasses'
 import AdminPartners from './pages/caxiauto/AdminPartners'
 import AdminPlans from './pages/caxiauto/AdminPlans'
-import AdminHighlightPackages from './pages/caxiauto/AdminHighlightPackages'
+import AdminHighlightPlans from './pages/caxiauto/AdminHighlightPlans'
+import AdminPayments from './pages/caxiauto/AdminPayments'
 import Comercial from './pages/Comercial'
 
 
@@ -151,7 +152,8 @@ function AppContent() {
 					<Route path="classes" element={<AdminClasses />} />
 					<Route path="parceiros" element={<AdminPartners />} />
 					<Route path="planos" element={<AdminPlans />} />
-					<Route path="pacotes-destaque" element={<AdminHighlightPackages />} />
+					<Route path="planos-destaque" element={<AdminHighlightPlans />} />
+					<Route path="pagamentos" element={<AdminPayments />} />
 				</Route>
 
 				{/* 404 route - keep last */}

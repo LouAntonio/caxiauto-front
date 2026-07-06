@@ -90,6 +90,8 @@ const api = {
 
 	toggleVehicleStatus: (id, status) => api.put(`/vehicles/${id}/status`, { status }, {}, true),
 
+	swapActiveVehicle: (activateId, deactivateId) => api.post('/vehicles/swap-active', { activateId, deactivateId }),
+
 	toggleVehicleFeatured: (id, featuredUntil = null) => api.put(`/vehicles/${id}/featured`, { featuredUntil }, {}, true),
 
 	myVehicles: (params = {}) => api.get('/vehicles/my', { params }),
@@ -128,6 +130,8 @@ const api = {
 	deletePeca: (id) => api.delete(`/pecas/${id}`, {}, true),
 
 	togglePecaStatus: (id, status) => api.put(`/pecas/${id}/toggle-status`, status ? { status } : {}),
+
+	swapActivePeca: (activateId, deactivateId) => api.post('/pecas/swap-active', { activateId, deactivateId }),
 
 	togglePecaFeatured: (id, featuredUntil = null) => api.put(`/pecas/${id}/toggle-featured`, { featuredUntil }),
 
@@ -216,19 +220,19 @@ const api = {
 	// ==================== ASSINATURAS E PLANOS ====================
 	listPlans: () => api.get('/subscriptions/plans'),
 
-	listHighlightPackages: () => api.get('/subscriptions/highlight-packages'),
-
-	subscribePlan: (planId) => api.post('/subscriptions', { planId }),
+	listHighlightPlans: () => api.get('/subscriptions/highlight-plans'),
 
 	getMySubscription: () => api.get('/subscriptions'),
 
 	cancelSubscription: () => api.post('/subscriptions/cancel'),
 
-	buyHighlightPackage: (packageId) => api.post('/subscriptions/highlights/purchase', { packageId }),
+	createSubscriptionPayment: (planId) => api.post('/subscriptions/payments/subscription', { planId }),
 
-	applyVehicleHighlight: (vehicleId, daysDuration = 7) => {
-		return api.post(`/subscriptions/highlights/apply/${vehicleId}`, { daysDuration });
-	},
+	createHighlightPayment: (planId, itemType, itemId) => api.post('/subscriptions/payments/highlight', { planId, itemType, itemId }),
+
+	uploadPaymentProof: (paymentId, proofUrl) => api.put(`/subscriptions/payments/${paymentId}/proof`, { proofUrl }),
+
+	getMyPayments: () => api.get('/subscriptions/payments/my'),
 
 	// ==================== VISUALIZAÇÕES (VIEWS) ====================
 	addView: (type, id) => api.post(`/views/${type}/${id}`),
@@ -284,7 +288,7 @@ const api = {
 		return api.get(`/admin/reviews?${qs}`, {}, true);
 	},
 
-	// ==================== ADMIN - PLANOS E PACOTES DE DESTAQUE ====================
+	// ==================== ADMIN - PLANOS E PLANOS DE DESTAQUE ====================
 	adminListPlans: () => api.get('/admin/plans', {}, true),
 
 	adminCreatePlan: (data) => api.post('/admin/plans', data, {}, true),
@@ -293,13 +297,25 @@ const api = {
 
 	adminDeletePlan: (id) => api.delete(`/admin/plans/${id}`, {}, true),
 
-	adminListHighlightPackages: () => api.get('/admin/highlight-packages', {}, true),
+	adminListHighlightPlans: () => api.get('/admin/highlight-plans', {}, true),
 
-	adminCreateHighlightPackage: (data) => api.post('/admin/highlight-packages', data, {}, true),
+	adminCreateHighlightPlan: (data) => api.post('/admin/highlight-plans', data, {}, true),
 
-	adminUpdateHighlightPackage: (id, data) => api.put(`/admin/highlight-packages/${id}`, data, {}, true),
+	adminUpdateHighlightPlan: (id, data) => api.put(`/admin/highlight-plans/${id}`, data, {}, true),
 
-	adminDeleteHighlightPackage: (id) => api.delete(`/admin/highlight-packages/${id}`, {}, true),
+	adminDeleteHighlightPlan: (id) => api.delete(`/admin/highlight-plans/${id}`, {}, true),
+
+	// ==================== ADMIN - PAGAMENTOS ====================
+	adminListPayments: (params = {}) => {
+		const qs = new URLSearchParams(params).toString();
+		return api.get(`/admin/payments?${qs}`, {}, true);
+	},
+
+	adminApprovePayment: (id) => api.put(`/admin/payments/${id}/approve`, {}, {}, true),
+
+	adminRejectPayment: (id, adminNotes) => api.put(`/admin/payments/${id}/reject`, { adminNotes }, {}, true),
+
+	adminMarkVehicleAsSold: (id) => api.put(`/admin/vehicles/${id}/mark-sold`, {}, {}, true),
 
 	// ==================== ADMIN - PARCEIROS ====================
 	listPartners: (params = {}) => api.get('/partners', { params }, true),

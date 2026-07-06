@@ -309,36 +309,79 @@ export const useAdminDeletePlan = () => {
 	});
 };
 
-// ==================== PACOTES DE DESTAQUE (ADMIN) ====================
-export const useAdminHighlightPackages = () => {
+// ==================== PLANOS DE DESTAQUE (ADMIN) ====================
+export const useAdminHighlightPlans = () => {
 	return useQuery({
-		queryKey: ['admin', 'highlight-packages'],
-		queryFn: () => api.adminListHighlightPackages(),
+		queryKey: ['admin', 'highlight-plans'],
+		queryFn: () => api.adminListHighlightPlans(),
 		select: (res) => (res.success ? res.data : []),
 	});
 };
 
-export const useAdminCreateHighlightPackage = () => {
+export const useAdminCreateHighlightPlan = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: (data) => api.adminCreateHighlightPackage(data),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'highlight-packages'] }),
+		mutationFn: (data) => api.adminCreateHighlightPlan(data),
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'highlight-plans'] }),
 	});
 };
 
-export const useAdminUpdateHighlightPackage = () => {
+export const useAdminUpdateHighlightPlan = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: ({ id, data }) => api.adminUpdateHighlightPackage(id, data),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'highlight-packages'] }),
+		mutationFn: ({ id, data }) => api.adminUpdateHighlightPlan(id, data),
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'highlight-plans'] }),
 	});
 };
 
-export const useAdminDeleteHighlightPackage = () => {
+export const useAdminDeleteHighlightPlan = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: (id) => api.adminDeleteHighlightPackage(id),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'highlight-packages'] }),
+		mutationFn: (id) => api.adminDeleteHighlightPlan(id),
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'highlight-plans'] }),
+	});
+};
+
+// ==================== PAGAMENTOS (ADMIN) ====================
+export const useAdminPayments = (params = {}) => {
+	return useQuery({
+		queryKey: ['admin', 'payments', params],
+		queryFn: () => api.adminListPayments(params),
+		select: (res) => (res.success ? { data: res.data, pagination: res.pagination } : { data: [], pagination: null }),
+	});
+};
+
+export const useAdminApprovePayment = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (id) => api.adminApprovePayment(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['admin', 'payments'] });
+			queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+			queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+			queryClient.invalidateQueries({ queryKey: ['pecas'] });
+		},
+	});
+};
+
+export const useAdminRejectPayment = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ id, adminNotes }) => api.adminRejectPayment(id, adminNotes),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['admin', 'payments'] });
+		},
+	});
+};
+
+export const useAdminMarkVehicleAsSold = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (id) => api.adminMarkVehicleAsSold(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['admin', 'vehicles'] });
+			queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+		},
 	});
 };
 

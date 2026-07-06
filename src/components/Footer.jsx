@@ -51,11 +51,9 @@ export default function Footer() {
 						<h5 className="text-sm font-semibold text-gray-400 uppercase tracking-wider font-display">Empresa</h5>
 						<ul className="mt-4 space-y-2 text-sm">
 							<li className="flex items-center gap-2 group"><ChevronRight size={12} className="text-gray-300 group-hover:text-[#d41120] flex-shrink-0 transition-colors" /><Link to="/contato" className="text-gray-300 group-hover:text-[#d41120] transition-colors font-body">Contato</Link></li>
-							<li className="flex items-center gap-2 group"><ChevronRight size={12} className="text-gray-300 group-hover:text-[#d41120] flex-shrink-0 transition-colors" /><Link to="/parceiros" className="text-gray-300 group-hover:text-[#d41120] transition-colors font-body">Parceiros</Link></li>
-							<li className="flex items-center gap-2 group"><ChevronRight size={12} className="text-gray-300 group-hover:text-[#d41120] flex-shrink-0 transition-colors" /><Link to="/sobre" className="text-gray-300 group-hover:text-[#d41120] transition-colors font-body">Sobre nós</Link></li>
 							<li className="flex items-center gap-2 group"><ChevronRight size={12} className="text-gray-300 group-hover:text-[#d41120] flex-shrink-0 transition-colors" /><Link to="/como-funciona" className="text-gray-300 group-hover:text-[#d41120] transition-colors font-body">Como funciona</Link></li>
-							<li className="flex items-center gap-2 group"><ChevronRight size={12} className="text-gray-300 group-hover:text-[#d41120] flex-shrink-0 transition-colors" /><Link to="/politica-de-privacidade" className="text-gray-300 group-hover:text-[#d41120] transition-colors font-body">Política de Privacidade</Link></li>
 							<li className="flex items-center gap-2 group"><ChevronRight size={12} className="text-gray-300 group-hover:text-[#d41120] flex-shrink-0 transition-colors" /><Link to="/termos-de-uso" className="text-gray-300 group-hover:text-[#d41120] transition-colors font-body">Termos de Uso</Link></li>
+							<li className="flex items-center gap-2 group"><ChevronRight size={12} className="text-gray-300 group-hover:text-[#d41120] flex-shrink-0 transition-colors" /><Link to="/politica-de-privacidade" className="text-gray-300 group-hover:text-[#d41120] transition-colors font-body">Política de Privacidade</Link></li>
 						</ul>
 					</div>
 

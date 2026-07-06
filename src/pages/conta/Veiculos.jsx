@@ -27,7 +27,7 @@ import { VehicleCardSkeleton } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
 import VerificationWarning from '../../components/VerificationWarning';
 import useVerificationCheck from '../../hooks/useVerificationCheck';
-import { useMyVehicles, useCreateVehicle, useUpdateVehicle, useDeleteVehicle, useToggleVehicleStatus } from '../../hooks/queries/useVehicles';
+import { useMyVehicles, useCreateVehicle, useUpdateVehicle, useDeleteVehicle, useToggleVehicleStatus, useSwapActiveVehicle } from '../../hooks/queries/useVehicles';
 import { useManufacturers, useClasses } from '../../hooks/queries/useManufacturers';
 
 const Veiculos = () => {
@@ -54,6 +54,9 @@ const Veiculos = () => {
 	const [confirmMessage, setConfirmMessage] = useState('');
 	const [confirmTitle, setConfirmTitle] = useState('');
 	const [confirmType, setConfirmType] = useState('danger');
+	const [showSwapModal, setShowSwapModal] = useState(false);
+	const [swapTarget, setSwapTarget] = useState(null);
+	const swapActive = useSwapActiveVehicle();
 	const [formData, setFormData] = useState({
 		name: '',
 		description: '',
@@ -445,11 +448,17 @@ const Veiculos = () => {
 									}`}>
 										{vehicle.aproved ? 'Aprovado' : 'Pendente'}
 									</div>
-									<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${vehicle.status === 'active' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
-									}`}>
-										{vehicle.status === 'active' ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-										{vehicle.status === 'active' ? 'Visível' : 'Oculto'}
-									</div>
+									{vehicle.status === 'HIDDEN' && (vehicle.type === 'RENT' || vehicle.type === 'BOTH') ? (
+										<div className="px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white">
+											Oculto — limite do plano
+										</div>
+									) : (
+										<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${vehicle.status === 'ACTIVE' || vehicle.status === 'active' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
+										}`}>
+											{vehicle.status === 'ACTIVE' || vehicle.status === 'active' ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+											{vehicle.status === 'ACTIVE' || vehicle.status === 'active' ? 'Visível' : 'Oculto'}
+										</div>
+									)}
 								</div>
 							</div>
 
@@ -518,16 +527,28 @@ const Veiculos = () => {
 										<Edit2 className="w-4 h-4" />
 										Editar
 									</ButtonLoader>
-									<ButtonLoader
-										onClick={() => handleToggleStatus(vehicle.id, vehicle.status)}
-										loading={actionLoading.has(`toggle-${vehicle.id}`)}
-										loadingText=""
-										variant={vehicle.status === 'active' ? 'warning' : 'success'}
-										size="sm"
-										title={vehicle.status === 'active' ? 'Desativar veículo' : 'Ativar veículo'}
-									>
-										<Power className="w-4 h-4" />
-									</ButtonLoader>
+									{vehicle.status === 'HIDDEN' && (vehicle.type === 'RENT' || vehicle.type === 'BOTH') ? (
+										<ButtonLoader
+											onClick={() => { setSwapTarget(vehicle); setShowSwapModal(true); }}
+											variant="success"
+											size="sm"
+											title="Ativar este veículo (desativa outro)"
+										>
+											<Eye className="w-4 h-4" />
+											Ativar
+										</ButtonLoader>
+									) : (
+										<ButtonLoader
+											onClick={() => handleToggleStatus(vehicle.id, vehicle.status)}
+											loading={actionLoading.has(`toggle-${vehicle.id}`)}
+											loadingText=""
+											variant={vehicle.status === 'ACTIVE' || vehicle.status === 'active' ? 'warning' : 'success'}
+											size="sm"
+											title={vehicle.status === 'ACTIVE' || vehicle.status === 'active' ? 'Desativar veículo' : 'Ativar veículo'}
+										>
+											<Power className="w-4 h-4" />
+										</ButtonLoader>
+									)}
 									<ButtonLoader
 										onClick={() => handleDelete(vehicle.id)}
 										loading={actionLoading.has(`delete-${vehicle.id}`)}
@@ -921,6 +942,71 @@ const Veiculos = () => {
 								</ButtonLoader>
 							</div>
 						</form>
+					</div>
+				</div>
+			)}
+
+			{/* Modal de Swap */}
+			{showSwapModal && swapTarget && (
+				<div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center p-4 z-50">
+					<div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+						<div className="bg-gradient-to-r from-[#154c9a] to-[#123f80] px-6 py-5 rounded-t-2xl">
+							<div className="flex items-center justify-between">
+								<h3 className="text-xl font-bold text-white">Ativar Veículo</h3>
+								<button onClick={() => { setShowSwapModal(false); setSwapTarget(null); }} className="text-white/80 hover:text-white cursor-pointer">
+									<X className="w-5 h-5" />
+								</button>
+							</div>
+						</div>
+						<div className="p-6">
+							<p className="text-gray-700 mb-4">
+								Para ativar <strong>{swapTarget.name}</strong>, precisa desativar outro veículo de aluguer ativo. Selecione qual deseja desativar:
+							</p>
+							<div className="space-y-2 max-h-60 overflow-y-auto">
+								{vehicles
+									.filter(v => v.id !== swapTarget.id && (v.type === 'RENT' || v.type === 'BOTH') && (v.status === 'ACTIVE' || v.status === 'active'))
+									.map(v => (
+										<button
+											key={v.id}
+											onClick={async () => {
+												try {
+													const res = await swapActive.mutateAsync({ activateId: swapTarget.id, deactivateId: v.id });
+													if (res.success) {
+														setMessage({ type: 'success', text: 'Veículos trocados com sucesso!' });
+														setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+													} else {
+														setMessage({ type: 'error', text: res.message || 'Erro ao trocar' });
+													}
+												} catch {
+													setMessage({ type: 'error', text: 'Erro ao trocar veículos' });
+												}
+												setShowSwapModal(false);
+												setSwapTarget(null);
+											}}
+											className="w-full text-left p-3 rounded-xl border border-gray-200 hover:border-[#154c9a] hover:bg-blue-50 transition-all cursor-pointer"
+										>
+											<div className="flex items-center gap-3">
+												<Car className="w-5 h-5 text-gray-400" />
+												<div>
+													<p className="font-medium text-gray-900">{v.name}</p>
+													<p className="text-xs text-gray-500">{v.Manufacturer?.name} • {v.year}</p>
+												</div>
+											</div>
+										</button>
+									))}
+								{vehicles.filter(v => v.id !== swapTarget.id && (v.type === 'RENT' || v.type === 'BOTH') && (v.status === 'ACTIVE' || v.status === 'active')).length === 0 && (
+									<p className="text-gray-500 text-center py-4">Nenhum veículo de aluguer ativo disponível para desativar.</p>
+								)}
+							</div>
+							<div className="mt-6">
+								<button
+									onClick={() => { setShowSwapModal(false); setSwapTarget(null); }}
+									className="w-full px-4 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all cursor-pointer"
+								>
+									Cancelar
+								</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			)}

@@ -165,25 +165,46 @@ const useAdminStore = create((set, get) => ({
 		catch (error) { console.error('Erro ao remover plano:', error); return { success: false, message: error.message }; }
 	},
 
-	// ==================== PACOTES DE DESTAQUE ====================
-	adminListHighlightPackages: async () => {
-		try { return await api.adminListHighlightPackages(); }
-		catch (error) { console.error('Erro ao listar pacotes de destaque:', error); return { success: false, message: error.message }; }
+	// ==================== PLANOS DE DESTAQUE ====================
+	adminListHighlightPlans: async () => {
+		try { return await api.adminListHighlightPlans(); }
+		catch (error) { console.error('Erro ao listar planos de destaque:', error); return { success: false, message: error.message }; }
 	},
 
-	adminCreateHighlightPackage: async (data) => {
-		try { return await api.adminCreateHighlightPackage(data); }
-		catch (error) { console.error('Erro ao criar pacote:', error); return { success: false, message: error.message }; }
+	adminCreateHighlightPlan: async (data) => {
+		try { return await api.adminCreateHighlightPlan(data); }
+		catch (error) { console.error('Erro ao criar plano de destaque:', error); return { success: false, message: error.message }; }
 	},
 
-	adminUpdateHighlightPackage: async (id, data) => {
-		try { return await api.adminUpdateHighlightPackage(id, data); }
-		catch (error) { console.error('Erro ao atualizar pacote:', error); return { success: false, message: error.message }; }
+	adminUpdateHighlightPlan: async (id, data) => {
+		try { return await api.adminUpdateHighlightPlan(id, data); }
+		catch (error) { console.error('Erro ao atualizar plano de destaque:', error); return { success: false, message: error.message }; }
 	},
 
-	adminDeleteHighlightPackage: async (id) => {
-		try { return await api.adminDeleteHighlightPackage(id); }
-		catch (error) { console.error('Erro ao remover pacote:', error); return { success: false, message: error.message }; }
+	adminDeleteHighlightPlan: async (id) => {
+		try { return await api.adminDeleteHighlightPlan(id); }
+		catch (error) { console.error('Erro ao remover plano de destaque:', error); return { success: false, message: error.message }; }
+	},
+
+	// ==================== PAGAMENTOS ====================
+	adminListPayments: async (params = {}) => {
+		try { return await api.adminListPayments(params); }
+		catch (error) { console.error('Erro ao listar pagamentos:', error); return { success: false, message: error.message }; }
+	},
+
+	adminApprovePayment: async (id) => {
+		try { return await api.adminApprovePayment(id); }
+		catch (error) { console.error('Erro ao aprovar pagamento:', error); return { success: false, message: error.message }; }
+	},
+
+	adminRejectPayment: async (id, adminNotes) => {
+		try { return await api.adminRejectPayment(id, adminNotes); }
+		catch (error) { console.error('Erro ao rejeitar pagamento:', error); return { success: false, message: error.message }; }
+	},
+
+	adminMarkVehicleAsSold: async (id) => {
+		try { return await api.adminMarkVehicleAsSold(id); }
+		catch (error) { console.error('Erro ao marcar veículo como vendido:', error); return { success: false, message: error.message }; }
 	},
 }));
 

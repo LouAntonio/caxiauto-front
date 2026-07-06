@@ -20,7 +20,6 @@ const AdminPlans = () => {
 		price: '',
 		maxVehicles: '',
 		maxPecas: '',
-		highlightCredits: 0,
 		description: '',
 		benefits: [],
 	});
@@ -49,7 +48,7 @@ const AdminPlans = () => {
 
 	const handleOpenCreate = () => {
 		setEditingPlan(null);
-		setFormData({ name: '', price: '', maxVehicles: '', maxPecas: '', highlightCredits: 0, description: '', benefits: [] });
+		setFormData({ name: '', price: '', maxVehicles: '', maxPecas: '', description: '', benefits: [] });
 		setBenefitsInput('');
 		setBannerFile(null);
 		setBannerPreview('');
@@ -63,7 +62,6 @@ const AdminPlans = () => {
 			price: String(Number(plan.price)),
 			maxVehicles: String(plan.maxVehicles),
 			maxPecas: String(plan.maxPecas),
-			highlightCredits: String(plan.highlightCredits),
 			description: plan.description || '',
 			benefits: Array.isArray(plan.benefits) ? plan.benefits : [],
 		});
@@ -121,7 +119,6 @@ const AdminPlans = () => {
 				price: Number(formData.price),
 				maxVehicles: Number(formData.maxVehicles),
 				maxPecas: Number(formData.maxPecas),
-				highlightCredits: Number(formData.highlightCredits),
 				description: formData.description || undefined,
 				banner: bannerUrl,
 				benefits: formData.benefits,
@@ -138,7 +135,7 @@ const AdminPlans = () => {
 				notyf.success(editingPlan ? 'Plano atualizado com sucesso!' : 'Plano criado com sucesso!');
 				setShowModal(false);
 				setEditingPlan(null);
-				setFormData({ name: '', price: '', maxVehicles: '', maxPecas: '', highlightCredits: 0, description: '', benefits: [] });
+				setFormData({ name: '', price: '', maxVehicles: '', maxPecas: '', description: '', benefits: [] });
 				setBenefitsInput('');
 				setBannerFile(null);
 				setBannerPreview('');
@@ -205,7 +202,6 @@ const AdminPlans = () => {
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Preço</th>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Max. Veículos</th>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Max. Peças</th>
-									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Créditos</th>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Benefícios</th>
 									<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
 								</tr>
@@ -217,7 +213,6 @@ const AdminPlans = () => {
 										<td className="px-6 py-4 text-sm text-gray-600">{formatCurrency(Number(plan.price))}</td>
 										<td className="px-6 py-4 text-sm text-gray-600">{plan.maxVehicles}</td>
 										<td className="px-6 py-4 text-sm text-gray-600">{plan.maxPecas}</td>
-										<td className="px-6 py-4 text-sm text-gray-600">{plan.highlightCredits}</td>
 										<td className="px-6 py-4 text-sm text-gray-600">
 											{Array.isArray(plan.benefits) ? `${plan.benefits.length} benefício(s)` : '—'}
 										</td>
@@ -304,18 +299,6 @@ const AdminPlans = () => {
 											required
 										/>
 									</div>
-								</div>
-								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-1">Créditos de Destaque (mensal)</label>
-									<input
-										type="number"
-										min={0}
-										value={formData.highlightCredits}
-										onChange={(e) => setFormData({ ...formData, highlightCredits: e.target.value })}
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
-										placeholder="Ex: 5"
-										required
-									/>
 								</div>
 								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-1">Descrição <span className="text-gray-400">(opcional)</span></label>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
 import { User, Mail, Lock, Phone, Eye, EyeOff, Check, X, Rocket, Clock, Sparkles, ArrowRight } from 'lucide-react';
@@ -93,11 +93,17 @@ const Auth = () => {
 		acceptedTerms: false,
 	});
 
-	const { login, checkEmail, verifyOTP, resendOTP, completeRegistration, requestPasswordReset } = useAuthStore();
+	const { user, login, checkEmail, verifyOTP, resendOTP, completeRegistration, requestPasswordReset } = useAuthStore();
 	const navigate = useNavigate();
 	const location = useLocation();
 
 	const from = location.state?.from?.pathname || '/minha-conta';
+
+	useEffect(() => {
+		if (user) {
+			navigate(from, { replace: true });
+		}
+	}, [user, navigate, from]);
 
 	const handleChange = (e) => {
 		const { name, value, type, checked } = e.target;

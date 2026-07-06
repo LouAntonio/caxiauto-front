@@ -9,10 +9,10 @@ export const usePlans = () => {
 	});
 };
 
-export const useHighlightPackages = () => {
+export const useHighlightPlans = () => {
 	return useQuery({
-		queryKey: ['subscriptions', 'highlight-packages'],
-		queryFn: () => api.listHighlightPackages(),
+		queryKey: ['subscriptions', 'highlight-plans'],
+		queryFn: () => api.listHighlightPlans(),
 		select: (res) => (res.success ? res.data : []),
 	});
 };
@@ -25,13 +25,11 @@ export const useMySubscription = () => {
 	});
 };
 
-export const useSubscribePlan = () => {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: (planId) => api.subscribePlan(planId),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-		},
+export const useMyPayments = () => {
+	return useQuery({
+		queryKey: ['subscriptions', 'payments', 'my'],
+		queryFn: () => api.getMyPayments(),
+		select: (res) => (res.success ? res.data : []),
 	});
 };
 
@@ -45,23 +43,32 @@ export const useCancelSubscription = () => {
 	});
 };
 
-export const useBuyHighlightPackage = () => {
+export const useCreateSubscriptionPayment = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: (packageId) => api.buyHighlightPackage(packageId),
+		mutationFn: (planId) => api.createSubscriptionPayment(planId),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+			queryClient.invalidateQueries({ queryKey: ['subscriptions', 'payments'] });
 		},
 	});
 };
 
-export const useApplyVehicleHighlight = () => {
+export const useCreateHighlightPayment = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: ({ vehicleId, daysDuration }) => api.applyVehicleHighlight(vehicleId, daysDuration),
+		mutationFn: ({ planId, itemType, itemId }) => api.createHighlightPayment(planId, itemType, itemId),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-			queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+			queryClient.invalidateQueries({ queryKey: ['subscriptions', 'payments'] });
+		},
+	});
+};
+
+export const useUploadPaymentProof = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ paymentId, proofUrl }) => api.uploadPaymentProof(paymentId, proofUrl),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['subscriptions', 'payments'] });
 		},
 	});
 };
