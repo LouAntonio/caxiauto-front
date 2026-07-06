@@ -1,19 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Search, RotateCcw, Car, Fuel, Settings, Calendar, Wallet } from 'lucide-react'
 import { useManufacturers, useClasses } from '../hooks/queries/useManufacturers'
-
-const FUEL_TYPES = [
-	{ value: 'GASOLINE', label: 'Gasolina' },
-	{ value: 'DIESEL', label: 'Diesel' },
-	{ value: 'ELECTRIC', label: 'Elétrico' },
-	{ value: 'HYBRID', label: 'Híbrido' },
-]
-
-const TRANSMISSION_TYPES = [
-	{ value: 'MANUAL', label: 'Manual' },
-	{ value: 'AUTOMATIC', label: 'Automática' },
-	{ value: 'SEMI_AUTOMATIC', label: 'Semi-Automática' },
-]
+import { FUEL_TYPES, TRANSMISSION_TYPES } from '../constants/filters'
 
 export default function RentalVehicleFilter({ onFilterChange, initialFilters = {}, showSearch = true }) {
 	const { data: manufacturers = [] } = useManufacturers()
@@ -34,6 +22,7 @@ export default function RentalVehicleFilter({ onFilterChange, initialFilters = {
 
 	useEffect(() => {
 		if (Object.keys(initialFilters).length > 0) {
+			// eslint-disable-next-line react-hooks/set-state-in-effect
 			setFilters(prev => ({
 				...prev,
 				...initialFilters

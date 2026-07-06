@@ -26,6 +26,9 @@ export const useFeaturedVehicles = (params = {}) => {
 	});
 };
 
+export const useRecentVehicles = () =>
+	useVehicles({ limit: 8, sort: 'createdAt', order: 'desc' });
+
 export const useMyVehicles = (params = {}) => {
 	return useQuery({
 		queryKey: ['vehicles', 'my', params],

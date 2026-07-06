@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import {
@@ -6,7 +6,7 @@ import {
 	AlertCircle,
 	Heart
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import PartsFilterPanel from '../../components/PartsFilterPanel';
 import Pagination from '../../components/Pagination';
 import PecaCardSkeleton from '../../components/PecaCardSkeleton';
@@ -19,6 +19,8 @@ import { useWishlist, useAddPecaToWishlist, useRemovePecaFromWishlist } from '..
 export default function PecasAcessorios() {
 	useDocumentTitle('Peças e Acessórios - Caxiauto');
 	const navigate = useNavigate();
+	const location = useLocation();
+	const listingRef = useRef(null);
 
 	const [searchTerm, setSearchTerm] = useState('');
 	const [selectedCategory, setSelectedCategory] = useState('');
@@ -78,6 +80,22 @@ export default function PecasAcessorios() {
 		}, 0);
 		return () => clearTimeout(timer);
 	}, [appliedSearchTerm]);
+
+	useEffect(() => {
+		const routeFilters = location.state?.filters;
+		if (routeFilters) {
+			if (routeFilters.featuredOnly) {
+				// eslint-disable-next-line react-hooks/set-state-in-effect
+				setFeaturedOnly(true);
+				setAppliedFeaturedOnly(true);
+			}
+			setCurrentPage(1);
+			window.history.replaceState({}, '');
+			setTimeout(() => {
+				listingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}, 100);
+		}
+	}, [location.state]);
 
 	const handlePageChange = (page) => {
 		setCurrentPage(page);
@@ -201,7 +219,7 @@ export default function PecasAcessorios() {
 			</section>
 
 			<div className="max-w-7xl mx-auto">
-				<section className="py-8 px-6">
+				<section ref={listingRef} className="py-8 px-6">
 					<div className="max-w-7xl mx-auto">
 						<MobileFilterBar
 							value={searchTerm}

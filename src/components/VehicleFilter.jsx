@@ -1,19 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Search, RotateCcw, Car, Fuel, Settings, Gauge, Calendar, Wallet } from 'lucide-react'
 import { useManufacturers, useClasses } from '../hooks/queries/useManufacturers'
-
-const FUEL_TYPES = [
-	{ value: 'GASOLINE', label: 'Gasolina' },
-	{ value: 'DIESEL', label: 'Diesel' },
-	{ value: 'ELECTRIC', label: 'Elétrico' },
-	{ value: 'HYBRID', label: 'Híbrido' },
-]
-
-const TRANSMISSION_TYPES = [
-	{ value: 'MANUAL', label: 'Manual' },
-	{ value: 'AUTOMATIC', label: 'Automática' },
-	{ value: 'SEMI_AUTOMATIC', label: 'Semi-Automática' },
-]
+import { FUEL_TYPES, TRANSMISSION_TYPES } from '../constants/filters'
 
 const KM_RANGES = [
 	{ value: '', label: 'Qualquer' },

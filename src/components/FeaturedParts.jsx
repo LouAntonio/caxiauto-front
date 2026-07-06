@@ -6,7 +6,7 @@ import api, { getImageUrl, notyf } from '../services/api'
 import { useFeaturedPecas } from '../hooks/queries/usePecas'
 import useAuthStore from '../stores/authStore'
 
-export default function FeaturedParts() {
+export default function FeaturedParts({ linkState }) {
 	const railRef = useRef(null)
 	const { data: pecas, isLoading } = useFeaturedPecas()
 	const [favorites, setFavorites] = useState(new Set())
@@ -115,10 +115,6 @@ export default function FeaturedParts() {
 		)
 	}
 
-	if (pecas.length === 0) {
-		return null
-	}
-
 	return (
 		<section className="parts-section py-6 bg-white">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -128,6 +124,7 @@ export default function FeaturedParts() {
 						<span className="text-[#e5e7eb] text-2xl">|</span>
 						<Link
 							to="/stand/pecas-acessorios"
+							state={linkState}
 							className="group flex items-center gap-1 text-lg font-medium text-[#154c9a] font-body hover:underline"
 						>
 							Ver todas
@@ -146,7 +143,11 @@ export default function FeaturedParts() {
 				</div>
 
 				<div ref={railRef} className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4">
-					{pecas.map((peca) => (
+					{pecas.length === 0 ? (
+						<div className="w-full flex items-center justify-center py-16 text-[#6b7280] font-body">
+							<p>Nenhuma peça em destaque no momento</p>
+						</div>
+					) : pecas.map((peca) => (
 						<article key={peca.id} className="flex-shrink-0 w-64 bg-white rounded-2xl border border-[#e5e7eb] shadow-lg overflow-hidden group hover:border-[#154c9a]/20 transition-all duration-300">
 							<div className="relative h-36 overflow-hidden">
 								<img

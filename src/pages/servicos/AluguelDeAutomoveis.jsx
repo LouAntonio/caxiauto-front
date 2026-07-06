@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import {
@@ -10,7 +10,7 @@ import {
 	Heart,
 	Car
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import RentalVehicleFilter from '../../components/RentalVehicleFilter';
 import Pagination from '../../components/Pagination';
 import CarCardSkeleton from '../../components/CarCardSkeleton';
@@ -23,6 +23,8 @@ import { useWishlist, useAddVehicleToWishlist, useRemoveVehicleFromWishlist } fr
 export default function AluguelDeAutomoveis() {
 	useDocumentTitle('Aluguel de Automóveis - Caxiauto');
 	const navigate = useNavigate();
+	const location = useLocation();
+	const listingRef = useRef(null);
 
 	const [filters, setFilters] = useState({});
 	const [currentPage, setCurrentPage] = useState(1);
@@ -71,6 +73,25 @@ export default function AluguelDeAutomoveis() {
 		}, 0);
 		return () => clearTimeout(timer);
 	}, [filters.search]);
+
+	useEffect(() => {
+		const routeFilters = location.state?.filters;
+		if (routeFilters) {
+			const mapped = {
+				...(routeFilters.manufacturer && { manufacturer: routeFilters.manufacturer }),
+				...(routeFilters.fuelType && { fuelType: routeFilters.fuelType }),
+				...(routeFilters.transmission && { transmission: routeFilters.transmission }),
+				...(routeFilters.featured !== undefined && { featured: routeFilters.featured }),
+			};
+			// eslint-disable-next-line react-hooks/set-state-in-effect
+			setFilters(mapped);
+			setCurrentPage(1);
+			window.history.replaceState({}, '');
+			setTimeout(() => {
+				listingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}, 100);
+		}
+	}, [location.state]);
 
 	const handleFilterChange = (newFilters) => {
 		setFilters(newFilters);
@@ -181,7 +202,7 @@ export default function AluguelDeAutomoveis() {
 			</section>
 
 			<div className="max-w-7xl mx-auto">
-				<section className="py-8 px-6">
+				<section ref={listingRef} className="py-8 px-6">
 					<div className="max-w-7xl mx-auto">
 						<MobileFilterBar
 							value={mobileSearch}

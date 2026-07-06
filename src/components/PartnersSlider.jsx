@@ -12,10 +12,10 @@ export default function PartnersSlider() {
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="text-center mb-12">
 					<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#eef3fa] text-[#154c9a] mb-4">
-						<span className="text-sm font-semibold font-body">Nossos Parceiros</span>
+						<span className="text-sm font-semibold font-body">Empresas</span>
 					</div>
 					<h2 className="font-display text-3xl sm:text-4xl font-bold text-[#111827] mb-3">
-						Nossos Parceiros
+						Empresas
 					</h2>
 					<p className="font-body text-lg text-[#6b7280] max-w-2xl mx-auto">
 						Conheça as empresas que trabalham connosco para oferecer os melhores serviços e produtos.
