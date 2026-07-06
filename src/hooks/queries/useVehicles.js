@@ -86,3 +86,13 @@ export const useToggleVehicleFeatured = () => {
 		},
 	});
 };
+
+export const useSwapActiveVehicle = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ activateId, deactivateId }) => api.swapActiveVehicle(activateId, deactivateId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+		},
+	});
+};

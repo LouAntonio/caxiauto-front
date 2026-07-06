@@ -90,6 +90,8 @@ const api = {
 
 	toggleVehicleStatus: (id, status) => api.put(`/vehicles/${id}/status`, { status }, {}, true),
 
+	swapActiveVehicle: (activateId, deactivateId) => api.post('/vehicles/swap-active', { activateId, deactivateId }),
+
 	toggleVehicleFeatured: (id, featuredUntil = null) => api.put(`/vehicles/${id}/featured`, { featuredUntil }, {}, true),
 
 	myVehicles: (params = {}) => api.get('/vehicles/my', { params }),
@@ -128,6 +130,8 @@ const api = {
 	deletePeca: (id) => api.delete(`/pecas/${id}`, {}, true),
 
 	togglePecaStatus: (id, status) => api.put(`/pecas/${id}/toggle-status`, status ? { status } : {}),
+
+	swapActivePeca: (activateId, deactivateId) => api.post('/pecas/swap-active', { activateId, deactivateId }),
 
 	togglePecaFeatured: (id, featuredUntil = null) => api.put(`/pecas/${id}/toggle-featured`, { featuredUntil }),
 

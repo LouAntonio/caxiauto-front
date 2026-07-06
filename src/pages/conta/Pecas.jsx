@@ -27,7 +27,7 @@ import { PecaCardSkeleton } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
 import VerificationWarning from '../../components/VerificationWarning';
 import useVerificationCheck from '../../hooks/useVerificationCheck';
-import { useMyPecas, useCreatePeca, useUpdatePeca, useDeletePeca, useTogglePecaStatus } from '../../hooks/queries/usePecas';
+import { useMyPecas, useCreatePeca, useUpdatePeca, useDeletePeca, useTogglePecaStatus, useSwapActivePeca } from '../../hooks/queries/usePecas';
 
 const Pecas = () => {
 	useDocumentTitle('Minhas Peças - CaxiAuto');
@@ -52,6 +52,9 @@ const Pecas = () => {
 	const [confirmMessage, setConfirmMessage] = useState('');
 	const [confirmTitle, setConfirmTitle] = useState('');
 	const [confirmType, setConfirmType] = useState('danger');
+	const [showSwapModal, setShowSwapModal] = useState(false);
+	const [swapTarget, setSwapTarget] = useState(null);
+	const swapActive = useSwapActivePeca();
 	const [newCompatibility, setNewCompatibility] = useState('');
 	const [currentImageIndex, setCurrentImageIndex] = useState({});
 	const [formData, setFormData] = useState({
@@ -484,11 +487,17 @@ const Pecas = () => {
 										}`}>
 											{peca.isAproved ? 'Aprovado' : 'Pendente'}
 										</div>
-										<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${peca.status === 'ACTIVE' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
-										}`}>
-											{peca.status === 'ACTIVE' ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-											{peca.status === 'ACTIVE' ? 'Visível' : 'Oculto'}
-										</div>
+										{peca.status === 'HIDDEN' ? (
+											<div className="px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white">
+												Oculto — limite do plano
+											</div>
+										) : (
+											<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${peca.status === 'ACTIVE' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
+											}`}>
+												{peca.status === 'ACTIVE' ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+												{peca.status === 'ACTIVE' ? 'Visível' : 'Oculto'}
+											</div>
+										)}
 										{peca.isFeatured && (
 											<div className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-400 text-gray-900">
 												Destaque
@@ -547,16 +556,28 @@ const Pecas = () => {
 											<Edit2 className="w-4 h-4" />
 											Editar
 										</ButtonLoader>
-										<ButtonLoader
-											onClick={() => handleToggleStatus(peca.id, peca.status)}
-											loading={actionLoading.has(`toggle-${peca.id}`)}
-											loadingText=""
-											variant={peca.status === 'ACTIVE' ? 'warning' : 'success'}
-											size="sm"
-											title={peca.status === 'ACTIVE' ? 'Ocultar peça' : 'Tornar peça visível'}
-										>
-											<Power className="w-4 h-4" />
-										</ButtonLoader>
+										{peca.status === 'HIDDEN' ? (
+											<ButtonLoader
+												onClick={() => { setSwapTarget(peca); setShowSwapModal(true); }}
+												variant="success"
+												size="sm"
+												title="Ativar esta peça (desativa outra)"
+											>
+												<Eye className="w-4 h-4" />
+												Ativar
+											</ButtonLoader>
+										) : (
+											<ButtonLoader
+												onClick={() => handleToggleStatus(peca.id, peca.status)}
+												loading={actionLoading.has(`toggle-${peca.id}`)}
+												loadingText=""
+												variant={peca.status === 'ACTIVE' ? 'warning' : 'success'}
+												size="sm"
+												title={peca.status === 'ACTIVE' ? 'Ocultar peça' : 'Tornar peça visível'}
+											>
+												<Power className="w-4 h-4" />
+											</ButtonLoader>
+										)}
 										<ButtonLoader
 											onClick={() => handleDelete(peca.id)}
 											loading={actionLoading.has(`delete-${peca.id}`)}
@@ -846,6 +867,71 @@ const Pecas = () => {
 								</ButtonLoader>
 							</div>
 						</form>
+					</div>
+				</div>
+			)}
+
+			{/* Modal de Swap */}
+			{showSwapModal && swapTarget && (
+				<div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center p-4 z-50">
+					<div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+						<div className="bg-gradient-to-r from-[#154c9a] to-[#123f80] px-6 py-5 rounded-t-2xl">
+							<div className="flex items-center justify-between">
+								<h3 className="text-xl font-bold text-white">Ativar Peça</h3>
+								<button onClick={() => { setShowSwapModal(false); setSwapTarget(null); }} className="text-white/80 hover:text-white cursor-pointer">
+									<X className="w-5 h-5" />
+								</button>
+							</div>
+						</div>
+						<div className="p-6">
+							<p className="text-gray-700 mb-4">
+								Para ativar <strong>{swapTarget.name}</strong>, precisa desativar outra peça ativa. Selecione qual deseja desativar:
+							</p>
+							<div className="space-y-2 max-h-60 overflow-y-auto">
+								{pecas
+									.filter(p => p.id !== swapTarget.id && (p.status === 'ACTIVE'))
+									.map(p => (
+										<button
+											key={p.id}
+											onClick={async () => {
+												try {
+													const res = await swapActive.mutateAsync({ activateId: swapTarget.id, deactivateId: p.id });
+													if (res.success) {
+														setMessage({ type: 'success', text: 'Peças trocadas com sucesso!' });
+														setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+													} else {
+														setMessage({ type: 'error', text: res.message || 'Erro ao trocar' });
+													}
+												} catch {
+													setMessage({ type: 'error', text: 'Erro ao trocar peças' });
+												}
+												setShowSwapModal(false);
+												setSwapTarget(null);
+											}}
+											className="w-full text-left p-3 rounded-xl border border-gray-200 hover:border-[#154c9a] hover:bg-blue-50 transition-all cursor-pointer"
+										>
+											<div className="flex items-center gap-3">
+												<Wrench className="w-5 h-5 text-gray-400" />
+												<div>
+													<p className="font-medium text-gray-900">{p.name}</p>
+													<p className="text-xs text-gray-500">{p.Categoria?.name}</p>
+												</div>
+											</div>
+										</button>
+									))}
+								{pecas.filter(p => p.id !== swapTarget.id && p.status === 'ACTIVE').length === 0 && (
+									<p className="text-gray-500 text-center py-4">Nenhuma peça ativa disponível para desativar.</p>
+								)}
+							</div>
+							<div className="mt-6">
+								<button
+									onClick={() => { setShowSwapModal(false); setSwapTarget(null); }}
+									className="w-full px-4 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all cursor-pointer"
+								>
+									Cancelar
+								</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			)}

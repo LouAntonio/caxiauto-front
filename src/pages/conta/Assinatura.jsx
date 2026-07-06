@@ -18,6 +18,8 @@ import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { SkeletonCard } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
 import { usePlans, useHighlightPlans, useMySubscription, useMyPayments, useCancelSubscription, useCreateSubscriptionPayment, useCreateHighlightPayment, useUploadPaymentProof } from '../../hooks/queries/useSubscription';
+import { useMyVehicles } from '../../hooks/queries/useVehicles';
+import { useMyPecas } from '../../hooks/queries/usePecas';
 
 const Assinatura = () => {
 	useDocumentTitle('Minha Assinatura - CaxiAuto');
@@ -38,6 +40,13 @@ const Assinatura = () => {
 	const [selectedItemId, setSelectedItemId] = useState('');
 	const [processing, setProcessing] = useState(false);
 	const [proofUploads, setProofUploads] = useState({});
+
+	const { data: myVehicles } = useMyVehicles();
+	const { data: myPecas } = useMyPecas();
+
+	const hiddenVehicles = (myVehicles || []).filter(v => v.status === 'HIDDEN' && (v.type === 'RENT' || v.type === 'BOTH'));
+	const hiddenPecas = (myPecas || []).filter(p => p.status === 'HIDDEN');
+	const totalHidden = hiddenVehicles.length + hiddenPecas.length;
 
 	const loading = plansLoading || highlightLoading || subscriptionLoading || paymentsLoading;
 
@@ -193,6 +202,37 @@ const Assinatura = () => {
 
 	return (
 		<div className="space-y-6">
+			{totalHidden > 0 && (
+				<div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-xl p-5">
+					<div className="flex items-start gap-3">
+						<AlertCircle className="w-6 h-6 text-amber-600 mt-0.5 shrink-0" />
+						<div>
+							<h3 className="font-bold text-amber-900 text-lg mb-1">Itens ocultos pelo plano</h3>
+							<p className="text-amber-800 text-sm mb-3">
+								{hiddenVehicles.length > 0 && `${hiddenVehicles.length} veículo${hiddenVehicles.length > 1 ? 's' : ''} de aluguer oculto${hiddenVehicles.length > 1 ? 's' : ''}`}
+								{hiddenVehicles.length > 0 && hiddenPecas.length > 0 && ' e '}
+								{hiddenPecas.length > 0 && `${hiddenPecas.length} peça${hiddenPecas.length > 1 ? 's' : ''} oculta${hiddenPecas.length > 1 ? 's' : ''}`}
+								{'. Faça upgrade do seu plano ou ative manualmente trocando com um item ativo.'}
+							</p>
+							<div className="flex gap-3">
+								{hiddenVehicles.length > 0 && (
+									<a href="/minha-conta/veiculos" className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition-all">
+										<Car className="w-4 h-4" />
+										Gerir Veículos
+									</a>
+								)}
+								{hiddenPecas.length > 0 && (
+									<a href="/minha-conta/pecas" className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition-all">
+										<Wrench className="w-4 h-4" />
+										Gerir Peças
+									</a>
+								)}
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+
 			{/* Minha Assinatura Atual */}
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 				<div className="flex items-center gap-3 mb-6">

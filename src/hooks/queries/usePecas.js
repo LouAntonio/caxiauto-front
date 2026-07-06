@@ -83,3 +83,13 @@ export const useTogglePecaFeatured = () => {
 		},
 	});
 };
+
+export const useSwapActivePeca = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ activateId, deactivateId }) => api.swapActivePeca(activateId, deactivateId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['pecas'] });
+		},
+	});
+};
