@@ -32,15 +32,14 @@ const reviews = [
 	},
 ]
 
-const SHOW_MS = 6000
-const HIDE_MS = 6000
-const INITIAL_DELAY_MS = 3000
+const SHOW_MS = 10000
+const HIDE_MS = 20000
 const R = 26
 const CIRCUMFERENCE = 2 * Math.PI * R
 
 export default function FeedbackSection() {
 	const [index, setIndex] = useState(0)
-	const [phase, setPhase] = useState('idle')
+	const [phase, setPhase] = useState('show')
 	const [paused, setPaused] = useState(false)
 	const [progress, setProgress] = useState(0)
 	const [reducedMotion, setReducedMotion] = useState(
@@ -56,11 +55,6 @@ export default function FeedbackSection() {
 
 	useEffect(() => {
 		if (reducedMotion || paused) return
-
-		if (phase === 'idle') {
-			const timer = setTimeout(() => setPhase('show'), INITIAL_DELAY_MS)
-			return () => clearTimeout(timer)
-		}
 
 		if (phase === 'show') {
 			const start = Date.now()
