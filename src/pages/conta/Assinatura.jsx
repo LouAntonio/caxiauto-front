@@ -328,8 +328,19 @@ const Assinatura = () => {
 									</div>
 									<div className="mb-6">
 										<span className="text-3xl font-bold text-[#154c9a]">{formatPrice(plan.price)}</span>
-										<span className="text-gray-600 text-sm">/mês</span>
+										{plan.validUntil ? (
+											<span className="text-gray-600 text-sm ml-1">(pagamento único)</span>
+										) : (
+											<span className="text-gray-600 text-sm">/{plan.durationDays || 30} dias</span>
+										)}
 									</div>
+									{plan.validUntil && (
+										<div className="mb-3">
+											<span className="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold">
+												Válido até {formatDate(plan.validUntil)}
+											</span>
+										</div>
+									)}
 									<div className="space-y-3 mb-6">
 										<div className="flex items-center gap-2 text-sm">
 											<Check className="w-4 h-4 text-green-600" />
