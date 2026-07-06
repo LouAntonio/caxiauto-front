@@ -18,6 +18,7 @@ import PecasAcessorios from './pages/stand/PecasAcessorios'
 import DetalhesPecas from './pages/stand/DetalhesPecas'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
+import GoogleOneTapPrompt from './components/GoogleOneTapPrompt'
 import NotFound from './pages/NotFound'
 import Parceiros from './pages/Parceiros'
 import GPS from './pages/servicos/GPS'
@@ -76,6 +77,7 @@ function AppContent() {
 			<Analytics />
 			<ScrollToTop />
 			{!isAdminRoute && <Header />}
+			{!isAdminRoute && <GoogleOneTapPrompt />}
 			<Routes>
 				<Route path="/" element={<Home />} />
 				<Route path="/sobre" element={<Sobre />} />

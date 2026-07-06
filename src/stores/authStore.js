@@ -35,6 +35,7 @@ const useAuthStore = create((set, get) => ({
 			role: data.data.role,
 			status: data.data.status,
 			isVerified: data.data.isVerified,
+			googleId: data.data.googleId,
 			createdAt: data.data.createdAt,
 		};
 		localStorage.setItem('caxiauto_token', data.data.token);
@@ -116,6 +117,29 @@ const useAuthStore = create((set, get) => ({
 
 	getAuthToken: () => localStorage.getItem('caxiauto_token'),
 
+	googleLogin: async (credential) => {
+		const data = await api.googleLogin(credential);
+		if (!data.success) {
+			return { success: false, message: data.msg || 'Erro ao fazer login com Google' };
+		}
+		const userData = {
+			id: data.data.id,
+			name: data.data.name,
+			surname: data.data.surname,
+			email: data.data.email,
+			phone: data.data.phone,
+			role: data.data.role,
+			status: data.data.status,
+			isVerified: data.data.isVerified,
+			googleId: data.data.googleId,
+			createdAt: data.data.createdAt,
+		};
+		localStorage.setItem('caxiauto_token', data.data.token);
+		localStorage.setItem('caxiauto_user', JSON.stringify(userData));
+		set({ user: userData });
+		return { success: true, message: 'Login realizado com sucesso!' };
+	},
+
 	checkIsLoggedIn: async () => {
 		try {
 			const data = await api.isLoggedIn();
@@ -130,19 +154,20 @@ const useAuthStore = create((set, get) => ({
 		try {
 			const data = await api.getProfile();
 			if (data.success) {
-				const userData = {
-					id: data.data.id,
-					name: data.data.name,
-					surname: data.data.surname,
-					email: data.data.email,
-					phone: data.data.phone,
-					role: data.data.role,
-					status: data.data.status,
-					isVerified: data.data.isVerified,
-					provincia: data.data.provincia,
-					municipio: data.data.municipio,
-					createdAt: data.data.createdAt,
-				};
+			const userData = {
+				id: data.data.id,
+				name: data.data.name,
+				surname: data.data.surname,
+				email: data.data.email,
+				phone: data.data.phone,
+				role: data.data.role,
+				status: data.data.status,
+				isVerified: data.data.isVerified,
+				googleId: data.data.googleId,
+				provincia: data.data.provincia,
+				municipio: data.data.municipio,
+				createdAt: data.data.createdAt,
+			};
 				localStorage.setItem('caxiauto_user', JSON.stringify(userData));
 				set({ user: userData });
 				return true;

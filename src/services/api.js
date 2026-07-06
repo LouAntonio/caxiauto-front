@@ -62,6 +62,13 @@ const api = {
 
 	resetPassword: (email, token, newPassword) => api.post('/users/reset-password', { email, token, newPassword }),
 
+	// ==================== GOOGLE OAUTH ====================
+	googleLogin: (credential) => api.post('/users/google/login', { credential }),
+
+	linkGoogle: (credential) => api.post('/users/link-google', { credential }),
+
+	unlinkGoogle: () => api.delete('/users/unlink-google'),
+
 	// ==================== USUÁRIOS (ADMIN) ====================
 	listUsers: (params = {}) => api.post('/users/list', params, {}, true),
 
