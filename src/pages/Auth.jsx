@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
 import useAuthStore from '../stores/authStore';
 import { User, Mail, Lock, Phone, Eye, EyeOff, Check, X, Rocket, Clock, Sparkles, ArrowRight } from 'lucide-react';
 
@@ -105,6 +105,13 @@ const Auth = () => {
 			navigate(from, { replace: true });
 		}
 	}, [user, navigate, from]);
+
+	useGoogleOneTapLogin({
+		onSuccess: handleGoogleSuccess,
+		onError: () => {},
+		disabled: !!user || isForgotPassword,
+		cancel_on_tap_outside: false,
+	});
 
 	const handleChange = (e) => {
 		const { name, value, type, checked } = e.target;
@@ -226,7 +233,7 @@ const Auth = () => {
 		}
 	};
 
-	const handleGoogleSuccess = async (credentialResponse) => {
+	async function handleGoogleSuccess(credentialResponse) {
 		setLoading(true);
 		try {
 			const result = await googleLogin(credentialResponse.credential);
