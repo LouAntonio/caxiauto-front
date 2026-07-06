@@ -50,36 +50,6 @@ const benefits = [
 	{ icon: Zap, title: 'Venda mais rápida', description: 'Encontre compradores em menos tempo.' },
 ]
 
-const planos = [
-	{
-		name: 'Mensal',
-		features: [
-			'Até 5 veículos anunciados',
-			'Até 20 peças e acessórios',
-			'Suporte padrão',
-		],
-		popular: false,
-	},
-	{
-		name: 'Trimestral',
-		features: [
-			'Até 15 veículos anunciados',
-			'Até 50 peças e acessórios',
-			'Suporte prioritário',
-		],
-		popular: true,
-	},
-	{
-		name: 'Anual',
-		features: [
-			'Veículos ilimitados',
-			'Peças e acessórios ilimitados',
-			'Suporte VIP',
-		],
-		popular: false,
-	},
-]
-
 function useScrollReveal(threshold = 0.15) {
 	const ref = useRef(null)
 	const [isVisible, setIsVisible] = useState(
@@ -210,60 +180,55 @@ export default function VendaSeuAutomovel() {
 				</div>
 			</section>
 
-			{/* Planos de Subscrição */}
+			{/* Comissão de Venda */}
 			<section className="bg-[#f8f6f2] py-20 sm:py-28">
 				<div className="mx-auto max-w-7xl px-6 lg:px-8">
 					<div className="text-center mb-16">
 						<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#eef3fa] text-[#154c9a] mb-4">
 							<Sparkles className="w-4 h-4" />
-							<span className="text-sm font-semibold font-body">Planos</span>
+							<span className="text-sm font-semibold font-body">Sem Custos Fixos</span>
 						</div>
 						<h2 className="font-display text-3xl sm:text-4xl font-bold text-[#111827] mb-4">
-							Planos de Assinatura
+							Sujeito a Comissão
 						</h2>
-						<p className="font-body text-lg text-[#6b7280] max-w-2xl mx-auto">
-							Escolha o plano ideal para o seu negócio e comece a vender hoje mesmo.
+						<p className="font-body text-lg text-[#6b7280] max-w-3xl mx-auto">
+							Sem planos de assinatura. Apenas paga uma comissão quando a venda for concluída — sem custos iniciais, sem mensalidades.
 						</p>
 					</div>
 
-					<div className="grid max-w-5xl grid-cols-1 gap-6 lg:grid-cols-3 mx-auto items-start">
-						{planos.map((plano) => (
-							<div
-								key={plano.name}
-								className={`relative bg-white p-8 rounded-2xl border transition-all duration-300 ${
-									plano.popular
-										? 'border-[#154c9a] ring-2 ring-[#154c9a]/20 scale-[1.02] lg:scale-105 z-10'
-										: 'border-[#e5e7eb] hover:border-[#154c9a]/20'
-								}`}
-							>
-								{plano.popular && (
-									<div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#d41120] text-white text-xs font-semibold px-4 py-1 rounded-full font-body whitespace-nowrap">
-										Mais Popular
-									</div>
-								)}
-								<h3 className={`font-display text-xl font-bold text-[#111827] mb-6 ${plano.popular ? 'mt-2' : ''}`}>
-									{plano.name}
-								</h3>
-								<ul className="space-y-3 mb-8">
-									{plano.features.map((f) => (
-										<li key={f} className="flex items-start gap-2 font-body text-sm text-[#6b7280]">
-											<CheckCircle2 className="w-4 h-4 text-[#154c9a] mt-0.5 flex-shrink-0" />
-											{f}
-										</li>
-									))}
-								</ul>
-								<Link
-									to="/auth"
-									className={`block text-center py-3 px-6 rounded-2xl font-semibold font-body transition-all duration-300 ${
-										plano.popular
-											? 'bg-[#154c9a] hover:bg-[#0c2d5e] text-white'
-											: 'bg-[#eef3fa] text-[#154c9a] hover:bg-[#dce5f5]'
-									}`}
-								>
-									Começar Agora
-								</Link>
+					<div className="grid max-w-4xl grid-cols-1 gap-8 lg:grid-cols-3 mx-auto">
+						<div className="bg-white p-8 rounded-2xl border border-[#e5e7eb] text-center hover:border-[#154c9a]/20 transition-all duration-300">
+							<div className="w-14 h-14 bg-[#154c9a] rounded-2xl flex items-center justify-center mx-auto mb-5">
+								<CheckCircle2 className="h-7 w-7 text-white" />
 							</div>
-						))}
+							<h3 className="font-display text-lg font-bold text-[#111827] mb-3">Sem Assinatura</h3>
+							<p className="font-body text-[#6b7280] leading-relaxed">
+								Não precisa de planos mensais, trimestrais ou anuais. Só paga quando vender.
+							</p>
+						</div>
+
+						<div className="relative bg-white p-8 rounded-2xl border-2 border-[#154c9a] ring-2 ring-[#154c9a]/20 scale-[1.02] lg:scale-105 z-10 text-center">
+							<div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#d41120] text-white text-xs font-semibold px-4 py-1 rounded-full whitespace-nowrap">
+								Comissão Justa
+							</div>
+							<div className="w-14 h-14 bg-[#d41120] rounded-2xl flex items-center justify-center mx-auto mb-5 mt-2">
+								<TrendingUp className="h-7 w-7 text-white" />
+							</div>
+							<h3 className="font-display text-lg font-bold text-[#111827] mb-3">Comissão por Venda</h3>
+							<p className="font-body text-[#6b7280] leading-relaxed">
+								Apenas uma percentagem sobre o valor final da venda. Sem surpresas, sem custos escondidos.
+							</p>
+						</div>
+
+						<div className="bg-white p-8 rounded-2xl border border-[#e5e7eb] text-center hover:border-[#154c9a]/20 transition-all duration-300">
+							<div className="w-14 h-14 bg-[#154c9a] rounded-2xl flex items-center justify-center mx-auto mb-5">
+								<Shield className="h-7 w-7 text-white" />
+							</div>
+							<h3 className="font-display text-lg font-bold text-[#111827] mb-3">Total Transparência</h3>
+							<p className="font-body text-[#6b7280] leading-relaxed">
+								Todos os termos são claros desde o início. Você sabe exatamente o que paga antes de fechar negócio.
+							</p>
+						</div>
 					</div>
 				</div>
 			</section>
