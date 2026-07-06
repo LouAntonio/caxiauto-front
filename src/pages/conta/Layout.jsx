@@ -55,11 +55,11 @@ const ContaLayout = () => {
 			title: 'Documentos',
 			path: '/minha-conta/documentos',
 		},
-		// {
-		// 	icon: CreditCard,
-		// 	title: 'Assinatura',
-		// 	path: '/minha-conta/assinatura',
-		// },
+		{
+			icon: CreditCard,
+			title: 'Assinatura',
+			path: '/minha-conta/assinatura',
+		},
 		{
 			icon: Star,
 			title: 'Avaliações',

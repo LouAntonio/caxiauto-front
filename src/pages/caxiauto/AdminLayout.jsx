@@ -20,7 +20,8 @@ import {
 	X,
 	CreditCard,
 	Sparkles,
-	Home
+	Home,
+	Banknote
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -96,8 +97,13 @@ const AdminLayout = () => {
 		},
 		{
 			icon: Sparkles,
-			title: 'Pacotes Destaque',
-			path: '/caxiauto/pacotes-destaque',
+			title: 'Planos Destaque',
+			path: '/caxiauto/planos-destaque',
+		},
+		{
+			icon: Banknote,
+			title: 'Pagamentos',
+			path: '/caxiauto/pagamentos',
 		},
 	];
 

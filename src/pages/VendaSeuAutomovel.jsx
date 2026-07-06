@@ -65,7 +65,6 @@ const planos = [
 		features: [
 			'Até 15 veículos anunciados',
 			'Até 50 peças e acessórios',
-			'Créditos de destaque mensais',
 			'Suporte prioritário',
 		],
 		popular: true,
@@ -75,7 +74,6 @@ const planos = [
 		features: [
 			'Veículos ilimitados',
 			'Peças e acessórios ilimitados',
-			'Destaques premium',
 			'Suporte VIP',
 		],
 		popular: false,
