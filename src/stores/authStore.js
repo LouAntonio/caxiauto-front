@@ -98,15 +98,19 @@ const useAuthStore = create((set, get) => ({
 		try {
 			const token = localStorage.getItem('caxiauto_token');
 			if (!token) throw new Error('Usuário não autenticado');
-			const response = await api.updateProfile(updatedData);
+			const payload = { ...updatedData };
+			delete payload.confirmPassword;
+			const response = await api.updateProfile(payload);
 			if (!response.success) return { success: false, message: response.msg || 'Erro ao atualizar perfil' };
 			const { user: currentUser } = get();
-			const updatedUser = { ...currentUser, ...updatedData };
+			const serverData = response.data || {};
+			const updatedUser = { ...currentUser, ...serverData };
+			['currentPassword', 'newPassword', 'confirmPassword'].forEach(k => delete updatedUser[k]);
 			localStorage.setItem('caxiauto_user', JSON.stringify(updatedUser));
 			set({ user: updatedUser });
 			return { success: true, message: 'Perfil atualizado com sucesso!' };
 		} catch (error) {
-			return { success: false, message: error.message };
+			return { success: false, message: error.message || 'Erro ao atualizar perfil' };
 		}
 	},
 
