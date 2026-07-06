@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import useAuthStore from '../../stores/authStore';
 import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
+import api, { notyf } from '../../services/api';
 import {
 	User,
 	Mail,
@@ -13,7 +15,11 @@ import {
 	BarChart3,
 	Lock,
 	Eye,
-	EyeOff
+	EyeOff,
+	Link2,
+	Unlink2,
+	CheckCircle,
+	AlertCircle
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import ButtonLoader from '../../components/ButtonLoader';
@@ -25,6 +31,7 @@ const Dashboard = () => {
 	const navigate = useNavigate();
 	const [isEditing, setIsEditing] = useState(false);
 	const [showPwd, setShowPwd] = useState({ current: false, new: false, confirm: false });
+	const [googleLoading, setGoogleLoading] = useState(false);
 
 	useEffect(() => {
 		if (!user?.createdAt) {
@@ -46,6 +53,40 @@ const Dashboard = () => {
 	const handleLogout = () => {
 		logout();
 		navigate('/');
+	};
+
+	const handleGoogleLink = async (credentialResponse) => {
+		setGoogleLoading(true);
+		try {
+			const result = await api.linkGoogle(credentialResponse.credential);
+			if (result.success) {
+				notyf.success('Conta Google vinculada com sucesso!');
+				refreshUser();
+			} else {
+				notyf.error(result.msg || 'Erro ao vincular Google.');
+			}
+		} catch {
+			notyf.error('Erro ao vincular Google.');
+		} finally {
+			setGoogleLoading(false);
+		}
+	};
+
+	const handleGoogleUnlink = async () => {
+		setGoogleLoading(true);
+		try {
+			const result = await api.unlinkGoogle();
+			if (result.success) {
+				notyf.success('Conta Google desvinculada com sucesso!');
+				refreshUser();
+			} else {
+				notyf.error(result.msg || 'Erro ao desvincular Google.');
+			}
+		} catch {
+			notyf.error('Erro ao desvincular Google.');
+		} finally {
+			setGoogleLoading(false);
+		}
 	};
 
 	const handleChange = (e) => {
@@ -350,6 +391,62 @@ const Dashboard = () => {
 							</div>
 						</div>
 					)}
+				</div>
+			</div>
+
+			{/* Contas Vinculadas */}
+			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+				<div className="px-6 py-5 border-b border-gray-100">
+					<h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+						<Link2 className="w-5 h-5 text-[#154c9a]" />
+						Contas Vinculadas
+					</h3>
+				</div>
+				<div className="px-6 py-5">
+					<div className="flex items-center justify-between">
+						<div className="flex items-center gap-3">
+							<div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+								<svg className="w-5 h-5" viewBox="0 0 24 24">
+									<path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+									<path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+									<path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+									<path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+								</svg>
+							</div>
+							<div>
+								<p className="font-medium text-gray-900">Google</p>
+								{user?.googleId ? (
+									<p className="text-sm text-green-600 flex items-center gap-1">
+										<CheckCircle className="w-3.5 h-3.5" /> Vinculado
+									</p>
+								) : (
+									<p className="text-sm text-gray-500">Não vinculado</p>
+								)}
+							</div>
+						</div>
+						<div>
+							{user?.googleId ? (
+								<ButtonLoader
+									loading={googleLoading}
+									onClick={handleGoogleUnlink}
+									variant="red_outline"
+									className="text-sm"
+								>
+									<Unlink2 className="w-4 h-4" />
+									Desvincular
+								</ButtonLoader>
+							) : (
+								<GoogleLogin
+									onSuccess={handleGoogleLink}
+									onError={() => notyf.error('Erro ao vincular Google.')}
+									theme="outline"
+									size="medium"
+									text="signin_with"
+									shape="pill"
+								/>
+							)}
+						</div>
+					</div>
 				</div>
 			</div>
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import useAuthStore from '../stores/authStore';
 import { User, Mail, Lock, Phone, Eye, EyeOff, Check, X, Rocket, Clock, Sparkles, ArrowRight } from 'lucide-react';
 
@@ -93,7 +94,7 @@ const Auth = () => {
 		acceptedTerms: false,
 	});
 
-	const { user, login, checkEmail, verifyOTP, resendOTP, completeRegistration, requestPasswordReset } = useAuthStore();
+	const { user, login, googleLogin, checkEmail, verifyOTP, resendOTP, completeRegistration, requestPasswordReset } = useAuthStore();
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -223,6 +224,27 @@ const Auth = () => {
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const handleGoogleSuccess = async (credentialResponse) => {
+		setLoading(true);
+		try {
+			const result = await googleLogin(credentialResponse.credential);
+			if (result.success) {
+				notyf.success(result.message);
+				navigate(from, { replace: true });
+			} else {
+				notyf.error(result.message);
+			}
+		} catch {
+			notyf.error('Erro ao fazer login com Google.');
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleGoogleError = () => {
+		notyf.error('Falha na autenticação com Google. Tente novamente.');
 	};
 
 	const handleResendOTP = async () => {
@@ -751,6 +773,56 @@ const Auth = () => {
 								>
 									Esqueceu a senha?
 								</button>
+							</div>
+						)}
+
+						{/* Google Login - Login Screen */}
+						{isLogin && !isForgotPassword && (
+							<div className="relative my-6">
+								<div className="absolute inset-0 flex items-center">
+									<div className="w-full border-t border-gray-200" />
+								</div>
+								<div className="relative flex justify-center text-sm">
+									<span className="bg-white px-4 text-gray-500 font-body">ou</span>
+								</div>
+							</div>
+						)}
+						{isLogin && !isForgotPassword && (
+							<div className="flex justify-center">
+								<GoogleLogin
+									onSuccess={handleGoogleSuccess}
+									onError={handleGoogleError}
+									theme="outline"
+									size="large"
+									text="signin_with"
+									shape="pill"
+									width="300"
+								/>
+							</div>
+						)}
+
+						{/* Google Login - Cadastro Step 1 */}
+						{!isLogin && !isForgotPassword && registrationStep === 1 && (
+							<div className="relative my-6">
+								<div className="absolute inset-0 flex items-center">
+									<div className="w-full border-t border-gray-200" />
+								</div>
+								<div className="relative flex justify-center text-sm">
+									<span className="bg-white px-4 text-gray-500 font-body">ou cadastre-se com</span>
+								</div>
+							</div>
+						)}
+						{!isLogin && !isForgotPassword && registrationStep === 1 && (
+							<div className="flex justify-center">
+								<GoogleLogin
+									onSuccess={handleGoogleSuccess}
+									onError={handleGoogleError}
+									theme="outline"
+									size="large"
+									text="signup_with"
+									shape="pill"
+									width="300"
+								/>
 							</div>
 						)}
 
