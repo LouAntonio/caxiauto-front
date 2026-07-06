@@ -111,6 +111,10 @@ const Dashboard = () => {
 				delete payload.newPassword;
 			}
 			delete payload.confirmPassword;
+			// Google users sem senha: não enviar currentPassword
+			if (!user?.hasPassword) {
+				delete payload.currentPassword;
+			}
 			const result = await updateUser(payload);
 			if (result.success) {
 				setMessage('Dados atualizados com sucesso!');
@@ -178,6 +182,12 @@ const Dashboard = () => {
 				<div className="p-6">
 					{isEditing ? (
 						<div className="space-y-4">
+							{!user?.hasPassword && (
+								<div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700">
+									Defina uma senha para também poder fazer login com email e senha.
+								</div>
+							)}
+
 							<div>
 								<label className="block text-sm font-medium text-gray-700 mb-1">
 									Nome
@@ -232,31 +242,33 @@ const Dashboard = () => {
 
 							<hr className="border-gray-200" />
 
-							<div>
-								<label className="block text-sm font-medium text-gray-700 mb-1">
-									Senha Atual
-								</label>
-								<div className="relative">
-									<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-										<Lock className="h-4 w-4 text-gray-400" />
+							{user?.hasPassword && (
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">
+										Senha Atual
+									</label>
+									<div className="relative">
+										<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+											<Lock className="h-4 w-4 text-gray-400" />
+										</div>
+										<input
+											type={showPwd.current ? "text" : "password"}
+											name="currentPassword"
+											value={formData.currentPassword}
+											onChange={handleChange}
+											placeholder="Sua senha atual"
+											className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg"
+										/>
+										<button
+											type="button"
+											onClick={() => setShowPwd(s => ({ ...s, current: !s.current }))}
+											className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+										>
+											{showPwd.current ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
+										</button>
 									</div>
-									<input
-										type={showPwd.current ? "text" : "password"}
-										name="currentPassword"
-										value={formData.currentPassword}
-										onChange={handleChange}
-										placeholder="Sua senha atual"
-										className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg"
-									/>
-									<button
-										type="button"
-										onClick={() => setShowPwd(s => ({ ...s, current: !s.current }))}
-										className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-									>
-										{showPwd.current ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
-									</button>
 								</div>
-							</div>
+							)}
 
 							<div>
 								<label className="block text-sm font-medium text-gray-700 mb-1">
