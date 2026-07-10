@@ -219,7 +219,7 @@ const Veiculos = () => {
 		// Validação básica
 		if (!formData.name || !formData.description || !formData.manufacturerId ||
 			!formData.classId || !formData.year || !formData.kilometers ||
-			!formData.price || !formData.passangers || !formData.color ||
+			!formData.price || !formData.passangers ||
 			!formData.location || !formData.door) {
 			setMessage({ type: 'error', text: 'Por favor, preencha todos os campos obrigatórios.' });
 			return;
