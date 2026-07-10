@@ -17,9 +17,7 @@ const useAuthStore = create((set, get) => ({
 	user: getStoredUser(),
 	loading: false,
 
-	get isAuthenticated() {
-		return !!get().user;
-	},
+	isAuthenticated: () => !!get().user,
 
 	login: async (email, password) => {
 		const data = await api.login(email, password);

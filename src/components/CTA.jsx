@@ -26,7 +26,7 @@ export default function CTA() {
 							</div>
 
 							<div className="flex flex-col sm:flex-row gap-4">
-								<a href="/ofertas" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#e65100] text-white font-bold text-lg hover:bg-[#ff6d00] transition-all hover:scale-105 shadow-lg shadow-orange-900/20">
+								<a href="/stand/compra" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#e65100] text-white font-bold text-lg hover:bg-[#ff6d00] transition-all hover:scale-105 shadow-lg shadow-orange-900/20">
 									Ver Ofertas
 									<ArrowRight size={20} />
 								</a>

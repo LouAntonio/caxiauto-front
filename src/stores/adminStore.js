@@ -17,9 +17,7 @@ const useAdminStore = create((set, get) => ({
 	admin: getStoredAdmin(),
 	loading: false,
 
-	get isAuthenticated() {
-		return !!get().admin;
-	},
+	isAuthenticated: () => !!get().admin,
 
 	login: async (email, password) => {
 		try {

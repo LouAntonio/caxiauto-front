@@ -1,16 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
-import { Notyf } from 'notyf';
-import 'notyf/notyf.min.css';
-
-// Instância do Notyf para notificações
-const notyf = new Notyf({
-	duration: 4000,
-	position: { x: 'right', y: 'top' },
-	dismissible: true,
-	ripple: true,
-});
+import api, { notyf } from '../services/api';
 
 const ProtectedRoute = ({ children }) => {
 	const { user, loading, logout, checkIsLoggedIn } = useAuthStore();
@@ -32,7 +23,7 @@ const ProtectedRoute = ({ children }) => {
 				
 				if (!isLoggedIn) {
 					// Se não estiver logado no servidor, mostrar notificação e fazer logout local
-					notyf.error('Sua sessão expirou. Por favor, faça login novamente para ter acesso ap Painel Administrativo.');
+					notyf.error('Sua sessão expirou. Por favor, faça login novamente para aceder à sua conta.');
 					logout();
 					setIsServerAuthenticated(false);
 				} else {
@@ -41,7 +32,7 @@ const ProtectedRoute = ({ children }) => {
 			} catch (error) {
 				console.error('Erro ao verificar autenticação do servidor:', error);
 				// Em caso de erro, mostrar notificação e fazer logout
-				notyf.error('Erro ao verificar sua sessão. Faça login novamente para ter acesso ap Painel Administrativo.');
+				notyf.error('Erro ao verificar sua sessão. Faça login novamente para aceder à sua conta.');
 				logout();
 				setIsServerAuthenticated(false);
 			} finally {
