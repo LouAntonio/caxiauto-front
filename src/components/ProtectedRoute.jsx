@@ -15,7 +15,7 @@ const isTokenExpired = (token) => {
 
 const ProtectedRoute = ({ children }) => {
 	const { user, loading, logout, checkIsLoggedIn } = useAuthStore();
-	const token = useAuthStore(s => s.token);
+	const token = localStorage.getItem('caxiauto_token');
 	const [isVerifying, setIsVerifying] = useState(true);
 	const [isServerAuthenticated, setIsServerAuthenticated] = useState(false);
 	const location = useLocation();

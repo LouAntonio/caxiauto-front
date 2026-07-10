@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAdminStore from '../../stores/adminStore';
 import { Shield, Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
@@ -14,11 +14,9 @@ const AdminLogin = () => {
 	});
 	const [error, setError] = useState('');
 
-	// Se já estiver logado, redirecionar para dashboard
-	if (admin) {
-		navigate('/caxiauto/dashboard');
-		return null;
-	}
+	useEffect(() => {
+		if (admin) navigate('/caxiauto/dashboard', { replace: true });
+	}, [admin, navigate]);
 
 	const handleChange = (e) => {
 		setFormData({

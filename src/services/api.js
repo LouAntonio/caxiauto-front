@@ -76,11 +76,11 @@ const api = {
 
 	toggleUserStatus: (userId, status, reason) => api.patch('/users/toggle-status', { userId, status, reason }, {}, true),
 
-	adminGetUserDetails: (id) => api.get(`/users/admin/${id}/details`, {}, true),
+	adminGetUserDetails: (id) => api.get(`/admin/users/${id}/details`, {}, true),
 
-	adminVerifyUser: (userId, isVerified) => api.put(`/users/admin/${userId}/verify`, { isVerified }, {}, true),
+	adminVerifyUser: (userId, isVerified) => api.put(`/admin/users/${userId}/verify`, { isVerified }, {}, true),
 
-	adminResetUserPassword: (userId) => api.post(`/users/admin/${userId}/reset-password`, {}, {}, true),
+	adminResetUserPassword: (userId) => api.post(`/admin/users/${userId}/reset-password`, {}, {}, true),
 
 	// ==================== VEÍCULOS ====================
 	listVehicles: (params = {}) => {
@@ -93,7 +93,7 @@ const api = {
 
 	updateVehicle: (id, data) => api.put(`/vehicles/${id}`, data),
 
-	deleteVehicle: (id) => api.delete(`/vehicles/${id}`, {}, true),
+	deleteVehicle: (id) => api.delete(`/vehicles/${id}`),
 
 	toggleVehicleStatus: (id, status) => api.put(`/vehicles/${id}/toggle-status`, { status }),
 
@@ -134,7 +134,7 @@ const api = {
 
 	updatePeca: (id, data) => api.put(`/pecas/${id}`, data),
 
-	deletePeca: (id) => api.delete(`/pecas/${id}`, {}, true),
+	deletePeca: (id) => api.delete(`/pecas/${id}`),
 
 	togglePecaStatus: (id, status) => api.put(`/pecas/${id}/toggle-status`, status ? { status } : {}),
 
@@ -253,7 +253,7 @@ const api = {
 	// ==================== CLOUDINARY ====================
 	getCloudinarySignature: (folder) => api.get(`/cloudinary/authorize-upload?folder=${folder}`),
 
-	deleteCloudinaryResource: (publicId) => api.delete('/cloudinary/delete-resource', { publicId }, {}, true),
+	deleteCloudinaryResource: (publicId) => api.delete(`/cloudinary/delete-resource?publicId=${publicId}`, {}, true),
 
 	// ==================== ADMIN - DASHBOARD ====================
 	getDashboardStats: () => api.get('/admin/dashboard/stats', {}, true),
