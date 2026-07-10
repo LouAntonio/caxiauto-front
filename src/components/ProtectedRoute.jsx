@@ -3,13 +3,23 @@ import { Navigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
 import api, { notyf } from '../services/api';
 
+const isTokenExpired = (token) => {
+	if (!token) return true;
+	try {
+		const payload = JSON.parse(atob(token.split('.')[1]));
+		return Date.now() >= payload.exp * 1000;
+	} catch {
+		return true;
+	}
+};
+
 const ProtectedRoute = ({ children }) => {
 	const { user, loading, logout, checkIsLoggedIn } = useAuthStore();
+	const token = useAuthStore(s => s.token);
 	const [isVerifying, setIsVerifying] = useState(true);
 	const [isServerAuthenticated, setIsServerAuthenticated] = useState(false);
 	const location = useLocation();
 
-	// Verificar autenticação no servidor quando o componente monta ou o usuário muda
 	useEffect(() => {
 		const verifyServerAuthentication = async () => {
 			if (!user) {
@@ -17,12 +27,19 @@ const ProtectedRoute = ({ children }) => {
 				return;
 			}
 
+			if (isTokenExpired(token)) {
+				notyf.error('Sua sessão expirou. Por favor, faça login novamente para aceder à sua conta.');
+				logout();
+				setIsServerAuthenticated(false);
+				setIsVerifying(false);
+				return;
+			}
+
 			try {
 				setIsVerifying(true);
 				const isLoggedIn = await checkIsLoggedIn();
-				
+
 				if (!isLoggedIn) {
-					// Se não estiver logado no servidor, mostrar notificação e fazer logout local
 					notyf.error('Sua sessão expirou. Por favor, faça login novamente para aceder à sua conta.');
 					logout();
 					setIsServerAuthenticated(false);
@@ -31,7 +48,6 @@ const ProtectedRoute = ({ children }) => {
 				}
 			} catch (error) {
 				console.error('Erro ao verificar autenticação do servidor:', error);
-				// Em caso de erro, mostrar notificação e fazer logout
 				notyf.error('Erro ao verificar sua sessão. Faça login novamente para aceder à sua conta.');
 				logout();
 				setIsServerAuthenticated(false);
@@ -41,7 +57,7 @@ const ProtectedRoute = ({ children }) => {
 		};
 
 		verifyServerAuthentication();
-	}, [user, checkIsLoggedIn, logout]);
+	}, [user, token, checkIsLoggedIn, logout]);
 
 	// Mostrar loading enquanto verifica autenticação inicial ou do servidor
 	if (loading || isVerifying) {
