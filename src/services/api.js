@@ -95,11 +95,11 @@ const api = {
 
 	deleteVehicle: (id) => api.delete(`/vehicles/${id}`, {}, true),
 
-	toggleVehicleStatus: (id, status) => api.put(`/vehicles/${id}/status`, { status }, {}, true),
+	toggleVehicleStatus: (id, status) => api.put(`/vehicles/${id}/toggle-status`, { status }, {}, true),
 
 	swapActiveVehicle: (activateId, deactivateId) => api.post('/vehicles/swap-active', { activateId, deactivateId }),
 
-	toggleVehicleFeatured: (id, featuredUntil = null) => api.put(`/vehicles/${id}/featured`, { featuredUntil }, {}, true),
+	toggleVehicleFeatured: (id, featuredUntil = null) => api.put(`/vehicles/${id}/toggle-featured`, { featuredUntil }, {}, true),
 
 	myVehicles: (params = {}) => api.get('/vehicles/my-vehicles', { params }),
 
@@ -140,7 +140,7 @@ const api = {
 
 	swapActivePeca: (activateId, deactivateId) => api.post('/pecas/swap-active', { activateId, deactivateId }),
 
-	togglePecaFeatured: (id, featuredUntil = null) => api.put(`/pecas/${id}/toggle-featured`, { featuredUntil }),
+	togglePecaFeatured: (id, featuredUntil = null) => api.put(`/pecas/${id}/toggle-featured`, { featuredUntil }, {}, true),
 
 	minhasPecas: (params = {}) => api.get('/pecas/my-parts', { params }),
 
@@ -196,7 +196,7 @@ const api = {
 
 	updateBookingStatus: (id, status) => api.put(`/bookings/${id}/status`, { status }),
 
-	cancelBooking: (id) => api.delete(`/bookings/${id}`),
+	cancelBooking: (id) => api.post(`/bookings/${id}/cancel`),
 
 	// ==================== AVALIAÇÕES (REVIEWS) ====================
 	createReview: (sellerId, rating, comment = null) => api.post('/reviews', { sellerId, rating, comment }),
@@ -253,7 +253,7 @@ const api = {
 	// ==================== CLOUDINARY ====================
 	getCloudinarySignature: (folder) => api.get(`/cloudinary/authorize-upload?folder=${folder}`),
 
-	deleteCloudinaryResource: (publicId) => api.post('/cloudinary/delete', { publicId }),
+	deleteCloudinaryResource: (publicId) => api.delete('/cloudinary/delete-resource', { publicId }, {}, true),
 
 	// ==================== ADMIN - DASHBOARD ====================
 	getDashboardStats: () => api.get('/admin/dashboard/stats', {}, true),
