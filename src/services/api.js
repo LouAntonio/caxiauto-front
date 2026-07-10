@@ -101,7 +101,7 @@ const api = {
 
 	toggleVehicleFeatured: (id, featuredUntil = null) => api.put(`/vehicles/${id}/featured`, { featuredUntil }, {}, true),
 
-	myVehicles: (params = {}) => api.get('/vehicles/my', { params }),
+	myVehicles: (params = {}) => api.get('/vehicles/my-vehicles', { params }),
 
 	listFeaturedVehicles: (params = {}) => api.get('/vehicles/featured', { params }),
 

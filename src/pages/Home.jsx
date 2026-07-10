@@ -6,9 +6,7 @@ import { useFeaturedVehicles } from '../hooks/queries/useVehicles'
 import FeaturedParts from '../components/FeaturedParts'
 import RentACarSection from '../components/RentACarSection'
 import SellBuySection from '../components/SellBuySection'
-import Publicidades from '../components/Publicidades'
 import PartnersSlider from '../components/PartnersSlider'
-import VehicleRequestSection from '../components/VehicleRequestSection'
 import FeedbackSection from '../components/FeedbackSection'
 
 const useRentalVehicles = () => useFeaturedVehicles({ type: 'RENT,BOTH' })
@@ -39,7 +37,6 @@ export default function Home() {
 					/>
 				</div>
 				<FeaturedParts linkState={{ filters: { featuredOnly: true } }} />
-				{/* <Publicidades /> */}
 				<div className="max-w-7xl mx-auto px-6 lg:px-8 my-8">
 					<img
 						src="./images/ad/Prancheta 3.png"
