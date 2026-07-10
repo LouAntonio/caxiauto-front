@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React from 'react'
+import useScrollReveal from '../hooks/useScrollReveal'
 import useDocumentTitle from '../hooks/useDocumentTitle'
 import { Shield, Users, Target, Car, Wrench, Clock, MapPin, ArrowRight, CheckCircle2, TrendingUp, Star } from 'lucide-react'
 
@@ -41,34 +42,6 @@ const stats = [
 	{ value: 200, suffix: '+', label: 'Clientes satisfeitos' },
 	{ isText: true, text: '24/7', label: 'Suporte disponível' },
 ]
-
-function useScrollReveal(threshold = 0.15) {
-	const ref = useRef(null)
-	const [isVisible, setIsVisible] = useState(
-		() => window.matchMedia('(prefers-reduced-motion: reduce)').matches
-	)
-
-	useEffect(() => {
-		if (isVisible) return
-		const el = ref.current
-		if (!el) return
-
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
-					setIsVisible(true)
-					observer.unobserve(el)
-				}
-			},
-			{ threshold }
-		)
-
-		observer.observe(el)
-		return () => observer.disconnect()
-	}, [threshold, isVisible])
-
-	return [ref, isVisible]
-}
 
 function AnimatedCounter({ target, suffix = '' }) {
 	const [count, setCount] = useState(

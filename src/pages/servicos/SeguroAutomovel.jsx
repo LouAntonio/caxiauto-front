@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import useScrollReveal from '../../hooks/useScrollReveal';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import api, { notyf } from '../../services/api';
 import {
@@ -22,34 +23,6 @@ import {
 	Star
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-function useScrollReveal(threshold = 0.15) {
-	const ref = useRef(null)
-	const [isVisible, setIsVisible] = useState(
-		() => window.matchMedia('(prefers-reduced-motion: reduce)').matches
-	)
-
-	useEffect(() => {
-		if (isVisible) return
-		const el = ref.current
-		if (!el) return
-
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
-					setIsVisible(true)
-					observer.unobserve(el)
-				}
-			},
-			{ threshold }
-		)
-
-		observer.observe(el)
-		return () => observer.disconnect()
-	}, [threshold, isVisible])
-
-	return [ref, isVisible]
-}
 
 export default function SeguroAutomovel() {
 	useDocumentTitle('Seguro Automóvel - Caxiauto');

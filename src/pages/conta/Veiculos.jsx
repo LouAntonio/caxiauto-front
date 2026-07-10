@@ -257,7 +257,8 @@ const Veiculos = () => {
 				passengerCapacity: formData.passangers,
 				doorCount: formData.door,
 				provincia: formData.location,
-				characteristics: formData.characteristics
+				characteristics: formData.characteristics,
+				color: formData.color || null
 			};
 
 			// Adicionar imagem principal e galeria se houver
@@ -265,8 +266,6 @@ const Veiculos = () => {
 				vehicleData.image = uploadedImages[0];
 				vehicleData.gallery = uploadedImages.slice(1);
 			}
-
-			console.log('Dados a enviar:', vehicleData);
 
 			let response;
 			if (editingVehicle) {

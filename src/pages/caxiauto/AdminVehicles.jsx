@@ -437,7 +437,7 @@ const AdminVehicles = () => {
 									<tr
 										key={vehicle.id}
 										className={`hover:bg-gray-50 ${
-											(!vehicle.isVerified || !vehicle.isAproved) ? 'bg-yellow-50' : ''
+											(!vehicle.isVerified || !vehicle.isApproved) ? 'bg-yellow-50' : ''
 										}`}
 									>
 										<td className="px-4 py-3">
@@ -498,7 +498,7 @@ const AdminVehicles = () => {
 											)}
 										</td>
 										<td className="px-4 py-3">
-											{vehicle.isAproved ? (
+											{vehicle.isApproved ? (
 												<span className="flex items-center gap-1 text-green-600 text-sm">
 													<Check className="w-4 h-4" /> Sim
 												</span>
@@ -530,7 +530,7 @@ const AdminVehicles = () => {
 												>
 													{actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
 												</button>
-												{(!vehicle.isVerified || !vehicle.isAproved) && (
+												{(!vehicle.isVerified || !vehicle.isApproved) && (
 													<>
 														<button
 															onClick={() => handleApprove(vehicle.id)}
@@ -781,8 +781,8 @@ const AdminVehicles = () => {
 										</div>
 										<div className="bg-gray-50 p-3 rounded-lg">
 											<p className="text-xs text-gray-500">Aprovado</p>
-											<p className={`font-medium ${detailsModal.vehicle.isAproved ? 'text-green-600' : 'text-red-600'}`}>
-												{detailsModal.vehicle.isAproved ? 'Sim' : 'Não'}
+											<p className={`font-medium ${detailsModal.vehicle.isApproved ? 'text-green-600' : 'text-red-600'}`}>
+												{detailsModal.vehicle.isApproved ? 'Sim' : 'Não'}
 											</p>
 										</div>
 										<div className="bg-gray-50 p-3 rounded-lg">
@@ -945,7 +945,7 @@ const AdminVehicles = () => {
 						{/* Footer do Modal - Ações */}
 						<div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-between gap-4 rounded-b-2xl">
 							<div className="flex gap-2">
-								{(!detailsModal.vehicle.isVerified || !detailsModal.vehicle.isAproved) && (
+								{(!detailsModal.vehicle.isVerified || !detailsModal.vehicle.isApproved) && (
 									<>
 										<button
 											onClick={() => handleApprove(detailsModal.vehicle.id)}

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import useScrollReveal from '../../hooks/useScrollReveal';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import {
 	Phone,
@@ -71,34 +72,6 @@ const benefits = [
 	{ icon: BadgeDollarSign, title: 'Preço Justo', description: 'Valores transparentes sem surpresas.' },
 	{ icon: Headphones, title: 'Suporte Dedicado', description: 'Acompanhamento do início ao fim.' },
 ];
-
-function useScrollReveal(threshold = 0.15) {
-	const ref = useRef(null)
-	const [isVisible, setIsVisible] = useState(
-		() => window.matchMedia('(prefers-reduced-motion: reduce)').matches
-	)
-
-	useEffect(() => {
-		if (isVisible) return
-		const el = ref.current
-		if (!el) return
-
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
-					setIsVisible(true)
-					observer.unobserve(el)
-				}
-			},
-			{ threshold }
-		)
-
-		observer.observe(el)
-		return () => observer.disconnect()
-	}, [threshold, isVisible])
-
-	return [ref, isVisible]
-}
 
 export default function Reboque() {
 	useDocumentTitle('Reboque - Caxiauto')

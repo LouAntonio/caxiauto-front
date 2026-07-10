@@ -416,9 +416,9 @@ const VeiculosAluguel = () => {
 									</div>
 								)}
 								<div className="absolute top-3 right-3 flex flex-col gap-2">
-									<div className={`px-3 py-1 rounded-full text-xs font-semibold ${vehicle.isAproved ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
+									<div className={`px-3 py-1 rounded-full text-xs font-semibold ${vehicle.isApproved ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
 									}`}>
-										{vehicle.isAproved ? 'Aprovado' : 'Pendente'}
+										{vehicle.isApproved ? 'Aprovado' : 'Pendente'}
 									</div>
 									<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${vehicle.status === 'ACTIVE' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
 									}`}>

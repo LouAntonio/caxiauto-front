@@ -5,18 +5,10 @@ import useAuthStore from '../stores/authStore';
 import { User, Mail, Lock, Phone, Eye, EyeOff, Check, X, Rocket, Clock, Sparkles, ArrowRight } from 'lucide-react';
 
 import useDocumentTitle from '../hooks/useDocumentTitle';
-import { Notyf } from 'notyf';
-import 'notyf/notyf.min.css';
+import { notyf } from '../services/api';
 
 const Auth = () => {
 	useDocumentTitle('Entrar ou Cadastrar - CaxiAuto');
-
-	// Inicializar Notyf
-	const [notyf] = useState(() => new Notyf({
-		duration: 4000,
-		position: { x: 'right', y: 'top' },
-		dismissible: true,
-	}));
 
 	const [isLogin, setIsLogin] = useState(true);
 	const [isForgotPassword, setIsForgotPassword] = useState(false);

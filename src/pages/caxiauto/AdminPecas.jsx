@@ -398,7 +398,7 @@ const AdminPecas = () => {
 									<tr
 										key={peca.id}
 										className={`hover:bg-gray-50 ${
-											(!peca.isVerified || !peca.isAproved) ? 'bg-yellow-50' : ''
+											(!peca.isVerified || !peca.isApproved) ? 'bg-yellow-50' : ''
 										}`}
 									>
 										<td className="px-4 py-3">
@@ -452,7 +452,7 @@ const AdminPecas = () => {
 											)}
 										</td>
 										<td className="px-4 py-3">
-											{peca.isAproved ? (
+											{peca.isApproved ? (
 												<span className="flex items-center gap-1 text-green-600 text-sm">
 													<Check className="w-4 h-4" /> Sim
 												</span>
@@ -483,7 +483,7 @@ const AdminPecas = () => {
 												>
 													<Eye className="w-4 h-4" />
 												</button>
-												{(!peca.isVerified || !peca.isAproved) && (
+												{(!peca.isVerified || !peca.isApproved) && (
 													<>
 														<button
 															onClick={() => handleApprove(peca.id)}
@@ -664,8 +664,8 @@ const AdminPecas = () => {
 										</div>
 										<div className="bg-gray-50 p-3 rounded-lg">
 											<p className="text-xs text-gray-500">Aprovado</p>
-											<p className={`font-medium ${detailsModal.peca.isAproved ? 'text-green-600' : 'text-red-600'}`}>
-												{detailsModal.peca.isAproved ? 'Sim' : 'Não'}
+											<p className={`font-medium ${detailsModal.peca.isApproved ? 'text-green-600' : 'text-red-600'}`}>
+												{detailsModal.peca.isApproved ? 'Sim' : 'Não'}
 											</p>
 										</div>
 										<div className="bg-gray-50 p-3 rounded-lg">
@@ -828,7 +828,7 @@ const AdminPecas = () => {
 						{/* Footer - Ações */}
 						<div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-between gap-4 rounded-b-2xl">
 							<div className="flex gap-2">
-								{(!detailsModal.peca.isVerified || !detailsModal.peca.isAproved) && (
+								{(!detailsModal.peca.isVerified || !detailsModal.peca.isApproved) && (
 									<>
 										<button
 											onClick={() => handleApprove(detailsModal.peca.id)}

@@ -3,17 +3,10 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
 import { Lock, Eye, EyeOff, Check, X } from 'lucide-react';
 import useDocumentTitle from '../hooks/useDocumentTitle';
-import { Notyf } from 'notyf';
-import 'notyf/notyf.min.css';
+import { notyf } from '../services/api';
 
 const RecuperarSenha = () => {
 	useDocumentTitle('Recuperar Senha - CaxiAuto');
-
-	const [notyf] = useState(() => new Notyf({
-		duration: 4000,
-		position: { x: 'right', y: 'top' },
-		dismissible: true,
-	}));
 
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();

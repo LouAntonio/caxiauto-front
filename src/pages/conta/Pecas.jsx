@@ -483,9 +483,9 @@ const Pecas = () => {
 
 									{/* Badges */}
 									<div className="absolute top-3 right-3 flex flex-col gap-2">
-										<div className={`px-3 py-1 rounded-full text-xs font-semibold ${peca.isAproved ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
+										<div className={`px-3 py-1 rounded-full text-xs font-semibold ${peca.isApproved ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
 										}`}>
-											{peca.isAproved ? 'Aprovado' : 'Pendente'}
+											{peca.isApproved ? 'Aprovado' : 'Pendente'}
 										</div>
 										{peca.status === 'HIDDEN' ? (
 											<div className="px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white">

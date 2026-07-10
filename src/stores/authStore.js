@@ -75,7 +75,6 @@ const useAuthStore = create((set, get) => ({
 			password: userData.password,
 		});
 		if (!data.success) {
-			console.log('Erro ao completar registro:', data);
 			return { success: false, message: data.msg || 'Erro ao completar registro' };
 		}
 		return { success: true, message: data.msg };

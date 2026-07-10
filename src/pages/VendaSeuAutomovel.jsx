@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
+import useScrollReveal from '../hooks/useScrollReveal'
 import { Link } from 'react-router-dom'
 import useDocumentTitle from '../hooks/useDocumentTitle'
 import {
@@ -49,34 +50,6 @@ const benefits = [
 	{ icon: CheckCircle2, title: 'Mais segurança', description: 'Processo transparente e seguro.' },
 	{ icon: Zap, title: 'Venda mais rápida', description: 'Encontre compradores em menos tempo.' },
 ]
-
-function useScrollReveal(threshold = 0.15) {
-	const ref = useRef(null)
-	const [isVisible, setIsVisible] = useState(
-		() => window.matchMedia('(prefers-reduced-motion: reduce)').matches
-	)
-
-	useEffect(() => {
-		if (isVisible) return
-		const el = ref.current
-		if (!el) return
-
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
-					setIsVisible(true)
-					observer.unobserve(el)
-				}
-			},
-			{ threshold }
-		)
-
-		observer.observe(el)
-		return () => observer.disconnect()
-	}, [threshold, isVisible])
-
-	return [ref, isVisible]
-}
 
 export default function VendaSeuAutomovel() {
 	useDocumentTitle('Venda a Sua Viatura - Caxiauto')
