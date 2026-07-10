@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import useAuthStore from '../../stores/authStore';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
@@ -96,7 +96,7 @@ const Dashboard = () => {
 		});
 	};
 
-	const handleSave = useCallback(async () => {
+	const handleSave = async () => {
 		if (saving) return;
 		if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
 			setMessage('As novas senhas não coincidem');
@@ -111,7 +111,6 @@ const Dashboard = () => {
 				delete payload.newPassword;
 			}
 			delete payload.confirmPassword;
-			// Google users sem senha: não enviar currentPassword
 			if (!user?.hasPassword) {
 				delete payload.currentPassword;
 			}
@@ -127,7 +126,7 @@ const Dashboard = () => {
 		} finally {
 			setSaving(false);
 		}
-	}, [formData, saving, updateUser]);
+	};
 
 	const handleCancel = () => {
 		setFormData({
