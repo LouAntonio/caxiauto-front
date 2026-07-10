@@ -10,19 +10,13 @@ const ProtectedAdminRoute = ({ children }) => {
 
 	React.useEffect(() => {
 		const validateAdmin = async () => {
-			if (admin) {
-				// Se já temos admin no contexto, confiar nisso
-				setIsAuthenticated(true);
-			} else {
-				// Caso contrário, validar com o servidor
-				const isLoggedIn = await checkIsLoggedIn();
-				setIsAuthenticated(isLoggedIn);
-			}
+			const isLoggedIn = await checkIsLoggedIn();
+			setIsAuthenticated(isLoggedIn);
 			setIsValidating(false);
 		};
 
 		validateAdmin();
-	}, [admin, loading, checkIsLoggedIn]);
+	}, [admin, checkIsLoggedIn]);
 
 	if (loading || isValidating) {
 		return (

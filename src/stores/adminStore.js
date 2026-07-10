@@ -48,7 +48,9 @@ const useAdminStore = create((set, get) => ({
 
 	checkIsLoggedIn: async () => {
 		try {
-			return !!localStorage.getItem('caxiauto_admin_token');
+			if (!localStorage.getItem('caxiauto_admin_token')) return false;
+			const data = await api.adminIsLoggedIn();
+			return data.success === true;
 		} catch {
 			return false;
 		}
