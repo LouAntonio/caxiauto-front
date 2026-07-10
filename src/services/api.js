@@ -70,7 +70,7 @@ const api = {
 	unlinkGoogle: () => api.delete('/users/unlink-google'),
 
 	// ==================== USUÁRIOS (ADMIN) ====================
-	listUsers: (params = {}) => api.post('/users/list', params, {}, true),
+	listUsers: (params = {}) => api.get('/users/list', { params }, true),
 
 	updateUserRole: (userId, role) => api.patch('/users/update-role', { userId, role }, {}, true),
 

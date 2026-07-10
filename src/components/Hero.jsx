@@ -1,32 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api from '../services/api'
+import { useManufacturers } from '../hooks/queries/useManufacturers'
 import { FUEL_TYPES, TRANSMISSION_TYPES } from '../constants/filters'
 import { Car, CalendarClock } from 'lucide-react'
 
 export default function Hero() {
 	const navigate = useNavigate()
-	const [manufacturers, setManufacturers] = useState([])
+	const { data: manufacturers = [] } = useManufacturers()
 	const [mode, setMode] = useState('COMPRA')
 	const [filters, setFilters] = useState({
 		marca: '',
 		combustivel: '',
 		transmissao: ''
 	})
-
-	useEffect(() => {
-		const fetchManufacturers = async () => {
-			try {
-				const response = await api.getManufacturers()
-				if (response.success && response.data) {
-					setManufacturers(response.data)
-				}
-			} catch (error) {
-				console.error('Erro ao buscar fabricantes:', error)
-			}
-		}
-		fetchManufacturers()
-	}, [])
 
 	const [heroLineDrawn, setHeroLineDrawn] = useState(
 		() => window.matchMedia('(prefers-reduced-motion: reduce)').matches
