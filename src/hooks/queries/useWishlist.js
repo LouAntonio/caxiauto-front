@@ -3,11 +3,11 @@ import api from '../../services/api';
 import useAuthStore from '../../stores/authStore';
 
 export const useWishlist = () => {
-	const { isAuthenticated } = useAuthStore();
+	const user = useAuthStore((s) => s.user);
 	return useQuery({
 		queryKey: ['wishlist'],
 		queryFn: () => api.getWishlist(),
-		enabled: isAuthenticated,
+		enabled: !!user,
 		select: (res) => {
 			if (!res.success) return { vehicles: [], pecas: [] };
 			return {

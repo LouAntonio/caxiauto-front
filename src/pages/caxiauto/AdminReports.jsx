@@ -17,7 +17,9 @@ const AdminReports = () => {
 	const params = { page: pagination.currentPage, limit: 10 };
 	if (activeTab !== 'all') params.status = activeTab;
 	if (filters.reason) params.reason = filters.reason;
-	const { data: reports, isLoading: loading } = useAllReports(params);
+	const { data: reportsData, isLoading: loading } = useAllReports(params);
+	const reports = reportsData?.data || [];
+	const paginationData = reportsData?.pagination || { total: 0, totalPages: 1 };
 
 	const handleSearch = (e) => { e.preventDefault(); setPagination({ ...pagination, currentPage: 1 }); };
 	const handleClearSearch = () => { setSearchInput(''); setFilters({ reason: '' }); setPagination({ ...pagination, currentPage: 1 }); };
@@ -121,11 +123,11 @@ const AdminReports = () => {
 				}
 			</div>
 
-			{pagination.totalPages > 1 && (
+			{paginationData.totalPages > 1 && (
 				<div className="flex items-center justify-center gap-2">
 					<button onClick={() => setPagination({ ...pagination, currentPage: pagination.currentPage - 1 })} disabled={pagination.currentPage === 1} className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50">Anterior</button>
-					<span className="text-sm text-gray-600">Página {pagination.currentPage} de {pagination.totalPages}</span>
-					<button onClick={() => setPagination({ ...pagination, currentPage: pagination.currentPage + 1 })} disabled={pagination.currentPage === pagination.totalPages} className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50">Próxima</button>
+					<span className="text-sm text-gray-600">Página {pagination.currentPage} de {paginationData.totalPages}</span>
+					<button onClick={() => setPagination({ ...pagination, currentPage: pagination.currentPage + 1 })} disabled={pagination.currentPage === paginationData.totalPages} className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50">Próxima</button>
 				</div>
 			)}
 

@@ -5,7 +5,13 @@ export const useMyReports = (params = {}) => {
 	return useQuery({
 		queryKey: ['reports', 'my', params],
 		queryFn: () => api.getMyReports(params),
-		select: (res) => (res.success ? res.data : []),
+		select: (res) => {
+			if (!res.success) return { data: [], pagination: { total: 0, totalPages: 1, page: params.page || 1 } };
+			return {
+				data: res.data || [],
+				pagination: res.pagination || { total: 0, totalPages: 1, page: params.page || 1 }
+			};
+		},
 	});
 };
 
@@ -13,7 +19,13 @@ export const useAllReports = (params = {}) => {
 	return useQuery({
 		queryKey: ['reports', 'all', params],
 		queryFn: () => api.getAllReports(params),
-		select: (res) => (res.success ? res.data : []),
+		select: (res) => {
+			if (!res.success) return { data: [], pagination: { total: 0, totalPages: 1, page: params.page || 1 } };
+			return {
+				data: res.data || [],
+				pagination: res.pagination || { total: 0, totalPages: 1, page: params.page || 1 }
+			};
+		},
 	});
 };
 

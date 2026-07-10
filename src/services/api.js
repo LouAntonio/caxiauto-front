@@ -95,7 +95,7 @@ const api = {
 
 	deleteVehicle: (id) => api.delete(`/vehicles/${id}`, {}, true),
 
-	toggleVehicleStatus: (id, status) => api.put(`/vehicles/${id}/toggle-status`, { status }, {}, true),
+	toggleVehicleStatus: (id, status) => api.put(`/vehicles/${id}/toggle-status`, { status }),
 
 	swapActiveVehicle: (activateId, deactivateId) => api.post('/vehicles/swap-active', { activateId, deactivateId }),
 
@@ -162,7 +162,7 @@ const api = {
 	adminDeletePeca: (id) => api.delete(`/pecas/admin/${id}`, {}, true),
 
 	// ==================== CATEGORIAS DE PEÇAS ====================
-	listCategorias: (params = {}) => api.get('/categorias', { params }, true),
+	listCategorias: (params = {}) => api.get('/categorias', { params }),
 
 	getCategoria: (id) => api.get(`/categorias/${id}`, {}, true),
 

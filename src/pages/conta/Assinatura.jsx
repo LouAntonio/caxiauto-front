@@ -59,7 +59,7 @@ const Assinatura = () => {
 	};
 
 	const uploadToCloudinary = async (file, folder) => {
-		const authResponse = await api.get(`/cloudinary/authorize-upload?folder=${folder}`, {}, true);
+		const authResponse = await api.get(`/cloudinary/authorize-upload?folder=${folder}`);
 		if (!authResponse.success) throw new Error('Falha ao autorizar upload');
 
 		const { cloudname, timestamp, signature, apikey } = authResponse;

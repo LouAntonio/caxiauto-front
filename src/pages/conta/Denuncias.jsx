@@ -26,9 +26,9 @@ const Denuncias = () => {
 	const params = { page, limit: 10 };
 	if (filter) params.status = filter;
 
-	const { data: reports, isLoading } = useMyReports(params);
-	const total = reports?.pagination?.total || 0;
-	const totalPages = reports?.pagination?.totalPages || 1;
+	const { data: reportsData, isLoading } = useMyReports(params);
+	const reports = reportsData?.data || [];
+	const { total = 0, totalPages = 1 } = reportsData?.pagination || {};
 
 	const getStatusBadge = (status) => {
 		const statusConfig = {
