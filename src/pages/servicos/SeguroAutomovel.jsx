@@ -53,10 +53,10 @@ export default function SeguroAutomovel() {
 		try {
 			const response = await api.contactInsurance(formData);
 			if (response.success) {
-				notyf.success(response.msg || 'Pedido de seguro enviado com sucesso!');
+				notyf.success(response.message || 'Pedido de seguro enviado com sucesso!');
 				setFormData({ nome: '', email: '', telefone: '', tipoSeguro: '', tipoViatura: '', mensagem: '' });
 			} else {
-				notyf.error(response.msg || 'Erro ao enviar pedido de seguro');
+				notyf.error(response.message || 'Erro ao enviar pedido de seguro');
 			}
 		} catch (error) {
 			console.error('Erro ao enviar pedido de seguro:', error);

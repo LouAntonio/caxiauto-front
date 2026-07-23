@@ -92,7 +92,7 @@ const ReportModal = ({ targetType, targetId, targetName, onReportSubmitted }) =>
 					onReportSubmitted(response.data);
 				}
 			} else {
-				notyf.error(response.msg || 'Erro ao enviar denúncia');
+				notyf.error(response.message || 'Erro ao enviar denúncia');
 			}
 		} catch (error) {
 			console.error('Erro ao enviar denúncia:', error);

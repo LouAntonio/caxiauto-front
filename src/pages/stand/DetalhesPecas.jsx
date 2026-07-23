@@ -261,7 +261,7 @@ export default function DetalhesPecas() {
 				...contactData
 			})
 			if (response.success) {
-				notyf.success(response.msg || 'Pedido de compra enviado com sucesso!')
+				notyf.success(response.message || 'Pedido de compra enviado com sucesso!')
 				setShowContactModal(false)
 				setPartPurchaseFormData({
 					nome: isAuthenticated ? contactData.nome : '',
@@ -270,7 +270,7 @@ export default function DetalhesPecas() {
 					mensagem: ''
 				})
 			} else {
-				notyf.error(response.msg || 'Erro ao enviar pedido de compra')
+				notyf.error(response.message || 'Erro ao enviar pedido de compra')
 			}
 		} catch (error) {
 			console.error('Erro ao enviar pedido de compra:', error)
@@ -298,7 +298,7 @@ export default function DetalhesPecas() {
 				mensagem: `[Consulta Disponibilidade] ${availabilityFormData.mensagem || ''}`
 			})
 			if (response.success) {
-				notyf.success(response.msg || 'Consulta enviada com sucesso!')
+				notyf.success(response.message || 'Consulta enviada com sucesso!')
 				setShowAvailabilityModal(false)
 				setAvailabilityFormData({
 					nome: isAuthenticated ? contactData.nome : '',
@@ -307,7 +307,7 @@ export default function DetalhesPecas() {
 					mensagem: ''
 				})
 			} else {
-				notyf.error(response.msg || 'Erro ao enviar consulta')
+				notyf.error(response.message || 'Erro ao enviar consulta')
 			}
 		} catch (error) {
 			console.error('Erro ao enviar consulta:', error)

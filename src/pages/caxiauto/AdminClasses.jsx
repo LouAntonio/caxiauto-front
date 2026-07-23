@@ -45,7 +45,7 @@ const AdminClasses = () => {
 				setEditing(null);
 				setFormData({ name: '' });
 			} else {
-				notyf.error(r.msg || 'Erro');
+				notyf.error(r.message || 'Erro');
 			}
 		} catch {
 			notyf.error('Erro ao salvar');
@@ -67,7 +67,7 @@ const AdminClasses = () => {
 			if (r.success) {
 				notyf.success('Eliminada!');
 			} else {
-				notyf.error(r.msg || 'Erro');
+				notyf.error(r.message || 'Erro');
 			}
 		} catch {
 			notyf.error('Erro ao eliminar');

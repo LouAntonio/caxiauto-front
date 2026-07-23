@@ -260,8 +260,8 @@ const Pecas = () => {
 
 			if (response.success) {
 				const successText = editingPeca
-					? response.msg || 'Peça atualizada com sucesso! Aguardando aprovação.'
-					: response.msg || 'Peça cadastrada com sucesso!';
+					? response.message || 'Peça atualizada com sucesso! Aguardando aprovação.'
+					: response.message || 'Peça cadastrada com sucesso!';
 				setMessage({ type: 'success', text: successText });
 				setTimeout(() => {
 					handleCloseModal();
@@ -317,7 +317,7 @@ const Pecas = () => {
 			try {
 				const response = await togglePecaStatus.mutateAsync({ id: pecaId, status: newStatus });
 				if (response.success) {
-					setMessage({ type: 'success', text: response.msg || 'Visibilidade alterada com sucesso!' });
+					setMessage({ type: 'success', text: response.message || 'Visibilidade alterada com sucesso!' });
 					setTimeout(() => setMessage({ type: '', text: '' }), 3000);
 				} else {
 					setMessage({ type: 'error', text: response.message || 'Erro ao alterar visibilidade.' });

@@ -22,7 +22,7 @@ const useAdminStore = create((set, get) => ({
 	login: async (email, password) => {
 		try {
 			const data = await api.adminLogin(email, password);
-			if (!data.success) return { success: false, message: data.msg || 'Erro ao fazer login' };
+			if (!data.success) return { success: false, message: data.message || 'Erro ao fazer login' };
 			const adminData = {
 				id: data.data.id,
 				name: data.data.name,

@@ -82,7 +82,7 @@ const Assinatura = () => {
 			if (response.success) {
 				notyf.success('Pagamento criado! Faça upload do comprovativo.');
 			} else {
-				notyf.error(response.msg || 'Erro ao criar pagamento');
+				notyf.error(response.message || 'Erro ao criar pagamento');
 			}
 		} catch {
 			notyf.error('Erro ao criar pagamento');
@@ -109,7 +109,7 @@ const Assinatura = () => {
 				notyf.success('Pagamento criado! Faça upload do comprovativo.');
 				setSelectedItemId('');
 			} else {
-				notyf.error(response.msg || 'Erro ao criar pagamento');
+				notyf.error(response.message || 'Erro ao criar pagamento');
 			}
 		} catch {
 			notyf.error('Erro ao criar pagamento');
@@ -127,7 +127,7 @@ const Assinatura = () => {
 				notyf.success('Comprovativo enviado com sucesso!');
 				setProofUploads((prev) => ({ ...prev, [paymentId]: null }));
 			} else {
-				notyf.error(response.msg || 'Erro ao enviar comprovativo');
+				notyf.error(response.message || 'Erro ao enviar comprovativo');
 			}
 		} catch {
 			notyf.error('Erro ao fazer upload do comprovativo');
@@ -272,7 +272,7 @@ const Assinatura = () => {
 								if (!window.confirm('Tem certeza que deseja cancelar sua assinatura?')) return;
 								cancelSubscription.mutateAsync().then((res) => {
 									if (res.success) notyf.success('Assinatura cancelada');
-									else notyf.error(res.msg || 'Erro ao cancelar');
+									else notyf.error(res.message || 'Erro ao cancelar');
 								}).catch(() => notyf.error('Erro ao cancelar'));
 							}}
 							loading={cancelSubscription.isPending}

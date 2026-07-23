@@ -288,7 +288,7 @@ export default function DetalhesAluguel() {
 				...contactData
 			})
 			if (response.success) {
-				notyf.success(response.msg || 'Pedido de aluguel enviado com sucesso!')
+				notyf.success(response.message || 'Pedido de aluguel enviado com sucesso!')
 				setShowContactModal(false)
 				setRentalFormData({
 					nome: isAuthenticated ? contactData.nome : '',
@@ -300,7 +300,7 @@ export default function DetalhesAluguel() {
 					mensagem: ''
 				})
 			} else {
-				notyf.error(response.msg || 'Erro ao enviar pedido de aluguel')
+				notyf.error(response.message || 'Erro ao enviar pedido de aluguel')
 			}
 		} catch (error) {
 			console.error('Erro ao enviar pedido de aluguel:', error)

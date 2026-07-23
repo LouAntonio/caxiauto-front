@@ -73,7 +73,7 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 					onBookingCreated(response.data);
 				}
 			} else {
-				notyf.error(response.msg || 'Erro ao criar reserva');
+				notyf.error(response.message || 'Erro ao criar reserva');
 			}
 		} catch (error) {
 			console.error('Erro ao criar reserva:', error);

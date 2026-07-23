@@ -34,10 +34,10 @@ export default function Contato() {
 		try {
 			const response = await sendContactMutation.mutateAsync(formData)
 			if (response.success) {
-				notyf.success(response.msg || 'Mensagem enviada com sucesso!')
+				notyf.success(response.message || 'Mensagem enviada com sucesso!')
 				setFormData({ nome: '', email: '', telefone: '', assunto: '', mensagem: '' })
 			} else {
-				notyf.error(response.msg || 'Erro ao enviar mensagem')
+				notyf.error(response.message || 'Erro ao enviar mensagem')
 			}
 		} catch (error) {
 			console.error('Erro ao enviar contacto:', error)

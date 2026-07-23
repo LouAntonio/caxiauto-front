@@ -69,7 +69,7 @@ axiosInstance.interceptors.response.use(
 		console.error('Erro na requisição:', error);
 		return {
 			success: false,
-			msg: error.response?.data?.msg || error.message || 'Erro ao comunicar com o servidor',
+			message: error.response?.data?.message || error.message || 'Erro ao comunicar com o servidor',
 		};
 	}
 );

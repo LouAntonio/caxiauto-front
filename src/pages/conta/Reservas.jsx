@@ -58,7 +58,7 @@ const Reservas = () => {
 			if (response.success) {
 				notyf.success('Reserva cancelada com sucesso');
 			} else {
-				notyf.error(response.msg || 'Erro ao cancelar reserva');
+				notyf.error(response.message || 'Erro ao cancelar reserva');
 			}
 		} catch (error) {
 			console.error('Erro ao cancelar reserva:', error);

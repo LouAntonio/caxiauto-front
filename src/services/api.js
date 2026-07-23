@@ -60,6 +60,8 @@ const api = {
 
 	updateSellerDocs: (data) => api.put('/users/seller-docs', data),
 
+	getDashboardStats: () => api.get('/users/dashboard/stats'),
+
 	requestPasswordReset: (email) => api.post('/users/request-password-reset', { email }),
 
 	resetPassword: (email, token, newPassword) => api.post('/users/reset-password', { email, token, newPassword }),

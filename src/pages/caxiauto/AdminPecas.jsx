@@ -54,7 +54,7 @@ const AdminPecas = () => {
 					total: response.pagination.totalItems,
 				});
 			} else {
-				notyf.error(response.msg || 'Erro ao carregar peças');
+				notyf.error(response.message || 'Erro ao carregar peças');
 			}
 		} catch (error) {
 			console.error('Erro ao carregar peças:', error);
@@ -200,7 +200,7 @@ const AdminPecas = () => {
 				notyf.success(`Status alterado para ${newStatus}`);
 				loadPecas();
 			} else {
-				notyf.error(response.msg || 'Erro ao atualizar status');
+				notyf.error(response.message || 'Erro ao atualizar status');
 			}
 		} catch (error) {
 			console.error('Erro ao atualizar status:', error);
@@ -216,7 +216,7 @@ const AdminPecas = () => {
 				notyf.success('Peça eliminada com sucesso');
 				loadPecas();
 			} else {
-				notyf.error(response.msg || 'Erro ao eliminar peça');
+				notyf.error(response.message || 'Erro ao eliminar peça');
 			}
 		} catch {
 			notyf.error('Erro ao eliminar peça');

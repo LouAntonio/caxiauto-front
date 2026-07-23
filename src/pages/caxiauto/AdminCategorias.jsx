@@ -37,7 +37,7 @@ const AdminCategorias = () => {
 				setFormData({ name: '' });
 				setEditingCategory(null);
 			} else {
-				notyf.error(response.msg || 'Erro ao salvar categoria');
+				notyf.error(response.message || 'Erro ao salvar categoria');
 			}
 		} catch {
 			notyf.error('Erro ao salvar categoria');
@@ -57,7 +57,7 @@ const AdminCategorias = () => {
 			if (response.success) {
 				notyf.success('Categoria eliminada!');
 			} else {
-				notyf.error(response.msg || 'Erro ao eliminar categoria');
+				notyf.error(response.message || 'Erro ao eliminar categoria');
 			}
 		} catch {
 			notyf.error('Erro ao eliminar categoria');

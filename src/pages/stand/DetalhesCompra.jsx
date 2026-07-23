@@ -268,7 +268,7 @@ export default function DetalhesCompra() {
 				...contactData
 			})
 			if (response.success) {
-				notyf.success(response.msg || 'Proposta enviada com sucesso!')
+				notyf.success(response.message || 'Proposta enviada com sucesso!')
 				setShowContactModal(false)
 				setPurchaseFormData({
 					nome: isAuthenticated ? contactData.nome : '',
@@ -278,7 +278,7 @@ export default function DetalhesCompra() {
 					mensagem: ''
 				})
 			} else {
-				notyf.error(response.msg || 'Erro ao enviar proposta')
+				notyf.error(response.message || 'Erro ao enviar proposta')
 			}
 		} catch (error) {
 			console.error('Erro ao enviar proposta:', error)
@@ -304,7 +304,7 @@ export default function DetalhesCompra() {
 				...contactData
 			})
 			if (response.success) {
-				notyf.success(response.msg || 'Pedido de visita enviado com sucesso!')
+				notyf.success(response.message || 'Pedido de visita enviado com sucesso!')
 				setShowVisitModal(false)
 				setVisitFormData({
 					nome: isAuthenticated ? contactData.nome : '',
@@ -316,7 +316,7 @@ export default function DetalhesCompra() {
 					mensagem: ''
 				})
 			} else {
-				notyf.error(response.msg || 'Erro ao enviar pedido de visita')
+				notyf.error(response.message || 'Erro ao enviar pedido de visita')
 			}
 		} catch (error) {
 			console.error('Erro ao enviar pedido de visita:', error)

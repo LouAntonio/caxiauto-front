@@ -36,7 +36,7 @@ const AdminManufacturers = () => {
 			if (editing) { r = await updateManufacturerMutation.mutateAsync({ id: editing.id, name: formData.name }); }
 			else { r = await createManufacturerMutation.mutateAsync(formData.name); }
 			if (r.success) { notyf.success(editing ? 'Atualizado!' : 'Criado!'); setShowModal(false); setEditing(null); setFormData({ name: '' }); }
-			else notyf.error(r.msg || 'Erro ao salvar');
+			else notyf.error(r.message || 'Erro ao salvar');
 		} catch { notyf.error('Erro ao salvar'); }
 	};
 
@@ -44,7 +44,7 @@ const AdminManufacturers = () => {
 
 	const handleDelete = async (id) => {
 		if (!window.confirm('Eliminar este fabricante?')) return;
-		try { const r = await deleteManufacturerMutation.mutateAsync(id); if (r.success) { notyf.success('Eliminado!'); } else notyf.error(r.msg || 'Erro ao eliminar'); }
+		try { const r = await deleteManufacturerMutation.mutateAsync(id); if (r.success) { notyf.success('Eliminado!'); } else notyf.error(r.message || 'Erro ao eliminar'); }
 		catch { notyf.error('Erro ao eliminar'); }
 	};
 

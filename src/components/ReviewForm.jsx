@@ -45,7 +45,7 @@ const ReviewForm = ({ sellerId, sellerName, onReviewSubmitted }) => {
 					onReviewSubmitted(response.data);
 				}
 			} else {
-				notyf.error(response.msg || 'Erro ao enviar avaliação');
+				notyf.error(response.message || 'Erro ao enviar avaliação');
 			}
 		} catch (error) {
 			console.error('Erro ao enviar avaliação:', error);

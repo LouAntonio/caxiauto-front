@@ -28,6 +28,17 @@ const Dashboard = () => {
 	useDocumentTitle('Dashboard - CaxiAuto');
 
 	const { user, logout, updateUser, refreshUser } = useAuthStore();
+	const [stats, setStats] = useState(null);
+	const [loadingStats, setLoadingStats] = useState(true);
+
+	useEffect(() => {
+		api.getDashboardStats()
+			.then((res) => {
+				if (res.success) setStats(res.data);
+			})
+			.catch(() => {})
+			.finally(() => setLoadingStats(false));
+	}, []);
 	const navigate = useNavigate();
 	const [isEditing, setIsEditing] = useState(false);
 	const [showPwd, setShowPwd] = useState({ current: false, new: false, confirm: false });
@@ -63,7 +74,7 @@ const Dashboard = () => {
 				notyf.success('Conta Google vinculada com sucesso!');
 				refreshUser();
 			} else {
-				notyf.error(result.msg || 'Erro ao vincular Google.');
+				notyf.error(result.message || 'Erro ao vincular Google.');
 			}
 		} catch {
 			notyf.error('Erro ao vincular Google.');
@@ -80,7 +91,7 @@ const Dashboard = () => {
 				notyf.success('Conta Google desvinculada com sucesso!');
 				refreshUser();
 			} else {
-				notyf.error(result.msg || 'Erro ao desvincular Google.');
+				notyf.error(result.message || 'Erro ao desvincular Google.');
 			}
 		} catch {
 			notyf.error('Erro ao desvincular Google.');
@@ -468,13 +479,38 @@ const Dashboard = () => {
 					Estatísticas
 				</h3>
 
-				<div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-8 border border-blue-200 text-center">
-					<BarChart3 className="w-12 h-12 text-[#154c9a] mx-auto mb-4" />
-					<h4 className="text-lg font-semibold text-[#154c9a] mb-2">Estatísticas em Breve</h4>
-					<p className="text-gray-600">
-						Esta funcionalidade estará disponível em breve.
-					</p>
-				</div>
+				{loadingStats ? (
+					<div className="text-center py-8 text-gray-500">A carregar...</div>
+				) : stats ? (
+					<div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+						<div className="bg-blue-50 rounded-lg p-4 text-center">
+							<p className="text-2xl font-bold text-[#154c9a]">{stats.totalVeiculos}</p>
+							<p className="text-sm text-gray-600">Veículos</p>
+						</div>
+						<div className="bg-green-50 rounded-lg p-4 text-center">
+							<p className="text-2xl font-bold text-green-700">{stats.totalPecas}</p>
+							<p className="text-sm text-gray-600">Peças</p>
+						</div>
+						<div className="bg-purple-50 rounded-lg p-4 text-center">
+							<p className="text-2xl font-bold text-purple-700">{stats.totalReservas}</p>
+							<p className="text-sm text-gray-600">Reservas</p>
+						</div>
+						<div className="bg-orange-50 rounded-lg p-4 text-center">
+							<p className="text-2xl font-bold text-orange-700">{stats.reservasRecebidas}</p>
+							<p className="text-sm text-gray-600">Reservas Recebidas</p>
+						</div>
+						<div className="bg-red-50 rounded-lg p-4 text-center">
+							<p className="text-2xl font-bold text-red-700">{stats.totalDenuncias}</p>
+							<p className="text-sm text-gray-600">Denúncias</p>
+						</div>
+						<div className="bg-yellow-50 rounded-lg p-4 text-center">
+							<p className="text-2xl font-bold text-yellow-700">{stats.totalFavoritos}</p>
+							<p className="text-sm text-gray-600">Favoritos</p>
+						</div>
+					</div>
+				) : (
+					<div className="text-center py-8 text-gray-500">Erro ao carregar estatísticas.</div>
+				)}
 			</div>
 		</div>
 	);

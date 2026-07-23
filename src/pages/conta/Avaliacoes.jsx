@@ -51,7 +51,7 @@ const Avaliacoes = () => {
 			if (response.success) {
 				notyf.success('Avaliação excluída com sucesso');
 			} else {
-				notyf.error(response.msg || 'Erro ao excluir avaliação');
+				notyf.error(response.message || 'Erro ao excluir avaliação');
 			}
 		} catch (error) {
 			console.error('Erro ao excluir avaliação:', error);

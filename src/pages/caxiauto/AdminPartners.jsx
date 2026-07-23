@@ -119,7 +119,7 @@ const AdminPartners = () => {
 				setBannerFile(null);
 				setBannerPreview('');
 			} else {
-				notyf.error(response.msg || 'Erro ao salvar parceiro');
+				notyf.error(response.message || 'Erro ao salvar parceiro');
 			}
 		} catch (error) {
 			console.error('Erro ao salvar parceiro:', error);
@@ -154,7 +154,7 @@ const AdminPartners = () => {
 			if (response.success) {
 				notyf.success('Parceiro eliminado!');
 			} else {
-				notyf.error(response.msg || 'Erro ao eliminar parceiro');
+				notyf.error(response.message || 'Erro ao eliminar parceiro');
 			}
 		} catch {
 			notyf.error('Erro ao eliminar parceiro');
@@ -168,7 +168,7 @@ const AdminPartners = () => {
 			if (response.success) {
 				notyf.success(`Parceiro ${newStatus === 'ACTIVE' ? 'ativado' : 'desativado'}!`);
 			} else {
-				notyf.error(response.msg || 'Erro ao alterar status');
+				notyf.error(response.message || 'Erro ao alterar status');
 			}
 		} catch {
 			notyf.error('Erro ao alterar status');

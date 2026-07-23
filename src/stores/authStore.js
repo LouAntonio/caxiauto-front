@@ -22,7 +22,7 @@ const useAuthStore = create((set, get) => ({
 	login: async (email, password) => {
 		const data = await api.login(email, password);
 		if (!data.success) {
-			return { success: false, message: data.msg || 'Erro ao fazer login' };
+			return { success: false, message: data.message || 'Erro ao fazer login' };
 		}
 		const userData = {
 			id: data.data.id,
@@ -50,20 +50,20 @@ const useAuthStore = create((set, get) => ({
 
 	checkEmail: async (email) => {
 		const data = await api.checkEmail(email);
-		if (!data.success) return { success: false, message: data.msg || 'Erro ao verificar email' };
-		return { success: true, message: data.msg };
+		if (!data.success) return { success: false, message: data.message || 'Erro ao verificar email' };
+		return { success: true, message: data.message };
 	},
 
 	verifyOTP: async (email, code) => {
 		const data = await api.verifyOTP(email, code);
-		if (!data.success) return { success: false, message: data.msg || 'Erro ao verificar código' };
-		return { success: true, message: data.msg };
+		if (!data.success) return { success: false, message: data.message || 'Erro ao verificar código' };
+		return { success: true, message: data.message };
 	},
 
 	resendOTP: async (email) => {
 		const data = await api.resendOTP(email);
-		if (!data.success) return { success: false, message: data.msg || 'Erro ao reenviar código' };
-		return { success: true, message: data.msg };
+		if (!data.success) return { success: false, message: data.message || 'Erro ao reenviar código' };
+		return { success: true, message: data.message };
 	},
 
 	completeRegistration: async (userData) => {
@@ -75,21 +75,21 @@ const useAuthStore = create((set, get) => ({
 			password: userData.password,
 		});
 		if (!data.success) {
-			return { success: false, message: data.msg || 'Erro ao completar registro' };
+			return { success: false, message: data.message || 'Erro ao completar registro' };
 		}
-		return { success: true, message: data.msg };
+		return { success: true, message: data.message };
 	},
 
 	requestPasswordReset: async (email) => {
 		const data = await api.requestPasswordReset(email);
-		if (!data.success) return { success: false, message: data.msg || 'Erro ao solicitar recuperação de senha' };
-		return { success: true, message: data.msg };
+		if (!data.success) return { success: false, message: data.message || 'Erro ao solicitar recuperação de senha' };
+		return { success: true, message: data.message };
 	},
 
 	resetPassword: async (email, token, newPassword) => {
 		const data = await api.resetPassword(email, token, newPassword);
-		if (!data.success) return { success: false, message: data.msg || 'Erro ao resetar senha' };
-		return { success: true, message: data.msg };
+		if (!data.success) return { success: false, message: data.message || 'Erro ao resetar senha' };
+		return { success: true, message: data.message };
 	},
 
 	updateUser: async (updatedData) => {
@@ -99,7 +99,7 @@ const useAuthStore = create((set, get) => ({
 			const payload = { ...updatedData };
 			delete payload.confirmPassword;
 			const response = await api.updateProfile(payload);
-			if (!response.success) return { success: false, message: response.msg || 'Erro ao atualizar perfil' };
+			if (!response.success) return { success: false, message: response.message || 'Erro ao atualizar perfil' };
 			const { user: currentUser } = get();
 			const serverData = response.data || {};
 			const updatedUser = { ...currentUser, ...serverData };
@@ -117,7 +117,7 @@ const useAuthStore = create((set, get) => ({
 	googleLogin: async (credential) => {
 		const data = await api.googleLogin(credential);
 		if (!data.success) {
-			return { success: false, message: data.msg || 'Erro ao fazer login com Google' };
+			return { success: false, message: data.message || 'Erro ao fazer login com Google' };
 		}
 		const userData = {
 			id: data.data.id,
