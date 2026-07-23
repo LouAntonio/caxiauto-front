@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import api, { getImageUrl, notyf } from '../services/api';
 import {
 	User,
@@ -19,15 +19,20 @@ import {
 import ReviewForm from '../components/ReviewForm';
 import useDocumentTitle from '../hooks/useDocumentTitle';
 import { useReviewSummary } from '../hooks/queries/useReviews';
+import useChatStore from '../stores/chatStore';
+import useAuthStore from '../stores/authStore';
 
 const PerfilVendedor = () => {
 	const { id } = useParams();
+	const navigate = useNavigate();
 	useDocumentTitle('Perfil do Vendedor - CaxiAuto');
 
 	const [loading, setLoading] = useState(true);
 	const [seller, setSeller] = useState(null);
 	const [vehicles, setVehicles] = useState([]);
 	const [parts, setParts] = useState([]);
+	const { createConversation: startChat, openChat } = useChatStore();
+	const { user, isAuthenticated } = useAuthStore();
 	const [reviewsPage, setReviewsPage] = useState(1);
 
 	useEffect(() => {
@@ -466,6 +471,17 @@ const PerfilVendedor = () => {
 										</div>
 									</a>
 								)}
+								<button
+									onClick={async () => {
+										if (!isAuthenticated) { notyf.error('Faça login para enviar mensagens'); navigate('/auth'); return }
+										const res = await startChat(seller.id)
+										if (res.success) openChat()
+									}}
+									className="w-full bg-[#154c9a] hover:bg-[#123f80] text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+								>
+									<MessageSquare className="w-5 h-5" />
+									Enviar Mensagem
+								</button>
 							</div>
 						</div>
 					</div>

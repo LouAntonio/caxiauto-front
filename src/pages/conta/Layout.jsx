@@ -13,6 +13,7 @@ import {
 	Star,
 	AlertTriangle,
 	Wrench,
+	MessageSquare,
 	Menu,
 	X
 } from 'lucide-react';
@@ -72,6 +73,11 @@ const ContaLayout = () => {
 			icon: AlertTriangle,
 			title: 'Denúncias',
 			path: '/minha-conta/denuncias',
+		},
+		{
+			icon: MessageSquare,
+			title: 'Mensagens',
+			path: '/minha-conta/mensagens',
 		},
 	];
 

@@ -36,6 +36,7 @@ import Assinatura from './pages/conta/Assinatura'
 import Avaliacoes from './pages/conta/Avaliacoes'
 import Denuncias from './pages/conta/Denuncias'
 import Pecas from './pages/conta/Pecas'
+import Mensagens from './pages/conta/Mensagens'
 import PerfilVendedor from './pages/PerfilVendedor'
 import Legal from './pages/Legal'
 // Admin Pages
@@ -56,6 +57,10 @@ import AdminPlans from './pages/caxiauto/AdminPlans'
 import AdminHighlightPlans from './pages/caxiauto/AdminHighlightPlans'
 import AdminPayments from './pages/caxiauto/AdminPayments'
 import Comercial from './pages/Comercial'
+import ChatButton from './components/chat/ChatButton'
+import ChatDrawer from './components/chat/ChatDrawer'
+import useAuthStore from './stores/authStore'
+import useChatStore from './stores/chatStore'
 
 
 function Analytics() {
@@ -64,6 +69,28 @@ function Analytics() {
 	useEffect(() => {
 		pageview(location.pathname + location.search);
 	}, [location]);
+
+	return null;
+}
+
+function ChatInit() {
+	const { user } = useAuthStore();
+	const { initSocket, destroySocket, fetchConversations } = useChatStore();
+
+	useEffect(() => {
+		if (user) {
+			const token = localStorage.getItem('caxiauto_token');
+			if (token) {
+				initSocket(token);
+				fetchConversations();
+			}
+		} else {
+			destroySocket();
+		}
+		return () => {
+			destroySocket();
+		};
+	}, [user, initSocket, destroySocket, fetchConversations]);
 
 	return null;
 }
@@ -78,6 +105,7 @@ function AppContent() {
 			<ScrollToTop />
 			{!isAdminRoute && <Header />}
 			{!isAdminRoute && <GoogleOneTapPrompt />}
+			<ChatInit />
 			<Routes>
 				<Route path="/" element={<Home />} />
 				<Route path="/sobre" element={<Sobre />} />
@@ -129,6 +157,7 @@ function AppContent() {
 					<Route path="assinatura" element={<Assinatura />} />
 					<Route path="avaliacoes" element={<Avaliacoes />} />
 					<Route path="denuncias" element={<Denuncias />} />
+				<Route path="mensagens" element={<Mensagens />} />
 				</Route>
 
 				{/* Admin Routes - Painel Administrativo */}
@@ -163,6 +192,8 @@ function AppContent() {
 
 			</Routes>
 			{!isAdminRoute && <Footer />}
+			{!isAdminRoute && <ChatButton />}
+			{!isAdminRoute && <ChatDrawer />}
 		</>
 	)
 }

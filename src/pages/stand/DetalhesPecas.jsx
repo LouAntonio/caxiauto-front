@@ -14,11 +14,13 @@ import {
 	User,
 	Loader2,
 	Heart,
-	Tag
+	Tag,
+	MessageSquare
 } from 'lucide-react'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { getImageUrl, notyf } from '../../services/api'
 import useAuthStore from '../../stores/authStore'
+import useChatStore from '../../stores/chatStore'
 import { PecaDetailSkeleton } from '../../components/skeletons'
 import { usePeca } from '../../hooks/queries/usePecas'
 import { useWishlist, useAddPecaToWishlist, useRemovePecaFromWishlist } from '../../hooks/queries/useWishlist'
@@ -27,6 +29,7 @@ export default function DetalhesPecas() {
 	const { id } = useParams()
 	const navigate = useNavigate()
 	const { user, isAuthenticated } = useAuthStore()
+	const { createConversation: startChat, openChat } = useChatStore()
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [showContactModal, setShowContactModal] = useState(false)
 	const [showAvailabilityModal, setShowAvailabilityModal] = useState(false)
@@ -571,6 +574,20 @@ export default function DetalhesPecas() {
 								>
 									Consultar Disponibilidade
 								</button>
+
+								{peca?.Seller && (
+									<button
+										onClick={async () => {
+											if (!isAuthenticated) { notyf.error('Faça login para enviar mensagens'); navigate('/auth'); return }
+											const res = await startChat(peca.Seller.id, null, peca.id)
+											if (res.success) openChat()
+										}}
+										className="w-full bg-[#eef3fa] hover:bg-[#dce5f5] text-[#154c9a] font-bold py-4 rounded-2xl transition-all shadow-sm hover:shadow-md transform hover:scale-[1.02] cursor-pointer font-body flex items-center justify-center gap-2 mt-3"
+									>
+										<MessageSquare className="w-5 h-5" />
+										Falar com Vendedor
+									</button>
+								)}
 							</div>
 
 							{/* Informações */}

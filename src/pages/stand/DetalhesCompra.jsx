@@ -18,11 +18,13 @@ import {
 	X,
 	Loader2,
 	Heart,
-	Wallet
+	Wallet,
+	MessageSquare
 } from 'lucide-react'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { API_URL, getImageUrl, notyf } from '../../services/api'
 import useAuthStore from '../../stores/authStore'
+import useChatStore from '../../stores/chatStore'
 import { VehicleDetailSkeleton } from '../../components/skeletons'
 import { useVehicle } from '../../hooks/queries/useVehicles'
 import { useWishlist, useAddVehicleToWishlist, useRemoveVehicleFromWishlist } from '../../hooks/queries/useWishlist'
@@ -55,6 +57,7 @@ export default function DetalhesCompra() {
 	})
 	const [purchaseLoading, setPurchaseLoading] = useState(false)
 	const [visitLoading, setVisitLoading] = useState(false)
+	const { createConversation: startChat, openChat } = useChatStore()
 
 	const getAuthContactData = useCallback(() => ({
 		nome: (user?.name || '').trim(),
@@ -626,6 +629,20 @@ export default function DetalhesCompra() {
 								>
 									Agendar Visita
 								</button>
+
+								{vehicle?.seller && (
+									<button
+										onClick={async () => {
+											if (!isAuthenticated) { notyf.error('Faça login para enviar mensagens'); navigate('/auth'); return }
+											const res = await startChat(vehicle.seller.id, vehicle.id, null)
+											if (res.success) openChat()
+										}}
+										className="w-full bg-[#eef3fa] hover:bg-[#dce5f5] text-[#154c9a] font-bold py-4 rounded-2xl transition-all shadow-sm hover:shadow-md transform hover:scale-[1.02] cursor-pointer font-body flex items-center justify-center gap-2"
+									>
+										<MessageSquare className="w-5 h-5" />
+										Falar com Vendedor
+									</button>
+								)}
 							</div>
 
 							{/* Contato */}

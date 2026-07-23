@@ -359,6 +359,19 @@ const api = {
 
 	listCategoriasPecas: (params = {}) => api.get('/categorias', { params }),
 
+	// ==================== CHAT ====================
+	createConversation: (data) => api.post('/chat/conversations', data),
+
+	listConversations: () => api.get('/chat/conversations'),
+
+	getConversation: (id) => api.get(`/chat/conversations/${id}`),
+
+	getMessages: (id, cursor) => api.get(`/chat/conversations/${id}/messages`, { params: { cursor, limit: 30 } }),
+
+	markAsRead: (id) => api.patch(`/chat/conversations/${id}/read`),
+
+	getUnreadCount: () => api.get('/chat/unread-count'),
+
 	// ==================== CONTACTO ====================
 	contact: (data) => api.post('/contact', data),
 

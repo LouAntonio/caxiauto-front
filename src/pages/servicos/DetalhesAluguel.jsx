@@ -17,11 +17,13 @@ import {
 	CheckCircle2,
 	X,
 	Loader2,
-	Heart
+	Heart,
+	MessageSquare
 } from 'lucide-react'
 import useDocumentTitle from '../../hooks/useDocumentTitle'
 import api, { API_URL, getImageUrl, notyf } from '../../services/api'
 import useAuthStore from '../../stores/authStore'
+import useChatStore from '../../stores/chatStore'
 import BookingForm from '../../components/BookingForm'
 import { VehicleDetailSkeleton } from '../../components/skeletons'
 import { useVehicle } from '../../hooks/queries/useVehicles'
@@ -48,6 +50,7 @@ export default function DetalhesAluguel() {
 		mensagem: ''
 	})
 	const [rentalLoading, setRentalLoading] = useState(false)
+	const { createConversation: startChat, openChat } = useChatStore()
 
 	const getAuthContactData = useCallback(() => ({
 		nome: (user?.name || '').trim(),
@@ -645,6 +648,20 @@ export default function DetalhesAluguel() {
 										}`}
 									>
 										{rentalPlans.length > 0 ? 'Solicitar Aluguel' : 'Entre em Contato'}
+									</button>
+								)}
+
+								{vehicle?.seller && (
+									<button
+										onClick={async () => {
+											if (!isAuthenticated) { notyf.error('Faça login para enviar mensagens'); navigate('/auth'); return }
+											const res = await startChat(vehicle.seller.id, vehicle.id, null)
+											if (res.success) openChat()
+										}}
+										className="w-full bg-[#eef3fa] hover:bg-[#dce5f5] text-[#154c9a] font-bold py-4 rounded-2xl transition-all shadow-sm hover:shadow-md transform hover:scale-[1.02] cursor-pointer font-body flex items-center justify-center gap-2 mt-3"
+									>
+										<MessageSquare className="w-5 h-5" />
+										Falar com Vendedor
 									</button>
 								)}
 							</div>
