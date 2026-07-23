@@ -329,7 +329,7 @@ const api = {
 	// ==================== ADMIN - PARCEIROS ====================
 	listPartners: (params = {}) => api.get('/partners', { params }, true),
 
-	getPartner: (id) => api.get(`/partners/${id}`, {}, true),
+	getPartner: (id) => api.get(`/partners/${id}`),
 
 	createPartner: (data) => api.post('/partners', data, {}, true),
 

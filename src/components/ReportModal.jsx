@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { notyf } from '../../services/api';
-import { useCreateReport } from '../../hooks/queries/useReports';
+import { notyf } from '../services/api';
+import { useCreateReport } from '../hooks/queries/useReports';
 import {
 	AlertTriangle,
 	X,
