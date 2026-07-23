@@ -49,8 +49,9 @@ export default function Mensagens() {
 
 	const activeConv = conversations.find((c) => c.id === activeConversationId);
 	const otherParticipant = activeConv?.participants?.find((p) => p.user.id !== user?.id);
+	const otherIsAdmin = otherParticipant?.user?.role === 'ADMIN';
 	const otherName = otherParticipant
-		? `${otherParticipant.user.name} ${otherParticipant.user.surname}`
+		? otherIsAdmin ? 'Caxiauto' : `${otherParticipant.user.name} ${otherParticipant.user.surname}`
 		: '';
 
 	const convMessages = messages[activeConversationId] || [];
@@ -81,9 +82,8 @@ export default function Mensagens() {
 								const other = conv.participants?.find((p) => p.user.id !== user?.id);
 								const pu = other?.user;
 								const lastMsg = conv.messages?.[0];
-								const initials = pu
-									? `${pu.name.charAt(0)}${pu.surname.charAt(0)}`
-									: '??';
+								const convIsAdmin = pu?.role === 'ADMIN';
+								const displayName = convIsAdmin ? 'Caxiauto' : pu ? `${pu.name} ${pu.surname}` : 'Desconhecido';
 
 								return (
 									<button
@@ -93,13 +93,19 @@ export default function Mensagens() {
 											activeConversationId === conv.id ? 'bg-[#eef3fa]' : ''
 										}`}
 									>
-										<div className="w-10 h-10 bg-[#eef3fa] rounded-full flex items-center justify-center flex-shrink-0">
-											<span className="text-[#154c9a] font-display font-bold text-sm">{initials}</span>
+										<div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-[#eef3fa] flex items-center justify-center">
+											{convIsAdmin ? (
+												<img src="/images/logos/iconBG.png" alt="Caxiauto" className="w-full h-full object-cover" />
+											) : (
+												<span className="text-[#154c9a] font-display font-bold text-sm">
+													{pu ? `${pu.name.charAt(0)}${pu.surname.charAt(0)}` : '??'}
+												</span>
+											)}
 										</div>
 										<div className="flex-1 min-w-0">
 											<div className="flex items-center justify-between gap-2">
 												<span className="font-body font-semibold text-sm text-[#111827] truncate">
-													{pu ? `${pu.name} ${pu.surname}` : 'Desconhecido'}
+													{displayName}
 												</span>
 												<span className="font-body text-xs text-[#9ca3af] flex-shrink-0">
 													{formatTime(lastMsg?.createdAt)}
@@ -132,12 +138,16 @@ export default function Mensagens() {
 								>
 									<ArrowLeft className="w-5 h-5 text-[#6b7280]" />
 								</button>
-								<div className="w-9 h-9 bg-[#eef3fa] rounded-full flex items-center justify-center flex-shrink-0">
-									<span className="text-[#154c9a] font-display font-bold text-xs">
-										{otherParticipant
-											? `${otherParticipant.user.name.charAt(0)}${otherParticipant.user.surname.charAt(0)}`
-											: '??'}
-									</span>
+								<div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 bg-[#eef3fa] flex items-center justify-center">
+									{otherIsAdmin ? (
+										<img src="/images/logos/iconBG.png" alt="Caxiauto" className="w-full h-full object-cover" />
+									) : (
+										<span className="text-[#154c9a] font-display font-bold text-xs">
+											{otherParticipant
+												? `${otherParticipant.user.name.charAt(0)}${otherParticipant.user.surname.charAt(0)}`
+												: '??'}
+										</span>
+									)}
 								</div>
 								<div>
 									<span className="font-display font-bold text-sm text-[#111827]">{otherName}</span>
@@ -167,7 +177,7 @@ export default function Mensagens() {
 								{typingUser && (
 									<div className="flex justify-start mb-2">
 										<div className="bg-[#f5f5f5] rounded-l-2xl rounded-tr-2xl px-4 py-2.5">
-											<p className="font-body text-sm text-[#6b7280] italic">escrevendo...</p>
+											<p className="font-body text-sm text-[#6b7280] italic">{typingUser}</p>
 										</div>
 									</div>
 								)}

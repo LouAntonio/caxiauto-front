@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import api, { notyf } from '../services/api';
 import { connectSocket, disconnectSocket, getSocket } from '../services/socket';
+import useAuthStore from './authStore';
 
 const useChatStore = create((set, get) => ({
 	conversations: [],
@@ -62,16 +63,22 @@ const useChatStore = create((set, get) => ({
 			set({ unreadCount: count });
 		});
 
-		socket.on('typing', ({ conversationId, userId }) => {
+		socket.on('typing', ({ conversationId }) => {
 			const conversations = get().conversations;
 			const conv = conversations.find((c) => c.id === conversationId);
 			if (!conv) return;
-			const otherUser = conv.participants.find((p) => p.user.id !== get().activeUserId);
+			const currentUserId = useAuthStore.getState().user?.id;
+			const otherUser = conv.participants.find((p) => p.user.id !== currentUserId);
+			const typingName = otherUser?.user?.role === 'ADMIN'
+				? 'Caxiauto está a escrever...'
+				: otherUser
+					? `${otherUser.user.name} ${otherUser.user.surname} está a escrever...`
+					: '';
 
 			set({
 				typingUsers: {
 					...get().typingUsers,
-					[conversationId]: otherUser?.user?.name || 'Alguém',
+					[conversationId]: typingName,
 				},
 			});
 		});

@@ -22,8 +22,9 @@ export default function ChatConversation({ conversationId }) {
 	const otherParticipant = conversation?.participants?.find(
 		(p) => p.user.id !== user?.id
 	);
+	const isAdmin = otherParticipant?.user?.role === 'ADMIN';
 	const otherName = otherParticipant
-		? `${otherParticipant.user.name} ${otherParticipant.user.surname}`
+		? isAdmin ? 'Caxiauto' : `${otherParticipant.user.name} ${otherParticipant.user.surname}`
 		: 'Carregando...';
 
 	const scrollRef = useRef(null);
@@ -77,12 +78,16 @@ export default function ChatConversation({ conversationId }) {
 	return (
 		<div className="flex flex-col h-full">
 			<div className="flex items-center gap-3 px-5 py-3 border-b border-[#e5e7eb] bg-white">
-				<div className="w-9 h-9 bg-[#eef3fa] rounded-full flex items-center justify-center flex-shrink-0">
-					<span className="text-[#154c9a] font-display font-bold text-xs">
-						{otherParticipant
-							? `${otherParticipant.user.name.charAt(0)}${otherParticipant.user.surname.charAt(0)}`
-							: '??'}
-					</span>
+				<div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 bg-[#eef3fa] flex items-center justify-center">
+					{isAdmin ? (
+						<img src="/images/logos/iconBG.png" alt="Caxiauto" className="w-full h-full object-cover" />
+					) : (
+						<span className="text-[#154c9a] font-display font-bold text-xs">
+							{otherParticipant
+								? `${otherParticipant.user.name.charAt(0)}${otherParticipant.user.surname.charAt(0)}`
+								: '??'}
+						</span>
+					)}
 				</div>
 				<div>
 					<span className="font-display font-bold text-sm text-[#111827]">{otherName}</span>
@@ -130,7 +135,7 @@ export default function ChatConversation({ conversationId }) {
 				{typingUser && (
 					<div className="flex justify-start mb-2">
 						<div className="bg-[#f5f5f5] mr-2 rounded-l-2xl rounded-tr-2xl px-4 py-2.5">
-							<p className="font-body text-sm text-[#6b7280] italic">{typingUser} está a escrever...</p>
+							<p className="font-body text-sm text-[#6b7280] italic">{typingUser}</p>
 						</div>
 					</div>
 				)}

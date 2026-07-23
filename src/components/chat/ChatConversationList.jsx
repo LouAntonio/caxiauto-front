@@ -48,17 +48,15 @@ export default function ChatConversationList() {
 	return (
 		<div className="overflow-y-auto h-full">
 			{conversations.map((conv) => {
-				const otherParticipant = conv.participants?.find(
-					(p) => p.user.id !== user?.id
-				);
+		const otherParticipant = conv.participants?.find(
+				(p) => p.user.id !== user?.id
+			);
 				const participantUser = otherParticipant?.user;
 				const lastMsg = conv.messages?.[0];
-				const name = participantUser
+				const isAdmin = participantUser?.role === 'ADMIN';
+				const displayName = isAdmin ? 'Caxiauto' : participantUser
 					? `${participantUser.name} ${participantUser.surname}`
 					: 'Desconhecido';
-				const initials = participantUser
-					? `${participantUser.name.charAt(0)}${participantUser.surname.charAt(0)}`
-					: '??';
 
 				return (
 					<button
@@ -69,15 +67,19 @@ export default function ChatConversationList() {
 						}}
 						className="w-full flex items-start gap-3 px-5 py-4 hover:bg-[#f8f6f2] transition-colors border-b border-[#e5e7eb] text-left cursor-pointer"
 					>
-						<div className="w-10 h-10 bg-[#eef3fa] rounded-full flex items-center justify-center flex-shrink-0">
-							<span className="text-[#154c9a] font-display font-bold text-sm">
-								{initials}
-							</span>
+						<div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-[#eef3fa] flex items-center justify-center">
+							{isAdmin ? (
+								<img src="/images/logos/iconBG.png" alt="Caxiauto" className="w-full h-full object-cover" />
+							) : (
+								<span className="text-[#154c9a] font-display font-bold text-sm">
+									{participantUser ? `${participantUser.name.charAt(0)}${participantUser.surname.charAt(0)}` : '??'}
+								</span>
+							)}
 						</div>
 						<div className="flex-1 min-w-0">
 							<div className="flex items-center justify-between gap-2">
 								<span className="font-body font-semibold text-sm text-[#111827] truncate">
-									{name}
+									{displayName}
 								</span>
 								<span className="font-body text-xs text-[#9ca3af] flex-shrink-0">
 									{formatTime(lastMsg?.createdAt)}
