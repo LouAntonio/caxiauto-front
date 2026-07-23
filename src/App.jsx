@@ -158,7 +158,7 @@ function AppContent() {
 					<Route path="assinatura" element={<Assinatura />} />
 					<Route path="avaliacoes" element={<Avaliacoes />} />
 					<Route path="denuncias" element={<Denuncias />} />
-				<Route path="mensagens" element={<Mensagens />} />
+					<Route path="mensagens" element={<Mensagens />} />
 				</Route>
 
 				{/* Admin Routes - Painel Administrativo */}
@@ -186,7 +186,7 @@ function AppContent() {
 					<Route path="planos" element={<AdminPlans />} />
 					<Route path="planos-destaque" element={<AdminHighlightPlans />} />
 					<Route path="pagamentos" element={<AdminPayments />} />
-				<Route path="mensagens" element={<AdminMensagens />} />
+					<Route path="mensagens" element={<AdminMensagens />} />
 				</Route>
 
 				{/* 404 route - keep last */}

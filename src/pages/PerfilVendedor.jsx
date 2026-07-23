@@ -32,7 +32,7 @@ const PerfilVendedor = () => {
 	const [vehicles, setVehicles] = useState([]);
 	const [parts, setParts] = useState([]);
 	const { createConversation: startChat, openChat } = useChatStore();
-	const { user, isAuthenticated } = useAuthStore();
+	const { isAuthenticated } = useAuthStore();
 	const [reviewsPage, setReviewsPage] = useState(1);
 
 	useEffect(() => {

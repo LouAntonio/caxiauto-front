@@ -48,9 +48,9 @@ export default function ChatConversationList() {
 	return (
 		<div className="overflow-y-auto h-full">
 			{conversations.map((conv) => {
-		const otherParticipant = conv.participants?.find(
-				(p) => p.user.id !== user?.id
-			);
+				const otherParticipant = conv.participants?.find(
+					(p) => p.user.id !== user?.id
+				);
 				const participantUser = otherParticipant?.user;
 				const lastMsg = conv.messages?.[0];
 				const isAdmin = participantUser?.role === 'ADMIN';

@@ -25,7 +25,7 @@ const useChatStore = create((set, get) => ({
 		});
 
 		socket.on('new_message', (message) => {
-			const { messages, activeConversationId } = get();
+			const { messages } = get();
 			const convMessages = messages[message.conversationId] || [];
 
 			set({
@@ -46,7 +46,7 @@ const useChatStore = create((set, get) => ({
 		});
 
 		socket.on('messages_read', ({ conversationId, userId }) => {
-			const { messages, activeConversationId } = get();
+			const { messages } = get();
 			const convMessages = (messages[conversationId] || []).map((m) => {
 				if (m.senderId !== userId && !m.readAt) {
 					return { ...m, readAt: new Date().toISOString() };
@@ -162,7 +162,7 @@ const useChatStore = create((set, get) => ({
 			}
 			notyf.error(res.message || 'Erro ao criar conversa');
 			return { success: false, message: res.message };
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao criar conversa');
 			return { success: false, message: 'Erro ao criar conversa' };
 		}
