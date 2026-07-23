@@ -135,7 +135,7 @@ export default function ChatConversation({ conversationId }) {
 				{typingUser && (
 					<div className="flex justify-start mb-2">
 						<div className="bg-[#f5f5f5] mr-2 rounded-l-2xl rounded-tr-2xl px-4 py-2.5">
-							<p className="font-body text-sm text-[#6b7280] italic">{typingUser}</p>
+							<p className="font-body text-sm text-[#6b7280] italic">{isAdmin ? 'Caxiauto' : otherName} está a escrever...</p>
 						</div>
 					</div>
 				)}
