@@ -480,7 +480,7 @@ const PerfilVendedor = () => {
 									className="w-full bg-[#154c9a] hover:bg-[#123f80] text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
 								>
 									<MessageSquare className="w-5 h-5" />
-									Falar com a Equipa
+									Negociar
 								</button>
 							</div>
 						</div>

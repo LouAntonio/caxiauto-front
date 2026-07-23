@@ -584,7 +584,7 @@ export default function DetalhesPecas() {
 									className="w-full bg-[#eef3fa] hover:bg-[#dce5f5] text-[#154c9a] font-bold py-4 rounded-2xl transition-all shadow-sm hover:shadow-md transform hover:scale-[1.02] cursor-pointer font-body flex items-center justify-center gap-2 mt-3"
 								>
 									<MessageSquare className="w-5 h-5" />
-									Falar com a Equipa
+									Negociar
 								</button>
 							</div>
 

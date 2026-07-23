@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import api from '../services/api';
+import api, { notyf } from '../services/api';
 import { connectSocket, disconnectSocket, getSocket } from '../services/socket';
 
 const useChatStore = create((set, get) => ({
@@ -157,7 +157,6 @@ const useChatStore = create((set, get) => ({
 			if (participantId) body.participantId = participantId;
 			const res = await api.createConversation(body);
 			if (res.success) {
-				// Entrar na sala
 				const socket = getSocket();
 				if (socket) {
 					socket.emit('join_conversation', { conversationId: res.data.id });
@@ -166,8 +165,10 @@ const useChatStore = create((set, get) => ({
 				set({ activeConversationId: res.data.id, isChatOpen: true });
 				return { success: true, data: res.data };
 			}
+			notyf.error(res.message || 'Erro ao criar conversa');
 			return { success: false, message: res.message };
 		} catch (error) {
+			notyf.error('Erro ao criar conversa');
 			return { success: false, message: 'Erro ao criar conversa' };
 		}
 	},

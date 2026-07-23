@@ -15,9 +15,8 @@ const getStoredUser = () => {
 
 const useAuthStore = create((set, get) => ({
 	user: getStoredUser(),
+	isAuthenticated: !!getStoredUser(),
 	loading: false,
-
-	isAuthenticated: () => !!get().user,
 
 	login: async (email, password) => {
 		const data = await api.login(email, password);
@@ -38,12 +37,12 @@ const useAuthStore = create((set, get) => ({
 		};
 		localStorage.setItem('caxiauto_token', data.data.token);
 		localStorage.setItem('caxiauto_user', JSON.stringify(userData));
-		set({ user: userData });
+		set({ user: userData, isAuthenticated: true });
 		return { success: true, message: 'Login realizado com sucesso!' };
 	},
 
 	logout: () => {
-		set({ user: null });
+		set({ user: null, isAuthenticated: false });
 		localStorage.removeItem('caxiauto_user');
 		localStorage.removeItem('caxiauto_token');
 	},
@@ -105,7 +104,7 @@ const useAuthStore = create((set, get) => ({
 			const updatedUser = { ...currentUser, ...serverData };
 			['currentPassword', 'newPassword', 'confirmPassword'].forEach(k => delete updatedUser[k]);
 			localStorage.setItem('caxiauto_user', JSON.stringify(updatedUser));
-			set({ user: updatedUser });
+			set({ user: updatedUser, isAuthenticated: true });
 			return { success: true, message: 'Perfil atualizado com sucesso!' };
 		} catch (error) {
 			return { success: false, message: error.message || 'Erro ao atualizar perfil' };
@@ -133,7 +132,7 @@ const useAuthStore = create((set, get) => ({
 		};
 		localStorage.setItem('caxiauto_token', data.data.token);
 		localStorage.setItem('caxiauto_user', JSON.stringify(userData));
-		set({ user: userData });
+		set({ user: userData, isAuthenticated: true });
 		return { success: true, message: 'Login realizado com sucesso!' };
 	},
 
@@ -166,7 +165,7 @@ const useAuthStore = create((set, get) => ({
 					createdAt: data.data.createdAt,
 				};
 				localStorage.setItem('caxiauto_user', JSON.stringify(userData));
-				set({ user: userData });
+				set({ user: userData, isAuthenticated: true });
 				return true;
 			}
 			return false;
