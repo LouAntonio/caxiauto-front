@@ -151,9 +151,11 @@ const useChatStore = create((set, get) => ({
 		}
 	},
 
-	createConversation: async (participantId, vehicleId = null, pecaId = null) => {
+	createConversation: async (participantId = null, vehicleId = null, pecaId = null) => {
 		try {
-			const res = await api.createConversation({ participantId, vehicleId, pecaId });
+			const body = { vehicleId, pecaId };
+			if (participantId) body.participantId = participantId;
+			const res = await api.createConversation(body);
 			if (res.success) {
 				// Entrar na sala
 				const socket = getSocket();

@@ -474,13 +474,13 @@ const PerfilVendedor = () => {
 								<button
 									onClick={async () => {
 										if (!isAuthenticated) { notyf.error('Faça login para enviar mensagens'); navigate('/auth'); return }
-										const res = await startChat(seller.id)
+										const res = await startChat(null)
 										if (res.success) openChat()
 									}}
 									className="w-full bg-[#154c9a] hover:bg-[#123f80] text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
 								>
 									<MessageSquare className="w-5 h-5" />
-									Enviar Mensagem
+									Falar com a Equipa
 								</button>
 							</div>
 						</div>

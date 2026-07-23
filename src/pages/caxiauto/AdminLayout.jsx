@@ -21,7 +21,8 @@ import {
 	CreditCard,
 	Sparkles,
 	Home,
-	Banknote
+	Banknote,
+	MessageSquare
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -104,6 +105,11 @@ const AdminLayout = () => {
 			icon: Banknote,
 			title: 'Pagamentos',
 			path: '/caxiauto/pagamentos',
+		},
+		{
+			icon: MessageSquare,
+			title: 'Mensagens',
+			path: '/caxiauto/mensagens',
 		},
 	];
 

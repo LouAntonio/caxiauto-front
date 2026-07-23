@@ -56,6 +56,7 @@ import AdminPartners from './pages/caxiauto/AdminPartners'
 import AdminPlans from './pages/caxiauto/AdminPlans'
 import AdminHighlightPlans from './pages/caxiauto/AdminHighlightPlans'
 import AdminPayments from './pages/caxiauto/AdminPayments'
+import AdminMensagens from './pages/caxiauto/AdminMensagens'
 import Comercial from './pages/Comercial'
 import ChatButton from './components/chat/ChatButton'
 import ChatDrawer from './components/chat/ChatDrawer'
@@ -185,6 +186,7 @@ function AppContent() {
 					<Route path="planos" element={<AdminPlans />} />
 					<Route path="planos-destaque" element={<AdminHighlightPlans />} />
 					<Route path="pagamentos" element={<AdminPayments />} />
+				<Route path="mensagens" element={<AdminMensagens />} />
 				</Route>
 
 				{/* 404 route - keep last */}

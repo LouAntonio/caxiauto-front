@@ -418,6 +418,15 @@ export const useAdminDeletePartner = () => {
 	});
 };
 
+// ==================== CHAT (ADMIN) ====================
+export const useAdminConversations = () => {
+	return useQuery({
+		queryKey: ['admin', 'chat', 'conversations'],
+		queryFn: () => api.adminListConversations(),
+		select: (res) => (res.success ? res.data : []),
+	});
+};
+
 export const useAdminTogglePartnerStatus = () => {
 	const queryClient = useQueryClient();
 	return useMutation({

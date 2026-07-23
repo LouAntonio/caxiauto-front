@@ -630,19 +630,17 @@ export default function DetalhesCompra() {
 									Agendar Visita
 								</button>
 
-								{vehicle?.seller && (
-									<button
-										onClick={async () => {
-											if (!isAuthenticated) { notyf.error('Faça login para enviar mensagens'); navigate('/auth'); return }
-											const res = await startChat(vehicle.seller.id, vehicle.id, null)
-											if (res.success) openChat()
-										}}
-										className="w-full bg-[#eef3fa] hover:bg-[#dce5f5] text-[#154c9a] font-bold py-4 rounded-2xl transition-all shadow-sm hover:shadow-md transform hover:scale-[1.02] cursor-pointer font-body flex items-center justify-center gap-2"
-									>
-										<MessageSquare className="w-5 h-5" />
-										Falar com Vendedor
-									</button>
-								)}
+								<button
+									onClick={async () => {
+										if (!isAuthenticated) { notyf.error('Faça login para enviar mensagens'); navigate('/auth'); return }
+										const res = await startChat(null, vehicle?.id, null)
+										if (res.success) openChat()
+									}}
+									className="w-full bg-[#eef3fa] hover:bg-[#dce5f5] text-[#154c9a] font-bold py-4 rounded-2xl transition-all shadow-sm hover:shadow-md transform hover:scale-[1.02] cursor-pointer font-body flex items-center justify-center gap-2"
+								>
+									<MessageSquare className="w-5 h-5" />
+									Falar com a Equipa
+								</button>
 							</div>
 
 							{/* Contato */}

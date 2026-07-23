@@ -359,6 +359,9 @@ const api = {
 
 	listCategoriasPecas: (params = {}) => api.get('/categorias', { params }),
 
+	// ==================== CHAT (Admin) ====================
+	adminListConversations: () => api.get('/admin/chat/conversations', {}, true),
+
 	// ==================== CHAT ====================
 	createConversation: (data) => api.post('/chat/conversations', data),
 
