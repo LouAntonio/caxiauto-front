@@ -15,7 +15,7 @@ const AdminTableSkeleton = ({ rows = 5, columns = 6, className = '' }) => {
 	};
 
 	return (
-		<div className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden ${className}`}>
+		<div className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto ${className}`}>
 			{/* Header da tabela skeleton */}
 			<div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
 				<div className="flex gap-4">

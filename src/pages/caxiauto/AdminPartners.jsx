@@ -235,7 +235,7 @@ const AdminPartners = () => {
 				</form>
 			</div>
 
-			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
 				{loading ? (
 					<div className="flex items-center justify-center py-20">
 						<Loader2 className="w-12 h-12 text-[#154c9a] animate-spin" />

@@ -111,8 +111,8 @@ const AdminReports = () => {
 											<td className="px-4 py-3 text-sm text-gray-500">{new Date(rep.createdAt).toLocaleDateString('pt-BR')}</td>
 											<td className="px-4 py-3">
 												<div className="flex items-center gap-1">
-													<button onClick={() => { setSelectedReport(rep); setShowModal(true); }} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg" title="Detalhes"><Eye className="w-4 h-4" /></button>
-													<button onClick={() => handleDelete(rep.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar"><XCircle className="w-4 h-4" /></button>
+													<button onClick={() => { setSelectedReport(rep); setShowModal(true); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Detalhes"><Eye className="w-4 h-4" /></button>
+													<button onClick={() => handleDelete(rep.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar"><XCircle className="w-4 h-4" /></button>
 												</div>
 											</td>
 										</tr>

@@ -69,7 +69,7 @@ export default function Pagination({
 
 	return (
 		<div className="flex justify-center">
-			<nav className="flex items-center gap-2" aria-label="Paginação">
+			<nav className="flex items-center gap-2 overflow-x-auto max-w-full" aria-label="Paginação">
 				{/* Botão Anterior */}
 				<button
 					onClick={handlePrevious}
@@ -82,7 +82,7 @@ export default function Pagination({
 				</button>
 
 				{/* Números das Páginas */}
-				<div className="flex items-center gap-2">
+				<div className="flex items-center gap-2 flex-wrap justify-center">
 					{visiblePages.map((page, index) => {
 						if (page === '...') {
 							return (
@@ -100,7 +100,7 @@ export default function Pagination({
 								key={page}
 								onClick={() => handlePageClick(page)}
 								className={`
-									min-w-[40px] px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer
+									min-w-[36px] sm:min-w-[40px] px-2 sm:px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer
 									${currentPage === page
 								? 'bg-[#154c9a] text-white shadow-md'
 								: 'border border-gray-300 text-gray-700 hover:bg-gray-50'

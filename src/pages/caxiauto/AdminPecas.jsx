@@ -478,7 +478,7 @@ const AdminPecas = () => {
 											<div className="flex items-center gap-1">
 												<button
 													onClick={() => handleViewDetails(peca.id)}
-													className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+													className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
 													title="Ver detalhes"
 												>
 													<Eye className="w-4 h-4" />
@@ -487,14 +487,14 @@ const AdminPecas = () => {
 													<>
 														<button
 															onClick={() => handleApprove(peca.id)}
-															className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+															className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
 															title="Aprovar"
 														>
 															<Check className="w-4 h-4" />
 														</button>
 														<button
 															onClick={() => handleReject(peca.id, peca.name)}
-															className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+															className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
 															title="Negar"
 														>
 															<X className="w-4 h-4" />
@@ -504,7 +504,7 @@ const AdminPecas = () => {
 												{peca.isFeatured ? (
 													<button
 														onClick={() => handleRemoveFeatured(peca.id)}
-														className="p-1.5 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
+														className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
 														title="Remover destaque"
 													>
 														<Star className="w-4 h-4" />
@@ -512,7 +512,7 @@ const AdminPecas = () => {
 												) : (
 													<button
 														onClick={() => handleSetFeatured(peca.id, peca.name)}
-														className="p-1.5 text-gray-400 hover:bg-gray-50 rounded-lg transition-colors"
+														className="p-2 text-gray-400 hover:bg-gray-50 rounded-lg transition-colors"
 														title="Definir destaque"
 													>
 														<Star className="w-4 h-4" />
@@ -520,14 +520,14 @@ const AdminPecas = () => {
 												)}
 												<button
 													onClick={() => handleToggleStatus(peca.id, peca.status)}
-													className="p-1.5 text-gray-600 hover:bg-blue-50 rounded-lg transition-colors"
+													className="p-2 text-gray-600 hover:bg-blue-50 rounded-lg transition-colors"
 													title={peca.status === 'ACTIVE' ? 'Ocultar' : 'Ativar'}
 												>
 													{peca.status === 'ACTIVE' ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
 												</button>
 												<button
 													onClick={() => handleDelete(peca.id)}
-													className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+													className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
 													title="Eliminar"
 												>
 													<Trash2 className="w-4 h-4" />

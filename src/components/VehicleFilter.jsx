@@ -102,7 +102,7 @@ export default function VehicleFilter({ onFilterChange, initialFilters = {}, sho
 					</div>
 				)}
 
-				<div className="grid grid-cols-2 gap-3">
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 					<div className="space-y-2">
 						<label className="flex items-center gap-1.5 font-body text-xs font-semibold text-[#6b7280]">
 							<Car className="w-3.5 h-3.5 text-[#154c9a]" />
@@ -138,7 +138,7 @@ export default function VehicleFilter({ onFilterChange, initialFilters = {}, sho
 					</div>
 				</div>
 
-				<div className="grid grid-cols-2 gap-3">
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 					<div className="space-y-2">
 						<label className="flex items-center gap-1.5 font-body text-xs font-semibold text-[#6b7280]">
 							<Fuel className="w-3.5 h-3.5 text-[#154c9a]" />
@@ -174,7 +174,7 @@ export default function VehicleFilter({ onFilterChange, initialFilters = {}, sho
 					</div>
 				</div>
 
-				<div className="grid grid-cols-2 gap-3">
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 					<div className="space-y-2">
 						<label className="flex items-center gap-1.5 font-body text-xs font-semibold text-[#6b7280]">
 							<Calendar className="w-3.5 h-3.5 text-[#154c9a]" />

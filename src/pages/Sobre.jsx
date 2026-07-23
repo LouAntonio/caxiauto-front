@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import useScrollReveal from '../hooks/useScrollReveal'
 import useDocumentTitle from '../hooks/useDocumentTitle'
 import { Shield, Users, Target, Car, Wrench, Clock, MapPin, ArrowRight, CheckCircle2, TrendingUp, Star } from 'lucide-react'

@@ -22,7 +22,7 @@ export default function PartnerCardSkeleton({ count = 4 }) {
 							<div className="skeleton-shimmer h-3 w-3/4 bg-gray-100 rounded-sm mx-auto" />
 						</div>
 
-						<div className="grid grid-cols-2 gap-3 w-full mt-auto">
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mt-auto">
 							<div className="skeleton-shimmer h-11 bg-gray-100 rounded-2xl" />
 							<div className="skeleton-shimmer h-11 bg-gray-100 rounded-2xl" />
 						</div>

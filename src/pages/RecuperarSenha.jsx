@@ -32,7 +32,7 @@ const RecuperarSenha = () => {
 			setTokenValid(false);
 			setTimeout(() => navigate('/auth'), 3000);
 		}
-	}, [email, token, navigate, notyf]);
+	}, [email, token, navigate]);
 
 	// Funções de validação de senha
 	const getPasswordRequirements = (password) => ({

@@ -44,7 +44,7 @@ const AdminModalSkeleton = ({ variant = 'details', className = '' }) => {
 			<div className="w-full h-64 bg-gray-200 rounded-xl animate-pulse" />
 
 			{/* Grid de informações */}
-			<div className="grid grid-cols-2 gap-4">
+			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 				{Array.from({ length: 8 }).map((_, i) => (
 					<div key={i} className="bg-gray-50 p-3 rounded-lg space-y-2">
 						<div className="h-3 bg-gray-200 rounded w-1/3 animate-pulse" />

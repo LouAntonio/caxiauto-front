@@ -103,7 +103,7 @@ export default function FeedbackSection() {
 	return (
 		<div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
 			<div
-				className={`relative w-72 bg-white rounded-xl shadow-xl border border-[#e5e7eb] overflow-hidden transition-all duration-300 ease-out ${
+				className={`relative w-[90vw] sm:w-72 max-w-[320px] bg-white rounded-xl shadow-xl border border-[#e5e7eb] overflow-hidden transition-all duration-300 ease-out ${
 					phase === 'show'
 						? 'opacity-100 translate-x-0 scale-100'
 						: 'opacity-0 translate-x-4 scale-95 pointer-events-none'

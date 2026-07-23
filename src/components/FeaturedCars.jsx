@@ -139,7 +139,7 @@ export default function FeaturedCars({ title = 'Carros em Destaque', useVehicleQ
 					) : (
 						<div
 							ref={railRef}
-							className="flex gap-6 overflow-x-auto scroll-smooth pb-4"
+							className="flex gap-6 overflow-x-auto scroll-smooth pb-4 snap-x snap-mandatory"
 							style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
 						>
 							{vehicles.map((car) => {
@@ -153,7 +153,7 @@ export default function FeaturedCars({ title = 'Carros em Destaque', useVehicleQ
 								return (
 									<article
 										key={car.id}
-										className="flex-shrink-0 w-64 bg-white rounded-2xl border border-[#e5e7eb] shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+										className="flex-shrink-0 w-[80vw] sm:w-64 snap-start bg-white rounded-2xl border border-[#e5e7eb] shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
 									>
 										<div className="relative h-40 overflow-hidden">
 											<img

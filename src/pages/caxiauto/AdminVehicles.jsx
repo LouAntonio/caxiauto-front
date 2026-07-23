@@ -524,7 +524,7 @@ const AdminVehicles = () => {
 											<div className="flex items-center gap-1">
 												<button
 													onClick={() => handleViewDetails(vehicle.id)}
-													className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+													className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 													title="Ver detalhes"
 													disabled={actionLoading}
 												>
@@ -534,7 +534,7 @@ const AdminVehicles = () => {
 													<>
 														<button
 															onClick={() => handleApprove(vehicle.id)}
-															className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+															className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 															title="Aprovar"
 															disabled={actionLoading}
 														>
@@ -542,7 +542,7 @@ const AdminVehicles = () => {
 														</button>
 														<button
 															onClick={() => handleReject(vehicle.id, vehicle.name)}
-															className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+															className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 															title="Negar"
 															disabled={actionLoading}
 														>
@@ -553,7 +553,7 @@ const AdminVehicles = () => {
 												{vehicle.isFeatured ? (
 													<button
 														onClick={() => handleRemoveFeatured(vehicle.id)}
-														className="p-1.5 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+														className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 														title="Remover destaque"
 														disabled={actionLoading}
 													>
@@ -562,7 +562,7 @@ const AdminVehicles = () => {
 												) : (
 													<button
 														onClick={() => handleSetFeatured(vehicle.id, vehicle.name)}
-														className="p-1.5 text-gray-400 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+														className="p-2 text-gray-400 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 														title="Definir destaque"
 														disabled={actionLoading}
 													>
@@ -571,7 +571,7 @@ const AdminVehicles = () => {
 												)}
 												<button
 													onClick={() => handleToggleStatus(vehicle.id, vehicle.status)}
-													className="p-1.5 text-gray-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+													className="p-2 text-gray-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 													title={vehicle.status === 'ACTIVE' ? 'Ocultar' : 'Ativar'}
 													disabled={actionLoading}
 												>
@@ -579,7 +579,7 @@ const AdminVehicles = () => {
 												</button>
 												<button
 													onClick={() => handleDelete(vehicle.id)}
-													className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+													className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 													title="Eliminar"
 													disabled={actionLoading}
 												>

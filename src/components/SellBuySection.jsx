@@ -6,7 +6,7 @@ export default function SellBuySection() {
 		<section className="my-8">
 			<div className="max-w-7xl mx-auto px-6 lg:px-8">
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-					<div className="bg-gradient-to-br from-[#154c9a] to-[#123f80] rounded-2xl p-8 sm:p-12 relative overflow-visible text-white">
+					<div className="bg-gradient-to-br from-[#154c9a] to-[#123f80] rounded-2xl p-8 sm:p-12 relative overflow-hidden text-white">
 						<div className="relative z-10 max-w-sm">
 							<h2 className="font-display text-2xl md:text-3xl font-bold mb-8 leading-tight">
 								Venda o seu<br/>carro<br/>mais rápido!

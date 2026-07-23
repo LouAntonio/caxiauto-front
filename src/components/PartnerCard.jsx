@@ -45,7 +45,7 @@ export default function PartnerCard({ partner }) {
 					</ul>
 				)}
 
-				<div className="grid grid-cols-2 gap-3 mt-auto">
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-auto">
 					<a
 						href={`https://wa.me/${partner.whatsapp.replace(/\s/g, '')}`}
 						target="_blank"

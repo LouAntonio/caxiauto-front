@@ -32,7 +32,7 @@ const Dashboard = () => {
 	const [loadingStats, setLoadingStats] = useState(true);
 
 	useEffect(() => {
-		api.getDashboardStats()
+		api.getUserDashboardStats()
 			.then((res) => {
 				if (res.success) setStats(res.data);
 			})
@@ -48,7 +48,7 @@ const Dashboard = () => {
 		if (!user?.createdAt) {
 			refreshUser();
 		}
-	}, []);
+	}, [user?.createdAt, refreshUser]);
 	const [message, setMessage] = useState('');
 	const [saving, setSaving] = useState(false);
 	const [formData, setFormData] = useState({

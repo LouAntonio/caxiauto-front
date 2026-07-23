@@ -14,7 +14,7 @@ export default function NotFound() {
 					<div className="flex justify-center lg:justify-end">
 						<div className="relative">
 							<div className="absolute inset-0 bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 rounded-full blur-3xl opacity-60 animate-pulse"></div>
-							<svg width="320" height="320" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg" className="relative">
+							<svg width="320" height="320" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg" className="relative w-full max-w-[320px] h-auto">
 								<defs>
 									<linearGradient id="carGradient404" x1="0%" y1="0%" x2="100%" y2="100%">
 										<stop offset="0%" stopColor="#6366f1" />

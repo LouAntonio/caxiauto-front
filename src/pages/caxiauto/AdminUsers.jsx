@@ -297,14 +297,14 @@ const AdminUsers = () => {
 											<div className="flex items-center gap-1">
 												<button
 													onClick={() => handleViewDetails(user.id)}
-													className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
+													className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
 													title="Ver detalhes"
 												>
 													<Eye className="w-4 h-4" />
 												</button>
 												<button
 													onClick={() => handleVerifyUser(user.id, `${user.name} ${user.surname}`, user.isVerified)}
-													className={`p-1.5 rounded-lg ${
+													className={`p-2 rounded-lg ${
 														user.isVerified
 															? 'text-yellow-600 hover:bg-yellow-50'
 															: 'text-green-600 hover:bg-green-50'
@@ -315,14 +315,14 @@ const AdminUsers = () => {
 												</button>
 												<button
 													onClick={() => handleUpdateRole(user.id, `${user.name} ${user.surname}`, user.role)}
-													className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
+													className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
 													title="Alterar Role"
 												>
 													<Edit2 className="w-4 h-4" />
 												</button>
 												<button
 													onClick={() => handleToggleStatus(user.id, user.status)}
-													className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg"
+													className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg"
 													title={user.status === 'ACTIVE' ? 'Inativar' : 'Ativar'}
 												>
 													{user.status === 'ACTIVE' ? <UserX className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
@@ -330,7 +330,7 @@ const AdminUsers = () => {
 												{user.status !== 'BANNED' && (
 													<button
 														onClick={() => handleBanUser(user.id, `${user.name} ${user.surname}`)}
-														className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
+														className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
 														title="Banir"
 													>
 														<AlertCircle className="w-4 h-4" />
@@ -338,7 +338,7 @@ const AdminUsers = () => {
 												)}
 												<button
 													onClick={() => handleResetPassword(user.id, `${user.name} ${user.surname}`)}
-													className="p-1.5 text-gray-600 hover:bg-gray-50 rounded-lg"
+													className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg"
 													title="Reset Senha"
 												>
 													<Key className="w-4 h-4" />
@@ -365,7 +365,7 @@ const AdminUsers = () => {
 			{/* ==================== MODAL DE DETALHES ==================== */}
 			{detailsModal.open && detailsModal.user && (
 				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setDetailsModal({ open: false, user: null })}>
-					<div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+					<div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
 						<div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
 							<h2 className="text-xl font-bold text-gray-900">Detalhes do Usuário</h2>
 							<button onClick={() => setDetailsModal({ open: false, user: null })} className="text-gray-400 hover:text-gray-600"><X className="w-6 h-6" /></button>

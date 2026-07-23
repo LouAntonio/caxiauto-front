@@ -33,7 +33,6 @@ const SectionBlock = ({ num, title, children }) => (
 const Legal = () => {
 	const location = useLocation();
 	const isPrivacy = location.pathname === '/politica-de-privacidade';
-	const isTerms = location.pathname === '/termos-de-uso';
 
 	useDocumentTitle(isPrivacy ? 'Política de Privacidade - CaxiAuto' : 'Termos de Uso - CaxiAuto');
 

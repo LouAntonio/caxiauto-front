@@ -142,13 +142,13 @@ export default function FeaturedParts({ linkState }) {
 					</div>
 				</div>
 
-				<div ref={railRef} className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4">
+				<div ref={railRef} className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 snap-x snap-mandatory">
 					{pecas.length === 0 ? (
 						<div className="w-full flex items-center justify-center py-16 text-[#6b7280] font-body">
 							<p>Nenhuma peça em destaque no momento</p>
 						</div>
 					) : pecas.map((peca) => (
-						<article key={peca.id} className="flex-shrink-0 w-64 bg-white rounded-2xl border border-[#e5e7eb] shadow-lg overflow-hidden group hover:border-[#154c9a]/20 transition-all duration-300">
+						<article key={peca.id} className="flex-shrink-0 w-[80vw] sm:w-64 snap-start bg-white rounded-2xl border border-[#e5e7eb] shadow-lg overflow-hidden group hover:border-[#154c9a]/20 transition-all duration-300">
 							<div className="relative h-36 overflow-hidden">
 								<img
 									src={getImageUrl(peca.image, './images/parts.jpg')}

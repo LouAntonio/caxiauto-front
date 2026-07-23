@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
-import api, { notyf } from '../services/api';
+import { notyf } from '../services/api';
 
 const isTokenExpired = (token) => {
 	if (!token) return true;
