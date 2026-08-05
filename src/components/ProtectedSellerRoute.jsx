@@ -63,10 +63,10 @@ const ProtectedSellerRoute = ({ children }) => {
 	// Mostrar loading enquanto verifica autenticação inicial ou do servidor
 	if (loading || isVerifying) {
 		return (
-			<div className="min-h-screen flex items-center justify-center bg-asfalto">
+			<div className="min-h-screen flex items-center justify-center bg-gray-50">
 				<div className="text-center">
-					<div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-ambar"></div>
-					<p className="mt-4 text-papel font-data text-sm">A verificar a tua sessão...</p>
+					<div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#154c9a]"></div>
+					<p className="mt-4 text-gray-600 text-sm">A verificar a tua sessão...</p>
 				</div>
 			</div>
 		);

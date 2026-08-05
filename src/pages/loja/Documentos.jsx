@@ -21,7 +21,7 @@ import ButtonLoader from '../../components/ButtonLoader';
 const Documentos = () => {
 	useDocumentTitle('Documentos - CaxiAuto');
 
-	const { user } = useAuthStore();
+	const { user, refreshUser } = useAuthStore();
 	const [loading, setLoading] = useState(true);
 	const [uploading, setUploading] = useState(false);
 	const [sellerDocs, setSellerDocs] = useState(null);
@@ -132,6 +132,7 @@ const Documentos = () => {
 				setOrgDocFiles([]);
 				setSelfieFiles([]);
 				fetchDocuments();
+				refreshUser();
 			} else {
 				notyf.error(res.message || 'Erro ao enviar documentos');
 			}
@@ -278,11 +279,11 @@ const Documentos = () => {
 			{/* Header */}
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 				<div className="flex items-center gap-3 mb-6">
-					<div className="w-12 h-12 bg-ambar rounded-lg flex items-center justify-center">
-						<FileText className="w-6 h-6 text-asfalto" />
+					<div className="w-12 h-12 bg-[#154c9a] rounded-lg flex items-center justify-center">
+						<FileText className="w-6 h-6 text-white" />
 					</div>
 					<div>
-						<h2 className="font-display text-2xl font-bold text-asfalto">Documentos do Vendedor</h2>
+						<h2 className="text-2xl font-bold text-gray-900">Documentos do Vendedor</h2>
 						<p className="text-sm text-gray-500 mt-1">
 							Envie seus documentos para obter o selo de verificação
 						</p>

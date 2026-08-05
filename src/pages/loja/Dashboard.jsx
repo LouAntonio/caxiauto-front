@@ -16,16 +16,22 @@ import {
 	ShieldCheck,
 	Upload,
 	ClipboardCheck,
-	Store
+	Store,
+	Loader2
 } from 'lucide-react';
 import LojaPageHeader from './PageHeader';
 
 const Dashboard = () => {
 	useDocumentTitle('Minha Loja - CaxiAuto');
 
-	const { user } = useAuthStore();
+	const { user, refreshUser } = useAuthStore();
 	const [stats, setStats] = useState(null);
 	const [loading, setLoading] = useState(true);
+	const [syncing, setSyncing] = useState(true);
+
+	useEffect(() => {
+		refreshUser().finally(() => setSyncing(false));
+	}, [refreshUser]);
 
 	useEffect(() => {
 		api.getUserDashboardStats()
@@ -36,7 +42,7 @@ const Dashboard = () => {
 			.finally(() => setLoading(false));
 	}, []);
 
-	const isSeller = user?.role === 'SELLER';
+	const isSeller = user?.role === 'SELLER' || !!user?.sellerDocs;
 
 	const statCards = [
 		{ icon: Car, label: 'Veículos', value: stats?.totalVeiculos },
@@ -60,14 +66,14 @@ const Dashboard = () => {
 					<>
 						<Link
 							to="/minha-loja/veiculos"
-							className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-ambar text-asfalto font-semibold text-sm hover:bg-ambar-escuro transition-colors"
+							className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#154c9a] text-white font-semibold text-sm hover:bg-[#123f80] transition-colors"
 						>
 							<Car className="w-4 h-4" />
 							Adicionar veículo
 						</Link>
 						<Link
 							to="/minha-loja/pecas"
-							className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-white/20 text-papel font-semibold text-sm hover:bg-white/5 transition-colors"
+							className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors"
 						>
 							<Wrench className="w-4 h-4" />
 							Adicionar peça
@@ -76,15 +82,20 @@ const Dashboard = () => {
 				)}
 			</LojaPageHeader>
 
-			{isSeller ? (
+			{syncing ? (
+				<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center text-gray-500 flex items-center justify-center gap-2">
+					<Loader2 className="w-5 h-5 animate-spin text-[#154c9a]" />
+					A sincronizar os teus dados...
+				</div>
+			) : isSeller ? (
 				<>
 					{/* Banner de verificação */}
 					{!user?.isVerified && (
-						<div className="bg-papel border-l-4 border-l-ambar rounded-r-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+						<div className="bg-yellow-50 border border-yellow-200 rounded-lg p-5 flex flex-wrap items-center justify-between gap-4">
 							<div className="flex items-center gap-3">
-								<ShieldAlert className="w-7 h-7 text-ambar flex-shrink-0" />
+								<ShieldAlert className="w-7 h-7 text-yellow-600 flex-shrink-0" />
 								<div>
-									<p className="font-display font-bold text-asfalto">Verificação em análise</p>
+									<p className="font-semibold text-gray-900">Verificação em análise</p>
 									<p className="text-sm text-gray-600">
 										Os teus documentos foram submetidos e estão a ser revistos pela equipa Caxiauto.
 									</p>
@@ -92,7 +103,7 @@ const Dashboard = () => {
 							</div>
 							<Link
 								to="/minha-loja/documentos"
-								className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-asfalto text-papel font-semibold text-sm hover:bg-verde-profundo transition-colors"
+								className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#154c9a] text-white font-semibold text-sm hover:bg-[#123f80] transition-colors"
 							>
 								<ClipboardCheck className="w-4 h-4" />
 								Ver estado
@@ -102,32 +113,32 @@ const Dashboard = () => {
 
 					{/* Painel de instrumentos */}
 					{loading ? (
-						<div className="bg-papel rounded-2xl p-6 text-center text-gray-500 font-data text-sm">A carregar estatísticas...</div>
+						<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center text-gray-500 text-sm">A carregar estatísticas...</div>
 					) : stats ? (
 						<div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
 							{statCards.map((s) => {
 								const Icon = s.icon;
 								return (
-									<div key={s.label} className="bg-papel rounded-2xl p-5">
+									<div key={s.label} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
 										<div className="flex items-center justify-between">
-											<p className="text-[11px] font-data uppercase tracking-[0.18em] text-aco">{s.label}</p>
-											<Icon className="w-5 h-5 text-ambar" />
+											<p className="text-sm text-gray-600">{s.label}</p>
+											<Icon className="w-5 h-5 text-[#154c9a]" />
 										</div>
-										<p className="mt-3 font-data font-bold text-4xl text-asfalto">{s.value ?? '—'}</p>
+										<p className="mt-3 font-bold text-3xl text-gray-900">{s.value ?? '—'}</p>
 									</div>
 								);
 							})}
 						</div>
 					) : (
-						<div className="bg-papel rounded-2xl p-6 text-center text-gray-500">Não foi possível carregar as estatísticas.</div>
+						<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center text-gray-500">Não foi possível carregar as estatísticas.</div>
 					)}
 
 					{/* Verificado */}
 					{user?.isVerified && (
-						<div className="bg-papel border-l-4 border-l-emerald-500 rounded-r-2xl p-5 flex items-center gap-3">
-							<ShieldCheck className="w-7 h-7 text-emerald-600 flex-shrink-0" />
+						<div className="bg-green-50 border border-green-200 rounded-lg p-5 flex items-center gap-3">
+							<ShieldCheck className="w-7 h-7 text-green-600 flex-shrink-0" />
 							<div>
-								<p className="font-display font-bold text-asfalto">Loja verificada</p>
+								<p className="font-semibold text-gray-900">Loja verificada</p>
 								<p className="text-sm text-gray-600">O teu selo de confiança está ativo. Boas vendas!</p>
 							</div>
 						</div>
@@ -137,55 +148,55 @@ const Dashboard = () => {
 					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 						<Link
 							to="/minha-loja/documentos"
-							className="group bg-verde-profundo border border-white/10 rounded-2xl p-5 flex items-center justify-between hover:border-ambar/50 transition-colors"
+							className="group bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between hover:border-[#154c9a] transition-colors"
 						>
 							<div className="flex items-center gap-3">
-								<FileText className="w-6 h-6 text-ambar" />
+								<FileText className="w-6 h-6 text-[#154c9a]" />
 								<div>
-									<p className="font-semibold text-papel">Documentos</p>
-									<p className="text-xs text-aco">Verificação e fotos</p>
+									<p className="font-semibold text-gray-900">Documentos</p>
+									<p className="text-xs text-gray-500">Verificação e fotos</p>
 								</div>
 							</div>
-							<ArrowRight className="w-4 h-4 text-aco group-hover:text-ambar transition-colors" />
+							<ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-[#154c9a] transition-colors" />
 						</Link>
 						<Link
 							to="/minha-loja/assinatura"
-							className="group bg-verde-profundo border border-white/10 rounded-2xl p-5 flex items-center justify-between hover:border-ambar/50 transition-colors"
+							className="group bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between hover:border-[#154c9a] transition-colors"
 						>
 							<div className="flex items-center gap-3">
-								<CreditCard className="w-6 h-6 text-ambar" />
+								<CreditCard className="w-6 h-6 text-[#154c9a]" />
 								<div>
-									<p className="font-semibold text-papel">Assinatura</p>
-									<p className="text-xs text-aco">Planos e destaques</p>
+									<p className="font-semibold text-gray-900">Assinatura</p>
+									<p className="text-xs text-gray-500">Planos e destaques</p>
 								</div>
 							</div>
-							<ArrowRight className="w-4 h-4 text-aco group-hover:text-ambar transition-colors" />
+							<ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-[#154c9a] transition-colors" />
 						</Link>
 						<Link
 							to="/minha-loja/mensagens"
-							className="group bg-verde-profundo border border-white/10 rounded-2xl p-5 flex items-center justify-between hover:border-ambar/50 transition-colors"
+							className="group bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between hover:border-[#154c9a] transition-colors"
 						>
 							<div className="flex items-center gap-3">
-								<MessageSquare className="w-6 h-6 text-ambar" />
+								<MessageSquare className="w-6 h-6 text-[#154c9a]" />
 								<div>
-									<p className="font-semibold text-papel">Mensagens</p>
-									<p className="text-xs text-aco">Conversas com clientes</p>
+									<p className="font-semibold text-gray-900">Mensagens</p>
+									<p className="text-xs text-gray-500">Conversas com clientes</p>
 								</div>
 							</div>
-							<ArrowRight className="w-4 h-4 text-aco group-hover:text-ambar transition-colors" />
+							<ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-[#154c9a] transition-colors" />
 						</Link>
 					</div>
 				</>
 			) : (
 				/* ===== Onboarding: tornar-se vendedor ===== */
-				<div className="bg-papel rounded-2xl overflow-hidden">
+				<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 					<div className="p-8 sm:p-10">
 						<div className="flex items-start gap-4">
-							<div className="w-14 h-14 bg-asfalto rounded-2xl flex items-center justify-center flex-shrink-0">
-								<Store className="w-7 h-7 text-ambar" />
+							<div className="w-14 h-14 bg-[#154c9a] rounded-2xl flex items-center justify-center flex-shrink-0">
+								<Store className="w-7 h-7 text-white" />
 							</div>
 							<div>
-								<h3 className="font-display font-bold text-2xl text-asfalto">Torne-se vendedor verificado</h3>
+								<h3 className="font-semibold text-2xl text-gray-900">Torne-se vendedor verificado</h3>
 								<p className="text-gray-600 mt-2">
 									A verificação é um passo rápido que protege quem compra e valoriza quem vende.
 									Precisas apenas de um documento de identificação e uma foto tua.
@@ -195,28 +206,28 @@ const Dashboard = () => {
 
 						{/* Passos (sequência real do processo) */}
 						<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
-							<div className="bg-white rounded-xl p-5 border border-gray-200">
+							<div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
 								<div className="flex items-center gap-2 mb-2">
-									<span className="w-7 h-7 rounded-full bg-ambar text-asfalto font-data font-bold text-sm flex items-center justify-center">01</span>
-									<Upload className="w-4 h-4 text-aco" />
+									<span className="w-7 h-7 rounded-full bg-[#154c9a] text-white font-bold text-sm flex items-center justify-center">01</span>
+									<Upload className="w-4 h-4 text-gray-400" />
 								</div>
-								<p className="font-semibold text-asfalto">Envia documentos e fotos</p>
+								<p className="font-semibold text-gray-900">Envia documentos e fotos</p>
 								<p className="text-sm text-gray-600 mt-1">BI ou passaporte, documentos da empresa (opcional) e uma selfie.</p>
 							</div>
-							<div className="bg-white rounded-xl p-5 border border-gray-200">
+							<div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
 								<div className="flex items-center gap-2 mb-2">
-									<span className="w-7 h-7 rounded-full bg-ambar text-asfalto font-data font-bold text-sm flex items-center justify-center">02</span>
-									<ClipboardCheck className="w-4 h-4 text-aco" />
+									<span className="w-7 h-7 rounded-full bg-[#154c9a] text-white font-bold text-sm flex items-center justify-center">02</span>
+									<ClipboardCheck className="w-4 h-4 text-gray-400" />
 								</div>
-								<p className="font-semibold text-asfalto">A equipa Caxiauto analisa</p>
+								<p className="font-semibold text-gray-900">A equipa Caxiauto analisa</p>
 								<p className="text-sm text-gray-600 mt-1">Assim que submetes, a nossa equipa revê os documentos.</p>
 							</div>
-							<div className="bg-white rounded-xl p-5 border border-gray-200">
+							<div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
 								<div className="flex items-center gap-2 mb-2">
-									<span className="w-7 h-7 rounded-full bg-ambar text-asfalto font-data font-bold text-sm flex items-center justify-center">03</span>
-									<ShieldCheck className="w-4 h-4 text-aco" />
+									<span className="w-7 h-7 rounded-full bg-[#154c9a] text-white font-bold text-sm flex items-center justify-center">03</span>
+									<ShieldCheck className="w-4 h-4 text-gray-400" />
 								</div>
-								<p className="font-semibold text-asfalto">Publica com o selo de confiança</p>
+								<p className="font-semibold text-gray-900">Publica com o selo de confiança</p>
 								<p className="text-sm text-gray-600 mt-1">Anuncia veículos, peças e alugueres com selo de verificado.</p>
 							</div>
 						</div>
@@ -224,7 +235,7 @@ const Dashboard = () => {
 						<div className="flex flex-wrap items-center gap-3 mt-8">
 							<Link
 								to="/minha-loja/documentos"
-								className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-ambar text-asfalto font-semibold text-sm hover:bg-ambar-escuro transition-colors"
+								className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#154c9a] text-white font-semibold text-sm hover:bg-[#123f80] transition-colors"
 							>
 								Começar verificação
 								<ArrowRight className="w-4 h-4" />

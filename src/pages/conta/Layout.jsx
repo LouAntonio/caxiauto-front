@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
+import useSyncUser from '../../hooks/useSyncUser';
 import {
 	LayoutDashboard,
 	Heart,
@@ -18,6 +19,8 @@ const ContaLayout = () => {
 	const location = useLocation();
 	const { user } = useAuthStore();
 	const [sidebarOpen, setSidebarOpen] = useState(false);
+
+	useSyncUser();
 
 	const menuItems = [
 		{
@@ -83,11 +86,11 @@ const ContaLayout = () => {
 						<div className="ml-auto flex-shrink-0">
 							<Link
 								to="/minha-loja"
-								className="inline-flex items-center gap-2 px-4 py-2.5 bg-asfalto text-papel rounded-lg font-semibold text-sm hover:bg-verde-profundo transition-colors"
-								title={user?.role === 'SELLER' ? 'Abrir Minha Loja' : 'Tornar-se vendedor'}
+								className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#154c9a] text-white rounded-lg font-semibold text-sm hover:bg-[#123f80] transition-colors"
+								title={user?.role === 'SELLER' || user?.sellerDocs ? 'Abrir Minha Loja' : 'Tornar-se vendedor'}
 							>
-								<Store className="w-4 h-4 text-ambar" />
-								<span className="hidden sm:inline">{user?.role === 'SELLER' ? 'Minha Loja' : 'Vender'}</span>
+								<Store className="w-4 h-4" />
+								<span className="hidden sm:inline">{user?.role === 'SELLER' || user?.sellerDocs ? 'Minha Loja' : 'Vender'}</span>
 							</Link>
 						</div>
 					</div>

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import api from '../services/api';
+import { queryClient } from '../services/queryClient';
 
 const getStoredUser = () => {
 	try {
@@ -19,6 +20,7 @@ const useAuthStore = create((set, get) => ({
 	loading: false,
 
 	login: async (email, password) => {
+		queryClient.clear();
 		const data = await api.login(email, password);
 		if (!data.success) {
 			return { success: false, message: data.message || 'Erro ao fazer login' };
@@ -33,6 +35,7 @@ const useAuthStore = create((set, get) => ({
 			status: data.data.status,
 			isVerified: data.data.isVerified,
 			googleId: data.data.googleId,
+			sellerDocs: !!data.data.sellerDocs,
 			createdAt: data.data.createdAt,
 		};
 		localStorage.setItem('caxiauto_token', data.data.token);
@@ -42,6 +45,7 @@ const useAuthStore = create((set, get) => ({
 	},
 
 	logout: () => {
+		queryClient.clear();
 		set({ user: null, isAuthenticated: false });
 		localStorage.removeItem('caxiauto_user');
 		localStorage.removeItem('caxiauto_token');
@@ -114,6 +118,7 @@ const useAuthStore = create((set, get) => ({
 	getAuthToken: () => localStorage.getItem('caxiauto_token'),
 
 	googleLogin: async (credential) => {
+		queryClient.clear();
 		const data = await api.googleLogin(credential);
 		if (!data.success) {
 			return { success: false, message: data.message || 'Erro ao fazer login com Google' };
@@ -128,6 +133,7 @@ const useAuthStore = create((set, get) => ({
 			status: data.data.status,
 			isVerified: data.data.isVerified,
 			googleId: data.data.googleId,
+			sellerDocs: !!data.data.sellerDocs,
 			createdAt: data.data.createdAt,
 		};
 		localStorage.setItem('caxiauto_token', data.data.token);
@@ -162,6 +168,7 @@ const useAuthStore = create((set, get) => ({
 					googleId: data.data.googleId,
 					provincia: data.data.provincia,
 					municipio: data.data.municipio,
+					sellerDocs: !!data.data.sellerDocs,
 					createdAt: data.data.createdAt,
 				};
 				localStorage.setItem('caxiauto_user', JSON.stringify(userData));

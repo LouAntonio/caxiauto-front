@@ -373,8 +373,8 @@ const Pecas = () => {
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 				<div className="flex items-center justify-between">
 					<div>
-						<h2 className="font-display text-2xl font-bold text-asfalto flex items-center gap-3">
-							<Wrench className="w-7 h-7 text-ambar" />
+						<h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+							<Wrench className="w-7 h-7 text-[#154c9a]" />
 							Minhas Peças
 						</h2>
 						<p className="mt-1 text-gray-600">
@@ -384,7 +384,7 @@ const Pecas = () => {
 					<button
 						onClick={() => handleOpenModal()}
 						disabled={!isVerified}
-						className="flex items-center gap-2 bg-ambar text-asfalto px-6 py-3 rounded-lg hover:bg-ambar-escuro transition-colors shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-ambar/70"
+						className="flex items-center gap-2 bg-[#154c9a] text-white px-6 py-3 rounded-lg hover:bg-[#123f80] transition-colors shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#123f80]"
 						title={!isVerified ? 'Conta não verificada. Envie seus documentos para adicionar peças.' : ''}
 					>
 						{!isVerified ? <Shield className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
@@ -422,7 +422,7 @@ const Pecas = () => {
 					<button
 						onClick={() => handleOpenModal()}
 						disabled={!isVerified}
-						className="inline-flex items-center gap-2 bg-ambar text-asfalto px-6 py-3 rounded-lg hover:bg-ambar-escuro transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-ambar/70"
+						className="inline-flex items-center gap-2 bg-[#154c9a] text-white px-6 py-3 rounded-lg hover:bg-[#123f80] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#123f80]"
 					>
 						{!isVerified ? <Shield className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
 						Adicionar Peça

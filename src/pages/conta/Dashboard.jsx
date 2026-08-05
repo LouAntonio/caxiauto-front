@@ -47,10 +47,8 @@ const Dashboard = () => {
 	const [googleLoading, setGoogleLoading] = useState(false);
 
 	useEffect(() => {
-		if (!user?.createdAt) {
-			refreshUser();
-		}
-	}, [user?.createdAt, refreshUser]);
+		refreshUser();
+	}, [refreshUser]);
 	const [message, setMessage] = useState('');
 	const [saving, setSaving] = useState(false);
 	const [formData, setFormData] = useState({
@@ -475,18 +473,18 @@ const Dashboard = () => {
 			</div>
 
 			{/* Minha Loja */}
-			<div className="bg-asfalto rounded-xl shadow-sm overflow-hidden">
+			<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 				<div className="flex flex-wrap items-center justify-between gap-4 px-6 py-5">
 					<div className="flex items-center gap-3">
-						<div className="w-11 h-11 bg-ambar rounded-lg flex items-center justify-center flex-shrink-0">
-							<Store className="w-5 h-5 text-asfalto" />
+						<div className="w-11 h-11 bg-[#154c9a] rounded-lg flex items-center justify-center flex-shrink-0">
+							<Store className="w-5 h-5 text-white" />
 						</div>
 						<div>
-							<h3 className="font-display font-bold text-papel">
-								{user?.role === 'SELLER' ? 'Minha Loja' : 'Torne-se vendedor'}
+							<h3 className="font-semibold text-lg text-gray-900">
+								{user?.role === 'SELLER' || user?.sellerDocs ? 'Minha Loja' : 'Torne-se vendedor'}
 							</h3>
-							<p className="text-sm text-aco">
-								{user?.role === 'SELLER'
+							<p className="text-sm text-gray-500">
+								{user?.role === 'SELLER' || user?.sellerDocs
 									? 'Gerencia os teus veículos, peças, documentos e assinaturas.'
 									: 'Vende veículos e peças com o selo de confiança Caxiauto.'}
 							</p>
@@ -494,9 +492,9 @@ const Dashboard = () => {
 					</div>
 					<Link
 						to="/minha-loja"
-						className="inline-flex items-center gap-2 px-4 py-2.5 bg-ambar text-asfalto rounded-lg font-semibold text-sm hover:bg-ambar-escuro transition-colors"
+						className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#154c9a] text-white rounded-lg font-semibold text-sm hover:bg-[#123f80] transition-colors"
 					>
-						{user?.role === 'SELLER' ? 'Abrir Minha Loja' : 'Começar'}
+						{user?.role === 'SELLER' || user?.sellerDocs ? 'Abrir Minha Loja' : 'Começar'}
 						<ArrowRight className="w-4 h-4" />
 					</Link>
 				</div>

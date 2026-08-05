@@ -240,7 +240,7 @@ const Assinatura = () => {
 						<CreditCard className="w-6 h-6 text-white" />
 					</div>
 					<div>
-						<h2 className="font-display text-2xl font-bold text-asfalto">Minha Assinatura</h2>
+						<h2 className="text-2xl font-bold text-gray-900">Minha Assinatura</h2>
 						<p className="text-sm text-gray-500 mt-1">Gerencie sua assinatura para aluguer e peças</p>
 					</div>
 				</div>
@@ -302,7 +302,7 @@ const Assinatura = () => {
 						<CreditCard className="w-6 h-6 text-white" />
 					</div>
 					<div>
-						<h2 className="font-display text-2xl font-bold text-asfalto">Planos de Subscrição</h2>
+						<h2 className="text-2xl font-bold text-gray-900">Planos de Subscrição</h2>
 						<p className="text-sm text-gray-500 mt-1">Para aluguer de veículos e anúncio de peças/acessórios</p>
 					</div>
 				</div>
@@ -375,7 +375,7 @@ const Assinatura = () => {
 						<Star className="w-6 h-6 text-white" />
 					</div>
 					<div>
-						<h2 className="font-display text-2xl font-bold text-asfalto">Planos de Destaque</h2>
+						<h2 className="text-2xl font-bold text-gray-900">Planos de Destaque</h2>
 						<p className="text-sm text-gray-500 mt-1">Destaque seus anúncios para mais visibilidade</p>
 					</div>
 				</div>
@@ -453,7 +453,7 @@ const Assinatura = () => {
 						<Upload className="w-6 h-6 text-white" />
 					</div>
 					<div>
-						<h2 className="font-display text-2xl font-bold text-asfalto">Meus Pagamentos</h2>
+						<h2 className="text-2xl font-bold text-gray-900">Meus Pagamentos</h2>
 						<p className="text-sm text-gray-500 mt-1">Acompanhe e envie comprovativos</p>
 					</div>
 				</div>
@@ -503,7 +503,7 @@ const Assinatura = () => {
 												) : (
 													<label
 														htmlFor={`proof-${payment.id}`}
-														className="flex items-center gap-2 px-4 py-2 bg-ambar text-asfalto rounded-lg hover:bg-ambar-escuro cursor-pointer text-sm"
+														className="flex items-center gap-2 px-4 py-2 bg-[#154c9a] text-white rounded-lg hover:bg-[#123f80] cursor-pointer text-sm"
 													>
 														<Upload className="w-4 h-4" />
 														Upload Comprovativo

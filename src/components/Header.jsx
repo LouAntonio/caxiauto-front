@@ -158,7 +158,7 @@ export default function Header() {
 											className="block px-4 py-2.5 text-[#6b7280] hover:bg-[#f8f6f2] hover:text-[#154c9a] transition-colors font-body font-medium flex items-center gap-2"
 										>
 											<Store className="w-4 h-4" />
-											{user.role === 'SELLER' ? 'Minha Loja' : 'Vender'}
+											{user.role === 'SELLER' || user.sellerDocs ? 'Minha Loja' : 'Vender'}
 										</Link>
 										<button
 											onClick={handleLogout}
@@ -363,10 +363,10 @@ export default function Header() {
 									<Link
 										to="/minha-loja"
 										onClick={() => setMobileMenuOpen(false)}
-										className="block text-center px-4 py-3 rounded-2xl text-[#0e1712] font-semibold font-body shadow-lg mt-2 flex items-center justify-center gap-2 bg-ambar hover:bg-amber-400 transition-colors"
+										className="block text-center px-4 py-3 rounded-2xl text-white font-semibold font-body shadow-lg mt-2 flex items-center justify-center gap-2 bg-[#154c9a] hover:bg-blue-800 transition-colors"
 									>
 										<Store className="w-5 h-5" />
-										{user.role === 'SELLER' ? 'Minha Loja' : 'Vender no Caxiauto'}
+										{user.role === 'SELLER' || user.sellerDocs ? 'Minha Loja' : 'Vender no Caxiauto'}
 									</Link>
 									<button
 										onClick={handleLogout}
