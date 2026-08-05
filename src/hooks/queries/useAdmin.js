@@ -175,6 +175,14 @@ export const useAdminToggleUserStatus = () => {
 };
 
 // ==================== VENDEDORES (ADMIN) ====================
+export const useAdminSellers = (params = {}) => {
+	return useQuery({
+		queryKey: ['admin', 'sellers', 'list', params],
+		queryFn: () => api.getAllSellers(params),
+		select: (res) => (res.success ? res.data : []),
+	});
+};
+
 export const useAdminPendingSellers = (params = {}) => {
 	return useQuery({
 		queryKey: ['admin', 'sellers', 'pending', params],

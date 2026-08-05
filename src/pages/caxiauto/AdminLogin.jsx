@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAdminStore from '../../stores/adminStore';
-import { Shield, Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
+import { Shield, Mail, Lock, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
 import { notyf } from '../../services/api';
 
 const AdminLogin = () => {
 	const navigate = useNavigate();
 	const { login, admin } = useAdminStore();
 	const [loading, setLoading] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
 	const [formData, setFormData] = useState({
 		email: '',
 		password: '',
@@ -101,14 +102,26 @@ const AdminLogin = () => {
 							<div className="relative">
 								<Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
 								<input
-									type="password"
+									type={showPassword ? 'text' : 'password'}
 									name="password"
 									value={formData.password}
 									onChange={handleChange}
 									placeholder="••••••••"
-									className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent outline-none transition-all"
+									className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#154c9a] focus:border-transparent outline-none transition-all"
 									required
 								/>
+								<button
+									type="button"
+									onClick={() => setShowPassword(!showPassword)}
+									className="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer"
+									aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+								>
+									{showPassword ? (
+										<EyeOff className="w-5 h-5 text-gray-400 hover:text-[#154c9a]" />
+									) : (
+										<Eye className="w-5 h-5 text-gray-400 hover:text-[#154c9a]" />
+									)}
+								</button>
 							</div>
 						</div>
 

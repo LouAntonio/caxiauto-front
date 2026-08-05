@@ -52,23 +52,20 @@ const AdminSellers = () => {
 	const loadAllSellers = useCallback(async () => {
 		setLoading(true);
 		try {
-			const response = await api.listUsers({ page: pagination.currentPage, limit: 15 });
+			const params = { page: pagination.currentPage, limit: 15 };
+			if (filters.search) params.search = filters.search;
+			const response = await api.getAllSellers(params);
 			if (response.success) {
-				const sellers = response.data.filter(u => u.role === 'SELLER' || u.role === 'USER');
-				const filtered = sellers.filter(s => {
-					if (filters.isVerified && s.isVerified !== (filters.isVerified === 'true')) return false;
-					if (filters.search) {
-						const term = filters.search.toLowerCase();
-						const fullName = `${s.name} ${s.surname}`.toLowerCase();
-						if (!fullName.includes(term) && !s.email.toLowerCase().includes(term)) return false;
-					}
-					return true;
-				});
-				setAllSellers(filtered);
+				let sellers = response.data;
+				if (filters.isVerified) {
+					const target = filters.isVerified === 'true';
+					sellers = sellers.filter(s => s.isVerified === target);
+				}
+				setAllSellers(sellers);
 				setPagination({
-					currentPage: response.pagination.currentPage,
+					currentPage: response.pagination.page,
 					totalPages: response.pagination.totalPages,
-					total: response.pagination.totalUsers,
+					total: response.pagination.total,
 				});
 			}
 		} catch (error) {

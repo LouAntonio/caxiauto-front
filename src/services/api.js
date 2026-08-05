@@ -269,6 +269,8 @@ const api = {
 	getRecentUsers: (limit = 5) => api.get(`/admin/dashboard/recent-users?limit=${limit}`, {}, true),
 
 	// ==================== ADMIN - VENDEDORES ====================
+	getAllSellers: (params = {}) => api.get('/admin/sellers', { params }, true),
+
 	getPendingSellers: (params = {}) => api.get('/admin/sellers/pending', { params }, true),
 
 	getSellerDocs: (params = {}) => api.get('/admin/sellers/docs', { params }, true),
