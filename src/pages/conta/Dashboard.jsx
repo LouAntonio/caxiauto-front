@@ -46,9 +46,6 @@ const Dashboard = () => {
 	const [showPwd, setShowPwd] = useState({ current: false, new: false, confirm: false });
 	const [googleLoading, setGoogleLoading] = useState(false);
 
-	useEffect(() => {
-		refreshUser();
-	}, [refreshUser]);
 	const [message, setMessage] = useState('');
 	const [saving, setSaving] = useState(false);
 	const [formData, setFormData] = useState({

@@ -23,7 +23,8 @@ const ProtectedSellerRoute = ({ children }) => {
 		const token = localStorage.getItem('caxiauto_token');
 
 		const verifyServerAuthentication = async () => {
-			if (!user) {
+			const currentUser = useAuthStore.getState().user;
+			if (!currentUser) {
 				setIsVerifying(false);
 				return;
 			}
@@ -58,7 +59,7 @@ const ProtectedSellerRoute = ({ children }) => {
 		};
 
 		verifyServerAuthentication();
-	}, [user, checkIsLoggedIn, logout]);
+	}, [checkIsLoggedIn, logout]);
 
 	// Mostrar loading enquanto verifica autenticação inicial ou do servidor
 	if (loading || isVerifying) {

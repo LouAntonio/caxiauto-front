@@ -14,6 +14,8 @@ const getStoredUser = () => {
 	return null;
 };
 
+let refreshUserPromise = null;
+
 const useAuthStore = create((set, get) => ({
 	user: getStoredUser(),
 	isAuthenticated: !!getStoredUser(),
@@ -152,34 +154,42 @@ const useAuthStore = create((set, get) => ({
 		}
 	},
 
-	refreshUser: async () => {
-		try {
-			const data = await api.getProfile();
-			if (data.success) {
-				const userData = {
-					id: data.data.id,
-					name: data.data.name,
-					surname: data.data.surname,
-					email: data.data.email,
-					phone: data.data.phone,
-					role: data.data.role,
-					status: data.data.status,
-					isVerified: data.data.isVerified,
-					googleId: data.data.googleId,
-					provincia: data.data.provincia,
-					municipio: data.data.municipio,
-					sellerDocs: !!data.data.sellerDocs,
-					createdAt: data.data.createdAt,
-				};
-				localStorage.setItem('caxiauto_user', JSON.stringify(userData));
-				set({ user: userData, isAuthenticated: true });
-				return true;
+	refreshUser: () => {
+		if (refreshUserPromise) return refreshUserPromise;
+
+		refreshUserPromise = (async () => {
+			try {
+				const data = await api.getProfile();
+				if (data.success) {
+					const userData = {
+						id: data.data.id,
+						name: data.data.name,
+						surname: data.data.surname,
+						email: data.data.email,
+						phone: data.data.phone,
+						role: data.data.role,
+						status: data.data.status,
+						isVerified: data.data.isVerified,
+						googleId: data.data.googleId,
+						provincia: data.data.provincia,
+						municipio: data.data.municipio,
+						sellerDocs: !!data.data.sellerDocs,
+						createdAt: data.data.createdAt,
+					};
+					localStorage.setItem('caxiauto_user', JSON.stringify(userData));
+					set({ user: userData, isAuthenticated: true });
+					return true;
+				}
+				return false;
+			} catch (error) {
+				console.error('Erro ao recarregar usuário:', error);
+				return false;
+			} finally {
+				refreshUserPromise = null;
 			}
-			return false;
-		} catch (error) {
-			console.error('Erro ao recarregar usuário:', error);
-			return false;
-		}
+		})();
+
+		return refreshUserPromise;
 	},
 }));
 
