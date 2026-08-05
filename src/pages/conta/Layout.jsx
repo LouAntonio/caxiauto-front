@@ -3,19 +3,15 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
 import {
 	LayoutDashboard,
-	Car,
 	Heart,
-	FileText,
-	Settings,
-	User,
 	Calendar,
-	CreditCard,
 	Star,
 	AlertTriangle,
-	Wrench,
 	MessageSquare,
+	User,
 	Menu,
-	X
+	X,
+	Store
 } from 'lucide-react';
 
 const ContaLayout = () => {
@@ -30,39 +26,14 @@ const ContaLayout = () => {
 			path: '/minha-conta',
 		},
 		{
-			icon: Car,
-			title: 'Meus Veículos',
-			path: '/minha-conta/veiculos',
-		},
-		{
-			icon: Wrench,
-			title: 'Minhas Peças',
-			path: '/minha-conta/pecas',
-		},
-		{
-			icon: Car,
-			title: 'Veículos Aluguel',
-			path: '/minha-conta/veiculos-aluguel',
-		},
-		{
-			icon: Calendar,
-			title: 'Minhas Reservas',
-			path: '/minha-conta/reservas',
-		},
-		{
 			icon: Heart,
 			title: 'Favoritos',
 			path: '/minha-conta/favoritos',
 		},
 		{
-			icon: FileText,
-			title: 'Documentos',
-			path: '/minha-conta/documentos',
-		},
-		{
-			icon: CreditCard,
-			title: 'Assinatura',
-			path: '/minha-conta/assinatura',
+			icon: Calendar,
+			title: 'Minhas Reservas',
+			path: '/minha-conta/reservas',
 		},
 		{
 			icon: Star,
@@ -105,9 +76,19 @@ const ContaLayout = () => {
 						<div className="w-12 h-12 bg-[#154c9a] rounded-full flex items-center justify-center flex-shrink-0">
 							<User className="w-6 h-6 text-white" />
 						</div>
-						<div>
+						<div className="min-w-0">
 							<h1 className="text-3xl font-bold text-gray-900">Minha Conta</h1>
 							<p className="text-sm text-gray-600">{user?.name}</p>
+						</div>
+						<div className="ml-auto flex-shrink-0">
+							<Link
+								to="/minha-loja"
+								className="inline-flex items-center gap-2 px-4 py-2.5 bg-asfalto text-papel rounded-lg font-semibold text-sm hover:bg-verde-profundo transition-colors"
+								title={user?.role === 'SELLER' ? 'Abrir Minha Loja' : 'Tornar-se vendedor'}
+							>
+								<Store className="w-4 h-4 text-ambar" />
+								<span className="hidden sm:inline">{user?.role === 'SELLER' ? 'Minha Loja' : 'Vender'}</span>
+							</Link>
 						</div>
 					</div>
 				</div>

@@ -338,9 +338,9 @@ const VeiculosAluguel = () => {
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 				<div className="flex items-center justify-between">
 					<div>
-						<h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-							<Car className="w-7 h-7 text-[#154c9a]" />
-							Meus Veículos para Aluguel
+						<h2 className="font-display text-2xl font-bold text-asfalto flex items-center gap-3">
+							<Car className="w-7 h-7 text-ambar" />
+							Veículos Aluguel
 						</h2>
 						<p className="mt-1 text-gray-600">
 							Gerencie seus veículos cadastrados para aluguel
@@ -349,7 +349,7 @@ const VeiculosAluguel = () => {
 					<button
 						onClick={() => handleOpenModal()}
 						disabled={!isVerified}
-						className="flex items-center gap-2 bg-[#154c9a] text-white px-6 py-3 rounded-lg hover:bg-[#123f80] transition-colors shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#154c9a]"
+						className="flex items-center gap-2 bg-ambar text-asfalto px-6 py-3 rounded-lg hover:bg-ambar-escuro transition-colors shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-ambar/70"
 						title={!isVerified ? 'Conta não verificada. Envie seus documentos para adicionar veículos.' : ''}
 					>
 						{!isVerified ? <Shield className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
@@ -387,7 +387,7 @@ const VeiculosAluguel = () => {
 					<button
 						onClick={() => handleOpenModal()}
 						disabled={!isVerified}
-						className="inline-flex items-center gap-2 bg-[#154c9a] text-white px-6 py-3 rounded-lg hover:bg-[#123f80] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#154c9a]"
+						className="inline-flex items-center gap-2 bg-ambar text-asfalto px-6 py-3 rounded-lg hover:bg-ambar-escuro transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-ambar/70"
 					>
 						{!isVerified ? <Shield className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
 						Adicionar Veículo
@@ -765,7 +765,7 @@ const VeiculosAluguel = () => {
 										<button
 											type="button"
 											onClick={handleAddCharacteristic}
-											className="px-6 py-3 bg-[#154c9a] text-white font-semibold rounded-xl hover:bg-[#123f80] transition-colors"
+											className="px-6 py-3 bg-ambar text-asfalto font-semibold rounded-xl hover:bg-ambar-escuro transition-colors"
 										>
 											Adicionar
 										</button>

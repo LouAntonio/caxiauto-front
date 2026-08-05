@@ -278,11 +278,11 @@ const Documentos = () => {
 			{/* Header */}
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 				<div className="flex items-center gap-3 mb-6">
-					<div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-						<FileText className="w-6 h-6 text-white" />
+					<div className="w-12 h-12 bg-ambar rounded-lg flex items-center justify-center">
+						<FileText className="w-6 h-6 text-asfalto" />
 					</div>
 					<div>
-						<h2 className="text-2xl font-bold text-gray-900">Documentos do Vendedor</h2>
+						<h2 className="font-display text-2xl font-bold text-asfalto">Documentos do Vendedor</h2>
 						<p className="text-sm text-gray-500 mt-1">
 							Envie seus documentos para obter o selo de verificação
 						</p>

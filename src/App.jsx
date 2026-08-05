@@ -27,16 +27,19 @@ import Auth from './pages/Auth'
 import RecuperarSenha from './pages/RecuperarSenha'
 import ContaLayout from './pages/conta/Layout'
 import Dashboard from './pages/conta/Dashboard'
-import Veiculos from './pages/conta/Veiculos'
-import VeiculosAluguel from './pages/conta/VeiculosAluguel'
 import Favoritos from './pages/conta/Favoritos'
-import Documentos from './pages/conta/Documentos'
 import Reservas from './pages/conta/Reservas'
-import Assinatura from './pages/conta/Assinatura'
 import Avaliacoes from './pages/conta/Avaliacoes'
 import Denuncias from './pages/conta/Denuncias'
-import Pecas from './pages/conta/Pecas'
 import Mensagens from './pages/conta/Mensagens'
+import SellerLayout from './pages/loja/Layout'
+import SellerDashboard from './pages/loja/Dashboard'
+import Veiculos from './pages/loja/Veiculos'
+import VeiculosAluguel from './pages/loja/VeiculosAluguel'
+import Documentos from './pages/loja/Documentos'
+import Assinatura from './pages/loja/Assinatura'
+import Pecas from './pages/loja/Pecas'
+import ProtectedSellerRoute from './components/ProtectedSellerRoute'
 import PerfilVendedor from './pages/PerfilVendedor'
 import Legal from './pages/Legal'
 // Admin Pages
@@ -139,7 +142,7 @@ function AppContent() {
 				{/* Perfil público do vendedor */}
 				<Route path="/vendedor/:id" element={<PerfilVendedor />} />
 
-				{/* Protected routes - Painel de Conta */}
+				{/* Protected routes - Painel de Conta (usuário) */}
 				<Route
 					path="/minha-conta"
 					element={
@@ -149,15 +152,28 @@ function AppContent() {
 					}
 				>
 					<Route index element={<Dashboard />} />
-					<Route path="veiculos" element={<Veiculos />} />
-					<Route path="pecas" element={<Pecas />} />
-					<Route path="veiculos-aluguel" element={<VeiculosAluguel />} />
-					<Route path="reservas" element={<Reservas />} />
 					<Route path="favoritos" element={<Favoritos />} />
-					<Route path="documentos" element={<Documentos />} />
-					<Route path="assinatura" element={<Assinatura />} />
+					<Route path="reservas" element={<Reservas />} />
 					<Route path="avaliacoes" element={<Avaliacoes />} />
 					<Route path="denuncias" element={<Denuncias />} />
+					<Route path="mensagens" element={<Mensagens />} />
+				</Route>
+
+				{/* Protected routes - Painel Minha Loja (vendedor) */}
+				<Route
+					path="/minha-loja"
+					element={
+						<ProtectedSellerRoute>
+							<SellerLayout />
+						</ProtectedSellerRoute>
+					}
+				>
+					<Route index element={<SellerDashboard />} />
+					<Route path="veiculos" element={<Veiculos />} />
+					<Route path="veiculos-aluguel" element={<VeiculosAluguel />} />
+					<Route path="pecas" element={<Pecas />} />
+					<Route path="documentos" element={<Documentos />} />
+					<Route path="assinatura" element={<Assinatura />} />
 					<Route path="mensagens" element={<Mensagens />} />
 				</Route>
 

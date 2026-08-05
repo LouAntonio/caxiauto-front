@@ -21,7 +21,7 @@ const VerificationWarning = ({ variant = 'banner', className = '' }) => {
 					Conta não verificada. Envie seus documentos para desbloquear todas as funcionalidades.
 				</p>
 				<button
-					onClick={() => navigate('/minha-conta/documentos')}
+					onClick={() => navigate('/minha-loja/documentos')}
 					className="inline-flex items-center gap-1 text-sm font-semibold text-[#154c9a] hover:text-[#0f3d7a] whitespace-nowrap"
 				>
 					Enviar Documentos
@@ -44,7 +44,7 @@ const VerificationWarning = ({ variant = 'banner', className = '' }) => {
 							Para adicionar novos veículos e peças, você precisa passar pelo processo de verificação enviando seus documentos.
 						</p>
 						<button
-							onClick={() => navigate('/minha-conta/documentos')}
+							onClick={() => navigate('/minha-loja/documentos')}
 							className="inline-flex items-center gap-2 bg-[#154c9a] text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-[#0f3d7a] transition-colors shadow-sm"
 						>
 							<Shield className="w-4 h-4" />
@@ -72,7 +72,7 @@ const VerificationWarning = ({ variant = 'banner', className = '' }) => {
 					</p>
 				</div>
 				<button
-					onClick={() => navigate('/minha-conta/documentos')}
+					onClick={() => navigate('/minha-loja/documentos')}
 					className="inline-flex items-center gap-2 bg-[#d41120] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#b50e1a] transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 whitespace-nowrap"
 				>
 					<Shield className="w-5 h-5" />

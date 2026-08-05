@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useAuthStore from '../../stores/authStore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import api, { notyf } from '../../services/api';
 import {
@@ -19,7 +19,9 @@ import {
 	Link2,
 	Unlink2,
 	CheckCircle,
-	AlertCircle
+	AlertCircle,
+	Store,
+	ArrowRight
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import ButtonLoader from '../../components/ButtonLoader';
@@ -472,6 +474,34 @@ const Dashboard = () => {
 				</div>
 			</div>
 
+			{/* Minha Loja */}
+			<div className="bg-asfalto rounded-xl shadow-sm overflow-hidden">
+				<div className="flex flex-wrap items-center justify-between gap-4 px-6 py-5">
+					<div className="flex items-center gap-3">
+						<div className="w-11 h-11 bg-ambar rounded-lg flex items-center justify-center flex-shrink-0">
+							<Store className="w-5 h-5 text-asfalto" />
+						</div>
+						<div>
+							<h3 className="font-display font-bold text-papel">
+								{user?.role === 'SELLER' ? 'Minha Loja' : 'Torne-se vendedor'}
+							</h3>
+							<p className="text-sm text-aco">
+								{user?.role === 'SELLER'
+									? 'Gerencia os teus veículos, peças, documentos e assinaturas.'
+									: 'Vende veículos e peças com o selo de confiança Caxiauto.'}
+							</p>
+						</div>
+					</div>
+					<Link
+						to="/minha-loja"
+						className="inline-flex items-center gap-2 px-4 py-2.5 bg-ambar text-asfalto rounded-lg font-semibold text-sm hover:bg-ambar-escuro transition-colors"
+					>
+						{user?.role === 'SELLER' ? 'Abrir Minha Loja' : 'Começar'}
+						<ArrowRight className="w-4 h-4" />
+					</Link>
+				</div>
+			</div>
+
 			{/* Estatísticas */}
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 				<h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -483,21 +513,9 @@ const Dashboard = () => {
 					<div className="text-center py-8 text-gray-500">A carregar...</div>
 				) : stats ? (
 					<div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-						<div className="bg-blue-50 rounded-lg p-4 text-center">
-							<p className="text-2xl font-bold text-[#154c9a]">{stats.totalVeiculos}</p>
-							<p className="text-sm text-gray-600">Veículos</p>
-						</div>
-						<div className="bg-green-50 rounded-lg p-4 text-center">
-							<p className="text-2xl font-bold text-green-700">{stats.totalPecas}</p>
-							<p className="text-sm text-gray-600">Peças</p>
-						</div>
 						<div className="bg-purple-50 rounded-lg p-4 text-center">
 							<p className="text-2xl font-bold text-purple-700">{stats.totalReservas}</p>
-							<p className="text-sm text-gray-600">Reservas</p>
-						</div>
-						<div className="bg-orange-50 rounded-lg p-4 text-center">
-							<p className="text-2xl font-bold text-orange-700">{stats.reservasRecebidas}</p>
-							<p className="text-sm text-gray-600">Reservas Recebidas</p>
+							<p className="text-sm text-gray-600">Minhas Reservas</p>
 						</div>
 						<div className="bg-red-50 rounded-lg p-4 text-center">
 							<p className="text-2xl font-bold text-red-700">{stats.totalDenuncias}</p>
