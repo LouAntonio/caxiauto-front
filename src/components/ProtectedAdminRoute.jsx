@@ -11,12 +11,16 @@ const ProtectedAdminRoute = ({ children }) => {
 	React.useEffect(() => {
 		const validateAdmin = async () => {
 			const isLoggedIn = await checkIsLoggedIn();
+			if (!isLoggedIn) {
+				localStorage.removeItem('caxiauto_admin');
+				localStorage.removeItem('caxiauto_admin_token');
+			}
 			setIsAuthenticated(isLoggedIn);
 			setIsValidating(false);
 		};
 
 		validateAdmin();
-	}, [admin, checkIsLoggedIn]);
+	}, [checkIsLoggedIn]);
 
 	if (loading || isValidating) {
 		return (

@@ -16,9 +16,9 @@ import { useDashboardStats, useRecentVehicles, useRecentPecas, useRecentUsers } 
 
 const AdminDashboard = () => {
 	const { data: stats, isLoading } = useDashboardStats();
-	const { data: recentVehicles } = useRecentVehicles(5);
-	const { data: recentPecas } = useRecentPecas(5);
-	const { data: recentUsers } = useRecentUsers(5);
+	const { data: recentVehicles = [] } = useRecentVehicles(5);
+	const { data: recentPecas = [] } = useRecentPecas(5);
+	const { data: recentUsers = [] } = useRecentUsers(5);
 
 	const statCards = [
 		{

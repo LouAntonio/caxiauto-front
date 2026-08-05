@@ -15,12 +15,13 @@ const isTokenExpired = (token) => {
 
 const ProtectedRoute = ({ children }) => {
 	const { user, loading, logout, checkIsLoggedIn } = useAuthStore();
-	const token = localStorage.getItem('caxiauto_token');
 	const [isVerifying, setIsVerifying] = useState(true);
 	const [isServerAuthenticated, setIsServerAuthenticated] = useState(false);
 	const location = useLocation();
 
 	useEffect(() => {
+		const token = localStorage.getItem('caxiauto_token');
+
 		const verifyServerAuthentication = async () => {
 			if (!user) {
 				setIsVerifying(false);
@@ -57,7 +58,7 @@ const ProtectedRoute = ({ children }) => {
 		};
 
 		verifyServerAuthentication();
-	}, [user, token, checkIsLoggedIn, logout]);
+	}, [user, checkIsLoggedIn, logout]);
 
 	// Mostrar loading enquanto verifica autenticação inicial ou do servidor
 	if (loading || isVerifying) {
