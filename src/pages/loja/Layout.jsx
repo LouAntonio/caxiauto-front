@@ -9,6 +9,7 @@ import {
 	Wrench,
 	FileText,
 	CreditCard,
+	Handshake,
 	MessageSquare,
 	Store,
 	User,
@@ -31,6 +32,7 @@ const SellerLayout = () => {
 		{ icon: Wrench, title: 'Minhas Peças', path: '/minha-loja/pecas' },
 		{ icon: FileText, title: 'Documentos', path: '/minha-loja/documentos' },
 		{ icon: CreditCard, title: 'Assinatura', path: '/minha-loja/assinatura' },
+		{ icon: Handshake, title: 'Parceiros', path: '/minha-loja/parceiros' },
 		{ icon: MessageSquare, title: 'Mensagens', path: '/minha-loja/mensagens' },
 	];
 

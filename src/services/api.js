@@ -330,18 +330,16 @@ const api = {
 
 	adminMarkVehicleAsSold: (id) => api.put(`/admin/vehicles/${id}/mark-sold`, {}, {}, true),
 
-	// ==================== ADMIN - PARCEIROS ====================
-	listPartners: (params = {}) => api.get('/partners', { params }, true),
+	// ==================== PARCEIROS (VENDEDOR / MINHA LOJA) ====================
+	myPartners: (params = {}) => api.get('/partners/my', { params }),
 
 	getPartner: (id) => api.get(`/partners/${id}`),
 
-	createPartner: (data) => api.post('/partners', data, {}, true),
+	createMyPartner: (data) => api.post('/partners/my', data),
 
-	updatePartner: (id, data) => api.put(`/partners/${id}`, data, {}, true),
+	updateMyPartner: (id, data) => api.put(`/partners/my/${id}`, data),
 
-	deletePartner: (id) => api.delete(`/partners/${id}`, {}, true),
-
-	togglePartnerStatus: (id, status) => api.patch(`/partners/${id}/status`, { status }, {}, true),
+	deleteMyPartner: (id) => api.delete(`/partners/my/${id}`),
 
 	// ==================== PARCEIROS (PÚBLICO) ====================
 	listActivePartners: (params = {}) => api.get('/partners/active', { params }),

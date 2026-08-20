@@ -393,52 +393,11 @@ export const useAdminMarkVehicleAsSold = () => {
 	});
 };
 
-// ==================== PARCEIROS (ADMIN) ====================
-export const useAdminPartners = (params = {}) => {
-	return useQuery({
-		queryKey: ['admin', 'partners', params],
-		queryFn: () => api.listPartners(params),
-		select: (res) => (res.success ? res.data : []),
-	});
-};
-
-export const useAdminCreatePartner = () => {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: (data) => api.createPartner(data),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'partners'] }),
-	});
-};
-
-export const useAdminUpdatePartner = () => {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({ id, data }) => api.updatePartner(id, data),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'partners'] }),
-	});
-};
-
-export const useAdminDeletePartner = () => {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: (id) => api.deletePartner(id),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'partners'] }),
-	});
-};
-
 // ==================== CHAT (ADMIN) ====================
 export const useAdminConversations = () => {
 	return useQuery({
 		queryKey: ['admin', 'chat', 'conversations'],
 		queryFn: () => api.adminListConversations(),
 		select: (res) => (res.success ? res.data : []),
-	});
-};
-
-export const useAdminTogglePartnerStatus = () => {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({ id, status }) => api.togglePartnerStatus(id, status),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'partners'] }),
 	});
 };

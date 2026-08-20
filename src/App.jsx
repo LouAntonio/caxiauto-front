@@ -39,6 +39,7 @@ import VeiculosAluguel from './pages/loja/VeiculosAluguel'
 import Documentos from './pages/loja/Documentos'
 import Assinatura from './pages/loja/Assinatura'
 import Pecas from './pages/loja/Pecas'
+import LojaParceiros from './pages/loja/Parceiros'
 import ProtectedSellerRoute from './components/ProtectedSellerRoute'
 import PerfilVendedor from './pages/PerfilVendedor'
 import Legal from './pages/Legal'
@@ -55,7 +56,6 @@ import AdminReports from './pages/caxiauto/AdminReports'
 import AdminReviews from './pages/caxiauto/AdminReviews'
 import AdminManufacturers from './pages/caxiauto/AdminManufacturers'
 import AdminClasses from './pages/caxiauto/AdminClasses'
-import AdminPartners from './pages/caxiauto/AdminPartners'
 import AdminPlans from './pages/caxiauto/AdminPlans'
 import AdminHighlightPlans from './pages/caxiauto/AdminHighlightPlans'
 import AdminPayments from './pages/caxiauto/AdminPayments'
@@ -174,6 +174,7 @@ function AppContent() {
 					<Route path="pecas" element={<Pecas />} />
 					<Route path="documentos" element={<Documentos />} />
 					<Route path="assinatura" element={<Assinatura />} />
+					<Route path="parceiros" element={<LojaParceiros />} />
 					<Route path="mensagens" element={<Mensagens />} />
 				</Route>
 
@@ -198,7 +199,6 @@ function AppContent() {
 					<Route path="avaliacoes" element={<AdminReviews />} />
 					<Route path="fabricantes" element={<AdminManufacturers />} />
 					<Route path="classes" element={<AdminClasses />} />
-					<Route path="parceiros" element={<AdminPartners />} />
 					<Route path="planos" element={<AdminPlans />} />
 					<Route path="planos-destaque" element={<AdminHighlightPlans />} />
 					<Route path="pagamentos" element={<AdminPayments />} />

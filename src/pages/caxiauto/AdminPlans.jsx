@@ -20,6 +20,7 @@ const AdminPlans = () => {
 		price: '',
 		maxVehicles: '',
 		maxPecas: '',
+		maxPartners: '0',
 		durationDays: '30',
 		validUntil: '',
 		description: '',
@@ -50,7 +51,7 @@ const AdminPlans = () => {
 
 	const handleOpenCreate = () => {
 		setEditingPlan(null);
-		setFormData({ name: '', price: '', maxVehicles: '', maxPecas: '', durationDays: '30', validUntil: '', description: '', benefits: [] });
+		setFormData({ name: '', price: '', maxVehicles: '', maxPecas: '', maxPartners: '0', durationDays: '30', validUntil: '', description: '', benefits: [] });
 		setBenefitsInput('');
 		setBannerFile(null);
 		setBannerPreview('');
@@ -64,6 +65,7 @@ const AdminPlans = () => {
 			price: String(Number(plan.price)),
 			maxVehicles: String(plan.maxVehicles),
 			maxPecas: String(plan.maxPecas),
+			maxPartners: String(plan.maxPartners ?? 0),
 			durationDays: String(plan.durationDays || 30),
 			validUntil: plan.validUntil ? plan.validUntil.slice(0, 10) : '',
 			description: plan.description || '',
@@ -123,6 +125,7 @@ const AdminPlans = () => {
 				price: Number(formData.price),
 				maxVehicles: Number(formData.maxVehicles),
 				maxPecas: Number(formData.maxPecas),
+				maxPartners: Number(formData.maxPartners) || 0,
 				durationDays: Number(formData.durationDays) || 30,
 				validUntil: formData.validUntil || undefined,
 				description: formData.description || undefined,
@@ -141,7 +144,7 @@ const AdminPlans = () => {
 				notyf.success(editingPlan ? 'Plano atualizado com sucesso!' : 'Plano criado com sucesso!');
 				setShowModal(false);
 				setEditingPlan(null);
-				setFormData({ name: '', price: '', maxVehicles: '', maxPecas: '', description: '', benefits: [] });
+				setFormData({ name: '', price: '', maxVehicles: '', maxPecas: '', maxPartners: '0', description: '', benefits: [] });
 				setBenefitsInput('');
 				setBannerFile(null);
 				setBannerPreview('');
@@ -209,6 +212,7 @@ const AdminPlans = () => {
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duração</th>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Max. Veículos</th>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Max. Peças</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Max. Parceiros</th>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Validade</th>
 									<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
 								</tr>
@@ -221,6 +225,7 @@ const AdminPlans = () => {
 										<td className="px-6 py-4 text-sm text-gray-600">{plan.durationDays || 30} dias</td>
 										<td className="px-6 py-4 text-sm text-gray-600">{plan.maxVehicles}</td>
 										<td className="px-6 py-4 text-sm text-gray-600">{plan.maxPecas}</td>
+										<td className="px-6 py-4 text-sm text-gray-600">{plan.maxPartners ?? 0}</td>
 										<td className="px-6 py-4 text-sm">
 											{plan.validUntil ? (
 												<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -316,6 +321,17 @@ const AdminPlans = () => {
 								</div>
 								<div className="grid grid-cols-2 gap-4">
 									<div>
+										<label className="block text-sm font-medium text-gray-700 mb-1">Máx. Parceiros</label>
+										<input
+											type="number"
+											min={0}
+											value={formData.maxPartners}
+											onChange={(e) => setFormData({ ...formData, maxPartners: e.target.value })}
+											className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
+											placeholder="Ex: 5"
+										/>
+									</div>
+									<div>
 										<label className="block text-sm font-medium text-gray-700 mb-1">Duração (dias)</label>
 										<input
 											type="number"
@@ -327,15 +343,15 @@ const AdminPlans = () => {
 											required
 										/>
 									</div>
-									<div>
-										<label className="block text-sm font-medium text-gray-700 mb-1">Válido até <span className="text-gray-400">(opcional)</span></label>
-										<input
-											type="date"
-											value={formData.validUntil}
-											onChange={(e) => setFormData({ ...formData, validUntil: e.target.value })}
-											className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
-										/>
-									</div>
+								</div>
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Válido até <span className="text-gray-400">(opcional)</span></label>
+									<input
+										type="date"
+										value={formData.validUntil}
+										onChange={(e) => setFormData({ ...formData, validUntil: e.target.value })}
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
+									/>
 								</div>
 								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-1">Descrição <span className="text-gray-400">(opcional)</span></label>

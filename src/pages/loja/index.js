@@ -7,3 +7,4 @@ export { default as VeiculosAluguel } from './VeiculosAluguel';
 export { default as Pecas } from './Pecas';
 export { default as Documentos } from './Documentos';
 export { default as Assinatura } from './Assinatura';
+export { default as Parceiros } from './Parceiros';

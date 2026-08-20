@@ -12,7 +12,6 @@ import {
 	Star,
 	Factory,
 	Layers,
-	Handshake,
 	Settings,
 	Shield,
 	LogOut,
@@ -85,11 +84,6 @@ const AdminLayout = () => {
 			icon: Layers,
 			title: 'Classes',
 			path: '/caxiauto/classes',
-		},
-		{
-			icon: Handshake,
-			title: 'Parceiros',
-			path: '/caxiauto/parceiros',
 		},
 		{
 			icon: CreditCard,

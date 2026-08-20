@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { GoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
 import useAuthStore from '../stores/authStore';
-import { User, Mail, Lock, Phone, Eye, EyeOff, Check, X, Rocket, Clock, Sparkles, ArrowRight } from 'lucide-react';
+import { User, Mail, Lock, Phone, Eye, EyeOff, Check, X } from 'lucide-react';
 
 import useDocumentTitle from '../hooks/useDocumentTitle';
 import { notyf } from '../services/api';
@@ -17,7 +17,7 @@ const Auth = () => {
 	const [loading, setLoading] = useState(false);
 
 	// Multi-step Registration State
-	const [registrationStep, setRegistrationStep] = useState(0); // 0: Offer, 1: Email, 2: OTP, 3: Details
+	const [registrationStep, setRegistrationStep] = useState(0); // 0: Email, 1: OTP, 2: Details
 
 	const [otp, setOtp] = useState(['', '', '', '', '', '']);
 
@@ -135,7 +135,7 @@ const Auth = () => {
 		}
 
 		// Registration Steps Validation
-		if (registrationStep === 1) {
+		if (registrationStep === 0) {
 			if (!formData.email.includes('@')) {
 				notyf.error('Digite um email válido');
 				return false;
@@ -143,7 +143,7 @@ const Auth = () => {
 			return true;
 		}
 
-		if (registrationStep === 2) {
+		if (registrationStep === 1) {
 			const otpString = otp.join('');
 			if (otpString.length !== 6) { // Assuming 6-digit OTP
 				notyf.error('O código deve ter 6 dígitos');
@@ -152,7 +152,7 @@ const Auth = () => {
 			return true;
 		}
 
-		if (registrationStep === 3) {
+		if (registrationStep === 2) {
 			if (!formData.firstName.trim()) {
 				notyf.error('Digite seu nome');
 				return false;
@@ -214,7 +214,7 @@ const Auth = () => {
 			const result = await checkEmail(formData.email);
 			if (result.success) {
 				notyf.success(result.message);
-				setRegistrationStep(2);
+				setRegistrationStep(1);
 			} else {
 				notyf.error(result.message);
 			}
@@ -269,7 +269,7 @@ const Auth = () => {
 			const result = await verifyOTP(formData.email, otpString);
 			if (result.success) {
 				notyf.success(result.message);
-				setRegistrationStep(3);
+				setRegistrationStep(2);
 			} else {
 				notyf.error(result.message);
 			}
@@ -293,15 +293,15 @@ const Auth = () => {
 
 		if (!isLogin) {
 			// Registration Flow
-			if (registrationStep === 1) {
+			if (registrationStep === 0) {
 				await handleSendOTP();
 				return;
 			}
-			if (registrationStep === 2) {
+			if (registrationStep === 1) {
 				await handleVerifyOTP();
 				return;
 			}
-			// Step 3 falls through to final registration
+			// Step 2 falls through to final registration
 		}
 
 		setLoading(true);
@@ -330,7 +330,7 @@ const Auth = () => {
 						phone: '',
 					});
 					setOtp(['', '', '', '', '', '']);
-					setRegistrationStep(1);
+					setRegistrationStep(0);
 					setIsLogin(true);
 				} else {
 					notyf.error(result.message);
@@ -346,7 +346,7 @@ const Auth = () => {
 	const toggleMode = () => {
 		setIsLogin(!isLogin);
 		setIsForgotPassword(false);
-		setRegistrationStep(0); // Reset step to Offer
+		setRegistrationStep(0); // Reset step to Email
 
 		setOtp(['', '', '', '', '', '']);
 		setFormData({
@@ -361,7 +361,7 @@ const Auth = () => {
 
 	const toggleForgotPassword = () => {
 		setIsForgotPassword(!isForgotPassword);
-		setRegistrationStep(1);
+		setRegistrationStep(0);
 	};
 
 	return (
@@ -377,10 +377,9 @@ const Auth = () => {
 							? 'Digite seu email para receber o link de recuperação'
 							: (isLogin
 								? 'Entre para acessar seu painel administrativo'
-								: (registrationStep === 0 ? 'Oferta de Lançamento Caxiauto' :
-									registrationStep === 1 ? 'Passo 1 de 4: Informe seu email' :
-										registrationStep === 2 ? 'Passo 2 de 4: Validação' :
-											'Passo 3 de 4: Seus dados'))}
+								: (registrationStep === 0 ? 'Passo 1 de 3: Informe seu email' :
+									registrationStep === 1 ? 'Passo 2 de 3: Validação' :
+										'Passo 3 de 3: Seus dados'))}
 					</p>
 
 				</div>
@@ -392,17 +391,17 @@ const Auth = () => {
 						<div className="mb-8">
 							<div className="flex items-center justify-between relative">
 								{/* Connecting Line Background */}
-								<div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-200" style={{ left: '16.67%', right: '16.67%' }} />
+								<div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-200" style={{ left: '25%', right: '25%' }} />
 								{/* Connecting Line Progress */}
 								<div
 									className="absolute top-5 h-0.5 bg-[#154c9a] transition-all duration-500 ease-out"
 									style={{
 										left: '12.5%',
-										width: registrationStep === 0 ? '0%' : registrationStep === 1 ? '25%' : registrationStep === 2 ? '50%' : '75%'
+										width: registrationStep === 0 ? '0%' : registrationStep === 1 ? '50%' : '100%'
 									}}
 								/>
 
-								{/* Step 0: Offer */}
+								{/* Step 0: Email */}
 								<div className="flex flex-col items-center relative z-10">
 									<div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${registrationStep > 0
 										? 'bg-[#154c9a] text-white shadow-lg shadow-[#154c9a]/20'
@@ -410,13 +409,13 @@ const Auth = () => {
 											? 'bg-[#154c9a] text-white ring-4 ring-[#154c9a]/20 shadow-lg shadow-[#154c9a]/20'
 											: 'bg-gray-100 text-gray-400'
 									}`}>
-										{registrationStep > 0 ? <Check className="w-5 h-5" /> : <Rocket className="w-5 h-5" />}
+										{registrationStep > 0 ? <Check className="w-5 h-5" /> : '1'}
 									</div>
 									<span className={`mt-2 text-xs font-medium transition-colors font-body ${registrationStep >= 0 ? 'text-[#154c9a]' : 'text-gray-400'
-									}`}>Oferta</span>
+									}`}>Email</span>
 								</div>
 
-								{/* Step 1 */}
+								{/* Step 1: OTP */}
 								<div className="flex flex-col items-center relative z-10">
 									<div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${registrationStep > 1
 										? 'bg-[#154c9a] text-white shadow-lg shadow-[#154c9a]/20'
@@ -424,35 +423,21 @@ const Auth = () => {
 											? 'bg-[#154c9a] text-white ring-4 ring-[#154c9a]/20 shadow-lg shadow-[#154c9a]/20'
 											: 'bg-gray-100 text-gray-400'
 									}`}>
-										{registrationStep > 1 ? <Check className="w-5 h-5" /> : '1'}
+										{registrationStep > 1 ? <Check className="w-5 h-5" /> : '2'}
 									</div>
 									<span className={`mt-2 text-xs font-medium transition-colors font-body ${registrationStep >= 1 ? 'text-[#154c9a]' : 'text-gray-400'
-									}`}>Email</span>
-								</div>
-
-								{/* Step 2 */}
-								<div className="flex flex-col items-center relative z-10">
-									<div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${registrationStep > 2
-										? 'bg-[#154c9a] text-white shadow-lg shadow-[#154c9a]/20'
-										: registrationStep === 2
-											? 'bg-[#154c9a] text-white ring-4 ring-[#154c9a]/20 shadow-lg shadow-[#154c9a]/20'
-											: 'bg-gray-100 text-gray-400'
-									}`}>
-										{registrationStep > 2 ? <Check className="w-5 h-5" /> : '2'}
-									</div>
-									<span className={`mt-2 text-xs font-medium transition-colors font-body ${registrationStep >= 2 ? 'text-[#154c9a]' : 'text-gray-400'
 									}`}>Verificação</span>
 								</div>
 
-								{/* Step 3 */}
+								{/* Step 2: Details */}
 								<div className="flex flex-col items-center relative z-10">
-									<div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${registrationStep === 3
+									<div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${registrationStep === 2
 										? 'bg-[#154c9a] text-white ring-4 ring-[#154c9a]/20 shadow-lg shadow-[#154c9a]/20'
 										: 'bg-gray-100 text-gray-400'
 									}`}>
 										3
 									</div>
-									<span className={`mt-2 text-xs font-medium transition-colors font-body ${registrationStep >= 3 ? 'text-[#154c9a]' : 'text-gray-400'
+									<span className={`mt-2 text-xs font-medium transition-colors font-body ${registrationStep >= 2 ? 'text-[#154c9a]' : 'text-gray-400'
 									}`}>Cadastro</span>
 								</div>
 
@@ -461,49 +446,8 @@ const Auth = () => {
 					)}
 
 					<form onSubmit={handleSubmit} className="space-y-5">
-						{/* Step 0: Offer */}
-						{!isLogin && !isForgotPassword && registrationStep === 0 && (
-							<div className="space-y-6">
-								<div className="bg-[#f8f6f2] p-6 rounded-2xl border border-[#e5e7eb]">
-									<div className="flex items-center gap-3 mb-4">
-										<Rocket className="w-8 h-8 text-[#154c9a]" />
-										<h3 className="text-xl font-bold text-[#111827] font-display">Oferta de Lançamento!</h3>
-									</div>
-									<p className="text-[#6b7280] leading-relaxed mb-4 font-body">
-										Durante os primeiros <span className="font-bold text-[#154c9a]">4 meses</span>, o registro na plataforma será <span className="font-bold text-green-600">totalmente gratuito</span>.
-									</p>
-									<ul className="space-y-2 mb-6">
-										<li className="flex items-start gap-2 text-sm text-[#6b7280] font-body">
-											<Check className="w-4 h-4 text-green-500 mt-1 shrink-0" />
-											<span>Divulgue seus serviços para milhares de clientes.</span>
-										</li>
-										<li className="flex items-start gap-2 text-sm text-[#6b7280] font-body">
-											<Check className="w-4 h-4 text-green-500 mt-1 shrink-0" />
-											<span>Ecossistema completo: Vendas, Aluguel, Peças e mais.</span>
-										</li>
-										<li className="flex items-start gap-2 text-sm text-[#6b7280] font-body">
-											<Check className="w-4 h-4 text-green-500 mt-1 shrink-0" />
-											<span>Conexão direta com clientes específicos.</span>
-										</li>
-									</ul>
-									<Link to="/comercial" className="text-sm text-[#154c9a] font-semibold hover:underline flex items-center gap-1 font-body">
-										Ver todos os benefícios e planos <ArrowRight className="w-4 h-4" />
-									</Link>
-								</div>
-								
-								<button
-									type="button"
-									onClick={() => setRegistrationStep(1)}
-									className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-2xl shadow-lg text-lg font-bold text-white bg-[#154c9a] hover:bg-blue-800 transition-all hover:scale-[1.02] active:scale-[0.98] font-body"
-								>
-									Aproveitar 4 Meses Grátis
-									<ArrowRight className="w-5 h-5" />
-								</button>
-							</div>
-						)}
-
-						{/* Login or Step 1: Email */}
-						{(isLogin || isForgotPassword || registrationStep === 1) && (
+						{/* Step 1: Email */}
+						{(isLogin || isForgotPassword || registrationStep === 0) && (
 
 							<div>
 								<label htmlFor="email" className="block text-sm font-medium text-[#6b7280] mb-1 font-body">
@@ -528,7 +472,7 @@ const Auth = () => {
 						)}
 
 						{/* Step 2: OTP */}
-						{!isLogin && !isForgotPassword && registrationStep === 2 && (
+						{!isLogin && !isForgotPassword && registrationStep === 1 && (
 							<div>
 								<label className="block text-sm font-medium text-[#6b7280] mb-3 text-center font-body">
 									Código de Verificação
@@ -558,7 +502,7 @@ const Auth = () => {
 						)}
 
 						{/* Step 3: Personal Details (Name, Surname, Phone, Password) */}
-						{!isLogin && !isForgotPassword && registrationStep === 3 && (
+						{!isLogin && !isForgotPassword && registrationStep === 2 && (
 							<>
 								<div className="flex gap-4">
 									<div className="flex-1">
@@ -627,7 +571,7 @@ const Auth = () => {
 						)}
 
 						{/* Login Password or Step 3 Password */}
-						{!isForgotPassword && (isLogin || registrationStep === 3) && (
+						{!isForgotPassword && (isLogin || registrationStep === 2) && (
 							<div>
 								<label htmlFor="password" className="block text-sm font-medium text-[#6b7280] mb-1 font-body">
 									Senha
@@ -709,7 +653,7 @@ const Auth = () => {
 						)}
 
 						{/* Confirm Password (Step 3) */}
-						{!isLogin && !isForgotPassword && registrationStep === 3 && (
+						{!isLogin && !isForgotPassword && registrationStep === 2 && (
 							<div>
 								<label htmlFor="confirmPassword" className="block text-sm font-medium text-[#6b7280] mb-1 font-body">
 									Confirmar Senha
@@ -801,7 +745,7 @@ const Auth = () => {
 						)}
 
 						{/* Google Login - Cadastro Step 1 */}
-						{!isLogin && !isForgotPassword && registrationStep === 1 && (
+						{!isLogin && !isForgotPassword && registrationStep === 0 && (
 							<div className="relative my-6">
 								<div className="absolute inset-0 flex items-center">
 									<div className="w-full border-t border-gray-200" />
@@ -811,7 +755,7 @@ const Auth = () => {
 								</div>
 							</div>
 						)}
-						{!isLogin && !isForgotPassword && registrationStep === 1 && (
+						{!isLogin && !isForgotPassword && registrationStep === 0 && (
 							<div className="flex justify-center">
 								<GoogleLogin
 									onSuccess={handleGoogleSuccess}
@@ -827,7 +771,7 @@ const Auth = () => {
 
 						{/* Action Buttons */}
 						<div className="flex gap-3">
-							{!isLogin && !isForgotPassword && registrationStep > 1 && (
+							{!isLogin && !isForgotPassword && registrationStep > 0 && (
 								<button
 									type="button"
 									onClick={() => {
@@ -841,7 +785,7 @@ const Auth = () => {
 								</button>
 							)}
 
-							{(isLogin || isForgotPassword || registrationStep > 0) && (
+							{(isLogin || isForgotPassword || registrationStep >= 0) && (
 								<button
 									type="submit"
 									disabled={loading}
@@ -850,8 +794,8 @@ const Auth = () => {
 									{loading ? 'Processando...' :
 										(isForgotPassword ? 'Enviar Link' :
 											(isLogin ? 'Entrar' :
-												(registrationStep === 1 ? 'Continuar' :
-													registrationStep === 2 ? 'Validar Código' :
+												(registrationStep === 0 ? 'Continuar' :
+													registrationStep === 1 ? 'Validar Código' :
 														'Criar Conta')))
 									}
 								</button>
