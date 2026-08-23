@@ -378,6 +378,9 @@ const Assinatura = () => {
 											<span className="text-gray-600 text-sm">/{plan.durationDays || 30} dias</span>
 										)}
 									</div>
+									{plan.description && (
+										<p className="text-sm text-gray-600 mb-4">{plan.description}</p>
+									)}
 									{plan.validUntil && (
 										<div className="mb-3">
 											<span className="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold">
@@ -386,10 +389,17 @@ const Assinatura = () => {
 										</div>
 									)}
 									<div className="space-y-3 mb-6">
-										<div className="flex items-center gap-2 text-sm">
-											<Check className="w-4 h-4 text-green-600" />
-											<span>{activeSection.limitLabel(activeTab === 'ALUGUEL' ? plan.maxVehicles : activeTab === 'PECAS' ? plan.maxPecas : plan.maxPartners)}</span>
-										</div>
+										{(Array.isArray(plan.benefits) && plan.benefits.length > 0
+											? plan.benefits
+											: [activeSection.limitLabel(
+												activeTab === 'ALUGUEL' ? plan.maxVehicles : activeTab === 'PECAS' ? plan.maxPecas : plan.maxPartners
+											)]
+										).map((benefit, i) => (
+											<div key={i} className="flex items-center gap-2 text-sm">
+												<Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+												<span>{benefit}</span>
+											</div>
+										))}
 									</div>
 									<ButtonLoader
 										onClick={() => handleSubscribe(plan.id)}
