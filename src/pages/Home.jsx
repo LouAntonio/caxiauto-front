@@ -9,7 +9,7 @@ import SellBuySection from '../components/SellBuySection'
 import PartnersSlider from '../components/PartnersSlider'
 import FeedbackSection from '../components/FeedbackSection'
 
-const useRentalVehicles = () => useFeaturedVehicles({ type: 'RENT,BOTH' })
+const useRentalVehicles = () => useFeaturedVehicles({ type: 'RENT' })
 
 export default function Home() {
 	useDocumentTitle('Página Inicial - Caxiauto')

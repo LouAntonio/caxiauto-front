@@ -33,13 +33,13 @@ import Avaliacoes from './pages/conta/Avaliacoes'
 import Denuncias from './pages/conta/Denuncias'
 import Mensagens from './pages/conta/Mensagens'
 import SellerLayout from './pages/loja/Layout'
-import SellerDashboard from './pages/loja/Dashboard'
+import SellerHome from './pages/loja/Home'
 import Veiculos from './pages/loja/Veiculos'
 import VeiculosAluguel from './pages/loja/VeiculosAluguel'
 import Documentos from './pages/loja/Documentos'
 import Assinatura from './pages/loja/Assinatura'
 import Pecas from './pages/loja/Pecas'
-import LojaParceiros from './pages/loja/Parceiros'
+import LojaEmpresas from './pages/loja/Empresas'
 import ProtectedSellerRoute from './components/ProtectedSellerRoute'
 import PerfilVendedor from './pages/PerfilVendedor'
 import Legal from './pages/Legal'
@@ -168,13 +168,13 @@ function AppContent() {
 						</ProtectedSellerRoute>
 					}
 				>
-					<Route index element={<SellerDashboard />} />
+					<Route index element={<SellerHome />} />
 					<Route path="veiculos" element={<Veiculos />} />
 					<Route path="veiculos-aluguel" element={<VeiculosAluguel />} />
 					<Route path="pecas" element={<Pecas />} />
 					<Route path="documentos" element={<Documentos />} />
 					<Route path="assinatura" element={<Assinatura />} />
-					<Route path="parceiros" element={<LojaParceiros />} />
+					<Route path="empresas" element={<LojaEmpresas />} />
 					<Route path="mensagens" element={<Mensagens />} />
 				</Route>
 

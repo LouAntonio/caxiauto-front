@@ -43,7 +43,7 @@ const VeiculosAluguel = () => {
 	const deleteVehicle = useDeleteVehicle();
 	const toggleStatus = useToggleVehicleStatus();
 	const vehicles = (allVehicles || []).filter(
-		v => v.type === 'RENT' || v.type === 'BOTH'
+		v => v.type === 'RENT'
 	);
 	const [showModal, setShowModal] = useState(false);
 	const [editingVehicle, setEditingVehicle] = useState(null);

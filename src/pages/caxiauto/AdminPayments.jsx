@@ -13,6 +13,18 @@ const FOR_LABELS = {
 	HIGHLIGHT: 'Destaque',
 };
 
+const SECTION_LABELS = {
+	ALUGUEL: 'Aluguel',
+	PECAS: 'Peças e Acessórios',
+	EMPRESAS: 'Empresas',
+};
+
+const SECTION_BADGES = {
+	ALUGUEL: 'bg-sky-100 text-sky-800',
+	PECAS: 'bg-amber-100 text-amber-800',
+	EMPRESAS: 'bg-emerald-100 text-emerald-800',
+};
+
 const STATUS_BADGE = {
 	PENDING: 'bg-yellow-100 text-yellow-800',
 	APPROVED: 'bg-green-100 text-green-800',
@@ -169,9 +181,16 @@ const AdminPayments = () => {
 											<div className="text-xs text-gray-500">{payment.user?.email}</div>
 										</td>
 										<td className="px-6 py-4 text-sm text-gray-600">
-											<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-												{FOR_LABELS[payment.for] || payment.for}
-											</span>
+											<div className="flex items-center gap-1.5 flex-wrap">
+												<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+													{FOR_LABELS[payment.for] || payment.for}
+												</span>
+												{payment.for === 'SUBSCRIPTION' && payment.section && (
+													<span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${SECTION_BADGES[payment.section] || 'bg-gray-100 text-gray-800'}`}>
+														{SECTION_LABELS[payment.section] || payment.section}
+													</span>
+												)}
+											</div>
 										</td>
 										<td className="px-6 py-4 text-sm font-medium text-gray-900">
 											{formatCurrency(Number(payment.amount))}

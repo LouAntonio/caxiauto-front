@@ -229,13 +229,13 @@ const api = {
 	deleteReport: (id) => api.delete(`/reports/${id}`, {}, true),
 
 	// ==================== ASSINATURAS E PLANOS ====================
-	listPlans: () => api.get('/subscriptions/plans'),
+	listPlans: (section) => api.get(`/subscriptions/plans${section ? `?section=${section}` : ''}`),
 
 	listHighlightPlans: () => api.get('/subscriptions/highlight-plans'),
 
-	getMySubscription: () => api.get('/subscriptions'),
+	getMySubscriptions: () => api.get('/subscriptions'),
 
-	cancelSubscription: () => api.post('/subscriptions/cancel'),
+	cancelSubscription: (section) => api.post('/subscriptions/cancel', { section }),
 
 	createSubscriptionPayment: (planId) => api.post('/subscriptions/payments/subscription', { planId }),
 
@@ -244,6 +244,8 @@ const api = {
 	uploadPaymentProof: (paymentId, proofUrl) => api.put(`/subscriptions/payments/${paymentId}/proof`, { proofUrl }),
 
 	getMyPayments: () => api.get('/subscriptions/payments/my'),
+
+	getSellerHome: () => api.get('/users/seller/home'),
 
 	// ==================== VISUALIZAÇÕES (VIEWS) ====================
 	addView: (type, id) => api.post(`/views/${type}/${id}`),

@@ -284,7 +284,7 @@ const AdminVehicles = () => {
 	};
 
 	const getTypeLabel = (type) => {
-		const map = { SALE: 'Venda', RENT: 'Aluguel', BOTH: 'Venda/Aluguel' };
+		const map = { SALE: 'Venda', RENT: 'Aluguel' };
 		return map[type] || type;
 	};
 
@@ -373,7 +373,6 @@ const AdminVehicles = () => {
 								<option value="">Todos</option>
 								<option value="SALE">Venda</option>
 								<option value="RENT">Aluguel</option>
-								<option value="BOTH">Venda/Aluguel</option>
 							</select>
 						</div>
 						<div>

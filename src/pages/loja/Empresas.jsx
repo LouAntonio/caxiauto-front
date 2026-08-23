@@ -23,7 +23,7 @@ import {
 	useDeleteMyPartner
 } from '../../hooks/queries/usePartners';
 
-const LojaPartners = () => {
+const LojaEmpresas = () => {
 	const { data, isLoading } = useMyPartners({ limit: 100 });
 	const partners = data?.partners || [];
 	const meta = data?.meta || { maxPartners: 0, hasActivePlan: false };
@@ -137,7 +137,7 @@ const LojaPartners = () => {
 			if (logoFile) {
 				logoUrl = await uploadToCloudinary(logoFile, 'partners');
 			} else if (!editing) {
-				notyf.error('Selecione uma logo para o parceiro');
+				notyf.error('Selecione uma logo para a empresa');
 				setSubmitting(false);
 				return;
 			}
@@ -160,27 +160,27 @@ const LojaPartners = () => {
 			}
 
 			if (response.success) {
-				notyf.success(editing ? 'Parceiro atualizado com sucesso!' : 'Parceiro criado com sucesso!');
+				notyf.success(editing ? 'Empresa atualizada com sucesso!' : 'Empresa criada com sucesso!');
 				setShowModal(false);
 				resetForm();
 			} else {
-				notyf.error(response.message || 'Erro ao salvar parceiro');
+				notyf.error(response.message || 'Erro ao salvar empresa');
 			}
 		} catch (error) {
-			notyf.error(error?.response?.data?.message || error.message || 'Erro ao salvar parceiro');
+			notyf.error(error?.response?.data?.message || error.message || 'Erro ao salvar empresa');
 		} finally {
 			setSubmitting(false);
 		}
 	};
 
 	const handleDelete = async (id) => {
-		if (!window.confirm('Tem certeza que deseja eliminar este parceiro?')) return;
+		if (!window.confirm('Tem certeza que deseja eliminar esta empresa?')) return;
 		try {
 			const response = await deleteMutation.mutateAsync(id);
-			if (response.success) notyf.success('Parceiro eliminado!');
-			else notyf.error(response.message || 'Erro ao eliminar parceiro');
+			if (response.success) notyf.success('Empresa eliminada!');
+			else notyf.error(response.message || 'Erro ao eliminar empresa');
 		} catch {
-			notyf.error('Erro ao eliminar parceiro');
+			notyf.error('Erro ao eliminar empresa');
 		}
 	};
 
@@ -189,7 +189,7 @@ const LojaPartners = () => {
 		try {
 			const response = await updateMutation.mutateAsync({ id: partner.id, data: { status: newStatus } });
 			if (response.success) {
-				notyf.success(`Parceiro ${newStatus === 'ACTIVE' ? 'ativado' : 'desativado'}!`);
+				notyf.success(`Empresa ${newStatus === 'ACTIVE' ? 'ativada' : 'desativada'}!`);
 			} else {
 				notyf.error(response.message || 'Erro ao alterar status');
 			}
@@ -213,11 +213,11 @@ const LojaPartners = () => {
 		<div className="space-y-6">
 			<div className="flex items-center justify-between flex-wrap gap-4">
 				<div>
-					<h1 className="text-2xl font-bold text-gray-900">Parceiros</h1>
+					<h1 className="text-2xl font-bold text-gray-900">Empresas</h1>
 					<p className="text-gray-600 mt-1">
 						{meta.hasActivePlan
-							? `${partners.length} de ${meta.maxPartners} parceiros utilizados`
-							: 'Ative um plano para listar parceiros'}
+							? `${partners.length} de ${meta.maxPartners} empresas utilizadas`
+							: 'Subscreva um plano da secção Empresas para listar a sua empresa'}
 					</p>
 				</div>
 				<button
@@ -225,7 +225,7 @@ const LojaPartners = () => {
 					disabled={!canAdd}
 					className="bg-[#154c9a] text-white px-4 py-2 rounded-lg hover:bg-[#123f80] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
 				>
-					<Plus className="w-5 h-5" /> Novo Parceiro
+					<Plus className="w-5 h-5" /> Nova Empresa
 				</button>
 			</div>
 
@@ -233,9 +233,9 @@ const LojaPartners = () => {
 				<div className="bg-yellow-50 border border-yellow-200 rounded-lg p-5 flex items-start gap-3">
 					<AlertTriangle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" />
 					<div>
-						<p className="font-semibold text-gray-900">Sem pacote ativo</p>
+						<p className="font-semibold text-gray-900">Sem plano da secção Empresas</p>
 						<p className="text-sm text-gray-600">
-							Os parceiros só são listados publicamente enquanto a sua assinatura estiver ativa e válida.
+							A sua empresa só é listada publicamente enquanto a assinatura da secção Empresas estiver ativa e válida.
 							Subscreva um plano para começar.
 						</p>
 					</div>
@@ -250,7 +250,7 @@ const LojaPartners = () => {
 				) : partners.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-20">
 						<Store className="w-16 h-16 text-gray-300 mb-4" />
-						<p className="text-gray-500">Nenhum parceiro encontrado</p>
+						<p className="text-gray-500">Nenhuma empresa encontrada</p>
 					</div>
 				) : (
 					<div className="overflow-x-auto">
@@ -326,7 +326,7 @@ const LojaPartners = () => {
 					<div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
 						<div className="p-6">
 							<div className="flex items-center justify-between mb-6">
-								<h2 className="text-xl font-bold">{editing ? 'Editar' : 'Novo'} Parceiro</h2>
+								<h2 className="text-xl font-bold">{editing ? 'Editar' : 'Nova'} Empresa</h2>
 								<button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
 									<X className="w-6 h-6" />
 								</button>
@@ -495,4 +495,4 @@ const LojaPartners = () => {
 	);
 };
 
-export default LojaPartners;
+export default LojaEmpresas;

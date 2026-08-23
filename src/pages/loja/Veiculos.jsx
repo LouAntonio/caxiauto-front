@@ -35,7 +35,8 @@ const Veiculos = () => {
 
 	useAuthStore();
 	const { isVerified, needsVerification } = useVerificationCheck();
-	const { data: vehicles, isLoading } = useMyVehicles();
+	const { data: allVehicles, isLoading } = useMyVehicles();
+	const vehicles = (allVehicles || []).filter(v => v.type === 'SALE');
 	const { data: manufacturers } = useManufacturers();
 	const { data: vehicleClasses } = useClasses();
 	const createVehicle = useCreateVehicle();
@@ -447,7 +448,7 @@ const Veiculos = () => {
 									}`}>
 										{vehicle.aproved ? 'Aprovado' : 'Pendente'}
 									</div>
-									{vehicle.status === 'HIDDEN' && (vehicle.type === 'RENT' || vehicle.type === 'BOTH') ? (
+									{vehicle.status === 'HIDDEN' && vehicle.type === 'RENT' ? (
 										<div className="px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white">
 											Oculto — limite do plano
 										</div>
@@ -526,7 +527,7 @@ const Veiculos = () => {
 										<Edit2 className="w-4 h-4" />
 										Editar
 									</ButtonLoader>
-									{vehicle.status === 'HIDDEN' && (vehicle.type === 'RENT' || vehicle.type === 'BOTH') ? (
+									{vehicle.status === 'HIDDEN' && vehicle.type === 'RENT' ? (
 										<ButtonLoader
 											onClick={() => { setSwapTarget(vehicle); setShowSwapModal(true); }}
 											variant="success"
@@ -963,7 +964,7 @@ const Veiculos = () => {
 							</p>
 							<div className="space-y-2 max-h-60 overflow-y-auto">
 								{vehicles
-									.filter(v => v.id !== swapTarget.id && (v.type === 'RENT' || v.type === 'BOTH') && (v.status === 'ACTIVE' || v.status === 'active'))
+									.filter(v => v.id !== swapTarget.id && v.type === 'RENT' && (v.status === 'ACTIVE' || v.status === 'active'))
 									.map(v => (
 										<button
 											key={v.id}
@@ -993,7 +994,7 @@ const Veiculos = () => {
 											</div>
 										</button>
 									))}
-								{vehicles.filter(v => v.id !== swapTarget.id && (v.type === 'RENT' || v.type === 'BOTH') && (v.status === 'ACTIVE' || v.status === 'active')).length === 0 && (
+								{vehicles.filter(v => v.id !== swapTarget.id && v.type === 'RENT' && (v.status === 'ACTIVE' || v.status === 'active')).length === 0 && (
 									<p className="text-gray-500 text-center py-4">Nenhum veículo de aluguer ativo disponível para desativar.</p>
 								)}
 							</div>

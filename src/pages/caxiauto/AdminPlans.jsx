@@ -5,6 +5,18 @@ import api from '../../services/api';
 import axios from 'axios';
 import { useAdminPlans, useAdminCreatePlan, useAdminUpdatePlan, useAdminDeletePlan } from '../../hooks/queries/useAdmin';
 
+const SECTION_LABELS = {
+	ALUGUEL: 'Aluguel',
+	PECAS: 'Peças e Acessórios',
+	EMPRESAS: 'Empresas'
+};
+
+const SECTION_BADGES = {
+	ALUGUEL: 'bg-sky-100 text-sky-800',
+	PECAS: 'bg-amber-100 text-amber-800',
+	EMPRESAS: 'bg-emerald-100 text-emerald-800'
+};
+
 const AdminPlans = () => {
 	const [showModal, setShowModal] = useState(false);
 	const [editingPlan, setEditingPlan] = useState(null);
@@ -18,9 +30,10 @@ const AdminPlans = () => {
 	const [formData, setFormData] = useState({
 		name: '',
 		price: '',
+		section: 'ALUGUEL',
 		maxVehicles: '',
 		maxPecas: '',
-		maxPartners: '0',
+		maxPartners: '',
 		durationDays: '30',
 		validUntil: '',
 		description: '',
@@ -51,7 +64,7 @@ const AdminPlans = () => {
 
 	const handleOpenCreate = () => {
 		setEditingPlan(null);
-		setFormData({ name: '', price: '', maxVehicles: '', maxPecas: '', maxPartners: '0', durationDays: '30', validUntil: '', description: '', benefits: [] });
+		setFormData({ name: '', price: '', section: 'ALUGUEL', maxVehicles: '', maxPecas: '', maxPartners: '', durationDays: '30', validUntil: '', description: '', benefits: [] });
 		setBenefitsInput('');
 		setBannerFile(null);
 		setBannerPreview('');
@@ -63,8 +76,9 @@ const AdminPlans = () => {
 		setFormData({
 			name: plan.name,
 			price: String(Number(plan.price)),
-			maxVehicles: String(plan.maxVehicles),
-			maxPecas: String(plan.maxPecas),
+			section: plan.section || 'ALUGUEL',
+			maxVehicles: String(plan.maxVehicles ?? 0),
+			maxPecas: String(plan.maxPecas ?? 0),
 			maxPartners: String(plan.maxPartners ?? 0),
 			durationDays: String(plan.durationDays || 30),
 			validUntil: plan.validUntil ? plan.validUntil.slice(0, 10) : '',
@@ -123,8 +137,9 @@ const AdminPlans = () => {
 			const payload = {
 				name: formData.name,
 				price: Number(formData.price),
-				maxVehicles: Number(formData.maxVehicles),
-				maxPecas: Number(formData.maxPecas),
+				section: formData.section,
+				maxVehicles: Number(formData.maxVehicles) || 0,
+				maxPecas: Number(formData.maxPecas) || 0,
 				maxPartners: Number(formData.maxPartners) || 0,
 				durationDays: Number(formData.durationDays) || 30,
 				validUntil: formData.validUntil || undefined,
@@ -144,7 +159,7 @@ const AdminPlans = () => {
 				notyf.success(editingPlan ? 'Plano atualizado com sucesso!' : 'Plano criado com sucesso!');
 				setShowModal(false);
 				setEditingPlan(null);
-				setFormData({ name: '', price: '', maxVehicles: '', maxPecas: '', maxPartners: '0', description: '', benefits: [] });
+				setFormData({ name: '', price: '', section: 'ALUGUEL', maxVehicles: '', maxPecas: '', maxPartners: '', description: '', benefits: [] });
 				setBenefitsInput('');
 				setBannerFile(null);
 				setBannerPreview('');
@@ -208,11 +223,10 @@ const AdminPlans = () => {
 							<thead className="bg-gray-50">
 								<tr>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Secção</th>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Preço</th>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duração</th>
-									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Max. Veículos</th>
-									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Max. Peças</th>
-									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Max. Parceiros</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Limite do plano</th>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Validade</th>
 									<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
 								</tr>
@@ -221,11 +235,18 @@ const AdminPlans = () => {
 								{plans.map((plan) => (
 									<tr key={plan.id} className="hover:bg-gray-50">
 										<td className="px-6 py-4 font-medium text-gray-900">{plan.name}</td>
+										<td className="px-6 py-4">
+											<span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${SECTION_BADGES[plan.section] || 'bg-gray-100 text-gray-800'}`}>
+												{SECTION_LABELS[plan.section] || plan.section}
+											</span>
+										</td>
 										<td className="px-6 py-4 text-sm text-gray-600">{formatCurrency(Number(plan.price))}</td>
 										<td className="px-6 py-4 text-sm text-gray-600">{plan.durationDays || 30} dias</td>
-										<td className="px-6 py-4 text-sm text-gray-600">{plan.maxVehicles}</td>
-										<td className="px-6 py-4 text-sm text-gray-600">{plan.maxPecas}</td>
-										<td className="px-6 py-4 text-sm text-gray-600">{plan.maxPartners ?? 0}</td>
+										<td className="px-6 py-4 text-sm text-gray-600">
+											{plan.section === 'ALUGUEL' && `${plan.maxVehicles} veículos`}
+											{plan.section === 'PECAS' && `${plan.maxPecas} peças`}
+											{plan.section === 'EMPRESAS' && `${plan.maxPartners ?? 0} empresas`}
+										</td>
 										<td className="px-6 py-4 text-sm">
 											{plan.validUntil ? (
 												<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -293,9 +314,22 @@ const AdminPlans = () => {
 										required
 									/>
 								</div>
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Secção da Loja</label>
+									<select
+										value={formData.section}
+										onChange={(e) => setFormData({ ...formData, section: e.target.value })}
+										className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
+										required
+									>
+										<option value="ALUGUEL">Aluguel</option>
+										<option value="PECAS">Peças e Acessórios</option>
+										<option value="EMPRESAS">Empresas</option>
+									</select>
+								</div>
 								<div className="grid grid-cols-2 gap-4">
-									<div>
-										<label className="block text-sm font-medium text-gray-700 mb-1">Máx. Veículos</label>
+									<div className={formData.section !== 'ALUGUEL' ? 'hidden' : ''}>
+										<label className="block text-sm font-medium text-gray-700 mb-1">Máx. Veículos de Aluguer</label>
 										<input
 											type="number"
 											min={0}
@@ -303,10 +337,9 @@ const AdminPlans = () => {
 											onChange={(e) => setFormData({ ...formData, maxVehicles: e.target.value })}
 											className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
 											placeholder="Ex: 10"
-											required
 										/>
 									</div>
-									<div>
+									<div className={formData.section !== 'PECAS' ? 'hidden' : ''}>
 										<label className="block text-sm font-medium text-gray-700 mb-1">Máx. Peças</label>
 										<input
 											type="number"
@@ -315,13 +348,10 @@ const AdminPlans = () => {
 											onChange={(e) => setFormData({ ...formData, maxPecas: e.target.value })}
 											className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
 											placeholder="Ex: 50"
-											required
 										/>
 									</div>
-								</div>
-								<div className="grid grid-cols-2 gap-4">
-									<div>
-										<label className="block text-sm font-medium text-gray-700 mb-1">Máx. Parceiros</label>
+									<div className={formData.section !== 'EMPRESAS' ? 'hidden' : ''}>
+										<label className="block text-sm font-medium text-gray-700 mb-1">Máx. Empresas</label>
 										<input
 											type="number"
 											min={0}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import useAuthStore from '../../stores/authStore';
-import { notyf, API_URL } from '../../services/api';
+import { notyf } from '../../services/api';
 import api from '../../services/api';
 import axios from 'axios';
 import {
@@ -8,26 +8,54 @@ import {
 	Check,
 	X,
 	Star,
-	Loader2,
 	AlertCircle,
 	Car,
+	CarFront,
 	Wrench,
+	Handshake,
 	Upload
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { SkeletonCard } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
-import { usePlans, useHighlightPlans, useMySubscription, useMyPayments, useCancelSubscription, useCreateSubscriptionPayment, useCreateHighlightPayment, useUploadPaymentProof } from '../../hooks/queries/useSubscription';
+import { usePlans, useHighlightPlans, useMySubscriptions, useMyPayments, useCancelSubscription, useCreateSubscriptionPayment, useCreateHighlightPayment, useUploadPaymentProof } from '../../hooks/queries/useSubscription';
 import { useMyVehicles } from '../../hooks/queries/useVehicles';
 import { useMyPecas } from '../../hooks/queries/usePecas';
 
+const SECTIONS = [
+	{
+		key: 'ALUGUEL',
+		label: 'Aluguel',
+		description: 'Planos para anunciar veículos de aluguer por dia.',
+		icon: CarFront,
+		limitLabel: (n) => `Até ${n} veículos de aluguer`,
+		color: 'from-sky-500 to-sky-600'
+	},
+	{
+		key: 'PECAS',
+		label: 'Peças e Acessórios',
+		description: 'Planos para anunciar peças e acessórios.',
+		icon: Wrench,
+		limitLabel: (n) => `Até ${n} peças`,
+		color: 'from-amber-500 to-amber-600'
+	},
+	{
+		key: 'EMPRESAS',
+		label: 'Empresas',
+		description: 'Planos para listar a sua empresa como parceira.',
+		icon: Handshake,
+		limitLabel: (n) => `Até ${n} empresas`,
+		color: 'from-emerald-500 to-emerald-600'
+	}
+];
+
 const Assinatura = () => {
-	useDocumentTitle('Minha Assinatura - CaxiAuto');
+	useDocumentTitle('Assinaturas - CaxiAuto');
 
 	useAuthStore();
-	const { data: plans, isLoading: plansLoading } = usePlans();
 	const { data: highlightPlans, isLoading: highlightLoading } = useHighlightPlans();
-	const { data: mySubscription, isLoading: subscriptionLoading } = useMySubscription();
+	const { data: allPlans, isLoading: plansLoading } = usePlans();
+	const { data: mySubscriptions, bySection, isLoading: subscriptionLoading } = useMySubscriptions();
 	const { data: myPayments, isLoading: paymentsLoading } = useMyPayments();
 	const cancelSubscription = useCancelSubscription();
 	const createSubscriptionPayment = useCreateSubscriptionPayment();
@@ -40,11 +68,12 @@ const Assinatura = () => {
 	const [selectedItemId, setSelectedItemId] = useState('');
 	const [processing, setProcessing] = useState(false);
 	const [proofUploads, setProofUploads] = useState({});
+	const [activeTab, setActiveTab] = useState('ALUGUEL');
 
 	const { data: myVehicles } = useMyVehicles();
 	const { data: myPecas } = useMyPecas();
 
-	const hiddenVehicles = (myVehicles || []).filter(v => v.status === 'HIDDEN' && (v.type === 'RENT' || v.type === 'BOTH'));
+	const hiddenVehicles = (myVehicles || []).filter(v => v.status === 'HIDDEN' && v.type === 'RENT');
 	const hiddenPecas = (myPecas || []).filter(p => p.status === 'HIDDEN');
 	const totalHidden = hiddenVehicles.length + hiddenPecas.length;
 
@@ -52,11 +81,6 @@ const Assinatura = () => {
 
 	const TARGET_LABELS = { SALE: 'Venda', RENT: 'Aluguer', PECA: 'Peças/Acessórios' };
 	const ITEM_TYPE_LABELS = { VEHICLE: 'Veículo', PECA: 'Peça' };
-
-	const getPlanIcon = (planName) => {
-		if (planName?.toLowerCase().includes('premium') || planName?.toLowerCase().includes('stand')) return Star;
-		return CreditCard;
-	};
 
 	const uploadToCloudinary = async (file, folder) => {
 		const authResponse = await api.get(`/cloudinary/authorize-upload?folder=${folder}`);
@@ -84,8 +108,8 @@ const Assinatura = () => {
 			} else {
 				notyf.error(response.message || 'Erro ao criar pagamento');
 			}
-		} catch {
-			notyf.error('Erro ao criar pagamento');
+		} catch (error) {
+			notyf.error(error?.response?.data?.message || error.message || 'Erro ao criar pagamento');
 		} finally {
 			setProcessing(false);
 			setSelectedPlan(null);
@@ -200,6 +224,11 @@ const Assinatura = () => {
 		);
 	}
 
+	const activeSection = SECTIONS.find((s) => s.key === activeTab);
+	const currentSub = bySection[activeTab];
+	const isCurrentActive = !!(currentSub && currentSub.isActive && new Date(currentSub.endDate) > new Date());
+	const sectionPlans = (allPlans || []).filter((p) => p.section === activeTab);
+
 	return (
 		<div className="space-y-6">
 			{totalHidden > 0 && (
@@ -212,13 +241,13 @@ const Assinatura = () => {
 								{hiddenVehicles.length > 0 && `${hiddenVehicles.length} veículo${hiddenVehicles.length > 1 ? 's' : ''} de aluguer oculto${hiddenVehicles.length > 1 ? 's' : ''}`}
 								{hiddenVehicles.length > 0 && hiddenPecas.length > 0 && ' e '}
 								{hiddenPecas.length > 0 && `${hiddenPecas.length} peça${hiddenPecas.length > 1 ? 's' : ''} oculta${hiddenPecas.length > 1 ? 's' : ''}`}
-								{'. Faça upgrade do seu plano ou ative manualmente trocando com um item ativo.'}
+								{'. Faça upgrade do plano da secção ou ative manualmente trocando com um item ativo.'}
 							</p>
 							<div className="flex gap-3">
 								{hiddenVehicles.length > 0 && (
-									<a href="/minha-loja/veiculos" className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition-all">
+									<a href="/minha-loja/veiculos-aluguel" className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition-all">
 										<Car className="w-4 h-4" />
-										Gerir Veículos
+										Gerir Aluguel
 									</a>
 								)}
 								{hiddenPecas.length > 0 && (
@@ -233,44 +262,68 @@ const Assinatura = () => {
 				</div>
 			)}
 
-			{/* Minha Assinatura Atual */}
+			{/* Planos de Subscrição por secção */}
 			<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 				<div className="flex items-center gap-3 mb-6">
-					<div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+					<div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
 						<CreditCard className="w-6 h-6 text-white" />
 					</div>
 					<div>
-						<h2 className="text-2xl font-bold text-gray-900">Minha Assinatura</h2>
-						<p className="text-sm text-gray-500 mt-1">Gerencie sua assinatura para aluguer e peças</p>
+						<h2 className="text-2xl font-bold text-gray-900">Assinaturas da Loja</h2>
+						<p className="text-sm text-gray-500 mt-1">Cada secção tem o seu próprio plano. O Stand funciona por comissão e não precisa de plano.</p>
 					</div>
 				</div>
 
-				{mySubscription && mySubscription.isActive ? (
-					<div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6">
+				{/* Tabs */}
+				<div className="flex flex-wrap gap-2 mb-6">
+					{SECTIONS.map((s) => {
+						const Icon = s.icon;
+						const sub = bySection[s.key];
+						const active = !!(sub && sub.isActive && new Date(sub.endDate) > new Date());
+						return (
+							<button
+								key={s.key}
+								onClick={() => setActiveTab(s.key)}
+								className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === s.key
+									? 'bg-[#154c9a] text-white shadow-md'
+									: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+								}`}
+							>
+								<Icon className="w-4 h-4" />
+								{s.label}
+								<span className={`w-2 h-2 rounded-full ${active ? 'bg-green-400' : 'bg-gray-400'}`} title={active ? 'Plano ativo' : 'Sem plano'} />
+							</button>
+						);
+					})}
+				</div>
+
+				{/* Assinatura atual da secção */}
+				{isCurrentActive ? (
+					<div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 mb-8">
 						<div className="flex items-start justify-between mb-4">
 							<div>
 								<div className="flex items-center gap-2 mb-2">
 									<Check className="w-5 h-5 text-green-600" />
-									<h3 className="text-xl font-bold text-green-900">Assinatura Ativa</h3>
+									<h3 className="text-xl font-bold text-green-900">{activeSection.label} — Assinatura Ativa</h3>
 								</div>
-								<p className="text-2xl font-bold text-green-700">{mySubscription.plan?.name}</p>
+								<p className="text-2xl font-bold text-green-700">{currentSub.plan?.name}</p>
 							</div>
 							<span className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold">Ativa</span>
 						</div>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
 							<div className="bg-white rounded-lg p-4">
 								<p className="text-sm text-gray-600 mb-1">Início</p>
-								<p className="font-semibold text-gray-900">{formatDate(mySubscription.startDate)}</p>
+								<p className="font-semibold text-gray-900">{formatDate(currentSub.startDate)}</p>
 							</div>
 							<div className="bg-white rounded-lg p-4">
 								<p className="text-sm text-gray-600 mb-1">Validade</p>
-								<p className="font-semibold text-gray-900">{formatDate(mySubscription.endDate)}</p>
+								<p className="font-semibold text-gray-900">{formatDate(currentSub.endDate)}</p>
 							</div>
 						</div>
 						<ButtonLoader
 							onClick={() => {
-								if (!window.confirm('Tem certeza que deseja cancelar sua assinatura?')) return;
-								cancelSubscription.mutateAsync().then((res) => {
+								if (!window.confirm(`Tem certeza que deseja cancelar a assinatura da secção ${activeSection.label}? Os anúncios em excesso serão ocultados.`)) return;
+								cancelSubscription.mutateAsync(activeTab).then((res) => {
 									if (res.success) notyf.success('Assinatura cancelada');
 									else notyf.error(res.message || 'Erro ao cancelar');
 								}).catch(() => notyf.error('Erro ao cancelar'));
@@ -285,44 +338,31 @@ const Assinatura = () => {
 						</ButtonLoader>
 					</div>
 				) : (
-					<div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center">
-						<CreditCard className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-						<h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhuma assinatura ativa</h3>
-						<p className="text-gray-600 mb-6">
-							Assine um plano para anunciar aluguer de veículos e peças/acessórios
-						</p>
+					<div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center mb-8">
+						<activeSection.icon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+						<h3 className="text-lg font-semibold text-gray-900 mb-2">Sem assinatura na secção {activeSection.label}</h3>
+						<p className="text-gray-600">{activeSection.description}</p>
 					</div>
 				)}
-			</div>
 
-			{/* Planos de Assinatura Disponíveis */}
-			<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-				<div className="flex items-center gap-3 mb-6">
-					<div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-						<CreditCard className="w-6 h-6 text-white" />
-					</div>
-					<div>
-						<h2 className="text-2xl font-bold text-gray-900">Planos de Subscrição</h2>
-						<p className="text-sm text-gray-500 mt-1">Para aluguer de veículos e anúncio de peças/acessórios</p>
-					</div>
-				</div>
-
-				{plans.length === 0 ? (
-					<div className="text-center py-8"><p className="text-gray-600">Nenhum plano disponível no momento</p></div>
+				{/* Planos da secção */}
+				<h3 className="font-bold text-gray-900 mb-4">Planos disponíveis — {activeSection.label}</h3>
+				{sectionPlans.length === 0 ? (
+					<div className="text-center py-8"><p className="text-gray-600">Nenhum plano disponível nesta secção no momento</p></div>
 				) : (
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-						{plans.map((plan) => {
-							const Icon = getPlanIcon(plan.name);
+						{sectionPlans.map((plan) => {
+							const isCurrent = isCurrentActive && currentSub.planId === plan.id;
 							return (
-								<div key={plan.id} className={`border-2 rounded-xl p-6 transition-all hover:shadow-lg ${mySubscription?.planId === plan.id ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-blue-300'}`}>
-									{mySubscription?.planId === plan.id && (
+								<div key={plan.id} className={`border-2 rounded-xl p-6 transition-all hover:shadow-lg ${isCurrent ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-blue-300'}`}>
+									{isCurrent && (
 										<div className="mb-4">
 											<span className="px-3 py-1 bg-green-600 text-white rounded-full text-xs font-semibold">Seu Plano Atual</span>
 										</div>
 									)}
 									<div className="flex items-center gap-3 mb-4">
-										<div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
-											<Icon className="w-6 h-6 text-[#154c9a]" />
+										<div className={`w-12 h-12 bg-gradient-to-br ${activeSection.color} rounded-lg flex items-center justify-center`}>
+											<activeSection.icon className="w-6 h-6 text-white" />
 										</div>
 										<h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
 									</div>
@@ -344,22 +384,18 @@ const Assinatura = () => {
 									<div className="space-y-3 mb-6">
 										<div className="flex items-center gap-2 text-sm">
 											<Check className="w-4 h-4 text-green-600" />
-											<span>Até {plan.maxVehicles} veículos</span>
-										</div>
-										<div className="flex items-center gap-2 text-sm">
-											<Check className="w-4 h-4 text-green-600" />
-											<span>Até {plan.maxPecas} peças</span>
+											<span>{activeSection.limitLabel(activeTab === 'ALUGUEL' ? plan.maxVehicles : activeTab === 'PECAS' ? plan.maxPecas : plan.maxPartners)}</span>
 										</div>
 									</div>
 									<ButtonLoader
 										onClick={() => handleSubscribe(plan.id)}
 										loading={processing && selectedPlan === plan.id}
 										loadingText="Processando..."
-										variant={mySubscription?.planId === plan.id ? 'success' : 'primary'}
-										className={`w-full ${mySubscription?.planId === plan.id ? 'cursor-not-allowed' : ''}`}
-										disabled={mySubscription?.planId === plan.id}
+										variant={isCurrent ? 'success' : 'primary'}
+										className={`w-full ${isCurrent ? 'cursor-not-allowed' : ''}`}
+										disabled={isCurrent}
 									>
-										{mySubscription?.planId === plan.id ? 'Plano Atual' : 'Assinar Agora'}
+										{isCurrent ? 'Plano Atual' : 'Assinar Agora'}
 									</ButtonLoader>
 								</div>
 							);
@@ -466,10 +502,15 @@ const Assinatura = () => {
 							<div key={payment.id} className="border border-gray-200 rounded-xl p-4">
 								<div className="flex flex-wrap items-start justify-between gap-4">
 									<div className="flex-1 min-w-0">
-										<div className="flex items-center gap-2 mb-1">
+										<div className="flex flex-wrap items-center gap-2 mb-1">
 											<span className="text-sm font-semibold text-gray-900">
 												{payment.for === 'SUBSCRIPTION' ? 'Subscrição' : 'Destaque'}
 											</span>
+											{payment.for === 'SUBSCRIPTION' && payment.section && (
+												<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+													{SECTIONS.find(s => s.key === payment.section)?.label || payment.section}
+												</span>
+											)}
 											<span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[payment.status]}`}>
 												{STATUS_LABEL[payment.status]}
 											</span>

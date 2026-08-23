@@ -25,15 +25,28 @@ const SellerLayout = () => {
 
 	useSyncUser();
 
-	const menuItems = [
-		{ icon: LayoutDashboard, title: 'Dashboard', path: '/minha-loja' },
-		{ icon: Car, title: 'Meus Veículos', path: '/minha-loja/veiculos' },
-		{ icon: CarFront, title: 'Veículos Aluguel', path: '/minha-loja/veiculos-aluguel' },
-		{ icon: Wrench, title: 'Minhas Peças', path: '/minha-loja/pecas' },
-		{ icon: FileText, title: 'Documentos', path: '/minha-loja/documentos' },
-		{ icon: CreditCard, title: 'Assinatura', path: '/minha-loja/assinatura' },
-		{ icon: Handshake, title: 'Parceiros', path: '/minha-loja/parceiros' },
-		{ icon: MessageSquare, title: 'Mensagens', path: '/minha-loja/mensagens' },
+	const menuGroups = [
+		{
+			label: null,
+			items: [{ icon: LayoutDashboard, title: 'Home', path: '/minha-loja' }]
+		},
+		{
+			label: 'Secções da Loja',
+			items: [
+				{ icon: Car, title: 'Stand', path: '/minha-loja/veiculos' },
+				{ icon: CarFront, title: 'Aluguel', path: '/minha-loja/veiculos-aluguel' },
+				{ icon: Wrench, title: 'Peças e Acessórios', path: '/minha-loja/pecas' },
+				{ icon: Handshake, title: 'Empresas', path: '/minha-loja/empresas' }
+			]
+		},
+		{
+			label: 'Gestão',
+			items: [
+				{ icon: FileText, title: 'Documentos', path: '/minha-loja/documentos' },
+				{ icon: CreditCard, title: 'Assinatura', path: '/minha-loja/assinatura' },
+				{ icon: MessageSquare, title: 'Mensagens', path: '/minha-loja/mensagens' }
+			]
+		}
 	];
 
 	const isActive = (path) => location.pathname === path;
@@ -60,6 +73,19 @@ const SellerLayout = () => {
 			</Link>
 		);
 	};
+
+	const renderMenu = () => (
+		<div className="space-y-4">
+			{menuGroups.map((group, gi) => (
+				<div key={gi} className="space-y-2">
+					{group.label && (
+						<p className="px-4 text-xs font-semibold uppercase tracking-wider text-gray-400">{group.label}</p>
+					)}
+					{group.items.map(renderMenuItem)}
+				</div>
+			))}
+		</div>
+	);
 
 	return (
 		<div className="min-h-screen bg-gray-50">
@@ -99,7 +125,7 @@ const SellerLayout = () => {
 					<div className="hidden lg:block lg:col-span-1">
 						<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sticky top-8">
 							<nav className="space-y-2">
-								{menuItems.map(renderMenuItem)}
+								{renderMenu()}
 							</nav>
 							<div className="pt-4 mt-4 border-t border-gray-200">
 								<button
@@ -138,7 +164,7 @@ const SellerLayout = () => {
 							</button>
 						</div>
 						<nav className="p-4 space-y-2 overflow-y-auto h-[calc(100%-60px)]">
-							{menuItems.map(renderMenuItem)}
+							{renderMenu()}
 							<button
 								onClick={logout}
 								className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all font-medium"

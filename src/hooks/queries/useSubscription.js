@@ -1,10 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 
-export const usePlans = () => {
+export const STORE_SECTIONS = ['ALUGUEL', 'PECAS', 'EMPRESAS'];
+
+export const SECTION_LABELS = {
+	ALUGUEL: 'Aluguel',
+	PECAS: 'Peças e Acessórios',
+	EMPRESAS: 'Empresas'
+};
+
+export const usePlans = (section) => {
 	return useQuery({
-		queryKey: ['subscriptions', 'plans'],
-		queryFn: () => api.listPlans(),
+		queryKey: ['subscriptions', 'plans', section || 'all'],
+		queryFn: () => api.listPlans(section),
 		select: (res) => (res.success ? res.data : []),
 	});
 };
@@ -17,10 +25,39 @@ export const useHighlightPlans = () => {
 	});
 };
 
-export const useMySubscription = () => {
-	return useQuery({
+/**
+ * Assinaturas do vendedor — uma por secção. Devolve { data, bySection, isActive(section) }.
+ */
+export const useMySubscriptions = () => {
+	const query = useQuery({
 		queryKey: ['subscriptions', 'my'],
-		queryFn: () => api.getMySubscription(),
+		queryFn: () => api.getMySubscriptions(),
+		select: (res) => (res.success ? res.data : []),
+	});
+
+	const bySection = {};
+	for (const section of STORE_SECTIONS) bySection[section] = null;
+	if (query.data) {
+		for (const sub of query.data) {
+			const current = bySection[sub.section];
+			if (!current || new Date(sub.endDate) > new Date(current.endDate)) {
+				bySection[sub.section] = sub;
+			}
+		}
+	}
+
+	const isActive = (section) => {
+		const sub = bySection[section];
+		return !!(sub && sub.isActive && new Date(sub.endDate) > new Date());
+	};
+
+	return { ...query, bySection, isActive };
+};
+
+export const useSellerHome = () => {
+	return useQuery({
+		queryKey: ['seller', 'home'],
+		queryFn: () => api.getSellerHome(),
 		select: (res) => (res.success ? res.data : null),
 	});
 };
@@ -36,9 +73,10 @@ export const useMyPayments = () => {
 export const useCancelSubscription = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: () => api.cancelSubscription(),
+		mutationFn: (section) => api.cancelSubscription(section),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+			queryClient.invalidateQueries({ queryKey: ['seller'] });
 		},
 	});
 };

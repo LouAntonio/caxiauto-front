@@ -1,10 +1,10 @@
 // Exportações centralizadas do painel Minha Loja (vendedor)
 export { default as SellerLayout } from './Layout';
-export { default as Dashboard } from './Dashboard';
+export { default as SellerHome } from './Home';
 export { default as LojaPageHeader } from './PageHeader';
 export { default as Veiculos } from './Veiculos';
 export { default as VeiculosAluguel } from './VeiculosAluguel';
 export { default as Pecas } from './Pecas';
 export { default as Documentos } from './Documentos';
 export { default as Assinatura } from './Assinatura';
-export { default as Parceiros } from './Parceiros';
+export { default as Empresas } from './Empresas';
