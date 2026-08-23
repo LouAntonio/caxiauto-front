@@ -21,6 +21,15 @@ import ButtonLoader from '../../components/ButtonLoader';
 import { usePlans, useHighlightPlans, useMySubscriptions, useMyPayments, useCancelSubscription, useCreateSubscriptionPayment, useCreateHighlightPayment, useUploadPaymentProof } from '../../hooks/queries/useSubscription';
 import { useMyVehicles } from '../../hooks/queries/useVehicles';
 import { useMyPecas } from '../../hooks/queries/usePecas';
+import { formatKz } from '../../utils/format';
+
+// ⚠️ PLACEHOLDERS — substituir pelos dados bancários reais da empresa
+const COMPANY_BANK_DETAILS = {
+	bankName: 'NOME DO BANCO', // TODO: alterar
+	iban: 'AO06 0000 0000 0000 0000 0000 0000', // TODO: alterar
+	holderName: 'NOME DO TITULAR DA CONTA', // TODO: alterar
+	mcxPhone: '+244 9XX XXX XXX' // TODO: alterar
+};
 
 const SECTIONS = [
 	{
@@ -168,12 +177,7 @@ const Assinatura = () => {
 		setProofUploads((prev) => ({ ...prev, [paymentId]: file }));
 	};
 
-	const formatPrice = (price) => {
-		return new Intl.NumberFormat('pt-AO', {
-			style: 'currency',
-			currency: 'AOA'
-		}).format(price);
-	};
+	const formatPrice = formatKz;
 
 	const formatDate = (dateString) => {
 		const date = new Date(dateString);
@@ -491,6 +495,37 @@ const Assinatura = () => {
 					<div>
 						<h2 className="text-2xl font-bold text-gray-900">Meus Pagamentos</h2>
 						<p className="text-sm text-gray-500 mt-1">Acompanhe e envie comprovativos</p>
+					</div>
+				</div>
+
+				{/* Dados bancários da empresa */}
+				<div className="mb-6 bg-[#eef3fa] border border-[#c9d9ef] rounded-xl p-5">
+					<div className="flex items-start gap-3">
+						<CreditCard className="w-6 h-6 text-[#154c9a] flex-shrink-0 mt-0.5" />
+						<div className="min-w-0 flex-1">
+							<p className="font-semibold text-gray-900">Dados para transferência</p>
+							<p className="text-sm text-gray-600 mb-3">
+								Efetue a transferência para uma das contas abaixo e anexe o comprovativo no pagamento correspondente.
+							</p>
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+								<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
+									<p className="text-xs text-gray-500">Banco</p>
+									<p className="font-semibold text-gray-900">{COMPANY_BANK_DETAILS.bankName}</p>
+								</div>
+								<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
+									<p className="text-xs text-gray-500">Titular da conta</p>
+									<p className="font-semibold text-gray-900">{COMPANY_BANK_DETAILS.holderName}</p>
+								</div>
+								<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
+									<p className="text-xs text-gray-500">IBAN</p>
+									<p className="font-semibold text-gray-900 font-mono tracking-wide break-all">{COMPANY_BANK_DETAILS.iban}</p>
+								</div>
+								<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
+									<p className="text-xs text-gray-500">MCX Express (telefone)</p>
+									<p className="font-semibold text-gray-900">{COMPANY_BANK_DETAILS.mcxPhone}</p>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 

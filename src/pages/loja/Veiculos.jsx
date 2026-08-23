@@ -29,6 +29,8 @@ import VerificationWarning from '../../components/VerificationWarning';
 import useVerificationCheck from '../../hooks/useVerificationCheck';
 import { useMyVehicles, useCreateVehicle, useUpdateVehicle, useDeleteVehicle, useToggleVehicleStatus, useSwapActiveVehicle } from '../../hooks/queries/useVehicles';
 import { useManufacturers, useClasses } from '../../hooks/queries/useManufacturers';
+import { useSellerHome } from '../../hooks/queries/useSubscription';
+import { formatKz, formatPercent } from '../../utils/format';
 
 const Veiculos = () => {
 	useDocumentTitle('Meus Veículos - CaxiAuto');
@@ -37,6 +39,8 @@ const Veiculos = () => {
 	const { isVerified, needsVerification } = useVerificationCheck();
 	const { data: allVehicles, isLoading } = useMyVehicles();
 	const vehicles = (allVehicles || []).filter(v => v.type === 'SALE');
+	const { data: homeData } = useSellerHome();
+	const commissionRate = homeData?.commissionRate ?? 0.05;
 	const { data: manufacturers } = useManufacturers();
 	const { data: vehicleClasses } = useClasses();
 	const createVehicle = useCreateVehicle();
@@ -391,6 +395,32 @@ const Veiculos = () => {
 				<VerificationWarning variant="compact" />
 			)}
 
+			{/* Comissão ativa */}
+			<div className="bg-[#eef3fa] border border-[#c9d9ef] rounded-lg p-5">
+				<div className="flex flex-wrap items-center justify-between gap-4">
+					<div className="flex items-start gap-3 min-w-0">
+						<DollarSign className="w-6 h-6 text-[#154c9a] flex-shrink-0 mt-0.5" />
+						<div>
+							<p className="font-semibold text-gray-900">
+								Comissão Caxiauto: {formatPercent(commissionRate)} por venda
+							</p>
+							<p className="text-sm text-gray-600 mt-0.5">
+								A secção Stand não exige plano — a Caxiauto retém {formatPercent(commissionRate)} do valor de
+								venda quando o negócio é fechado e o restante é seu.
+							</p>
+						</div>
+					</div>
+					<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3 text-sm">
+						<p className="text-gray-500 mb-1">Exemplo de divisão</p>
+						<div className="space-y-0.5 font-medium text-gray-900">
+							<p>Venda: {formatKz(5000000)}</p>
+							<p>Comissão ({formatPercent(commissionRate)}): −{formatKz(5000000 * commissionRate)}</p>
+							<p className="text-[#154c9a]">Você recebe: {formatKz(5000000 * (1 - commissionRate))}</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			{/* Mensagem de feedback */}
 			{message.text && (
 				<div className={`p-4 rounded-lg flex items-center gap-2 ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
@@ -493,10 +523,23 @@ const Veiculos = () => {
 									{vehicle.priceSale && (
 										<div className="flex items-center gap-2 text-sm font-semibold text-[#154c9a]">
 											<DollarSign className="w-4 h-4" />
-											<span>{vehicle.priceSale.toLocaleString()} Kz</span>
+											<span>{formatKz(vehicle.priceSale)}</span>
 										</div>
 									)}
 								</div>
+
+								{/* Divisão da comissão */}
+								{vehicle.priceSale && (
+									<div className="mb-4 bg-gray-50 rounded-lg px-3 py-2 text-xs text-gray-600">
+										<span>
+											Comissão ({formatPercent(commissionRate)}): {formatKz(Number(vehicle.priceSale) * commissionRate)}
+										</span>
+										<span className="mx-1.5 text-gray-300">|</span>
+										<span className="font-semibold text-emerald-700">
+											Você recebe: {formatKz(Number(vehicle.priceSale) * (1 - commissionRate))}
+										</span>
+									</div>
+								)}
 
 								{/* Estatísticas de visualizações */}
 								<div className="flex items-center justify-between pt-3 border-t">

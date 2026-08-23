@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
 import {
 	Car,
@@ -29,6 +30,8 @@ import VerificationWarning from '../../components/VerificationWarning';
 import useVerificationCheck from '../../hooks/useVerificationCheck';
 import { useMyVehicles, useCreateVehicle, useUpdateVehicle, useDeleteVehicle, useToggleVehicleStatus } from '../../hooks/queries/useVehicles';
 import { useManufacturers, useClasses } from '../../hooks/queries/useManufacturers';
+import { useMySubscriptions } from '../../hooks/queries/useSubscription';
+import { formatKz } from '../../utils/format';
 
 const VeiculosAluguel = () => {
 	useDocumentTitle('Meus Veículos para Aluguel - CaxiAuto');
@@ -36,6 +39,8 @@ const VeiculosAluguel = () => {
 	useAuthStore();
 	const { isVerified, needsVerification } = useVerificationCheck();
 	const { data: allVehicles, isLoading } = useMyVehicles();
+	const { isActive: isSectionActive } = useMySubscriptions();
+	const hasPlan = isSectionActive('ALUGUEL');
 	const { data: manufacturers } = useManufacturers();
 	const { data: vehicleClasses } = useClasses();
 	const createVehicle = useCreateVehicle();
@@ -348,9 +353,9 @@ const VeiculosAluguel = () => {
 					</div>
 					<button
 						onClick={() => handleOpenModal()}
-						disabled={!isVerified}
+						disabled={!isVerified || !hasPlan}
 						className="flex items-center gap-2 bg-[#154c9a] text-white px-6 py-3 rounded-lg hover:bg-[#123f80] transition-colors shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#123f80]"
-						title={!isVerified ? 'Conta não verificada. Envie seus documentos para adicionar veículos.' : ''}
+						title={!isVerified ? 'Conta não verificada. Envie seus documentos para adicionar veículos.' : !hasPlan ? 'Subscreva um plano da secção Aluguel para adicionar veículos.' : ''}
 					>
 						{!isVerified ? <Shield className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
 						Adicionar Veículo
@@ -361,6 +366,26 @@ const VeiculosAluguel = () => {
 			{/* Aviso de verificação */}
 			{needsVerification && (
 				<VerificationWarning variant="compact" />
+			)}
+
+			{/* Aviso de plano inativo */}
+			{!hasPlan && (
+				<div className="bg-yellow-50 border border-yellow-200 rounded-lg p-5 flex items-start gap-3">
+					<AlertTriangle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" />
+					<div className="flex-1">
+						<p className="font-semibold text-gray-900">Sem plano da secção Aluguel</p>
+						<p className="text-sm text-gray-600">
+							Só é possível anunciar veículos para aluguer com uma assinatura ativa da secção Aluguel,
+							e eles deixam de ser listados publicamente quando o plano expira. Subscreva um plano para começar.
+						</p>
+						<Link
+							to="/minha-loja/assinatura"
+							className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition-colors"
+						>
+							Escolher plano
+						</Link>
+					</div>
+				</div>
 			)}
 
 			{/* Mensagem de feedback */}
@@ -386,7 +411,7 @@ const VeiculosAluguel = () => {
 					</p>
 					<button
 						onClick={() => handleOpenModal()}
-						disabled={!isVerified}
+						disabled={!isVerified || !hasPlan}
 						className="inline-flex items-center gap-2 bg-[#154c9a] text-white px-6 py-3 rounded-lg hover:bg-[#123f80] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#123f80]"
 					>
 						{!isVerified ? <Shield className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
@@ -395,6 +420,11 @@ const VeiculosAluguel = () => {
 					{!isVerified && (
 						<p className="text-sm text-yellow-700 mt-4 font-medium">
 							⚠️ Você precisa enviar seus documentos para adicionar veículos.
+						</p>
+					)}
+					{isVerified && !hasPlan && (
+						<p className="text-sm text-yellow-700 mt-4 font-medium">
+							⚠️ Subscreva um plano da secção Aluguel para adicionar veículos.
 						</p>
 					)}
 				</div>
@@ -459,7 +489,7 @@ const VeiculosAluguel = () => {
 									{vehicle.priceRentDay && (
 										<div className="flex items-center gap-2 text-sm font-semibold text-[#154c9a]">
 											<DollarSign className="w-4 h-4" />
-											<span>{Number(vehicle.priceRentDay).toLocaleString('pt-AO')} Kz/dia</span>
+											<span>{formatKz(vehicle.priceRentDay)}/dia</span>
 										</div>
 									)}
 								</div>

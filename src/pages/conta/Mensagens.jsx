@@ -59,9 +59,9 @@ export default function Mensagens() {
 
 	return (
 		<div className="bg-white rounded-xl shadow-sm border border-[#e5e7eb] overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
-			<div className="grid grid-cols-1 md:grid-cols-3 h-full">
+			<div className="grid grid-cols-1 md:grid-cols-3 h-full min-h-0">
 				{/* Sidebar - Lista de Conversas */}
-				<div className={`md:col-span-1 border-r border-[#e5e7eb] ${activeConversationId ? 'hidden md:block' : 'block'}`}>
+				<div className={`md:col-span-1 border-r border-[#e5e7eb] min-h-0 overflow-hidden ${activeConversationId ? 'hidden md:block' : 'block'}`}>
 					<div className="p-4 border-b border-[#e5e7eb]">
 						<h3 className="font-display font-bold text-[#111827]">Conversas</h3>
 					</div>
@@ -128,7 +128,7 @@ export default function Mensagens() {
 				</div>
 
 				{/* Painel de Chat */}
-				<div className={`md:col-span-2 flex flex-col ${!activeConversationId ? 'hidden md:flex' : 'flex'}`}>
+				<div className={`md:col-span-2 flex flex-col min-h-0 overflow-hidden ${!activeConversationId ? 'hidden md:flex' : 'flex'}`}>
 					{activeConversationId && activeConv ? (
 						<>
 							<div className="flex items-center gap-3 px-5 py-3.5 border-b border-[#e5e7eb] bg-white">
@@ -159,7 +159,7 @@ export default function Mensagens() {
 									)}
 								</div>
 							</div>
-							<div className="flex-1 overflow-y-auto px-5 py-4 space-y-1">
+							<div className="flex-1 overflow-y-auto min-h-0 px-5 py-4 space-y-1">
 								{messagesLoading && convMessages.length === 0 ? (
 									<div className="flex items-center justify-center h-full">
 										<Loader2 className="w-6 h-6 text-[#154c9a] animate-spin" />

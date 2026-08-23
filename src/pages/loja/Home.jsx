@@ -18,7 +18,7 @@ import DashboardSkeleton from '../../components/skeletons/DashboardSkeleton';
 const SECTION_META = {
 	ALUGUEL: {
 		label: 'Aluguel',
-		description: 'Anuncie veículos para aluguer por dia.',
+		description: 'Anuncie veículos para aluguer.',
 		icon: CarFront,
 		color: 'bg-sky-600',
 		light: 'bg-sky-50 text-sky-700 border-sky-200',
@@ -122,8 +122,8 @@ const Home = () => {
 						<p className="text-xl font-bold text-gray-900">{home.totals.vehicles}</p>
 					</div>
 					<div className="bg-gray-50 rounded-lg p-3">
-						<p className="text-xs text-gray-500">Aluguer ativos</p>
-						<p className="text-xl font-bold text-gray-900">{home.totals.rentVehiclesActive}</p>
+						<p className="text-xs text-gray-500">Vendidos</p>
+						<p className="text-xl font-bold text-gray-900">{home.totals.vehiclesSold}</p>
 					</div>
 					<div className="hidden sm:block bg-gray-50 rounded-lg p-3">
 						<p className="text-xs text-gray-500">Modelo</p>
