@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import { formatNumber, toLocalDateString } from '../../utils/format'
+import { recordViewOnce } from '../../utils/views'
 import {
 	Gauge,
 	Calendar,
@@ -143,7 +145,7 @@ export default function DetalhesAluguel() {
 			description: apiVehicle.description || 'Sem descrição disponível',
 			specs: {
 				km: apiVehicle.kilometers
-					? `${new Intl.NumberFormat('pt-AO').format(apiVehicle.kilometers)} km`
+					? `${formatNumber(apiVehicle.kilometers)} km`
 					: 'N/A',
 				year: apiVehicle.year || 'N/A',
 				location: apiVehicle.provincia || 'N/A',
@@ -207,9 +209,11 @@ export default function DetalhesAluguel() {
 		} else if (apiVehicle) {
 			setError(null)
 			setCurrentImageIndex(0)
-			api.addView('rent', id).catch(viewError => {
-				console.error('Erro ao registrar visualização:', viewError)
-			})
+			if (recordViewOnce('rent', id)) {
+				api.addView('rent', id).catch(viewError => {
+					console.error('Erro ao registrar visualização:', viewError)
+				})
+			}
 		}
 	}, [isFetched, apiVehicle, id])
 
@@ -314,7 +318,7 @@ export default function DetalhesAluguel() {
 	}
 
 	const formatPrice = (price) => {
-		return new Intl.NumberFormat('pt-AO').format(price)
+		return formatNumber(price)
 	}
 
 	const toggleFavorite = async (e) => {
@@ -865,7 +869,7 @@ export default function DetalhesAluguel() {
 											name="dataInicio"
 											value={rentalFormData.dataInicio}
 											onChange={(e) => setRentalFormData({ ...rentalFormData, dataInicio: e.target.value })}
-											min={new Date().toISOString().split('T')[0]}
+											min={toLocalDateString(new Date())}
 											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]/20 bg-white cursor-pointer font-body text-sm"
 										/>
 									</div>
@@ -878,7 +882,7 @@ export default function DetalhesAluguel() {
 											name="dataFim"
 											value={rentalFormData.dataFim}
 											onChange={(e) => setRentalFormData({ ...rentalFormData, dataFim: e.target.value })}
-											min={rentalFormData.dataInicio || new Date().toISOString().split('T')[0]}
+											min={rentalFormData.dataInicio || toLocalDateString(new Date())}
 											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]/20 bg-white cursor-pointer font-body text-sm"
 										/>
 									</div>

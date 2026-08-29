@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatKz } from '../../utils/format';
 import api, { notyf } from '../../services/api';
 import {
 	Users,
@@ -177,7 +178,7 @@ const AdminUsers = () => {
 
 	const formatCurrency = (value) => {
 		if (!value) return '—';
-		return new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(value);
+		return formatKz(value);
 	};
 
 	return (

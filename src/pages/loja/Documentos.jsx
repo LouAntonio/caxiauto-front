@@ -18,6 +18,108 @@ import {
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import ButtonLoader from '../../components/ButtonLoader';
 
+// Preview de ficheiro local com revogação do blob URL (evita fugas de memória)
+const LocalFilePreview = ({ file }) => {
+	const [previewUrl, setPreviewUrl] = useState(null);
+
+	useEffect(() => {
+		if (!file || file.type === 'application/pdf') return;
+		const url = URL.createObjectURL(file);
+		setPreviewUrl(url);
+		return () => URL.revokeObjectURL(url);
+	}, [file]);
+
+	if (!file) return null;
+	if (file.type === 'application/pdf') {
+		return (
+			<div className="bg-green-50 p-6 flex items-center justify-center h-24">
+				<FileText className="w-8 h-8 text-green-500" />
+			</div>
+		);
+	}
+	return <img src={previewUrl} alt={file.name} className="w-full h-24 object-cover" />;
+};
+
+// Componente de preview de ficheiros locais ou existentes
+const FilePreview = ({ files, existingUrls, setFiles, onFileChange, onRemove, label, icon: IconComponent }) => (
+	<div>
+		<label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+			<IconComponent className="w-4 h-4" />
+			{label}
+		</label>
+
+		<div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-[#154c9a] transition-colors">
+			<input
+				type="file"
+				id={`upload-${label.replace(/\s/g, '-')}`}
+				multiple
+				accept="image/*,application/pdf"
+				onChange={(e) => onFileChange(e, setFiles)}
+				className="hidden"
+			/>
+			<label
+				htmlFor={`upload-${label.replace(/\s/g, '-')}`}
+				className="cursor-pointer flex flex-col items-center"
+			>
+				<Upload className="w-8 h-8 text-gray-400 mb-2" />
+				<p className="text-sm font-medium text-gray-700">Clique ou arraste ficheiros</p>
+				<p className="text-xs text-gray-500">JPG, PNG, WEBP ou PDF (máx. 5MB)</p>
+			</label>
+		</div>
+
+		{/* Ficheiros existentes (URLs do Cloudinary) */}
+		{existingUrls && existingUrls.length > 0 && (
+			<div className="mt-3">
+				<p className="text-xs font-medium text-gray-500 mb-2">Documentos enviados anteriormente:</p>
+				<div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+					{existingUrls.map((url, idx) => (
+						<a
+							key={idx}
+							href={url}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="relative group border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+						>
+							{url.includes('.pdf') ? (
+								<div className="bg-gray-100 p-6 flex items-center justify-center h-24">
+									<FileText className="w-8 h-8 text-gray-400" />
+								</div>
+							) : (
+								<img src={url} alt={`Doc ${idx + 1}`} className="w-full h-24 object-cover" />
+							)}
+							<div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+								<Eye className="w-5 h-5 text-white" />
+							</div>
+						</a>
+					))}
+				</div>
+			</div>
+		)}
+
+		{/* Ficheiros novos (locais) */}
+		{files.length > 0 && (
+			<div className="mt-3 space-y-2">
+				<p className="text-xs font-semibold text-green-600">Novos ficheiros selecionados ({files.length}):</p>
+				<div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+					{files.map((file, idx) => (
+						<div key={idx} className="relative group border border-green-200 rounded-lg overflow-hidden">
+							<LocalFilePreview file={file} />
+							<button
+								type="button"
+								onClick={() => onRemove(idx, setFiles)}
+								className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+							>
+								<X className="w-3 h-3" />
+							</button>
+							<p className="text-xs text-gray-600 p-1 truncate">{file.name}</p>
+						</div>
+					))}
+				</div>
+			</div>
+		)}
+	</div>
+);
+
 const Documentos = () => {
 	useDocumentTitle('Documentos - CaxiAuto');
 
@@ -162,93 +264,6 @@ const Documentos = () => {
 			: { label: 'Pendente de Verificação', icon: Clock, bg: 'bg-yellow-100', text: 'text-yellow-700', border: 'border-yellow-200' };
 
 	const StatusIcon = statusBadge.icon;
-
-	// Componente de preview de ficheiros locais ou existentes
-	// eslint-disable-next-line no-unused-vars
-	const FilePreview = ({ files, existingUrls, setFiles, label, icon: IconComponent }) => (
-		<div>
-			<label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-				<IconComponent className="w-4 h-4" />
-				{label}
-			</label>
-
-			<div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-[#154c9a] transition-colors">
-				<input
-					type="file"
-					id={`upload-${label.replace(/\s/g, '-')}`}
-					multiple
-					accept="image/*,application/pdf"
-					onChange={(e) => handleFileChange(e, setFiles)}
-					className="hidden"
-				/>
-				<label
-					htmlFor={`upload-${label.replace(/\s/g, '-')}`}
-					className="cursor-pointer flex flex-col items-center"
-				>
-					<Upload className="w-8 h-8 text-gray-400 mb-2" />
-					<p className="text-sm font-medium text-gray-700">Clique ou arraste ficheiros</p>
-					<p className="text-xs text-gray-500">JPG, PNG, WEBP ou PDF (máx. 5MB)</p>
-				</label>
-			</div>
-
-			{/* Ficheiros existentes (URLs do Cloudinary) */}
-			{existingUrls && existingUrls.length > 0 && (
-				<div className="mt-3">
-					<p className="text-xs font-medium text-gray-500 mb-2">Documentos enviados anteriormente:</p>
-					<div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-						{existingUrls.map((url, idx) => (
-							<a
-								key={idx}
-								href={url}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="relative group border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
-							>
-								{url.includes('.pdf') ? (
-									<div className="bg-gray-100 p-6 flex items-center justify-center h-24">
-										<FileText className="w-8 h-8 text-gray-400" />
-									</div>
-								) : (
-									<img src={url} alt={`Doc ${idx + 1}`} className="w-full h-24 object-cover" />
-								)}
-								<div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-									<Eye className="w-5 h-5 text-white" />
-								</div>
-							</a>
-						))}
-					</div>
-				</div>
-			)}
-
-			{/* Ficheiros novos (locais) */}
-			{files.length > 0 && (
-				<div className="mt-3 space-y-2">
-					<p className="text-xs font-semibold text-green-600">Novos ficheiros selecionados ({files.length}):</p>
-					<div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-						{files.map((file, idx) => (
-							<div key={idx} className="relative group border border-green-200 rounded-lg overflow-hidden">
-								{file.type === 'application/pdf' ? (
-									<div className="bg-green-50 p-6 flex items-center justify-center h-24">
-										<FileText className="w-8 h-8 text-green-500" />
-									</div>
-								) : (
-									<img src={URL.createObjectURL(file)} alt={file.name} className="w-full h-24 object-cover" />
-								)}
-								<button
-									type="button"
-									onClick={() => removeFile(idx, setFiles)}
-									className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-								>
-									<X className="w-3 h-3" />
-								</button>
-								<p className="text-xs text-gray-600 p-1 truncate">{file.name}</p>
-							</div>
-						))}
-					</div>
-				</div>
-			)}
-		</div>
-	);
 
 	if (loading) {
 		return (
@@ -420,31 +435,37 @@ const Documentos = () => {
 						{/* Formulário */}
 						<form onSubmit={handleSubmit} className="space-y-8">
 							{/* BI / Passaporte */}
-							<FilePreview
-								files={idCardFiles}
-								existingUrls={sellerDocs?.idCard}
-								setFiles={setIdCardFiles}
-								label="Documento de Identificação (BI ou Passaporte) *"
-								icon={Shield}
-							/>
+<FilePreview
+							files={idCardFiles}
+							existingUrls={sellerDocs?.idCard}
+							setFiles={setIdCardFiles}
+							onFileChange={handleFileChange}
+							onRemove={removeFile}
+							label="Documento de Identificação (BI ou Passaporte) *"
+							icon={Shield}
+						/>
 
-							{/* Documentos da Organização */}
-							<FilePreview
-								files={orgDocFiles}
-								existingUrls={sellerDocs?.organizationDocs}
-								setFiles={setOrgDocFiles}
-								label="Documentos da Empresa (NIF, Certidão de Registo Comercial) — Opcional"
-								icon={Briefcase}
-							/>
+						{/* Documentos da Organização */}
+						<FilePreview
+							files={orgDocFiles}
+							existingUrls={sellerDocs?.organizationDocs}
+							setFiles={setOrgDocFiles}
+							onFileChange={handleFileChange}
+							onRemove={removeFile}
+							label="Documentos da Empresa (NIF, Certidão de Registo Comercial) — Opcional"
+							icon={Briefcase}
+						/>
 
-							{/* Selfies */}
-							<FilePreview
-								files={selfieFiles}
-								existingUrls={sellerDocs?.selfies}
-								setFiles={setSelfieFiles}
-								label="Selfies do Vendedor *"
-								icon={Camera}
-							/>
+						{/* Selfies */}
+						<FilePreview
+							files={selfieFiles}
+							existingUrls={sellerDocs?.selfies}
+							setFiles={setSelfieFiles}
+							onFileChange={handleFileChange}
+							onRemove={removeFile}
+							label="Selfies do Vendedor *"
+							icon={Camera}
+						/>
 
 							{/* Aceitação de Termos e Políticas */}
 							<div className="bg-[#eef3fa] border border-[#c9d9ef] rounded-lg p-4">

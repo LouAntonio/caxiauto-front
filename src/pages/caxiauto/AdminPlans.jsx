@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatKz } from '../../utils/format';
 import { CreditCard, Plus, Pencil, Trash2, Loader2, X, Image as ImageIcon } from 'lucide-react';
 import { notyf } from '../../services/api';
 import api from '../../services/api';
@@ -189,7 +190,7 @@ const AdminPlans = () => {
 	};
 
 	const formatCurrency = (value) => {
-		return new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(value);
+		return formatKz(value);
 	};
 
 	return (

@@ -77,8 +77,10 @@ const Assinatura = () => {
 	const [selectedHlPlan, setSelectedHlPlan] = useState(null);
 	const [selectedItemType, setSelectedItemType] = useState('VEHICLE');
 	const [selectedItemId, setSelectedItemId] = useState('');
+	const [showCustomItemId, setShowCustomItemId] = useState(false);
 	const [processing, setProcessing] = useState(false);
 	const [proofUploads, setProofUploads] = useState({});
+	const [proofPending, setProofPending] = useState({});
 	const [activeTab, setActiveTab] = useState('ALUGUEL');
 
 	const { data: myVehicles } = useMyVehicles();
@@ -155,6 +157,7 @@ const Assinatura = () => {
 	};
 
 	const handleUploadProof = async (paymentId, file) => {
+		setProofPending((prev) => ({ ...prev, [paymentId]: true }));
 		try {
 			const proofUrl = await uploadToCloudinary(file, 'payments');
 			const response = await uploadProof.mutateAsync({ paymentId, proofUrl });
@@ -166,6 +169,8 @@ const Assinatura = () => {
 			}
 		} catch {
 			notyf.error('Erro ao fazer upload do comprovativo');
+		} finally {
+			setProofPending((prev) => ({ ...prev, [paymentId]: false }));
 		}
 	};
 
@@ -500,14 +505,39 @@ const Assinatura = () => {
 							</select>
 						</div>
 						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">ID do Anúncio</label>
-							<input
-								type="text"
-								value={selectedItemId}
-								onChange={(e) => setSelectedItemId(e.target.value)}
+							<label className="block text-sm font-medium text-gray-700 mb-1">Anúncio</label>
+							<select
+								value={showCustomItemId ? '__other__' : selectedItemId}
+								onChange={(e) => {
+									const value = e.target.value;
+									if (value === '__other__') {
+										setShowCustomItemId(true);
+										setSelectedItemId('');
+									} else {
+										setShowCustomItemId(false);
+										setSelectedItemId(value);
+									}
+								}}
 								className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
-								placeholder="Cole o ID do veículo ou peça..."
-							/>
+							>
+								<option value="">-- Selecione um anúncio --</option>
+								{(selectedItemType === 'VEHICLE'
+									? (myVehicles || []).filter(v => v.status !== 'SOLD' && v.status !== 'REJECTED')
+									: (myPecas || []).filter(p => p.status !== 'REJECTED')
+								).map((item) => (
+									<option key={item.id} value={item.id}>{item.name}</option>
+								))}
+								<option value="__other__">Outro (colar ID)</option>
+							</select>
+							{showCustomItemId && (
+								<input
+									type="text"
+									value={selectedItemId}
+									onChange={(e) => setSelectedItemId(e.target.value)}
+									className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
+									placeholder="Cole o ID do veículo ou peça..."
+								/>
+							)}
 						</div>
 					</div>
 				</div>
@@ -634,7 +664,7 @@ const Assinatura = () => {
 												{proofUploads[payment.id] ? (
 													<ButtonLoader
 														onClick={() => handleUploadProof(payment.id, proofUploads[payment.id])}
-														loading={uploadProof.isPending}
+														loading={!!proofPending[payment.id]}
 														loadingText="Enviando..."
 														variant="primary"
 														className="text-sm px-4 py-2"

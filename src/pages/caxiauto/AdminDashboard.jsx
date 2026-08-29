@@ -13,6 +13,7 @@ import {
 import { getImageUrl } from '../../services/api';
 import { AdminStatsSkeleton, AdminTableSkeleton } from '../../components/skeletons';
 import { useDashboardStats, useRecentVehicles, useRecentPecas, useRecentUsers } from '../../hooks/queries/useAdmin';
+import { formatKz, formatNumber, formatDate as formatDateLocale } from '../../utils/format';
 
 const AdminDashboard = () => {
 	const { data: stats, isLoading } = useDashboardStats();
@@ -79,23 +80,10 @@ const AdminDashboard = () => {
 		},
 	];
 
-	const formatCurrency = (value) => {
-		return new Intl.NumberFormat('pt-AO', {
-			style: 'currency',
-			currency: 'AOA',
-		}).format(value);
-	};
+	const formatCurrency = (value) => formatKz(value);
 
-	const formatDate = (dateString) => {
-		const date = new Date(dateString);
-		return date.toLocaleDateString('pt-BR', {
-			day: '2-digit',
-			month: 'short',
-			year: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit',
-		});
-	};
+	const formatDate = (dateString) =>
+		formatDateLocale(dateString, { month: 'short', hour: '2-digit', minute: '2-digit' });
 
 	if (isLoading) {
 		return (
@@ -185,7 +173,7 @@ const AdminDashboard = () => {
 								</div>
 							</div>
 							<h3 className="text-sm font-medium text-gray-600 mb-1">{stat.title}</h3>
-							<p className="text-3xl font-bold text-gray-900">{stat.value.toLocaleString('pt-BR')}</p>
+							<p className="text-3xl font-bold text-gray-900">{formatNumber(stat.value)}</p>
 						</div>
 					);
 				})}

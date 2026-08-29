@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatKz } from '../../utils/format';
 import { Sparkles, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { notyf } from '../../services/api';
 import { AdminTableSkeleton } from '../../components/skeletons';
@@ -101,7 +102,7 @@ const AdminHighlightPlans = () => {
 	};
 
 	const formatCurrency = (value) => {
-		return new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(value);
+		return formatKz(value);
 	};
 
 	return (

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MessageSquare, User, Car, Wrench, Clock, CheckCheck, ChevronLeft, ExternalLink } from 'lucide-react';
 import { useAdminConversations } from '../../hooks/queries/useAdmin';
 import { getImageUrl } from '../../services/api';
+import { formatDate } from '../../utils/format';
 import { Link } from 'react-router-dom';
 import { AdminTableSkeleton } from '../../components/skeletons';
 
@@ -9,7 +10,7 @@ const AdminMensagens = () => {
 	const { data: conversations, isLoading } = useAdminConversations();
 	const [selectedConv, setSelectedConv] = useState(null);
 
-	const formatDate = (dateStr) => {
+	const formatRelativeTime = (dateStr) => {
 		const date = new Date(dateStr);
 		const now = new Date();
 		const diffMs = now - date;
@@ -118,7 +119,7 @@ const AdminMensagens = () => {
 							<p className="text-xs text-gray-500 mb-1">Última mensagem</p>
 							<p className="text-sm text-gray-800">{lastMsg.text}</p>
 							<p className="text-xs text-gray-400 mt-1">
-								{new Date(lastMsg.createdAt).toLocaleString('pt-PT')}
+								{formatDate(lastMsg.createdAt, { hour: '2-digit', minute: '2-digit' })}
 							</p>
 						</div>
 					)}
@@ -174,7 +175,7 @@ const AdminMensagens = () => {
 														{conv.totalUnread}
 													</span>
 												)}
-												<span className="text-xs text-gray-400">{formatDate(conv.updatedAt)}</span>
+												<span className="text-xs text-gray-400">{formatRelativeTime(conv.updatedAt)}</span>
 											</div>
 										</div>
 										<div className="flex items-center gap-2 mt-1">

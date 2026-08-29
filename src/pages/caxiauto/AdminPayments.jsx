@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatKz } from '../../utils/format';
 import { Banknote, Check, X, Eye, Loader2, Search } from 'lucide-react';
 import { notyf } from '../../services/api';
 import {
@@ -87,7 +88,7 @@ const AdminPayments = () => {
 	};
 
 	const formatCurrency = (value) => {
-		return new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(value);
+		return formatKz(value);
 	};
 
 	const formatDate = (dateString) => {

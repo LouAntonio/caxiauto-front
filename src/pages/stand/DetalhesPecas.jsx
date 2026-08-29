@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import { formatNumber } from '../../utils/format'
+import { recordViewOnce } from '../../utils/views'
 import {
 	Package,
 	MapPin,
@@ -122,9 +124,11 @@ export default function DetalhesPecas() {
 		} else if (peca) {
 			setError(null)
 			setCurrentImageIndex(0)
-			api.addView('part', id).catch(viewError => {
-				console.error('Erro ao registrar visualização:', viewError)
-			})
+			if (recordViewOnce('part', id)) {
+				api.addView('part', id).catch(viewError => {
+					console.error('Erro ao registrar visualização:', viewError)
+				})
+			}
 		}
 	}, [isFetched, peca, id])
 
@@ -198,7 +202,7 @@ export default function DetalhesPecas() {
 		if (price === null || price === undefined || isNaN(price) || price === 0) {
 			return 'Preço sob consulta'
 		}
-		return new Intl.NumberFormat('pt-AO').format(Number(price))
+		return formatNumber(price)
 	}
 
 	const formatDate = (dateStr) => {

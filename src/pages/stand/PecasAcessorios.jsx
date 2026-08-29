@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import { formatNumber } from '../../utils/format';
 import {
 	Package,
 	AlertCircle,
@@ -146,7 +147,7 @@ export default function PecasAcessorios() {
 		if (price === null || price === undefined || isNaN(price) || price === 0) {
 			return 'Preço sob consulta'
 		}
-		return new Intl.NumberFormat('pt-AO').format(price)
+		return formatNumber(price)
 	};
 
 	const toggleFavorite = async (e, partId) => {

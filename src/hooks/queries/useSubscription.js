@@ -32,6 +32,7 @@ export const useMySubscriptions = () => {
 	const query = useQuery({
 		queryKey: ['subscriptions', 'my'],
 		queryFn: () => api.getMySubscriptions(),
+		staleTime: 30 * 1000,
 		select: (res) => (res.success ? res.data : []),
 	});
 

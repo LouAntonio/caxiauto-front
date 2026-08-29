@@ -78,6 +78,11 @@ const ProtectedSellerRoute = ({ children }) => {
 		return <Navigate to="/auth" state={{ from: location }} replace />;
 	}
 
+	// Apenas vendedores (ou administradores) podem aceder a áreas de vendedor
+	if (user.role !== 'SELLER' && user.role !== 'ADMIN') {
+		return <Navigate to="/" replace />;
+	}
+
 	return children;
 };
 

@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { formatNumber } from '../utils/format';
 import { ChevronLeft, ChevronRight, Gauge, Calendar, MapPin, Droplet, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom'
 import api, { getImageUrl, notyf } from '../services/api';
@@ -146,8 +147,8 @@ export default function FeaturedCars({ title = 'Carros em Destaque', useVehicleQ
 								const isNew = car.kilometers === 0 || car.kilometers < 100;
 								const condition = isNew ? 'Novo' : 'Usado';
 
-								const formattedPrice = new Intl.NumberFormat('pt-AO').format(car.priceSale || 0);
-								const formattedKm = new Intl.NumberFormat('pt-AO').format(car.kilometers || 0);
+								const formattedPrice = formatNumber(car.priceSale);
+								const formattedKm = formatNumber(car.kilometers);
 								const fuelType = car.fuelType ? car.fuelType.charAt(0).toUpperCase() + car.fuelType.slice(1) : 'N/A';
 
 								return (

@@ -16,5 +16,12 @@ export const queryClient = new QueryClient({
 				}
 			},
 		},
+		mutations: {
+			retry: 1,
+			onError: (error) => {
+				notyf.error(error?.message || 'Erro ao executar a operação');
+				console.error('Mutation error:', error);
+			},
+		},
 	},
 });

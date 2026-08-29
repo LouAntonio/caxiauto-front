@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { formatKz, formatNumber, formatDate as formatDateLocale } from '../../utils/format';
 import api, { getImageUrl, notyf } from '../../services/api';
 import {
 	Car,
@@ -248,15 +249,12 @@ const AdminVehicles = () => {
 
 	const formatCurrency = (value) => {
 		if (!value) return '—';
-		return new Intl.NumberFormat('pt-AO', {
-			style: 'currency',
-			currency: 'AOA',
-		}).format(value);
+		return formatKz(value);
 	};
 
 	const formatDate = (date) => {
 		if (!date) return '—';
-		return new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+		return formatDateLocale(date);
 	};
 
 	const formatFeaturedExpiry = (featuredUntil) => {
@@ -663,7 +661,7 @@ const AdminVehicles = () => {
 										</div>
 										<div className="bg-gray-50 p-3 rounded-lg">
 											<p className="text-xs text-gray-500">Quilometragem</p>
-											<p className="font-medium">{detailsModal.vehicle.kilometers?.toLocaleString()} km</p>
+											<p className="font-medium">{formatNumber(detailsModal.vehicle.kilometers)} km</p>
 										</div>
 										<div className="bg-gray-50 p-3 rounded-lg">
 											<p className="text-xs text-gray-500">Combustível</p>

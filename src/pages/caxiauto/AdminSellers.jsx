@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { formatKz } from '../../utils/format';
 import api, { getImageUrl, notyf } from '../../services/api';
 import {
 	UserCheck,
@@ -159,7 +160,7 @@ const AdminSellers = () => {
 
 	const formatCurrency = (value) => {
 		if (!value) return '—';
-		return new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(value);
+		return formatKz(value);
 	};
 
 	return (

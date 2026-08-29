@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { formatKz } from '../utils/format';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api, { getImageUrl, notyf } from '../services/api';
@@ -106,12 +107,7 @@ const PerfilVendedor = () => {
 		});
 	};
 
-	const formatPrice = (price) => {
-		return new Intl.NumberFormat('pt-AO', {
-			style: 'currency',
-			currency: 'AOA'
-		}).format(price);
-	};
+	const formatPrice = (price) => formatKz(price);
 
 	if (loading) {
 		return (

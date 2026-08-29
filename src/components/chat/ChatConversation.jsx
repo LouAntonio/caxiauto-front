@@ -28,6 +28,7 @@ export default function ChatConversation({ conversationId }) {
 		: 'Carregando...';
 
 	const scrollRef = useRef(null);
+	const stickToBottom = useRef(true);
 	const [hasMore, setHasMore] = React.useState(true);
 	const [nextCursor, setNextCursor] = React.useState(null);
 	const [loadingMore, setLoadingMore] = React.useState(false);
@@ -45,8 +46,9 @@ export default function ChatConversation({ conversationId }) {
 	}, [conversationId, fetchMessages, markAsRead]);
 
 	useEffect(() => {
-		if (scrollRef.current && !loadingMore) {
-			scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+		const el = scrollRef.current;
+		if (el && stickToBottom.current && !loadingMore) {
+			el.scrollTop = el.scrollHeight;
 		}
 	}, [convMessages.length, loadingMore]);
 
@@ -61,7 +63,11 @@ export default function ChatConversation({ conversationId }) {
 	}, [conversationId]);
 
 	const handleScroll = useCallback(() => {
-		if (scrollRef.current && scrollRef.current.scrollTop === 0 && hasMore && !loadingMore) {
+		const el = scrollRef.current;
+		if (el) {
+			stickToBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+		}
+		if (el && el.scrollTop === 0 && hasMore && !loadingMore) {
 			setLoadingMore(true);
 			fetchMessages(conversationId, nextCursor).then((pagination) => {
 				if (pagination) {

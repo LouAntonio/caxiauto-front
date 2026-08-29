@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import { formatNumber } from '../../utils/format';
 import {
 	Gauge,
 	Calendar,
@@ -10,7 +11,25 @@ import {
 	Heart,
 	Car
 } from 'lucide-react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+
+const parseUrlFilters = (sp) => {
+	const f = {};
+	if (sp.get('search')) f.pesquisa = sp.get('search');
+	if (sp.get('manufacturer')) f.marca = sp.get('manufacturer');
+	if (sp.get('class')) f.classe = sp.get('class');
+	if (sp.get('fuelType')) f.combustivel = sp.get('fuelType');
+	if (sp.get('transmission')) f.transmissao = sp.get('transmission');
+	if (sp.get('minYear')) f.ano = sp.get('minYear');
+	const minKm = sp.get('minKilometers');
+	const maxKm = sp.get('maxKilometers');
+	if (minKm || maxKm) f.quilometros = `${minKm || ''}-${maxKm || ''}`;
+	const minPrice = sp.get('minPrice');
+	const maxPrice = sp.get('maxPrice');
+	if (minPrice || maxPrice) f.preco = `${minPrice || ''}-${maxPrice || ''}`;
+	if (sp.get('featured')) f.destaque = 'true';
+	return f;
+};
 import VehicleFilter from '../../components/VehicleFilter';
 import Pagination from '../../components/Pagination';
 import CarCardSkeleton from '../../components/CarCardSkeleton';
@@ -24,11 +43,12 @@ export default function Compra() {
 	useDocumentTitle('Compra de Veículos - Caxiauto');
 	const navigate = useNavigate();
 	const location = useLocation();
+	const [searchParams, setSearchParams] = useSearchParams();
 	const listingRef = useRef(null);
 
-	const [filters, setFilters] = useState({});
-	const [currentPage, setCurrentPage] = useState(1);
-	const [sortBy, setSortBy] = useState('createdAt');
+	const [filters, setFilters] = useState(() => parseUrlFilters(searchParams));
+	const [currentPage, setCurrentPage] = useState(() => Math.max(1, parseInt(searchParams.get('page'), 10) || 1));
+	const [sortBy, setSortBy] = useState(() => searchParams.get('sort') || 'createdAt');
 	const vehiclesPerPage = 16;
 	const [showMobileFilters, setShowMobileFilters] = useState(false);
 	const [mobileSearch, setMobileSearch] = useState('');
@@ -97,6 +117,31 @@ export default function Compra() {
 		}
 	}, [location.state]);
 
+	// URLs de filtros partilháveis — espelha estado em query string (replace)
+	useEffect(() => {
+		const sp = new URLSearchParams();
+		if (filters.pesquisa) sp.set('search', filters.pesquisa);
+		if (filters.marca) sp.set('manufacturer', filters.marca);
+		if (filters.classe) sp.set('class', filters.classe);
+		if (filters.combustivel) sp.set('fuelType', filters.combustivel);
+		if (filters.transmissao) sp.set('transmission', filters.transmissao);
+		if (filters.ano) sp.set('minYear', filters.ano);
+		if (filters.quilometros) {
+			const [min, max] = String(filters.quilometros).split('-');
+			if (min) sp.set('minKilometers', min);
+			if (max) sp.set('maxKilometers', max);
+		}
+		if (filters.preco) {
+			const [min, max] = String(filters.preco).split('-');
+			if (min) sp.set('minPrice', min);
+			if (max) sp.set('maxPrice', max);
+		}
+		if (filters.destaque) sp.set('featured', 'true');
+		if (currentPage > 1) sp.set('page', String(currentPage));
+		if (sortBy !== 'createdAt') sp.set('sort', sortBy);
+		setSearchParams(sp, { replace: true });
+	}, [filters, currentPage, sortBy, setSearchParams]);
+
 	const handleFilterChange = (newFilters) => {
 		setFilters(newFilters);
 		setCurrentPage(1);
@@ -136,7 +181,7 @@ export default function Compra() {
 		if (price === null || price === undefined || isNaN(price) || price === 0) {
 			return 'Preço sob consulta'
 		}
-		return new Intl.NumberFormat('pt-AO').format(price)
+		return formatNumber(price)
 	};
 
 	const toggleFavorite = async (e, carId) => {
@@ -337,7 +382,7 @@ export default function Compra() {
 
 															<div className="grid grid-cols-2 gap-2 font-body text-sm text-[#6b7280]">
 																<div className="flex items-center justify-end gap-2">
-																	<span className="text-right">{car.kilometers?.toLocaleString('pt-AO')}</span>
+																	<span className="text-right">{formatNumber(car.kilometers)}</span>
 																	<Gauge className="w-4 h-4 text-gray-400" />
 																</div>
 																<div className="flex items-center gap-2">

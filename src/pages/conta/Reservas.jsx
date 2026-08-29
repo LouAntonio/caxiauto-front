@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import { formatKz, formatDate as formatDatePt } from '../../utils/format';
 import { ListSkeleton } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
 import { useMyBookings, useCancelBooking } from '../../hooks/queries/useBookings';
@@ -33,7 +34,6 @@ const Reservas = () => {
 	const [cancelingId, setCancelingId] = useState(null);
 
 	const params = useMemo(() => ({ page, limit: 10, ...(filter && { status: filter }) }), [page, filter]);
-	if (filter) params.status = filter;
 
 	const { data: reservas, isLoading } = useMyBookings(params);
 	const cancelBooking = useCancelBooking();
@@ -119,14 +119,7 @@ const Reservas = () => {
 		);
 	};
 
-	const formatDate = (dateString) => {
-		const date = new Date(dateString);
-		return date.toLocaleDateString('pt-BR', {
-			day: '2-digit',
-			month: '2-digit',
-			year: 'numeric'
-		});
-	};
+	const formatDate = (dateString) => formatDatePt(dateString);
 
 	const calculateDays = (startDate, endDate) => {
 		const start = new Date(startDate);
@@ -136,12 +129,7 @@ const Reservas = () => {
 		return diffDays;
 	};
 
-	const formatPrice = (price) => {
-		return new Intl.NumberFormat('pt-AO', {
-			style: 'currency',
-			currency: 'AOA'
-		}).format(price);
-	};
+	const formatPrice = (price) => formatKz(price);
 
 	return (
 		<div className="space-y-6">

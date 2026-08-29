@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatKz, toLocalDateString } from '../utils/format';
 import { notyf } from '../services/api';
 import { useCreateBooking } from '../hooks/queries/useBookings';
 import {
@@ -83,17 +84,9 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 		}
 	};
 
-	const formatPrice = (price) => {
-		return new Intl.NumberFormat('pt-AO', {
-			style: 'currency',
-			currency: 'AOA'
-		}).format(price);
-	};
+	const formatPrice = (price) => formatKz(price);
 
-	const getMinDate = () => {
-		const today = new Date();
-		return today.toISOString().split('T')[0];
-	};
+	const getMinDate = () => toLocalDateString(new Date());
 
 	if (!showForm) {
 		return (

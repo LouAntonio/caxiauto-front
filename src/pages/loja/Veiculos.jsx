@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import api, { getImageUrl } from '../../services/api';
+import { publicIdFromUrl } from '../../utils/cloudinary';
 import axios from 'axios';
 import { VehicleCardSkeleton } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
@@ -101,7 +102,27 @@ const Veiculos = () => {
 	};
 
 	const handleMediaChange = (e) => {
-		const files = Array.from(e.target.files);
+		const files = Array.from(e.target.files || []);
+		if (files.length === 0) return;
+
+		if (files.some((f) => !f.type.startsWith('image/'))) {
+			setMessage({ type: 'error', text: 'Apenas imagens são permitidas (JPG, PNG, WebP, etc.).' });
+			e.target.value = '';
+			return;
+		}
+
+		if (files.some((f) => f.size > 10 * 1024 * 1024)) {
+			setMessage({ type: 'error', text: 'Cada imagem deve ter no máximo 10 MB.' });
+			e.target.value = '';
+			return;
+		}
+
+		if (files.length > 10) {
+			setMessage({ type: 'error', text: 'Máximo de 10 imagens por veículo.' });
+			e.target.value = '';
+			return;
+		}
+
 		setMediaFiles(files);
 	};
 
@@ -238,11 +259,22 @@ const Veiculos = () => {
 		setMessage({ type: 'info', text: 'Processando uploads... Por favor, aguarde.' });
 
 		try {
-			// Upload de imagens
+			// Upload de imagens (com rollback se algum falhar)
 			let uploadedImages = [];
 			if (mediaFiles.length > 0) {
-				const imageUploadPromises = mediaFiles.map(file => uploadToCloudinary(file, 'sellCar'));
-				uploadedImages = await Promise.all(imageUploadPromises);
+				const results = await Promise.allSettled(
+					mediaFiles.map(file => uploadToCloudinary(file, 'sellCar'))
+				);
+				const failed = results.some(r => r.status === 'rejected');
+				if (failed) {
+					await Promise.allSettled(
+						results
+							.filter(r => r.status === 'fulfilled')
+							.map(r => api.deleteCloudinaryResource(publicIdFromUrl(r.value)))
+					);
+					throw new Error('Falha ao enviar algumas imagens. Tente novamente.');
+				}
+				uploadedImages = results.map(r => r.value);
 			}
 
 			// Preparar dados para envio (mapeados para o schema Vehicle)

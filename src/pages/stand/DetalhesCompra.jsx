@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import { formatNumber, toLocalDateString } from '../../utils/format'
+import { recordViewOnce } from '../../utils/views'
 import {
 	Gauge,
 	Calendar,
@@ -142,7 +144,7 @@ export default function DetalhesCompra() {
 			description: vehicleData.description || 'Sem descrição disponível',
 			specs: {
 				km: vehicleData.kilometers
-					? `${new Intl.NumberFormat('pt-AO').format(vehicleData.kilometers)} km`
+					? `${formatNumber(vehicleData.kilometers)} km`
 					: 'N/A',
 				year: vehicleData.year || 'N/A',
 				location: vehicleData.provincia || 'N/A',
@@ -191,9 +193,11 @@ export default function DetalhesCompra() {
 		} else if (apiVehicle) {
 			setError(null)
 			setCurrentImageIndex(0)
-			api.addView('sell', id).catch(viewError => {
-				console.error('Erro ao registrar visualização:', viewError)
-			})
+			if (recordViewOnce('sell', id)) {
+				api.addView('sell', id).catch(viewError => {
+					console.error('Erro ao registrar visualização:', viewError)
+				})
+			}
 		}
 	}, [isFetched, apiVehicle, id])
 
@@ -333,7 +337,7 @@ export default function DetalhesCompra() {
 		if (price === null || price === undefined || isNaN(price) || price === 0) {
 			return 'Preço sob consulta'
 		}
-		return new Intl.NumberFormat('pt-AO').format(price)
+		return formatNumber(price)
 	}
 
 	const toggleFavorite = async (e) => {
@@ -983,7 +987,7 @@ export default function DetalhesCompra() {
 											value={visitFormData.dataVisita}
 											onChange={(e) => setVisitFormData({ ...visitFormData, dataVisita: e.target.value })}
 											required
-											min={new Date().toISOString().split('T')[0]}
+											min={toLocalDateString(new Date())}
 											className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-[#e5e7eb] rounded-2xl outline-none transition-all focus:border-[#154c9a] focus:ring-1 focus:ring-[#154c9a]/20 bg-white cursor-pointer font-body text-sm"
 										/>
 									</div>
