@@ -18,10 +18,10 @@ import {
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { SkeletonCard } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
-import { usePlans, useHighlightPlans, useMySubscriptions, useMyPayments, useCancelSubscription, useCreateSubscriptionPayment, useCreateHighlightPayment, useUploadPaymentProof } from '../../hooks/queries/useSubscription';
+import { usePlans, useHighlightPlans, useMySubscriptions, useMyPayments, useCancelSubscription, useCreateSubscriptionPayment, useCreateHighlightPayment, useUploadPaymentProof, useSellerHome } from '../../hooks/queries/useSubscription';
 import { useMyVehicles } from '../../hooks/queries/useVehicles';
 import { useMyPecas } from '../../hooks/queries/usePecas';
-import { formatKz } from '../../utils/format';
+import { formatKz, formatPercent } from '../../utils/format';
 
 // ⚠️ PLACEHOLDERS — substituir pelos dados bancários reais da empresa
 const COMPANY_BANK_DETAILS = {
@@ -64,6 +64,8 @@ const Assinatura = () => {
 	useAuthStore();
 	const { data: highlightPlans, isLoading: highlightLoading } = useHighlightPlans();
 	const { data: allPlans, isLoading: plansLoading } = usePlans();
+	const { data: sellerHome } = useSellerHome();
+	const commissionRate = sellerHome?.commissionRate ?? 0.05;
 	const { data: mySubscriptions, bySection, isLoading: subscriptionLoading } = useMySubscriptions();
 	const { data: myPayments, isLoading: paymentsLoading } = useMyPayments();
 	const cancelSubscription = useCancelSubscription();
@@ -280,6 +282,17 @@ const Assinatura = () => {
 
 				{/* Tabs */}
 				<div className="flex flex-wrap gap-2 mb-6">
+					<button
+						onClick={() => setActiveTab('STAND')}
+						className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === 'STAND'
+							? 'bg-[#d41120] text-white shadow-md'
+							: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+						}`}
+					>
+						<Car className="w-4 h-4" />
+						Stand
+						<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white">Comissão</span>
+					</button>
 					{SECTIONS.map((s) => {
 						const Icon = s.icon;
 						const sub = bySection[s.key];
@@ -301,8 +314,46 @@ const Assinatura = () => {
 					})}
 				</div>
 
-				{/* Assinatura atual da secção */}
-				{isCurrentActive ? (
+				{/* Conteúdo da secção Stand */}
+				{activeTab === 'STAND' ? (
+					<div className="bg-gradient-to-br from-[#eef3fa] to-white border-2 border-[#c9d9ef] rounded-xl p-6 mb-8">
+						<div className="flex items-start gap-4">
+							<div className="w-14 h-14 bg-[#154c9a] rounded-xl flex items-center justify-center flex-shrink-0">
+								<Car className="w-7 h-7 text-white" />
+							</div>
+							<div className="min-w-0 flex-1">
+								<h3 className="text-xl font-bold text-gray-900 mb-1">
+									Stand — sempre ativa
+								</h3>
+								<p className="text-sm text-gray-600 mb-4">
+									A secção Stand não precisa de pacote de assinatura. Em vez disso, ao vender um
+									veículo, a plataforma CaxiAuto fica com uma percentagem do valor da venda e o
+									restante é todo seu.
+								</p>
+								<div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+									<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
+										<p className="text-xs text-gray-500 mb-1">Modelo</p>
+										<p className="font-bold text-[#154c9a]">Sem plano / Comissão</p>
+									</div>
+									<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
+										<p className="text-xs text-gray-500 mb-1">Comissão CaxiAuto</p>
+										<p className="font-bold text-[#d41120]">{formatPercent(commissionRate)} por venda</p>
+									</div>
+									<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
+										<p className="text-xs text-gray-500 mb-1">Seu ganho</p>
+										<p className="font-bold text-[#154c9a]">{formatPercent(1 - commissionRate)} da venda</p>
+									</div>
+								</div>
+								<div className="bg-white rounded-lg border border-[#c9d9ef] p-4 text-sm text-gray-700">
+									<p className="font-semibold mb-1">Exemplo de divisão</p>
+									<p>Venda: <strong>{formatKz(5000000)}</strong></p>
+									<p>Comissão CaxiAuto ({formatPercent(commissionRate)}): <strong className="text-[#d41120]">−{formatKz(5000000 * commissionRate)}</strong></p>
+									<p className="text-[#154c9a] font-semibold">Você recebe: <strong>{formatKz(5000000 * (1 - commissionRate))}</strong></p>
+								</div>
+							</div>
+						</div>
+					</div>
+				) : /* Assinatura atual da secção */ isCurrentActive ? (
 					<div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 mb-8">
 						<div className="flex items-start justify-between mb-4">
 							<div>
@@ -350,15 +401,17 @@ const Assinatura = () => {
 				)}
 
 				{/* Planos da secção */}
-				<h3 className="font-bold text-gray-900 mb-4">Planos disponíveis — {activeSection.label}</h3>
-				{sectionPlans.length === 0 ? (
-					<div className="text-center py-8"><p className="text-gray-600">Nenhum plano disponível nesta secção no momento</p></div>
-				) : (
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-						{sectionPlans.map((plan) => {
-							const isCurrent = isCurrentActive && currentSub.planId === plan.id;
-							return (
-								<div key={plan.id} className={`border-2 rounded-xl p-6 transition-all hover:shadow-lg ${isCurrent ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-blue-300'}`}>
+				{activeTab !== 'STAND' && (
+					<>
+						<h3 className="font-bold text-gray-900 mb-4">Planos disponíveis — {activeSection.label}</h3>
+						{sectionPlans.length === 0 ? (
+							<div className="text-center py-8"><p className="text-gray-600">Nenhum plano disponível nesta secção no momento</p></div>
+						) : (
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+								{sectionPlans.map((plan) => {
+									const isCurrent = isCurrentActive && currentSub.planId === plan.id;
+									return (
+										<div key={plan.id} className={`border-2 rounded-xl p-6 transition-all hover:shadow-lg ${isCurrent ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-blue-300'}`}>
 									{isCurrent && (
 										<div className="mb-4">
 											<span className="px-3 py-1 bg-green-600 text-white rounded-full text-xs font-semibold">Seu Plano Atual</span>
@@ -414,7 +467,9 @@ const Assinatura = () => {
 								</div>
 							);
 						})}
-					</div>
+						</div>
+					)}
+					</>
 				)}
 			</div>
 

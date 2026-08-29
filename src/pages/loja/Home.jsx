@@ -20,24 +20,27 @@ const SECTION_META = {
 		label: 'Aluguel',
 		description: 'Anuncie veículos para aluguer.',
 		icon: CarFront,
-		color: 'bg-sky-600',
-		light: 'bg-sky-50 text-sky-700 border-sky-200',
+		color: 'bg-[#154c9a]',
+		light: 'bg-[#eef3fa] text-[#154c9a] border-[#c9d9ef]',
+		hover: 'hover:bg-[#123f80]',
 		managePath: '/minha-loja/veiculos-aluguel'
 	},
 	PECAS: {
 		label: 'Peças e Acessórios',
 		description: 'Venda peças e acessórios na sua loja.',
 		icon: Wrench,
-		color: 'bg-amber-600',
-		light: 'bg-amber-50 text-amber-700 border-amber-200',
+		color: 'bg-[#d41120]',
+		light: 'bg-[#fdecec] text-[#d41120] border-[#f5c4c8]',
+		hover: 'hover:bg-[#b80f1c]',
 		managePath: '/minha-loja/pecas'
 	},
 	EMPRESAS: {
 		label: 'Empresas',
 		description: 'Divulgue a sua empresa como parceira.',
 		icon: Handshake,
-		color: 'bg-emerald-600',
-		light: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+		color: 'bg-[#154c9a]',
+		light: 'bg-[#eef3fa] text-[#154c9a] border-[#c9d9ef]',
+		hover: 'hover:bg-[#123f80]',
 		managePath: '/minha-loja/empresas'
 	}
 };
@@ -147,7 +150,7 @@ const Home = () => {
 								<div className="min-w-0">
 									<h3 className="font-bold text-gray-900 truncate">{meta.label}</h3>
 									<span className={`inline-block mt-0.5 px-2 py-0.5 rounded-full text-xs font-medium border ${active
-										? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+										? 'bg-[#eef3fa] text-[#154c9a] border-[#c9d9ef]'
 										: 'bg-gray-100 text-gray-500 border-gray-200'
 									}`}>
 										{active ? 'Plano ativo' : 'Sem plano'}
@@ -170,8 +173,8 @@ const Home = () => {
 								<Link
 									to={active ? meta.managePath : '/minha-loja/assinatura'}
 									className={`flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${active
-										? 'bg-[#154c9a] text-white hover:bg-[#123f80]'
-										: 'bg-amber-600 text-white hover:bg-amber-700'
+										? `bg-[#154c9a] text-white hover:bg-[#123f80]`
+										: `${meta.color} text-white ${meta.hover}`
 									}`}
 								>
 									{active ? 'Gerir secção' : 'Escolher plano'}

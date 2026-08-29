@@ -11,7 +11,6 @@ import {
 	Fuel,
 	Settings,
 	MapPin,
-	DollarSign,
 	AlertCircle,
 	Upload,
 	Power,
@@ -399,7 +398,9 @@ const Veiculos = () => {
 			<div className="bg-[#eef3fa] border border-[#c9d9ef] rounded-lg p-5">
 				<div className="flex flex-wrap items-center justify-between gap-4">
 					<div className="flex items-start gap-3 min-w-0">
-						<DollarSign className="w-6 h-6 text-[#154c9a] flex-shrink-0 mt-0.5" />
+						<span className="inline-flex items-center justify-center w-9 h-9 bg-[#154c9a] text-white text-sm font-bold rounded-lg flex-shrink-0 mt-0.5">
+							AKZ
+						</span>
 						<div>
 							<p className="font-semibold text-gray-900">
 								Comissão Caxiauto: {formatPercent(commissionRate)} por venda
@@ -522,7 +523,7 @@ const Veiculos = () => {
 									)}
 									{vehicle.priceSale && (
 										<div className="flex items-center gap-2 text-sm font-semibold text-[#154c9a]">
-											<DollarSign className="w-4 h-4" />
+											<span className="inline-flex items-center px-1.5 py-0.5 bg-[#eef3fa] text-[#154c9a] text-xs font-bold rounded-md">AKZ</span>
 											<span>{formatKz(vehicle.priceSale)}</span>
 										</div>
 									)}

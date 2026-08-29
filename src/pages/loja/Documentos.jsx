@@ -25,6 +25,7 @@ const Documentos = () => {
 	const [loading, setLoading] = useState(true);
 	const [uploading, setUploading] = useState(false);
 	const [sellerDocs, setSellerDocs] = useState(null);
+	const [acceptedTerms, setAcceptedTerms] = useState(false);
 
 	// Ficheiros por secção
 	const [idCardFiles, setIdCardFiles] = useState([]);
@@ -103,6 +104,11 @@ const Documentos = () => {
 
 		if (selfieFiles.length === 0 && (!sellerDocs?.selfies || sellerDocs.selfies.length === 0)) {
 			notyf.error('Envie pelo menos uma selfie');
+			return;
+		}
+
+		if (!acceptedTerms) {
+			notyf.error('Deve aceitar os Termos e Políticas da plataforma antes de enviar os documentos.');
 			return;
 		}
 
@@ -439,6 +445,29 @@ const Documentos = () => {
 								label="Selfies do Vendedor *"
 								icon={Camera}
 							/>
+
+							{/* Aceitação de Termos e Políticas */}
+							<div className="bg-[#eef3fa] border border-[#c9d9ef] rounded-lg p-4">
+								<label className="flex items-start gap-3 cursor-pointer">
+									<input
+										type="checkbox"
+										checked={acceptedTerms}
+										onChange={(e) => setAcceptedTerms(e.target.checked)}
+										className="mt-0.5 w-5 h-5 accent-[#154c9a] cursor-pointer"
+									/>
+									<span className="text-sm text-gray-700">
+										Declaro que li e aceito os{' '}
+										<a href="/termos" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#154c9a] hover:text-[#123f80] underline">
+											Termos de Uso
+										</a>{' '}
+										e a{' '}
+										<a href="/politicas" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#154c9a] hover:text-[#123f80] underline">
+											Política de Privacidade
+										</a>{' '}
+										da CaxiAuto e autorizo o tratamento dos meus dados para a verificação da minha loja.
+									</span>
+								</label>
+							</div>
 
 							{/* Botão */}
 							<ButtonLoader
