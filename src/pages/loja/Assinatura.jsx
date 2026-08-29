@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
 import { notyf } from '../../services/api';
 import api from '../../services/api';
@@ -21,14 +22,15 @@ import ButtonLoader from '../../components/ButtonLoader';
 import { usePlans, useHighlightPlans, useMySubscriptions, useMyPayments, useCancelSubscription, useCreateSubscriptionPayment, useCreateHighlightPayment, useUploadPaymentProof, useSellerHome } from '../../hooks/queries/useSubscription';
 import { useMyVehicles } from '../../hooks/queries/useVehicles';
 import { useMyPecas } from '../../hooks/queries/usePecas';
+import { usePublicConfig } from '../../hooks/queries/useSubscription';
 import { formatKz, formatPercent } from '../../utils/format';
 
-// ⚠️ PLACEHOLDERS — substituir pelos dados bancários reais da empresa
-const COMPANY_BANK_DETAILS = {
-	bankName: 'NOME DO BANCO', // TODO: alterar
-	iban: 'AO06 0000 0000 0000 0000 0000 0000', // TODO: alterar
-	holderName: 'NOME DO TITULAR DA CONTA', // TODO: alterar
-	mcxPhone: '+244 9XX XXX XXX' // TODO: alterar
+// Fallback usado enquanto não houver dados bancários configurados pelo admin.
+const DEFAULT_BANK_DETAILS = {
+	bankName: 'NOME DO BANCO',
+	iban: 'AO06 0000 0000 0000 0000 0000 0000',
+	holderName: 'NOME DO TITULAR DA CONTA',
+	mcxPhone: '+244 9XX XXX XXX'
 };
 
 const SECTIONS = [
@@ -68,6 +70,8 @@ const Assinatura = () => {
 	const commissionRate = sellerHome?.commissionRate ?? 0.05;
 	const { data: mySubscriptions, bySection, isLoading: subscriptionLoading } = useMySubscriptions();
 	const { data: myPayments, isLoading: paymentsLoading } = useMyPayments();
+	const { data: publicConfig } = usePublicConfig();
+	const bankDetails = publicConfig?.bankDetails || DEFAULT_BANK_DETAILS;
 	const cancelSubscription = useCancelSubscription();
 	const createSubscriptionPayment = useCreateSubscriptionPayment();
 	const createHighlightPayment = useCreateHighlightPayment();
@@ -256,16 +260,16 @@ const Assinatura = () => {
 							</p>
 							<div className="flex gap-3">
 								{hiddenVehicles.length > 0 && (
-									<a href="/minha-loja/veiculos-aluguel" className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition-all">
+									<Link to="/minha-loja/veiculos-aluguel" className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition-all">
 										<Car className="w-4 h-4" />
 										Gerir Aluguel
-									</a>
+									</Link>
 								)}
 								{hiddenPecas.length > 0 && (
-									<a href="/minha-loja/pecas" className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition-all">
+									<Link to="/minha-loja/pecas" className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition-all">
 										<Wrench className="w-4 h-4" />
 										Gerir Peças
-									</a>
+									</Link>
 								)}
 							</div>
 						</div>
@@ -605,19 +609,19 @@ const Assinatura = () => {
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
 								<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
 									<p className="text-xs text-gray-500">Banco</p>
-									<p className="font-semibold text-gray-900">{COMPANY_BANK_DETAILS.bankName}</p>
+									<p className="font-semibold text-gray-900">{bankDetails.bankName}</p>
 								</div>
 								<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
 									<p className="text-xs text-gray-500">Titular da conta</p>
-									<p className="font-semibold text-gray-900">{COMPANY_BANK_DETAILS.holderName}</p>
+									<p className="font-semibold text-gray-900">{bankDetails.holderName}</p>
 								</div>
 								<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
 									<p className="text-xs text-gray-500">IBAN</p>
-									<p className="font-semibold text-gray-900 font-mono tracking-wide break-all">{COMPANY_BANK_DETAILS.iban}</p>
+									<p className="font-semibold text-gray-900 font-mono tracking-wide break-all">{bankDetails.iban}</p>
 								</div>
 								<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
 									<p className="text-xs text-gray-500">MCX Express (telefone)</p>
-									<p className="font-semibold text-gray-900">{COMPANY_BANK_DETAILS.mcxPhone}</p>
+									<p className="font-semibold text-gray-900">{bankDetails.mcxPhone}</p>
 								</div>
 							</div>
 						</div>

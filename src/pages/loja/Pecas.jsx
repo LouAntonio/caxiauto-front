@@ -841,7 +841,7 @@ const Pecas = () => {
 											type="text"
 											value={newCompatibility}
 											onChange={(e) => setNewCompatibility(e.target.value)}
-											onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCompatibility())}
+											onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCompatibility())}
 											placeholder="Ex: Toyota Corolla 2020"
 											className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 										/>

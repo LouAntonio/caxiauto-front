@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import useAdminStore from '../../stores/adminStore';
 import { Shield, Mail, Lock, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
 import { notyf } from '../../services/api';
@@ -144,12 +144,12 @@ const AdminLogin = () => {
 
 					{/* Link para voltar ao site */}
 					<div className="mt-6 text-center">
-						<a
-							href="/"
+						<Link
+							to="/"
 							className="text-sm text-gray-600 hover:text-[#154c9a] transition-colors"
 						>
 							← Voltar para o site
-						</a>
+						</Link>
 					</div>
 				</div>
 

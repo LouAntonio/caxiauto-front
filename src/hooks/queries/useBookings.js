@@ -1,6 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 
+export const useSellerBookings = (params = {}) => {
+	return useQuery({
+		queryKey: ['bookings', 'seller', params],
+		queryFn: () => api.getSellerBookings(params),
+		select: (res) => (res.success ? res : null),
+	});
+};
+
 export const useMyBookings = (params = {}) => {
 	return useQuery({
 		queryKey: ['bookings', 'my', params],
@@ -43,6 +51,7 @@ export const useUpdateBookingStatus = () => {
 		mutationFn: ({ id, status }) => api.updateBookingStatus(id, status),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['bookings'] });
+			queryClient.invalidateQueries({ queryKey: ['seller', 'home'] });
 		},
 	});
 };

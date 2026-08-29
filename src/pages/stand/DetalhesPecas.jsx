@@ -34,6 +34,16 @@ export default function DetalhesPecas() {
 	const { createConversation: startChat, openChat } = useChatStore()
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [showContactModal, setShowContactModal] = useState(false)
+
+	useEffect(() => {
+		const handleKey = (e) => {
+			if (e.key === 'Escape') {
+				setShowContactModal(false);
+			}
+		};
+		window.addEventListener('keydown', handleKey);
+		return () => window.removeEventListener('keydown', handleKey);
+	}, []);
 	const [showAvailabilityModal, setShowAvailabilityModal] = useState(false)
 	const [requestedQuantity, setRequestedQuantity] = useState(1)
 	const [error, setError] = useState(null)

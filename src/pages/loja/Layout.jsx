@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
 import useSyncUser from '../../hooks/useSyncUser';
+import { useSellerHome } from '../../hooks/queries/useSubscription';
 import {
 	LayoutDashboard,
 	Car,
@@ -11,6 +12,7 @@ import {
 	CreditCard,
 	Handshake,
 	MessageSquare,
+	CalendarClock,
 	Store,
 	User,
 	Menu,
@@ -22,8 +24,11 @@ const SellerLayout = () => {
 	const location = useLocation();
 	const { user, logout } = useAuthStore();
 	const [sidebarOpen, setSidebarOpen] = useState(false);
+	const { data: home } = useSellerHome();
 
 	useSyncUser();
+
+	const pendingReservas = home?.reservas?.pending || 0;
 
 	const menuGroups = [
 		{
@@ -43,6 +48,7 @@ const SellerLayout = () => {
 			label: 'Gestão',
 			items: [
 				{ icon: FileText, title: 'Documentos', path: '/minha-loja/documentos' },
+				{ icon: CalendarClock, title: 'Reservas', path: '/minha-loja/reservas', badge: pendingReservas },
 				{ icon: CreditCard, title: 'Assinatura', path: '/minha-loja/assinatura' },
 				{ icon: MessageSquare, title: 'Mensagens', path: '/minha-loja/mensagens' }
 			]
@@ -70,6 +76,11 @@ const SellerLayout = () => {
 			>
 				<Icon className={`w-5 h-5 ${active ? 'text-white' : 'text-gray-400'}`} />
 				<span className="font-medium">{item.title}</span>
+				{!!item.badge && item.badge > 0 && (
+					<span className={`ml-auto min-w-5 h-5 px-1.5 rounded-full text-xs font-bold flex items-center justify-center ${active ? 'bg-white text-[#154c9a]' : 'bg-[#d41120] text-white'}`}>
+						{item.badge}
+					</span>
+				)}
 			</Link>
 		);
 	};

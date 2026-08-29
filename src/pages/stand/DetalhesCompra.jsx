@@ -38,6 +38,17 @@ export default function DetalhesCompra() {
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [showContactModal, setShowContactModal] = useState(false)
 	const [showVisitModal, setShowVisitModal] = useState(false)
+
+	useEffect(() => {
+		const handleKey = (e) => {
+			if (e.key === 'Escape') {
+				setShowContactModal(false);
+				setShowVisitModal(false);
+			}
+		};
+		window.addEventListener('keydown', handleKey);
+		return () => window.removeEventListener('keydown', handleKey);
+	}, []);
 	const [error, setError] = useState(null)
 	const [isFavorite, setIsFavorite] = useState(false)
 

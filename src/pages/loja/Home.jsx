@@ -9,7 +9,9 @@ import {
 	ShieldAlert,
 	ArrowRight,
 	BadgeCheck,
-	FileText
+	FileText,
+	CalendarClock,
+	Clock
 } from 'lucide-react';
 import LojaPageHeader from './PageHeader';
 import { useSellerHome } from '../../hooks/queries/useSubscription';
@@ -94,6 +96,42 @@ const Home = () => {
 						<FileText className="w-4 h-4" />
 						Documentos
 					</Link>
+				)}
+			</div>
+
+			{/* Reservas recebidas */}
+			<div className={`mb-6 bg-white rounded-xl border shadow-sm p-6 ${home.reservas?.pending ? 'border-amber-200' : 'border-gray-200'}`}>
+				<div className="flex items-start justify-between gap-4">
+					<div className="flex items-center gap-3">
+						<div className={`w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 ${home.reservas?.pending ? 'bg-amber-500' : 'bg-gray-200'}`}>
+							<CalendarClock className="w-6 h-6 text-white" />
+						</div>
+						<div>
+							<h3 className="font-bold text-gray-900">Reservas recebidas</h3>
+							<p className="text-sm text-gray-600 mt-0.5">
+								{home.reservas?.pending
+									? `Tem ${home.reservas.pending} ${home.reservas.pending === 1 ? 'pedido pendente' : 'pedidos pendentes'} de confirmação.`
+									: home.reservas?.total
+										? 'Sem pedidos pendentes.'
+										: 'Quando um cliente reservar um dos seus veículos, o pedido aparece aqui.'}
+							</p>
+						</div>
+					</div>
+					<Link to="/minha-loja/reservas" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#154c9a] hover:text-[#123f80]">
+						Gerir <ArrowRight className="w-4 h-4" />
+					</Link>
+				</div>
+				{home.reservas?.pending > 0 && (
+					<div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+						<div className="bg-amber-50 rounded-lg p-3">
+							<p className="text-xs text-gray-500 flex items-center gap-1"><Clock className="w-3 h-3" /> Pendentes</p>
+							<p className="text-xl font-bold text-amber-600">{home.reservas.pending}</p>
+						</div>
+						<div className="bg-gray-50 rounded-lg p-3">
+							<p className="text-xs text-gray-500">Total recebidas</p>
+							<p className="text-xl font-bold text-gray-900">{home.reservas.total}</p>
+						</div>
+					</div>
 				)}
 			</div>
 

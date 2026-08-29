@@ -21,7 +21,7 @@ function formatTime(dateStr) {
 
 export default function ChatConversationList() {
 	const { user } = useAuthStore();
-	const { conversations, loading, setActiveConversation, markAsRead } = useChatStore();
+	const { conversations, loading, setActiveConversation, markAsRead, onlineUsers } = useChatStore();
 
 	if (loading) {
 		return (
@@ -57,6 +57,7 @@ export default function ChatConversationList() {
 				const displayName = isAdmin ? 'Caxiauto' : participantUser
 					? `${participantUser.name} ${participantUser.surname}`
 					: 'Desconhecido';
+				const isOnline = !!participantUser && !isAdmin && !!onlineUsers[participantUser.id];
 
 				return (
 					<button
@@ -67,13 +68,19 @@ export default function ChatConversationList() {
 						}}
 						className="w-full flex items-start gap-3 px-5 py-4 hover:bg-[#f8f6f2] transition-colors border-b border-[#e5e7eb] text-left cursor-pointer"
 					>
-						<div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-[#eef3fa] flex items-center justify-center">
+						<div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-[#eef3fa] flex items-center justify-center">
 							{isAdmin ? (
 								<img src="/images/logos/iconBG.png" alt="Caxiauto" className="w-full h-full object-cover" />
 							) : (
 								<span className="text-[#154c9a] font-display font-bold text-sm">
 									{participantUser ? `${participantUser.name.charAt(0)}${participantUser.surname.charAt(0)}` : '??'}
 								</span>
+							)}
+							{isOnline && (
+								<span
+									className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"
+									title="Online"
+								/>
 							)}
 						</div>
 						<div className="flex-1 min-w-0">

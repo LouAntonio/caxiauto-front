@@ -63,6 +63,15 @@ export const useSellerHome = () => {
 	});
 };
 
+export const usePublicConfig = () => {
+	return useQuery({
+		queryKey: ['config', 'public'],
+		queryFn: () => api.getPublicConfig(),
+		select: (res) => (res.success ? res.data : {}),
+		staleTime: 30 * 60 * 1000,
+	});
+};
+
 export const useMyPayments = () => {
 	return useQuery({
 		queryKey: ['subscriptions', 'payments', 'my'],

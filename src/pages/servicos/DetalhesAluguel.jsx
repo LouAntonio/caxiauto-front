@@ -39,6 +39,16 @@ export default function DetalhesAluguel() {
 	const [selectedPeriod, setSelectedPeriod] = useState('diária')
 	const [showContactModal, setShowContactModal] = useState(false)
 	const [error, setError] = useState(null)
+
+	useEffect(() => {
+		const handleKey = (e) => {
+			if (e.key === 'Escape') {
+				setShowContactModal(false);
+			}
+		};
+		window.addEventListener('keydown', handleKey);
+		return () => window.removeEventListener('keydown', handleKey);
+	}, []);
 	const [isFavorite, setIsFavorite] = useState(false);
 	const [bookingSuccess, setBookingSuccess] = useState(false);
 

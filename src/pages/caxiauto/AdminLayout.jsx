@@ -105,6 +105,11 @@ const AdminLayout = () => {
 			title: 'Mensagens',
 			path: '/caxiauto/mensagens',
 		},
+		{
+			icon: Settings,
+			title: 'Configurações',
+			path: '/caxiauto/config',
+		},
 	];
 
 	const isActive = (path) => {

@@ -196,6 +196,8 @@ const api = {
 
 	getBookingsByVehicle: (vehicleId, params = {}) => api.get(`/bookings/vehicle/${vehicleId}`, { params }),
 
+	getSellerBookings: (params = {}) => api.get('/bookings/seller', { params }),
+
 	getBooking: (id) => api.get(`/bookings/${id}`),
 
 	updateBookingStatus: (id, status) => api.put(`/bookings/${id}/status`, { status }),
@@ -389,6 +391,13 @@ const api = {
 	contactRentalRequest: (data) => api.post('/contact/rental-request', data),
 
 	contactPartPurchase: (data) => api.post('/contact/part-purchase', data),
+
+	// ==================== CONFIG ====================
+	getPublicConfig: () => api.get('/config/public'),
+
+	getAdminConfigs: () => api.get('/admin/config', {}, true),
+
+	updateConfig: (key, value) => api.put(`/admin/config/${key}`, { value }, true),
 };
 
 export default api;

@@ -40,6 +40,7 @@ import Documentos from './pages/loja/Documentos'
 import Assinatura from './pages/loja/Assinatura'
 import Pecas from './pages/loja/Pecas'
 import LojaEmpresas from './pages/loja/Empresas'
+import LojaReservas from './pages/loja/Reservas'
 import ProtectedSellerRoute from './components/ProtectedSellerRoute'
 import PerfilVendedor from './pages/PerfilVendedor'
 import Legal from './pages/Legal'
@@ -60,6 +61,7 @@ import AdminPlans from './pages/caxiauto/AdminPlans'
 import AdminHighlightPlans from './pages/caxiauto/AdminHighlightPlans'
 import AdminPayments from './pages/caxiauto/AdminPayments'
 import AdminMensagens from './pages/caxiauto/AdminMensagens'
+import AdminConfig from './pages/caxiauto/AdminConfig'
 import Comercial from './pages/Comercial'
 import ChatButton from './components/chat/ChatButton'
 import ChatDrawer from './components/chat/ChatDrawer'
@@ -176,6 +178,7 @@ function AppContent() {
 					<Route path="assinatura" element={<Assinatura />} />
 					<Route path="empresas" element={<LojaEmpresas />} />
 					<Route path="mensagens" element={<Mensagens />} />
+					<Route path="reservas" element={<LojaReservas />} />
 				</Route>
 
 				{/* Admin Routes - Painel Administrativo */}
@@ -203,6 +206,7 @@ function AppContent() {
 					<Route path="planos-destaque" element={<AdminHighlightPlans />} />
 					<Route path="pagamentos" element={<AdminPayments />} />
 					<Route path="mensagens" element={<AdminMensagens />} />
+					<Route path="config" element={<AdminConfig />} />
 				</Route>
 
 				{/* 404 route - keep last */}

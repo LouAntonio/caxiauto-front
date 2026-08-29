@@ -23,6 +23,7 @@ const useChatStore = create((set, get) => ({
 	isChatOpen: false,
 	isConnected: false,
 	typingUsers: {},
+	onlineUsers: {},
 	loading: false,
 	messagesLoading: false,
 
@@ -109,6 +110,19 @@ const useChatStore = create((set, get) => ({
 			delete updated[conversationId];
 			set({ typingUsers: updated });
 		});
+
+		socket.on('user_online', ({ userId }) => {
+			set({ onlineUsers: { ...get().onlineUsers, [userId]: true } });
+		});
+
+		socket.on('user_offline', ({ userId }) => {
+			const { onlineUsers } = get();
+			if (onlineUsers[userId]) {
+				const updated = { ...onlineUsers };
+				delete updated[userId];
+				set({ onlineUsers: updated });
+			}
+		});
 	},
 
 	destroySocket: () => {
@@ -119,10 +133,12 @@ const useChatStore = create((set, get) => ({
 			socket.off('unread_count');
 			socket.off('typing');
 			socket.off('stop_typing');
+			socket.off('user_online');
+			socket.off('user_offline');
 		}
 		for (const conversationId of typingTimers.keys()) clearTypingTimer(conversationId);
 		disconnectSocket();
-		set({ isConnected: false, conversations: [], messages: {}, unreadCount: 0 });
+		set({ isConnected: false, conversations: [], messages: {}, unreadCount: 0, onlineUsers: {} });
 	},
 
 	fetchConversations: async () => {

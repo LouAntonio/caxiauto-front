@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useAuthStore from '../../stores/authStore';
 import {
 	Car,
@@ -62,6 +62,18 @@ const Veiculos = () => {
 	const [showSwapModal, setShowSwapModal] = useState(false);
 	const [swapTarget, setSwapTarget] = useState(null);
 	const swapActive = useSwapActiveVehicle();
+
+	useEffect(() => {
+		const handleKey = (e) => {
+			if (e.key === 'Escape') {
+				setShowModal(false);
+				setShowConfirmModal(false);
+				setShowSwapModal(false);
+			}
+		};
+		window.addEventListener('keydown', handleKey);
+		return () => window.removeEventListener('keydown', handleKey);
+	}, []);
 	const [formData, setFormData] = useState({
 		name: '',
 		description: '',
@@ -915,7 +927,7 @@ const Veiculos = () => {
 											type="text"
 											value={newCharacteristic}
 											onChange={(e) => setNewCharacteristic(e.target.value)}
-											onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCharacteristic())}
+											onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCharacteristic())}
 											placeholder="Ex: Ar Condicionado, Vidro Elétrico..."
 											className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 										/>

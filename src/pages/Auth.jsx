@@ -320,7 +320,7 @@ const Auth = () => {
 				const result = await completeRegistration(formData);
 				if (result.success) {
 					notyf.success(result.message + ' Agora você pode fazer login!');
-					// Limpar formulário e mostrar tela de login
+// Limpar formulário e mostrar tela de login
 					setFormData({
 						firstName: '',
 						lastName: '',
@@ -328,6 +328,7 @@ const Auth = () => {
 						password: '',
 						confirmPassword: '',
 						phone: '',
+						acceptedTerms: false,
 					});
 					setOtp(['', '', '', '', '', '']);
 					setRegistrationStep(0);
@@ -356,6 +357,7 @@ const Auth = () => {
 			password: '',
 			confirmPassword: '',
 			phone: '',
+			acceptedTerms: false,
 		});
 	};
 
@@ -376,7 +378,7 @@ const Auth = () => {
 						{isForgotPassword
 							? 'Digite seu email para receber o link de recuperação'
 							: (isLogin
-								? 'Entre para acessar seu painel administrativo'
+								? 'Entre para acessar a sua conta'
 								: (registrationStep === 0 ? 'Passo 1 de 3: Informe seu email' :
 									registrationStep === 1 ? 'Passo 2 de 3: Validação' :
 										'Passo 3 de 3: Seus dados'))}

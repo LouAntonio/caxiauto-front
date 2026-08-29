@@ -14,6 +14,7 @@ export default function ChatConversation({ conversationId }) {
 		fetchMessages,
 		typingUsers,
 		conversations,
+		onlineUsers,
 		markAsRead,
 	} = useChatStore();
 
@@ -23,6 +24,7 @@ export default function ChatConversation({ conversationId }) {
 		(p) => p.user.id !== user?.id
 	);
 	const isAdmin = otherParticipant?.user?.role === 'ADMIN';
+	const isOnline = !!otherParticipant && !isAdmin && !!onlineUsers[otherParticipant.user.id];
 	const otherName = otherParticipant
 		? isAdmin ? 'Caxiauto' : `${otherParticipant.user.name} ${otherParticipant.user.surname}`
 		: 'Carregando...';
@@ -84,7 +86,7 @@ export default function ChatConversation({ conversationId }) {
 	return (
 		<div className="flex flex-col h-full">
 			<div className="flex items-center gap-3 px-5 py-3 border-b border-[#e5e7eb] bg-white">
-				<div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 bg-[#eef3fa] flex items-center justify-center">
+				<div className="relative w-9 h-9 rounded-full overflow-hidden flex-shrink-0 bg-[#eef3fa] flex items-center justify-center">
 					{isAdmin ? (
 						<img src="/images/logos/iconBG.png" alt="Caxiauto" className="w-full h-full object-cover" />
 					) : (
@@ -94,9 +96,18 @@ export default function ChatConversation({ conversationId }) {
 								: '??'}
 						</span>
 					)}
+					{isOnline && (
+						<span
+							className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"
+							title="Online"
+						/>
+					)}
 				</div>
 				<div>
-					<span className="font-display font-bold text-sm text-[#111827]">{otherName}</span>
+					<span className="font-display font-bold text-sm text-[#111827]">
+						{otherName}
+						{isOnline && <span className="font-body text-xs font-normal text-emerald-600 ml-2">● online</span>}
+					</span>
 					{conversation?.vehicle && (
 						<p className="font-body text-xs text-[#6b7280]">{conversation.vehicle.name}</p>
 					)}
