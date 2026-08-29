@@ -2,6 +2,19 @@ import { create } from 'zustand';
 import api, { notyf } from '../services/api';
 import { connectSocket, disconnectSocket, getSocket } from '../services/socket';
 
+// Timers de "a escrever..." por conversa (TTL — evita indicador preso se o
+// stop_typing se perder durante uma reconexão).
+const typingTimers = new Map();
+const TYPING_TTL_MS = 10000;
+
+const clearTypingTimer = (conversationId) => {
+	const timer = typingTimers.get(conversationId);
+	if (timer) {
+		clearTimeout(timer);
+		typingTimers.delete(conversationId);
+	}
+};
+
 const useChatStore = create((set, get) => ({
 	conversations: [],
 	activeConversationId: null,
@@ -27,6 +40,9 @@ const useChatStore = create((set, get) => ({
 		socket.on('new_message', (message) => {
 			const { messages } = get();
 			const convMessages = messages[message.conversationId] || [];
+
+			// Deduplicar: evita duplicado se a mensagem também veio numa resposta REST
+			if (convMessages.some((m) => m.id === message.id)) return;
 
 			set({
 				messages: {
@@ -69,9 +85,25 @@ const useChatStore = create((set, get) => ({
 					[conversationId]: true,
 				},
 			});
+
+			// TTL: o indicador apaga-se sozinho se não chegar stop_typing
+			clearTypingTimer(conversationId);
+			typingTimers.set(
+				conversationId,
+				setTimeout(() => {
+					typingTimers.delete(conversationId);
+					const { typingUsers } = get();
+					if (typingUsers[conversationId]) {
+						const updated = { ...typingUsers };
+						delete updated[conversationId];
+						set({ typingUsers: updated });
+					}
+				}, TYPING_TTL_MS)
+			);
 		});
 
 		socket.on('stop_typing', ({ conversationId }) => {
+			clearTypingTimer(conversationId);
 			const { typingUsers } = get();
 			const updated = { ...typingUsers };
 			delete updated[conversationId];
@@ -88,6 +120,7 @@ const useChatStore = create((set, get) => ({
 			socket.off('typing');
 			socket.off('stop_typing');
 		}
+		for (const conversationId of typingTimers.keys()) clearTypingTimer(conversationId);
 		disconnectSocket();
 		set({ isConnected: false, conversations: [], messages: {}, unreadCount: 0 });
 	},

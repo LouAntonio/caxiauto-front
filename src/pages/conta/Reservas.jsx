@@ -3,6 +3,7 @@ import useAuthStore from '../../stores/authStore';
 import { notyf } from '../../services/api';
 import {
 	Calendar,
+	CalendarCheck,
 	Clock,
 	CheckCircle,
 	XCircle,
@@ -84,6 +85,13 @@ const Reservas = () => {
 				text: 'text-green-700',
 				border: 'border-green-200'
 			},
+			ACTIVE: {
+				label: 'Ativa',
+				icon: CalendarCheck,
+				bg: 'bg-blue-100',
+				text: 'text-blue-700',
+				border: 'border-blue-200'
+			},
 			CANCELLED: {
 				label: 'Cancelada',
 				icon: XCircle,
@@ -94,9 +102,9 @@ const Reservas = () => {
 			COMPLETED: {
 				label: 'Concluída',
 				icon: CheckCircle,
-				bg: 'bg-blue-100',
-				text: 'text-blue-700',
-				border: 'border-blue-200'
+				bg: 'bg-gray-100',
+				text: 'text-gray-700',
+				border: 'border-gray-200'
 			}
 		};
 

@@ -335,10 +335,10 @@ const Veiculos = () => {
 
 	const handleToggleStatus = (vehicleId, currentStatus) => {
 		if (actionLoading.has(`toggle-${vehicleId}`)) return;
-		const newStatus = currentStatus === 'active' ? 'inativo' : 'ativo';
+		const newStatus = currentStatus === 'ACTIVE' ? 'HIDDEN' : 'ACTIVE';
 		setConfirmTitle('Alterar Status');
-		setConfirmMessage(`Tem certeza que deseja tornar este veículo ${newStatus}?`);
-		setConfirmType(currentStatus === 'active' ? 'warning' : 'success');
+		setConfirmMessage(`Tem certeza que deseja tornar este veículo ${newStatus === 'ACTIVE' ? 'ativo' : 'oculto'}?`);
+		setConfirmType(currentStatus === 'ACTIVE' ? 'warning' : 'success');
 		setConfirmAction(() => async () => {
 			setActionLoading(prev => new Set(prev).add(`toggle-${vehicleId}`));
 			try {
@@ -484,10 +484,10 @@ const Veiculos = () => {
 											Oculto — limite do plano
 										</div>
 									) : (
-										<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${vehicle.status === 'ACTIVE' || vehicle.status === 'active' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
+										<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${vehicle.status === 'ACTIVE' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
 										}`}>
-											{vehicle.status === 'ACTIVE' || vehicle.status === 'active' ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-											{vehicle.status === 'ACTIVE' || vehicle.status === 'active' ? 'Visível' : 'Oculto'}
+											{vehicle.status === 'ACTIVE' ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+											{vehicle.status === 'ACTIVE' ? 'Visível' : 'Oculto'}
 										</div>
 									)}
 								</div>
@@ -586,9 +586,9 @@ const Veiculos = () => {
 											onClick={() => handleToggleStatus(vehicle.id, vehicle.status)}
 											loading={actionLoading.has(`toggle-${vehicle.id}`)}
 											loadingText=""
-											variant={vehicle.status === 'ACTIVE' || vehicle.status === 'active' ? 'warning' : 'success'}
+											variant={vehicle.status === 'ACTIVE' ? 'warning' : 'success'}
 											size="sm"
-											title={vehicle.status === 'ACTIVE' || vehicle.status === 'active' ? 'Desativar veículo' : 'Ativar veículo'}
+											title={vehicle.status === 'ACTIVE' ? 'Desativar veículo' : 'Ativar veículo'}
 										>
 											<Power className="w-4 h-4" />
 										</ButtonLoader>
@@ -1008,7 +1008,7 @@ const Veiculos = () => {
 							</p>
 							<div className="space-y-2 max-h-60 overflow-y-auto">
 								{vehicles
-									.filter(v => v.id !== swapTarget.id && v.type === 'RENT' && (v.status === 'ACTIVE' || v.status === 'active'))
+									.filter(v => v.id !== swapTarget.id && v.type === 'RENT' && (v.status === 'ACTIVE'))
 									.map(v => (
 										<button
 											key={v.id}
@@ -1038,7 +1038,7 @@ const Veiculos = () => {
 											</div>
 										</button>
 									))}
-								{vehicles.filter(v => v.id !== swapTarget.id && v.type === 'RENT' && (v.status === 'ACTIVE' || v.status === 'active')).length === 0 && (
+								{vehicles.filter(v => v.id !== swapTarget.id && v.type === 'RENT' && (v.status === 'ACTIVE')).length === 0 && (
 									<p className="text-gray-500 text-center py-4">Nenhum veículo de aluguer ativo disponível para desativar.</p>
 								)}
 							</div>

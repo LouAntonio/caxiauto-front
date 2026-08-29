@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Send } from 'lucide-react';
 import useChatStore from '../../stores/chatStore';
+import { notyf } from '../../services/api';
 
 export default function ChatInput({ conversationId }) {
 	const [text, setText] = useState('');
@@ -26,7 +27,14 @@ export default function ChatInput({ conversationId }) {
 			emitStopTyping(conversationId);
 		}
 
-		await sendMessage(conversationId, trimmed);
+		const res = await sendMessage(conversationId, trimmed);
+		// Rollback: se a mensagem não foi enviada (sem conexão / erro), repõe o texto
+		// para o utilizador não perder a mensagem.
+		if (!res?.success) {
+			setText((prev) => (prev ? `${prev} ${trimmed}` : trimmed));
+			notyf.error(res?.message || 'Falha ao enviar mensagem. Tente novamente.');
+		}
+		inputRef.current?.focus();
 	};
 
 	const handleKeyDown = (e) => {
