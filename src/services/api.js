@@ -50,6 +50,10 @@ const api = {
 
 	adminLogin: (email, password) => api.post('/users/admin/login', { email, password }, {}, true),
 
+	logout: () => api.post('/users/logout', {}),
+
+	adminLogout: () => api.post('/users/admin/logout', {}, {}, true),
+
 	isLoggedIn: () => api.get('/users/is-logged-in'),
 
 	adminIsLoggedIn: () => api.get('/users/admin/is-logged-in', {}, true),
@@ -168,7 +172,7 @@ const api = {
 	// ==================== CATEGORIAS DE PEÇAS ====================
 	listCategorias: (params = {}) => api.get('/categorias', { params }),
 
-	getCategoria: (id) => api.get(`/categorias/${id}`, {}, true),
+	getCategoria: (id) => api.get(`/categorias/${id}`),
 
 	createCategoria: (name) => api.post('/categorias', { name }, {}, true),
 

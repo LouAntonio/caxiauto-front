@@ -40,7 +40,13 @@ const useAdminStore = create((set, get) => ({
 		}
 	},
 
-	logout: () => {
+	logout: async () => {
+		// Revoga o token no servidor (best-effort — nunca bloqueia o logout local).
+		try {
+			await api.adminLogout();
+		} catch {
+			// rede/problema — limpa local na mesma
+		}
 		set({ admin: null });
 		localStorage.removeItem('caxiauto_admin');
 		localStorage.removeItem('caxiauto_admin_token');

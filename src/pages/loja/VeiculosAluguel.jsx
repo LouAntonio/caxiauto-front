@@ -450,10 +450,10 @@ const VeiculosAluguel = () => {
 									}`}>
 										{vehicle.isApproved ? 'Aprovado' : 'Pendente'}
 									</div>
-									<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${vehicle.status === 'ACTIVE' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
+									<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${vehicle.status === 'ACTIVE' ? 'bg-blue-500 text-white' : vehicle.status === 'RENTED' ? 'bg-orange-500 text-white' : 'bg-gray-500 text-white'
 									}`}>
-										<Eye className="w-3 h-3" />
-										{vehicle.status === 'ACTIVE' ? 'Visível' : 'Oculto'}
+										{vehicle.status === 'ACTIVE' ? <Eye className="w-3 h-3" /> : vehicle.status === 'RENTED' ? <Power className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+										{vehicle.status === 'ACTIVE' ? 'Visível' : vehicle.status === 'RENTED' ? 'Alugado' : 'Oculto'}
 									</div>
 								</div>
 							</div>
@@ -505,16 +505,27 @@ const VeiculosAluguel = () => {
 										<Edit2 className="w-4 h-4" />
 										Editar
 									</ButtonLoader>
-									<ButtonLoader
-										onClick={() => handleToggleStatus(vehicle.id, vehicle.status)}
-										loading={actionLoading.has(`toggle-${vehicle.id}`)}
-										loadingText=""
-										variant={vehicle.status === 'ACTIVE' ? 'gray' : 'primary'}
-										size="sm"
-										title={vehicle.status === 'ACTIVE' ? 'Ocultar veículo' : 'Ativar veículo'}
-									>
-										<Power className="w-4 h-4" />
-									</ButtonLoader>
+									{vehicle.status === 'RENTED' ? (
+										<button
+											type="button"
+											disabled
+											className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-100 text-orange-600 text-sm font-semibold rounded-xl cursor-not-allowed"
+										>
+											<Power className="w-4 h-4" />
+											Em aluguer
+										</button>
+									) : (
+										<ButtonLoader
+											onClick={() => handleToggleStatus(vehicle.id, vehicle.status)}
+											loading={actionLoading.has(`toggle-${vehicle.id}`)}
+											loadingText=""
+											variant={vehicle.status === 'ACTIVE' ? 'gray' : 'primary'}
+											size="sm"
+											title={vehicle.status === 'ACTIVE' ? 'Ocultar veículo' : 'Ativar veículo'}
+										>
+											<Power className="w-4 h-4" />
+										</ButtonLoader>
+									)}
 									<ButtonLoader
 										onClick={() => handleDelete(vehicle.id)}
 										loading={actionLoading.has(`delete-${vehicle.id}`)}

@@ -46,7 +46,13 @@ const useAuthStore = create((set, get) => ({
 		return { success: true, message: 'Login realizado com sucesso!' };
 	},
 
-	logout: () => {
+	logout: async () => {
+		// Revoga o token no servidor (best-effort — nunca bloqueia o logout local).
+		try {
+			await api.logout();
+		} catch {
+			// rede/problema — limpa local na mesma
+		}
 		queryClient.clear();
 		set({ user: null, isAuthenticated: false });
 		localStorage.removeItem('caxiauto_user');

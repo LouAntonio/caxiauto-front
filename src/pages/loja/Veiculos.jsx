@@ -528,10 +528,10 @@ const Veiculos = () => {
 											Oculto — limite do plano
 										</div>
 									) : (
-										<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${vehicle.status === 'ACTIVE' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
+										<div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${vehicle.status === 'ACTIVE' ? 'bg-blue-500 text-white' : vehicle.status === 'RENTED' ? 'bg-orange-500 text-white' : 'bg-gray-500 text-white'
 										}`}>
-											{vehicle.status === 'ACTIVE' ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-											{vehicle.status === 'ACTIVE' ? 'Visível' : 'Oculto'}
+											{vehicle.status === 'ACTIVE' ? <Eye className="w-3 h-3" /> : vehicle.status === 'RENTED' ? <Power className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+											{vehicle.status === 'ACTIVE' ? 'Visível' : vehicle.status === 'RENTED' ? 'Alugado' : 'Oculto'}
 										</div>
 									)}
 								</div>
@@ -624,6 +624,17 @@ const Veiculos = () => {
 										>
 											<Eye className="w-4 h-4" />
 											Ativar
+										</ButtonLoader>
+									) : vehicle.status === 'RENTED' ? (
+										<ButtonLoader
+											variant="warning"
+											size="sm"
+											title="Veículo em aluguer — estado gerido pela plataforma"
+											loading={false}
+											loadingText=""
+										>
+											<Power className="w-4 h-4" />
+											Alugado
 										</ButtonLoader>
 									) : (
 										<ButtonLoader
