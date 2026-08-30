@@ -37,6 +37,10 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
+body {
+	overscroll-behavior-y: none;
+}
+
 /* Trusted Vehicles section styles */
 .trusted-section .card--preview { border: 1px solid var(--border); }
 .trusted-section .card--preview .w-40 { min-width: 160px; }

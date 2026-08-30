@@ -59,7 +59,7 @@ export default function Hero() {
 
 	return (
 		<section id="hero-section" className="relative text-white min-h-[100svh] flex flex-col items-center justify-center">
-			<div className="absolute inset-x-0 -top-20 h-[calc(100%+5rem)] overflow-hidden" aria-hidden="true">
+			<div className="absolute inset-x-0 -top-24 h-[calc(100%+6rem)] overflow-hidden bg-black" aria-hidden="true">
 				<video
 					autoPlay loop muted playsInline
 					className="absolute inset-0 w-full h-full object-cover"
