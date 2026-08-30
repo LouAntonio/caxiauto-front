@@ -13,7 +13,12 @@ const isTokenExpired = (token) => {
 	}
 };
 
-const ProtectedRoute = ({ children }) => {
+/**
+ * Guard de rotas autenticadas. Unifica o antigo ProtectedRoute/ProtectedSellerRoute
+ * (eram duplicados linha a linha). requireRole: string|array de roles admitidos;
+ * sem requireRole, qualquer user autenticado passa. Redirect de role insuficiente = "/".
+ */
+const ProtectedRoute = ({ children, requireRole, toLogin = '/auth' }) => {
 	const { user, loading, logout, checkIsLoggedIn } = useAuthStore();
 	const [isVerifying, setIsVerifying] = useState(true);
 	const [isServerAuthenticated, setIsServerAuthenticated] = useState(false);
@@ -66,8 +71,8 @@ const ProtectedRoute = ({ children }) => {
 		return (
 			<div className="min-h-screen flex items-center justify-center bg-gray-50">
 				<div className="text-center">
-					<div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-					<p className="mt-4 text-gray-600">Verificando autenticação...</p>
+					<div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#154c9a]"></div>
+					<p className="mt-4 text-gray-600 text-sm">A verificar a tua sessão...</p>
 				</div>
 			</div>
 		);
@@ -75,7 +80,15 @@ const ProtectedRoute = ({ children }) => {
 
 	// Se não há usuário local ou não está autenticado no servidor, redirecionar para login
 	if (!user || !isServerAuthenticated) {
-		return <Navigate to="/auth" state={{ from: location }} replace />;
+		return <Navigate to={toLogin} state={{ from: location }} replace />;
+	}
+
+	// Restrição opcional de role
+	if (requireRole) {
+		const allowed = Array.isArray(requireRole) ? requireRole : [requireRole];
+		if (!allowed.includes(user.role)) {
+			return <Navigate to="/" replace />;
+		}
 	}
 
 	return children;

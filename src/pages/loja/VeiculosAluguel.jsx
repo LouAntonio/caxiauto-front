@@ -38,7 +38,8 @@ const VeiculosAluguel = () => {
 
 	useAuthStore();
 	const { isVerified, needsVerification } = useVerificationCheck();
-	const { data: allVehicles, isLoading } = useMyVehicles();
+	const [page, setPage] = useState(1);
+	const { data: myData, isLoading } = useMyVehicles({ type: 'RENT', page });
 	const { isActive: isSectionActive } = useMySubscriptions();
 	const hasPlan = isSectionActive('ALUGUEL');
 	const { data: manufacturers } = useManufacturers();
@@ -47,9 +48,8 @@ const VeiculosAluguel = () => {
 	const updateVehicle = useUpdateVehicle();
 	const deleteVehicle = useDeleteVehicle();
 	const toggleStatus = useToggleVehicleStatus();
-	const vehicles = (allVehicles || []).filter(
-		v => v.type === 'RENT'
-	);
+	const vehicles = myData?.list || [];
+	const pagination = myData?.pagination;
 	const [showModal, setShowModal] = useState(false);
 	const [editingVehicle, setEditingVehicle] = useState(null);
 	const [message, setMessage] = useState({ type: '', text: '' });
@@ -72,6 +72,7 @@ const VeiculosAluguel = () => {
 		transmission: 'MANUAL',
 		year: '',
 		kilometers: '',
+		condition: '',
 		doorCount: '',
 		passengerCapacity: '',
 		provincia: '',
@@ -131,6 +132,7 @@ const VeiculosAluguel = () => {
 			transmission: 'MANUAL',
 			year: '',
 			kilometers: '',
+			condition: '',
 			doorCount: '',
 			passengerCapacity: '',
 			provincia: '',
@@ -163,6 +165,7 @@ const VeiculosAluguel = () => {
 				transmission: vehicle.transmission || 'MANUAL',
 				year: vehicle.year || '',
 				kilometers: vehicle.kilometers || '',
+				condition: vehicle.condition || '',
 				doorCount: vehicle.doorCount || '',
 				passengerCapacity: vehicle.passengerCapacity || '',
 				provincia: vehicle.provincia || '',
@@ -237,6 +240,7 @@ const VeiculosAluguel = () => {
 				type: 'RENT',
 				year: formData.year,
 				kilometers: formData.kilometers,
+				condition: formData.condition || null,
 				priceRentDay: formData.priceRentDay,
 				doorCount: formData.doorCount,
 				passengerCapacity: formData.passengerCapacity,
@@ -543,6 +547,32 @@ const VeiculosAluguel = () => {
 				</div>
 			)}
 
+			{/* Paginação */}
+			{pagination && pagination.totalPages > 1 && (
+				<div className="flex items-center justify-between gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4">
+					<p className="text-sm text-gray-600">
+						Página {pagination.page} de {pagination.totalPages}{' '}
+						<span className="text-gray-400">• {pagination.total} veículo(s) para aluguel</span>
+					</p>
+					<div className="flex gap-2">
+						<button
+							onClick={() => setPage(p => Math.max(1, p - 1))}
+							disabled={!pagination.hasPrevPage}
+							className="px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+						>
+							Anterior
+						</button>
+						<button
+							onClick={() => setPage(p => p + 1)}
+							disabled={!pagination.hasNextPage}
+							className="px-4 py-2 rounded-lg border-2 border-[#154c9a] text-[#154c9a] font-semibold hover:bg-blue-50 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+						>
+							Próxima
+						</button>
+					</div>
+				</div>
+			)}
+
 			{/* Modal de formulário */}
 			{showModal && (
 				<div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center p-4 z-50">
@@ -717,6 +747,24 @@ const VeiculosAluguel = () => {
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									/>
 								</div>
+
+								{/* Condição */}
+										<div>
+											<label className="block text-gray-700 font-semibold mb-2">
+												Condição <span className="text-red-500">*</span>
+											</label>
+											<select
+												name="condition"
+												value={formData.condition}
+												onChange={handleChange}
+												required
+												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
+											>
+												<option value="">Selecione</option>
+												<option value="NEW">Novo</option>
+												<option value="USED">Usado</option>
+											</select>
+										</div>
 
 								{/* Combustível */}
 								<div>

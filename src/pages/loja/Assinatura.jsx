@@ -87,12 +87,14 @@ const Assinatura = () => {
 	const [proofPending, setProofPending] = useState({});
 	const [activeTab, setActiveTab] = useState('ALUGUEL');
 
-	const { data: myVehicles } = useMyVehicles();
+	const { data: myVehiclesData } = useMyVehicles({ excludeStatus: 'SOLD', limit: 50 });
+	const { data: hiddenVehiclesData } = useMyVehicles({ type: 'RENT', status: 'HIDDEN', limit: 50 });
+	const myVehicles = myVehiclesData?.list || [];
 	const { data: myPecas } = useMyPecas();
 
-	const hiddenVehicles = (myVehicles || []).filter(v => v.status === 'HIDDEN' && v.type === 'RENT');
+	const hiddenVehiclesCount = hiddenVehiclesData?.pagination?.total ?? 0;
 	const hiddenPecas = (myPecas || []).filter(p => p.status === 'HIDDEN');
-	const totalHidden = hiddenVehicles.length + hiddenPecas.length;
+	const totalHidden = hiddenVehiclesCount + hiddenPecas.length;
 
 	const loading = plansLoading || highlightLoading || subscriptionLoading || paymentsLoading;
 
@@ -136,6 +138,17 @@ const Assinatura = () => {
 	const handleBuyHighlight = async (planId) => {
 		if (!selectedItemId.trim()) {
 			notyf.error('Informe o ID do ' + ITEM_TYPE_LABELS[selectedItemType].toLowerCase());
+			return;
+		}
+		const plan = highlightPlans?.find(p => p.id === planId);
+		// 6D: defesa à vista — target do plano deve bater com o tipo do item
+		// (o servidor valida de novo na submissão e na aprovação).
+		if (plan?.target && selectedItemType === 'PECA' && plan.target !== 'PECA') {
+			notyf.error(`Pode destacar apenas peças neste plano (${TARGET_LABELS[plan.target]}).`);
+			return;
+		}
+		if (plan?.target === 'PECA' && selectedItemType === 'VEHICLE') {
+			notyf.error('Este plano é apenas para peças/acessórios.');
 			return;
 		}
 		setProcessing(true);
@@ -253,13 +266,13 @@ const Assinatura = () => {
 						<div>
 							<h3 className="font-bold text-amber-900 text-lg mb-1">Itens ocultos pelo plano</h3>
 							<p className="text-amber-800 text-sm mb-3">
-								{hiddenVehicles.length > 0 && `${hiddenVehicles.length} veículo${hiddenVehicles.length > 1 ? 's' : ''} de aluguer oculto${hiddenVehicles.length > 1 ? 's' : ''}`}
-								{hiddenVehicles.length > 0 && hiddenPecas.length > 0 && ' e '}
+								{hiddenVehiclesCount > 0 && `${hiddenVehiclesCount} veículo${hiddenVehiclesCount > 1 ? 's' : ''} de aluguer oculto${hiddenVehiclesCount > 1 ? 's' : ''}`}
+								{hiddenVehiclesCount > 0 && hiddenPecas.length > 0 && ' e '}
 								{hiddenPecas.length > 0 && `${hiddenPecas.length} peça${hiddenPecas.length > 1 ? 's' : ''} oculta${hiddenPecas.length > 1 ? 's' : ''}`}
 								{'. Faça upgrade do plano da secção ou ative manualmente trocando com um item ativo.'}
 							</p>
 							<div className="flex gap-3">
-								{hiddenVehicles.length > 0 && (
+								{hiddenVehiclesCount > 0 && (
 									<Link to="/minha-loja/veiculos-aluguel" className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition-all">
 										<Car className="w-4 h-4" />
 										Gerir Aluguel
@@ -526,7 +539,7 @@ const Assinatura = () => {
 							>
 								<option value="">-- Selecione um anúncio --</option>
 								{(selectedItemType === 'VEHICLE'
-									? (myVehicles || []).filter(v => v.status !== 'SOLD' && v.status !== 'REJECTED')
+									? (myVehicles || [])
 									: (myPecas || []).filter(p => p.status !== 'REJECTED')
 								).map((item) => (
 									<option key={item.id} value={item.id}>{item.name}</option>

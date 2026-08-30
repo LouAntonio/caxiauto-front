@@ -41,7 +41,6 @@ import Assinatura from './pages/loja/Assinatura'
 import Pecas from './pages/loja/Pecas'
 import LojaEmpresas from './pages/loja/Empresas'
 import LojaReservas from './pages/loja/Reservas'
-import ProtectedSellerRoute from './components/ProtectedSellerRoute'
 import PerfilVendedor from './pages/PerfilVendedor'
 import Legal from './pages/Legal'
 // Admin Pages
@@ -165,9 +164,9 @@ function AppContent() {
 				<Route
 					path="/minha-loja"
 					element={
-						<ProtectedSellerRoute>
+						<ProtectedRoute requireRole={['SELLER', 'ADMIN']}>
 							<SellerLayout />
-						</ProtectedSellerRoute>
+						</ProtectedRoute>
 					}
 				>
 					<Route index element={<SellerHome />} />

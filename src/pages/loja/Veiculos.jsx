@@ -37,8 +37,10 @@ const Veiculos = () => {
 
 	useAuthStore();
 	const { isVerified, needsVerification } = useVerificationCheck();
-	const { data: allVehicles, isLoading } = useMyVehicles();
-	const vehicles = (allVehicles || []).filter(v => v.type === 'SALE');
+	const [page, setPage] = useState(1);
+	const { data: myData, isLoading } = useMyVehicles({ type: 'SALE', page });
+	const vehicles = myData?.list || [];
+	const pagination = myData?.pagination;
 	const { data: homeData } = useSellerHome();
 	const commissionRate = homeData?.commissionRate ?? 0.05;
 	const { data: manufacturers } = useManufacturers();
@@ -62,6 +64,8 @@ const Veiculos = () => {
 	const [showSwapModal, setShowSwapModal] = useState(false);
 	const [swapTarget, setSwapTarget] = useState(null);
 	const swapActive = useSwapActiveVehicle();
+	const { data: swapCandidatesData } = useMyVehicles({ type: 'RENT', status: 'ACTIVE', limit: 50 });
+	const swapCandidates = swapCandidatesData?.list || [];
 
 	useEffect(() => {
 		const handleKey = (e) => {
@@ -84,6 +88,7 @@ const Veiculos = () => {
 		type: 'SALE',
 		year: '',
 		kilometers: '',
+		condition: '',
 		price: '',
 		priceRent: '',
 		passangers: '',
@@ -166,6 +171,7 @@ const Veiculos = () => {
 			type: 'SALE',
 			year: '',
 			kilometers: '',
+			condition: '',
 			price: '',
 			priceRent: '',
 			passangers: '',
@@ -201,6 +207,7 @@ const Veiculos = () => {
 				type: vehicle.type || 'SALE',
 				year: vehicle.year || '',
 				kilometers: vehicle.kilometers || '',
+				condition: vehicle.condition || '',
 				price: vehicle.priceSale || '',
 				priceRent: vehicle.priceRentDay || '',
 				passangers: vehicle.passengerCapacity || '',
@@ -300,6 +307,7 @@ const Veiculos = () => {
 				type: formData.type,
 				year: formData.year,
 				kilometers: formData.kilometers,
+				condition: formData.condition || null,
 				priceSale: formData.price,
 				priceRentDay: formData.priceRent || null,
 				passengerCapacity: formData.passangers,
@@ -665,6 +673,32 @@ const Veiculos = () => {
 				</div>
 			)}
 
+			{/* Paginação */}
+			{pagination && pagination.totalPages > 1 && (
+				<div className="flex items-center justify-between gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4">
+					<p className="text-sm text-gray-600">
+						Página {pagination.page} de {pagination.totalPages}{' '}
+						<span className="text-gray-400">• {pagination.total} veículo(s) para venda</span>
+					</p>
+					<div className="flex gap-2">
+						<button
+							onClick={() => setPage(p => Math.max(1, p - 1))}
+							disabled={!pagination.hasPrevPage}
+							className="px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+						>
+							Anterior
+						</button>
+						<button
+							onClick={() => setPage(p => p + 1)}
+							disabled={!pagination.hasNextPage}
+							className="px-4 py-2 rounded-lg border-2 border-[#154c9a] text-[#154c9a] font-semibold hover:bg-blue-50 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+						>
+							Próxima
+						</button>
+					</div>
+				</div>
+			)}
+
 			{/* Modal de formulário */}
 			{showModal && (
 				<div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center p-4 z-50">
@@ -838,6 +872,24 @@ const Veiculos = () => {
 										min="0"
 										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
 									/>
+								</div>
+
+								{/* Condição */}
+								<div>
+									<label className="block text-gray-700 font-semibold mb-2">
+										Condição <span className="text-red-500">*</span>
+									</label>
+									<select
+										name="condition"
+										value={formData.condition}
+										onChange={handleChange}
+										required
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
+									>
+										<option value="">Selecione</option>
+										<option value="NEW">Novo</option>
+										<option value="USED">Usado</option>
+									</select>
 								</div>
 
 								{/* Combustível */}
@@ -1062,8 +1114,8 @@ const Veiculos = () => {
 								Para ativar <strong>{swapTarget.name}</strong>, precisa desativar outro veículo de aluguer ativo. Selecione qual deseja desativar:
 							</p>
 							<div className="space-y-2 max-h-60 overflow-y-auto">
-								{vehicles
-									.filter(v => v.id !== swapTarget.id && v.type === 'RENT' && (v.status === 'ACTIVE'))
+								{swapCandidates
+									.filter(v => v.id !== swapTarget.id)
 									.map(v => (
 										<button
 											key={v.id}
@@ -1093,7 +1145,7 @@ const Veiculos = () => {
 											</div>
 										</button>
 									))}
-								{vehicles.filter(v => v.id !== swapTarget.id && v.type === 'RENT' && (v.status === 'ACTIVE')).length === 0 && (
+								{swapCandidates.filter(v => v.id !== swapTarget.id).length === 0 && (
 									<p className="text-gray-500 text-center py-4">Nenhum veículo de aluguer ativo disponível para desativar.</p>
 								)}
 							</div>

@@ -33,7 +33,17 @@ export const useMyVehicles = (params = {}) => {
 	return useQuery({
 		queryKey: ['vehicles', 'my', params],
 		queryFn: () => api.myVehicles(params),
-		select: (res) => (res.success ? res.data : []),
+		select: (res) => ({
+			list: res.success ? res.data : [],
+			pagination: {
+				total: res.pagination?.total ?? 0,
+				page: res.pagination?.page ?? 1,
+				limit: res.pagination?.limit ?? 50,
+				totalPages: res.pagination?.totalPages ?? 0,
+				hasNextPage: res.pagination?.hasNextPage ?? false,
+				hasPrevPage: res.pagination?.hasPrevPage ?? false
+			}
+		}),
 	});
 };
 

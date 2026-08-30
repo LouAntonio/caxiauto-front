@@ -289,10 +289,10 @@ const Reservas = () => {
 													<div>
 														<p className="text-xs text-gray-500">Total</p>
 														<p className="text-sm font-medium text-gray-900">
-															{reserva.totalPrice != null
+															{reserva.totalPrice > 0
 																? formatPrice(reserva.totalPrice)
 																: reserva.Vehicle.priceRentDay
-																	? formatPrice(reserva.Vehicle.priceRentDay * calculateDays(reserva.startDate, reserva.endDate))
+																	? formatPrice(Number(reserva.Vehicle.priceRentDay) * calculateDays(reserva.startDate, reserva.endDate))
 																	: '—'}
 														</p>
 													</div>

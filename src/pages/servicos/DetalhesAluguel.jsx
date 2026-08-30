@@ -151,7 +151,9 @@ export default function DetalhesAluguel() {
 			title: fullName || 'Veículo sem título',
 			price: apiVehicle.priceRentDay || 0,
 			images,
-			condition: apiVehicle.kilometers === 0 ? 'Novo' : 'Usado',
+			condition: apiVehicle.condition
+				? (apiVehicle.condition === 'NEW' ? 'Novo' : 'Usado')
+				: (apiVehicle.kilometers === 0 ? 'Novo' : 'Usado'),
 			description: apiVehicle.description || 'Sem descrição disponível',
 			specs: {
 				km: apiVehicle.kilometers

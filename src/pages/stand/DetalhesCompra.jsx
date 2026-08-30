@@ -28,6 +28,7 @@ import api, { API_URL, getImageUrl, notyf } from '../../services/api'
 import useAuthStore from '../../stores/authStore'
 import useChatStore from '../../stores/chatStore'
 import { VehicleDetailSkeleton } from '../../components/skeletons'
+import { COMPRA_INCLUDED, COMPRA_REQUIREMENTS } from '../../constants/loja'
 import { useVehicle } from '../../hooks/queries/useVehicles'
 import { useWishlist, useAddVehicleToWishlist, useRemoveVehicleFromWishlist } from '../../hooks/queries/useWishlist'
 
@@ -151,7 +152,9 @@ export default function DetalhesCompra() {
 			title: fullName || 'Veículo sem título',
 			price: vehicleData.priceSale || 0,
 			images,
-			condition: vehicleData.kilometers === 0 ? 'Novo' : 'Usado',
+			condition: vehicleData.condition
+				? (vehicleData.condition === 'NEW' ? 'Novo' : 'Usado')
+				: (vehicleData.kilometers === 0 ? 'Novo' : 'Usado'),
 			description: vehicleData.description || 'Sem descrição disponível',
 			specs: {
 				km: vehicleData.kilometers
@@ -169,17 +172,8 @@ export default function DetalhesCompra() {
 					: 'N/A'
 			},
 			features: vehicleData.characteristics || [],
-			included: [
-				'Garantia de fábrica 3 anos',
-				'Transferência de documentação',
-				'Inspeção técnica completa',
-				'Assistência pós-venda'
-			],
-			requirements: [
-				'BI ou Passaporte válido',
-				'Comprovativo de residência',
-				'Comprovativo de rendimentos'
-			],
+			included: COMPRA_INCLUDED,
+			requirements: COMPRA_REQUIREMENTS,
 			seller: vehicleData.Seller || vehicleData.owner
 		}
 	}
