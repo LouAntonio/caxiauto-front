@@ -17,10 +17,7 @@ export default function Header() {
 		if (!isHomePage) return;
 
 		const handleScroll = () => {
-			const hero = document.getElementById("hero-section");
-			if (hero) {
-				setScrolledPastHero(hero.getBoundingClientRect().bottom <= 0);
-			}
+			setScrolledPastHero(window.scrollY > 0);
 		};
 
 		handleScroll();
@@ -39,7 +36,7 @@ export default function Header() {
 	};
 
 	return (
-		<header className={`sticky top-0 z-50 min-h-[80px] transition-all duration-300 ${isSolid ? "bg-white border-b border-[#e5e7eb] shadow-sm" : "bg-transparent border-b border-white/20 shadow-none"}`}>
+		<header className={`sticky top-0 z-50 min-h-[80px] transition-all duration-300 ${isSolid ? "bg-white border-b border-[#e5e7eb] shadow-sm" : "bg-transparent border-b border-transparent shadow-none"}`}>
 			<div className="mx-auto h-full">
 				<div className="h-20 flex max-w-7xl mx-auto items-center justify-between gap-8 px-6 lg:px-8">
 					{/* Left: Logo */}
@@ -201,7 +198,7 @@ export default function Header() {
 
 				{/* Mobile Menu */}
 				{mobileMenuOpen && (
-					<div className={`min-[971px]:hidden border-t bg-white ${isSolid ? "border-[#e5e7eb]" : "border-white/20"}`}>
+					<div className={`min-[971px]:hidden border-t bg-white ${isSolid ? "border-[#e5e7eb]" : "border-transparent"}`}>
 						<nav className="px-4 py-4 space-y-2">
 							<Link
 								to="/"
