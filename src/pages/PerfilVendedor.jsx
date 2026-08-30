@@ -149,8 +149,12 @@ const PerfilVendedor = () => {
 				<div className="max-w-7xl mx-auto px-6 py-12">
 					<div className="flex flex-col md:flex-row items-start gap-6">
 						{/* Avatar */}
-						<div className="w-32 h-32 bg-gradient-to-br from-[#154c9a] to-[#123f80] rounded-full flex items-center justify-center flex-shrink-0">
-							<User className="w-16 h-16 text-white" />
+						<div className={`w-32 h-32 ${seller.logo ? 'bg-white border border-gray-200 p-1' : 'bg-gradient-to-br from-[#154c9a] to-[#123f80]'} rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden`}>
+							{seller.logo ? (
+								<img src={seller.logo} alt={`Logo de ${seller.name}`} className="w-full h-full object-contain" />
+							) : (
+								<User className="w-16 h-16 text-white" />
+							)}
 						</div>
 
 						{/* Informações */}

@@ -18,12 +18,14 @@ const SECTION_LABELS = {
 	ALUGUEL: 'Aluguel',
 	PECAS: 'Peças e Acessórios',
 	EMPRESAS: 'Empresas',
+	STAND: 'Stand',
 };
 
 const SECTION_BADGES = {
 	ALUGUEL: 'bg-sky-100 text-sky-800',
 	PECAS: 'bg-amber-100 text-amber-800',
 	EMPRESAS: 'bg-emerald-100 text-emerald-800',
+	STAND: 'bg-indigo-100 text-indigo-800',
 };
 
 const STATUS_BADGE = {

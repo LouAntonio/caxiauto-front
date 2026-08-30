@@ -33,6 +33,21 @@ const DEFAULT_BANK_DETAILS = {
 	mcxPhone: '+244 9XX XXX XXX'
 };
 
+// Plano Gratuito do Stand (venda de veículos) — copy conforme a política da loja.
+const FREE_INCLUDES = [
+	'Registo gratuito de viaturas para venda',
+	'Comissão de apenas 3,5% por cada venda concluída',
+	'A equipa da Caxiauto acompanha todo o processo de venda'
+];
+
+const FREE_LIMITATIONS = [
+	'Máximo de 10 viaturas adicionadas por mês',
+	'Sem certificação Caxiauto nas viaturas',
+	'Sem logotipo da empresa em destaque',
+	'Sem inclusão em áreas em destaque nem nos anúncios recentes',
+	'Visibilidade padrão'
+];
+
 const SECTIONS = [
 	{
 		key: 'ALUGUEL',
@@ -57,6 +72,14 @@ const SECTIONS = [
 		icon: Handshake,
 		limitLabel: (n) => `Até ${n} empresas`,
 		color: 'from-emerald-500 to-emerald-600'
+	},
+	{
+		key: 'STAND',
+		label: 'Stand',
+		description: 'Venda de veículos: registo gratuito com comissão + plano Premium opcional.',
+		icon: Car,
+		limitLabel: (n) => `Até ${n} viaturas/mês`,
+		color: 'from-blue-600 to-indigo-600'
 	}
 ];
 
@@ -67,7 +90,8 @@ const Assinatura = () => {
 	const { data: highlightPlans, isLoading: highlightLoading } = useHighlightPlans();
 	const { data: allPlans, isLoading: plansLoading } = usePlans();
 	const { data: sellerHome } = useSellerHome();
-	const commissionRate = sellerHome?.commissionRate ?? 0.05;
+	const freeCommissionRate = sellerHome?.freeCommissionRate ?? sellerHome?.commissionRate ?? 0.035;
+	const premiumCommissionRate = Math.max(0, freeCommissionRate - 0.015);
 	const { data: mySubscriptions, bySection, isLoading: subscriptionLoading } = useMySubscriptions();
 	const { data: myPayments, isLoading: paymentsLoading } = useMyPayments();
 	const { data: publicConfig } = usePublicConfig();
@@ -257,6 +281,11 @@ const Assinatura = () => {
 	const isCurrentActive = !!(currentSub && currentSub.isActive && new Date(currentSub.endDate) > new Date());
 	const sectionPlans = (allPlans || []).filter((p) => p.section === activeTab);
 
+	const standSub = bySection['STAND'];
+	const standPremiumActive = !!(standSub && standSub.isActive && new Date(standSub.endDate) > new Date());
+	const standPlans = (allPlans || []).filter((p) => p.section === 'STAND');
+	const premiumStandPlan = standPlans.find((p) => !p.validUntil) || standPlans[0] || null;
+
 	return (
 		<div className="space-y-6">
 			{totalHidden > 0 && (
@@ -298,23 +327,12 @@ const Assinatura = () => {
 					</div>
 					<div>
 						<h2 className="text-2xl font-bold text-gray-900">Assinaturas da Loja</h2>
-						<p className="text-sm text-gray-500 mt-1">Cada secção tem o seu próprio plano. O Stand funciona por comissão e não precisa de plano.</p>
+						<p className="text-sm text-gray-500 mt-1">Cada secção tem o seu próprio plano. No Stand, o registo é gratuito por comissão e existe um plano Premium opcional de maior exposição.</p>
 					</div>
 				</div>
 
 				{/* Tabs */}
 				<div className="flex flex-wrap gap-2 mb-6">
-					<button
-						onClick={() => setActiveTab('STAND')}
-						className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === 'STAND'
-							? 'bg-[#d41120] text-white shadow-md'
-							: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-						}`}
-					>
-						<Car className="w-4 h-4" />
-						Stand
-						<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white">Comissão</span>
-					</button>
 					{SECTIONS.map((s) => {
 						const Icon = s.icon;
 						const sub = bySection[s.key];
@@ -338,40 +356,147 @@ const Assinatura = () => {
 
 				{/* Conteúdo da secção Stand */}
 				{activeTab === 'STAND' ? (
-					<div className="bg-gradient-to-br from-[#eef3fa] to-white border-2 border-[#c9d9ef] rounded-xl p-6 mb-8">
-						<div className="flex items-start gap-4">
-							<div className="w-14 h-14 bg-[#154c9a] rounded-xl flex items-center justify-center flex-shrink-0">
-								<Car className="w-7 h-7 text-white" />
+					<div className="space-y-6 mb-8">
+						{standPremiumActive && (
+							<div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-5 flex flex-wrap items-center justify-between gap-3">
+								<div>
+									<p className="font-bold text-green-900">Stand Premium ativo — <span className="text-lg">{standSub.plan?.name}</span></p>
+									<p className="text-sm text-green-700">Comissão de venda reduzida ({formatPercent(premiumCommissionRate)}), logotipo em destaque, prioridade nas pesquisas e certificação nas viaturas elegíveis.</p>
+								</div>
+								<ButtonLoader
+									onClick={() => {
+										if (!window.confirm('Tem certeza que deseja cancelar o Stand Premium? Não perde as viaturas já adicionadas este mês.')) return;
+										cancelSubscription.mutateAsync('STAND').then((res) => {
+											if (res.success) notyf.success('Stand Premium cancelado');
+											else notyf.error(res.message || 'Erro ao cancelar');
+										}).catch(() => notyf.error('Erro ao cancelar'));
+									}}
+									loading={cancelSubscription.isPending}
+									loadingText="Cancelando..."
+									variant="red_outline"
+								>
+									<X className="w-5 h-5" />
+									Cancelar
+								</ButtonLoader>
 							</div>
-							<div className="min-w-0 flex-1">
-								<h3 className="text-xl font-bold text-gray-900 mb-1">
-									Stand — sempre ativa
-								</h3>
-								<p className="text-sm text-gray-600 mb-4">
-									A secção Stand não precisa de pacote de assinatura. Em vez disso, ao vender um
-									veículo, a plataforma CaxiAuto fica com uma percentagem do valor da venda e o
-									restante é todo seu.
-								</p>
-								<div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-									<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
-										<p className="text-xs text-gray-500 mb-1">Modelo</p>
-										<p className="font-bold text-[#154c9a]">Sem plano / Comissão</p>
-									</div>
-									<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
-										<p className="text-xs text-gray-500 mb-1">Comissão CaxiAuto</p>
-										<p className="font-bold text-[#d41120]">{formatPercent(commissionRate)} por venda</p>
-									</div>
-									<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
-										<p className="text-xs text-gray-500 mb-1">Seu ganho</p>
-										<p className="font-bold text-[#154c9a]">{formatPercent(1 - commissionRate)} da venda</p>
-									</div>
+						)}
+
+						{/* Plano Gratuito */}
+						<div className="bg-white border-2 border-gray-200 rounded-xl p-6">
+							<div className="flex items-center gap-3 mb-4">
+								<div className="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-lg flex items-center justify-center">
+									<Car className="w-6 h-6 text-white" />
 								</div>
-								<div className="bg-white rounded-lg border border-[#c9d9ef] p-4 text-sm text-gray-700">
-									<p className="font-semibold mb-1">Exemplo de divisão</p>
-									<p>Venda: <strong>{formatKz(5000000)}</strong></p>
-									<p>Comissão CaxiAuto ({formatPercent(commissionRate)}): <strong className="text-[#d41120]">−{formatKz(5000000 * commissionRate)}</strong></p>
-									<p className="text-[#154c9a] font-semibold">Você recebe: <strong>{formatKz(5000000 * (1 - commissionRate))}</strong></p>
+								<div>
+									<h3 className="text-lg font-bold text-gray-900">Plano Gratuito</h3>
+									<p className="text-xs text-gray-500">Registo gratuito de viaturas para venda · Ideal para pequenos vendedores</p>
 								</div>
+							</div>
+							<div className="mb-4">
+								<span className="text-3xl font-bold text-gray-900">Grátis</span>
+								<span className="text-gray-500 text-sm"> / sem custo de assinatura</span>
+							</div>
+							<div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+								<div className="bg-gray-50 rounded-lg border border-gray-200 px-4 py-3">
+									<p className="text-xs text-gray-500 mb-1">Comissão por venda concluída</p>
+									<p className="font-bold text-[#d41120]">{formatPercent(freeCommissionRate)}</p>
+								</div>
+								<div className="bg-gray-50 rounded-lg border border-gray-200 px-4 py-3">
+									<p className="text-xs text-gray-500 mb-1">Limite mensal</p>
+									<p className="font-bold text-gray-900">10 viaturas</p>
+								</div>
+								<div className="bg-gray-50 rounded-lg border border-gray-200 px-4 py-3">
+									<p className="text-xs text-gray-500 mb-1">Equipa a acompanhar</p>
+									<p className="font-bold text-gray-900">Processo de venda</p>
+								</div>
+							</div>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+								<div className="bg-green-50 border border-green-200 rounded-lg p-4">
+									<p className="font-semibold text-green-800 mb-2">O que inclui</p>
+									<ul className="space-y-1.5 text-green-800">
+										{FREE_INCLUDES.map((t, i) => (
+											<li key={i} className="flex items-start gap-2"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />{t}</li>
+										))}
+									</ul>
+								</div>
+								<div className="bg-red-50 border border-red-200 rounded-lg p-4">
+									<p className="font-semibold text-red-700 mb-2">Limitações</p>
+									<ul className="space-y-1.5">
+										{FREE_LIMITATIONS.map((t, i) => (
+											<li key={i} className="flex items-start gap-2 text-red-700"><X className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />{t}</li>
+										))}
+									</ul>
+								</div>
+							</div>
+						</div>
+
+						{/* Plano Premium */}
+						<div className="bg-gradient-to-br from-[#eef3fa] to-white border-2 border-[#154c9a] rounded-xl p-6">
+							<div className="flex items-center gap-3 mb-4">
+								<div className="w-12 h-12 bg-gradient-to-br from-[#154c9a] to-indigo-600 rounded-lg flex items-center justify-center">
+									<Car className="w-6 h-6 text-white" />
+								</div>
+								<div>
+									<h3 className="text-lg font-bold text-[#154c9a]">Stand Premium</h3>
+									<p className="text-xs text-gray-600">Para stands e vendedores profissionais</p>
+								</div>
+								<span className="ml-auto px-3 py-1 bg-[#154c9a] text-white rounded-full text-xs font-semibold">Recomendado</span>
+							</div>
+							<div className="mb-4">
+								<span className="text-3xl font-bold text-[#154c9a]">
+									{premiumStandPlan ? formatPrice(premiumStandPlan.price) : formatKz(50000)}
+								</span>
+								<span className="text-gray-600 text-sm"> /{premiumStandPlan?.durationDays || 30} dias</span>
+							</div>
+							<div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+								<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
+									<p className="text-xs text-gray-500 mb-1">Comissão por venda concluída</p>
+									<p className="font-bold text-[#d41120]">{formatPercent(premiumCommissionRate)}</p>
+								</div>
+								<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
+									<p className="text-xs text-gray-500 mb-1">Limite mensal</p>
+									<p className="font-bold text-gray-900">25 viaturas</p>
+								</div>
+								<div className="bg-white rounded-lg border border-[#c9d9ef] px-4 py-3">
+									<p className="text-xs text-gray-500 mb-1">Seu ganho por venda</p>
+									<p className="font-bold text-[#154c9a]">{formatPercent(1 - premiumCommissionRate)}</p>
+								</div>
+							</div>
+							{premiumStandPlan ? (
+								<div className="space-y-3 mb-6">
+									{(Array.isArray(premiumStandPlan.benefits) && premiumStandPlan.benefits.length > 0
+										? premiumStandPlan.benefits
+										: [
+											'Logotipo da empresa em destaque',
+											'Prioridade de pesquisa (posições 1 a 50)',
+											'Até 25 viaturas por mês',
+											'Certificação Caxiauto nas viaturas elegíveis',
+											'Comissão de venda reduzida'
+										]
+									).map((benefit, i) => (
+										<div key={i} className="flex items-start gap-2 text-sm text-gray-700">
+											<Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+											<span>{benefit}</span>
+										</div>
+									))}
+								</div>
+							) : (
+								<p className="text-sm text-gray-600 mb-6">Plano a aguardar configuração pela administração — verifique novamente em breve.</p>
+							)}
+							<ButtonLoader
+								onClick={() => premiumStandPlan && handleSubscribe(premiumStandPlan.id)}
+								loading={processing && selectedPlan === premiumStandPlan?.id}
+								loadingText="Processando..."
+								variant={standPremiumActive ? 'success' : 'primary'}
+								className={`w-full ${standPremiumActive ? 'cursor-not-allowed' : ''}`}
+								disabled={standPremiumActive || !premiumStandPlan}
+							>
+								{standPremiumActive ? 'Plano Atual' : 'Assinar Agora'}
+							</ButtonLoader>
+							<div className="mt-5 bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm text-gray-600">
+								<p className="font-semibold text-gray-800 mb-1">Exemplo de divisão de venda (5.000.000 Kz)</p>
+								<p>Plano Gratuito: comissão <strong className="text-[#d41120]">{formatPercent(freeCommissionRate)}</strong> → recebe <strong className="text-[#154c9a]">{formatKz(5000000 * (1 - freeCommissionRate))}</strong></p>
+								<p>Stand Premium: comissão <strong className="text-[#d41120]">{formatPercent(premiumCommissionRate)}</strong> → recebe <strong className="text-[#154c9a]">{formatKz(5000000 * (1 - premiumCommissionRate))}</strong></p>
 							</div>
 						</div>
 					</div>

@@ -9,13 +9,15 @@ import { useAdminPlans, useAdminCreatePlan, useAdminUpdatePlan, useAdminDeletePl
 const SECTION_LABELS = {
 	ALUGUEL: 'Aluguel',
 	PECAS: 'Peças e Acessórios',
-	EMPRESAS: 'Empresas'
+	EMPRESAS: 'Empresas',
+	STAND: 'Stand'
 };
 
 const SECTION_BADGES = {
 	ALUGUEL: 'bg-sky-100 text-sky-800',
 	PECAS: 'bg-amber-100 text-amber-800',
-	EMPRESAS: 'bg-emerald-100 text-emerald-800'
+	EMPRESAS: 'bg-emerald-100 text-emerald-800',
+	STAND: 'bg-indigo-100 text-indigo-800'
 };
 
 const AdminPlans = () => {
@@ -247,6 +249,7 @@ const AdminPlans = () => {
 											{plan.section === 'ALUGUEL' && `${plan.maxVehicles} veículos`}
 											{plan.section === 'PECAS' && `${plan.maxPecas} peças`}
 											{plan.section === 'EMPRESAS' && `${plan.maxPartners ?? 0} empresas`}
+											{plan.section === 'STAND' && `${plan.maxVehicles} viaturas/mês`}
 										</td>
 										<td className="px-6 py-4 text-sm">
 											{plan.validUntil ? (
@@ -326,18 +329,19 @@ const AdminPlans = () => {
 										<option value="ALUGUEL">Aluguel</option>
 										<option value="PECAS">Peças e Acessórios</option>
 										<option value="EMPRESAS">Empresas</option>
+										<option value="STAND">Stand</option>
 									</select>
 								</div>
 								<div className="grid grid-cols-2 gap-4">
-									<div className={formData.section !== 'ALUGUEL' ? 'hidden' : ''}>
-										<label className="block text-sm font-medium text-gray-700 mb-1">Máx. Veículos de Aluguer</label>
+									<div className={`${formData.section !== 'ALUGUEL' && formData.section !== 'STAND' ? 'hidden' : ''}`}>
+										<label className="block text-sm font-medium text-gray-700 mb-1">{formData.section === 'STAND' ? 'Máx. Viaturas/mês' : 'Máx. Veículos de Aluguer'}</label>
 										<input
 											type="number"
 											min={0}
 											value={formData.maxVehicles}
 											onChange={(e) => setFormData({ ...formData, maxVehicles: e.target.value })}
 											className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#154c9a]"
-											placeholder="Ex: 10"
+											placeholder="Ex: 25"
 										/>
 									</div>
 									<div className={formData.section !== 'PECAS' ? 'hidden' : ''}>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
 import {
 	Car,
@@ -42,7 +43,11 @@ const Veiculos = () => {
 	const vehicles = myData?.list || [];
 	const pagination = myData?.pagination;
 	const { data: homeData } = useSellerHome();
-	const commissionRate = homeData?.commissionRate ?? 0.05;
+	const commissionRate = homeData?.commissionRate ?? 0.035;
+	const standSection = homeData?.sections?.STAND;
+	const standUsed = standSection?.used ?? 0;
+	const standLimit = standSection?.limit ?? 10;
+	const isStandPremium = !!(standSection?.isActive);
 	const { data: manufacturers } = useManufacturers();
 	const { data: vehicleClasses } = useClasses();
 	const createVehicle = useCreateVehicle();
@@ -446,20 +451,21 @@ const Veiculos = () => {
 				<VerificationWarning variant="compact" />
 			)}
 
-			{/* Comissão ativa */}
+			{/* Comissão ativa e quota do Stand */}
 			<div className="bg-[#eef3fa] border border-[#c9d9ef] rounded-lg p-5">
-				<div className="flex flex-wrap items-center justify-between gap-4">
+				<div className={`flex flex-wrap items-center justify-between gap-4 ${!isStandPremium ? 'pb-4 border-b border-[#c9d9ef] mb-4' : ''}`}>
 					<div className="flex items-start gap-3 min-w-0">
 						<span className="inline-flex items-center justify-center w-9 h-9 bg-[#154c9a] text-white text-sm font-bold rounded-lg flex-shrink-0 mt-0.5">
 							AKZ
 						</span>
 						<div>
 							<p className="font-semibold text-gray-900">
-								Comissão Caxiauto: {formatPercent(commissionRate)} por venda
+								Comissão Caxiauto: {formatPercent(commissionRate)} por venda{isStandPremium ? ' (Stand Premium)' : ''}
 							</p>
 							<p className="text-sm text-gray-600 mt-0.5">
-								A secção Stand não exige plano — a Caxiauto retém {formatPercent(commissionRate)} do valor de
-								venda quando o negócio é fechado e o restante é seu.
+								{isStandPremium
+									? `Com stand Premium ativo, a comissão é reduzida para ${formatPercent(commissionRate)} por venda concluída.`
+									: 'Plano gratuito: registo das viaturas sem custo — a Caxiauto retém a comissão apenas quando a venda é concluída.'}
 							</p>
 						</div>
 					</div>
@@ -472,6 +478,34 @@ const Veiculos = () => {
 						</div>
 					</div>
 				</div>
+				{!isStandPremium && (
+					<div className="flex flex-wrap items-center justify-between gap-4">
+						<div className="flex items-center gap-3">
+							<span className="inline-flex items-center justify-center w-9 h-9 bg-amber-500 text-white text-sm font-bold rounded-lg flex-shrink-0 mt-0.5">
+								LIM
+							</span>
+							<div>
+								<p className="font-semibold text-gray-900">
+									Quota mensal: {standUsed} / {standLimit} viaturas
+								</p>
+								<p className="text-sm text-gray-600 mt-0.5">
+									{standUsed >= standLimit
+										? 'Limite do mês atingido. Subscreva o Stand Premium para adicionar até 25 viaturas por mês.'
+										: 'O plano gratuito permite até 10 viaturas adicionadas por mês.'}
+								</p>
+							</div>
+						</div>
+						{standUsed >= standLimit && (
+							<Link
+								to="/minha-loja/assinaturas"
+								className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#154c9a] text-white text-sm font-semibold rounded-lg hover:bg-[#123f80] transition-colors"
+							>
+								<Plus className="w-4 h-4" />
+								Fazer upgrade para Premium
+							</Link>
+						)}
+					</div>
+				)}
 			</div>
 
 			{/* Mensagem de feedback */}

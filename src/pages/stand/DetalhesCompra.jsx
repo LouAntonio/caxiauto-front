@@ -581,15 +581,19 @@ export default function DetalhesCompra() {
 							</div>
 						</div>
 
-						{/* Vendedor (hidden) */}
+						{/* Vendedor */}
 						{vehicle.seller && (
-							<div className="hidden bg-white rounded-2xl border border-[#e5e7eb] p-6">
+							<div className="bg-white rounded-2xl border border-[#e5e7eb] p-6">
 								<h2 className="font-display text-2xl font-bold text-[#111827] mb-4">
 									Vendedor
 								</h2>
 								<div className="flex items-center gap-4 p-4 bg-[#f8f6f2] rounded-xl">
-									<div className="w-14 h-14 bg-[#eef3fa] rounded-full flex items-center justify-center">
-										<User className="w-7 h-7 text-[#154c9a]" />
+									<div className="w-14 h-14 rounded-full flex items-center justify-center overflow-hidden bg-[#eef3fa] flex-shrink-0">
+										{vehicle.sellerLogo ? (
+											<img src={vehicle.sellerLogo} alt={`Logo de ${vehicle.seller.name}`} className="w-full h-full object-contain bg-white" />
+										) : (
+											<User className="w-7 h-7 text-[#154c9a]" />
+										)}
 									</div>
 									<div className="flex-1">
 										<div className="flex items-center gap-2">
@@ -603,6 +607,14 @@ export default function DetalhesCompra() {
 										<p className="font-body text-sm text-[#6b7280]">
 											{vehicle.seller.isVerified ? 'Vendedor Verificado' : 'Vendedor'}
 										</p>
+										<div className="mt-2 flex flex-wrap items-center gap-1.5">
+											{vehicle.sellerPremium && (
+												<span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-[#154c9a] text-white font-body">Stand Premium</span>
+											)}
+											{vehicle.isCertified && (
+												<span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-white font-body">Certificação Caxiauto</span>
+											)}
+										</div>
 									</div>
 								</div>
 							</div>

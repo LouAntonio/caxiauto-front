@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import api, { notyf } from '../../services/api';
 import {
 	Car,
 	CarFront,
@@ -11,7 +13,9 @@ import {
 	BadgeCheck,
 	FileText,
 	CalendarClock,
-	Clock
+	Clock,
+	ImagePlus,
+	Loader2
 } from 'lucide-react';
 import LojaPageHeader from './PageHeader';
 import { useSellerHome } from '../../hooks/queries/useSubscription';
@@ -48,11 +52,48 @@ const SECTION_META = {
 };
 
 const Home = () => {
-	const { data: home, isLoading } = useSellerHome();
+	const { data: home, isLoading, refetch } = useSellerHome();
+	const [logoUploading, setLogoUploading] = useState(false);
+	const fileInputRef = useRef(null);
 
 	if (isLoading || !home) return <DashboardSkeleton />;
 
 	const kyc = home.kyc;
+	const stand = home.sections?.STAND;
+	const standPremium = !!stand?.isActive;
+	const freeCommissionRate = home.freeCommissionRate ?? home.commissionRate ?? 0.035;
+	const effectiveCommissionRate = home.commissionRate ?? freeCommissionRate;
+	const userLogo = home.user?.logo;
+
+	const uploadLogo = async (file) => {
+		if (!file) return;
+		try {
+			setLogoUploading(true);
+			const authResponse = await api.getCloudinarySignature('logos');
+			if (!authResponse.success) throw new Error('Falha ao autorizar upload');
+
+			const { cloudname, timestamp, signature, apikey } = authResponse;
+			const formData = new FormData();
+			formData.append('file', file);
+			formData.append('api_key', apikey);
+			formData.append('timestamp', timestamp);
+			formData.append('signature', signature);
+			formData.append('folder', 'logos');
+
+			const { data: uploadData } = await axios.post(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, formData);
+			const res = await api.updateProfile({ logo: uploadData.secure_url });
+			if (res.success) {
+				notyf.success('Logotipo atualizado com sucesso!');
+				refetch();
+			} else {
+				notyf.error(res.message || 'Erro ao atualizar o logotipo');
+			}
+		} catch (error) {
+			notyf.error('Erro ao fazer upload do logotipo');
+		} finally {
+			setLogoUploading(false);
+		}
+	};
 
 	return (
 		<div>
@@ -135,7 +176,7 @@ const Home = () => {
 				)}
 			</div>
 
-			{/* Secção Stand (comissão) */}
+			{/* Secção Stand (comissão + plano Gratuito/Premium) */}
 			<div className="mb-6 bg-white rounded-xl border border-gray-200 shadow-sm p-6">
 				<div className="flex items-start justify-between gap-4">
 					<div className="flex items-center gap-3">
@@ -145,19 +186,22 @@ const Home = () => {
 						<div>
 							<div className="flex items-center gap-2">
 								<h3 className="font-bold text-gray-900">Stand</h3>
-								<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
-									<ShieldCheck className="w-3 h-3" />
-									Sempre ativa
+								<span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${standPremium
+									? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+									: 'bg-gray-100 text-gray-600 border-gray-200'
+								}`}>
+									<ShieldCheck className={`w-3 h-3 ${standPremium ? 'text-emerald-600' : 'text-gray-400'}`} />
+									{standPremium ? 'Premium ativo' : 'Plano gratuito'}
 								</span>
 							</div>
-							<p className="text-sm text-gray-600 mt-0.5">Venda de veículos com comissão por venda.</p>
+							<p className="text-sm text-gray-600 mt-0.5">Venda de veículos — comissão de {Math.round(effectiveCommissionRate * 100)}% sobre vendas concluídas{standPremium ? '' : ' (até 10 viaturas/mês)'}.</p>
 						</div>
 					</div>
 					<Link to="/minha-loja/veiculos" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#154c9a] hover:text-[#123f80]">
 						Gerir <ArrowRight className="w-4 h-4" />
 					</Link>
 				</div>
-				<div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+				<div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
 					<div className="bg-gray-50 rounded-lg p-3">
 						<p className="text-xs text-gray-500">Veículos totais</p>
 						<p className="text-xl font-bold text-gray-900">{home.totals.vehicles}</p>
@@ -166,11 +210,47 @@ const Home = () => {
 						<p className="text-xs text-gray-500">Vendidos</p>
 						<p className="text-xl font-bold text-gray-900">{home.totals.vehiclesSold}</p>
 					</div>
-					<div className="hidden sm:block bg-gray-50 rounded-lg p-3">
-						<p className="text-xs text-gray-500">Modelo</p>
-						<p className="text-sm font-semibold text-gray-900 mt-1">Comissão por venda</p>
+					<div className="bg-gray-50 rounded-lg p-3">
+						<p className="text-xs text-gray-500">Quota mensal</p>
+						<p className="text-xl font-bold text-gray-900">{stand?.used ?? 0}<span className="text-sm font-normal text-gray-500">/{stand?.limit ?? 10}</span></p>
+					</div>
+					<div className="bg-gray-50 rounded-lg p-3">
+						<p className="text-xs text-gray-500">Comissão por venda</p>
+						<p className={`text-sm font-semibold mt-1 ${standPremium ? 'text-emerald-600' : 'text-[#d41120]'}`}>{Math.round(effectiveCommissionRate * 100)}%{standPremium ? ' (reduzida)' : ''}</p>
 					</div>
 				</div>
+				{standPremium && (
+					<div className="mt-4 flex flex-wrap items-center justify-between gap-4 border-t border-gray-100 pt-4">
+						<div className="flex items-center gap-3 min-w-0">
+							{userLogo ? (
+								<img src={userLogo} alt="Logotipo" className="w-12 h-12 rounded-lg object-contain bg-white border border-gray-200 p-1" />
+							) : (
+								<span className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-[#eef3fa] text-[#154c9a] border border-[#c9d9ef] flex-shrink-0">
+									<ImagePlus className="w-5 h-5" />
+								</span>
+							)}
+							<div className="min-w-0">
+								<p className="font-semibold text-gray-900">Logotipo da empresa</p>
+								<p className="text-sm text-gray-600">Aparece em destaque junto aos seus veículos nas pesquisas públicas.</p>
+							</div>
+						</div>
+						<input
+							ref={fileInputRef}
+							type="file"
+							accept="image/*"
+							className="hidden"
+							onChange={(e) => { uploadLogo(e.target.files?.[0]); e.target.value = ''; }}
+						/>
+						<button
+							onClick={() => fileInputRef.current?.click()}
+							disabled={logoUploading}
+							className="inline-flex items-center gap-2 px-4 py-2 bg-[#154c9a] text-white text-sm font-semibold rounded-lg hover:bg-[#123f80] transition-colors disabled:opacity-60"
+						>
+							{logoUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImagePlus className="w-4 h-4" />}
+							{userLogo ? 'Alterar logotipo' : 'Adicionar logotipo'}
+						</button>
+					</div>
+				)}
 			</div>
 
 			{/* Secções com plano */}

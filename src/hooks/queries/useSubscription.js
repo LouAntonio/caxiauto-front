@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 
-export const STORE_SECTIONS = ['ALUGUEL', 'PECAS', 'EMPRESAS'];
+export const STORE_SECTIONS = ['ALUGUEL', 'PECAS', 'EMPRESAS', 'STAND'];
 
 export const SECTION_LABELS = {
 	ALUGUEL: 'Aluguel',
 	PECAS: 'Peças e Acessórios',
-	EMPRESAS: 'Empresas'
+	EMPRESAS: 'Empresas',
+	STAND: 'Stand'
 };
 
 export const usePlans = (section) => {

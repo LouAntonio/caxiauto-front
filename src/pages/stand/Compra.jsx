@@ -399,6 +399,18 @@ export default function Compra() {
 																</div>
 															</div>
 
+															<div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
+																{(car.sellerPremium) && (
+																	<span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-[#154c9a] text-white font-body">Stand Premium</span>
+																)}
+																{car.isCertified && (
+																	<span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-white font-body">Certificação Caxiauto</span>
+																)}
+																{(car.sellerLogo || car.Seller?.logo) && (
+																	<img src={car.sellerLogo || car.Seller?.logo} alt="Logo do vendedor" className="w-5 h-5 rounded object-contain bg-white border border-gray-200" />
+																)}
+															</div>
+
 															<Link to={`/stand/compra/${car.id}`}>
 																<button className="w-full mt-4 py-2 text-sm bg-[#d41120] text-white font-semibold rounded-xl hover:bg-[#b80f1c] transition-all duration-300 shadow-sm cursor-pointer font-body">
 																	Ver Detalhes
