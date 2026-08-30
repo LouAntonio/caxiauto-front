@@ -158,7 +158,7 @@ const Favoritos = () => {
 														</div>
 													)}
 													{vehicle.priceSale && (
-														<div className="text-lg font-bold text-gray-900">
+														<div className="text-xl font-bold text-gray-900 font-price">
 															{Number(vehicle.priceSale).toLocaleString('pt-AO')} Kz
 														</div>
 													)}
@@ -239,7 +239,7 @@ const Favoritos = () => {
 														</div>
 													)}
 													{peca.price && (
-														<div className="text-lg font-bold text-gray-900">
+														<div className="text-xl font-bold text-gray-900 font-price">
 															{Number(peca.price).toLocaleString('pt-AO')} Kz
 														</div>
 													)}

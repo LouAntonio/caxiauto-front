@@ -166,7 +166,7 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 						<div className="border-t border-[#e5e7eb] pt-3 mt-3">
 							<div className="flex items-center justify-between">
 								<span className="font-medium text-[#6b7280] font-body">Total Estimado</span>
-								<span className="text-xl font-bold text-[#154c9a] font-['JetBrains_Mono',monospace]">{formatPrice(totalPrice)}</span>
+								<span className="text-xl font-bold text-[#154c9a] font-price">{formatPrice(totalPrice)}</span>
 							</div>
 						</div>
 					)}

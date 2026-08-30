@@ -350,7 +350,7 @@ export default function PecasAcessorios() {
 
 															{price != null && (
 																<div className="text-center mb-4">
-																	<div className="font-['JetBrains_Mono',monospace] text-xl font-bold text-[#154c9a]">
+																	<div className="font-price text-2xl font-bold text-[#154c9a]">
 																		{formatPrice(price)} Kz
 																	</div>
 																</div>

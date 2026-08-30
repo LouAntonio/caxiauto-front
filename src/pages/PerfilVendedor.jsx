@@ -247,7 +247,7 @@ const PerfilVendedor = () => {
 												</h3>
 												<div className="flex items-center justify-between text-sm">
 													<span className="text-gray-600">{vehicle.year}</span>
-													<span className="font-bold text-[#154c9a]">
+													<span className="font-price font-bold text-[#154c9a]">
 														{vehicle.priceSale ? formatPrice(vehicle.priceSale) : 'Sob consulta'}
 													</span>
 												</div>
@@ -296,7 +296,7 @@ const PerfilVendedor = () => {
 												</h3>
 												<div className="flex items-center justify-between text-sm">
 													<span className="text-gray-600 line-clamp-1">{peca.compatibility?.join(', ')}</span>
-													<span className="font-bold text-[#154c9a]">
+													<span className="font-price font-bold text-[#154c9a]">
 														{formatPrice(peca.price)}
 													</span>
 												</div>

@@ -618,7 +618,7 @@ export default function DetalhesAluguel() {
 															<div className="font-body text-xs text-[#6b7280] mt-1">{plan.duration}</div>
 														</div>
 														<div className="text-right">
-															<div className="text-lg font-bold text-[#154c9a] font-['JetBrains_Mono',monospace]">
+															<div className="text-xl font-bold text-[#154c9a] font-price">
 																{formatPrice(plan.price)}
 															</div>
 															<div className="font-body text-xs text-[#6b7280]">{plan.unit}</div>

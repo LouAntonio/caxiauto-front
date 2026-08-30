@@ -629,7 +629,7 @@ export default function DetalhesCompra() {
 								<h3 className="font-display text-lg font-bold text-[#111827] mb-4">Preço de Venda</h3>
 
 								<div className="bg-[#f8f6f2] rounded-xl p-5 mb-6">
-									<div className="text-3xl font-bold text-[#154c9a] font-['JetBrains_Mono',monospace] mb-1">
+									<div className="text-4xl font-bold text-[#154c9a] font-price mb-1">
 										{formatPrice(vehicle.price)}
 									</div>
 									{vehicle.price > 0 && (

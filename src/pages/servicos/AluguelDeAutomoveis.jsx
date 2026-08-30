@@ -324,7 +324,7 @@ export default function AluguelDeAutomoveis() {
 															{price && (
 																<div className="text-center mb-4">
 																	<div className="font-body text-xs text-[#6b7280] mb-1">A partir de</div>
-																	<div className="font-['JetBrains_Mono',monospace] text-xl font-bold text-[#154c9a]">
+																	<div className="font-price text-2xl font-bold text-[#154c9a]">
 																		{price.toLocaleString('pt-AO')},00 Kz{getPeriodLabel()}
 																	</div>
 																</div>

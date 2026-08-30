@@ -530,7 +530,7 @@ export default function DetalhesPecas() {
 								<h3 className="font-display text-lg font-bold text-[#111827] mb-4">Preço</h3>
 
 								<div className="bg-[#f8f6f2] rounded-xl p-5 mb-6">
-									<div className="text-3xl font-bold text-[#154c9a] font-['JetBrains_Mono',monospace] mb-1">
+									<div className="text-4xl font-bold text-[#154c9a] font-price mb-1">
 										{formatPrice(peca.price)}
 									</div>
 									<div className="font-body text-sm text-[#6b7280">kz</div>
@@ -569,7 +569,7 @@ export default function DetalhesPecas() {
 								<div className="bg-[#f8f6f2] rounded-xl p-4 mb-4">
 									<div className="flex justify-between items-center">
 										<span className="font-body text-[#6b7280] font-medium">Total estimado:</span>
-										<span className="font-['JetBrains_Mono',monospace] text-2xl font-bold text-[#154c9a]">
+										<span className="font-price text-3xl font-bold text-[#154c9a]">
 											{formatPrice(Number(peca.price) * requestedQuantity)} kz
 										</span>
 									</div>
@@ -719,7 +719,7 @@ export default function DetalhesPecas() {
 								<h4 className="font-display font-bold text-[#111827] mb-2">{peca.name}</h4>
 								<div className="flex justify-between font-body text-sm text-[#6b7280]">
 									<span>{conditionLabels[peca.condition]}</span>
-									<span className="font-['JetBrains_Mono',monospace] font-bold text-[#154c9a]">{formatPrice(peca.price)} kz</span>
+									<span className="font-price font-bold text-[#154c9a]">{formatPrice(peca.price)} kz</span>
 								</div>
 							</div>
 
@@ -867,7 +867,7 @@ export default function DetalhesPecas() {
 								<div className="space-y-1 font-body text-sm text-[#6b7280]">
 									<div className="flex justify-between">
 										<span>Preço:</span>
-										<span className="font-['JetBrains_Mono',monospace] font-semibold text-[#154c9a]">{formatPrice(peca.price)} kz</span>
+										<span className="font-price font-semibold text-[#154c9a]">{formatPrice(peca.price)} kz</span>
 									</div>
 									<div className="flex justify-between">
 										<span>Província:</span>
@@ -909,7 +909,7 @@ export default function DetalhesPecas() {
 								<div className="bg-[#f8f6f2] rounded-xl p-3 mt-3">
 									<div className="flex justify-between items-center font-body text-sm">
 										<span className="text-[#6b7280]">Valor total estimado:</span>
-										<span className="font-['JetBrains_Mono',monospace] text-lg font-bold text-[#154c9a]">
+										<span className="font-price text-xl font-bold text-[#154c9a]">
 											{formatPrice(Number(peca.price) * requestedQuantity)} kz
 										</span>
 									</div>

@@ -184,7 +184,7 @@ export default function FeaturedParts({ linkState }) {
 
 							<div className="p-4">
 								<h3 className="font-display text-sm font-bold text-[#111827] line-clamp-2 capitalize">{peca.name}</h3>
-								<div className="font-['JetBrains_Mono',monospace] font-bold text-[#154c9a] mt-2 mb-3">
+								<div className="font-price font-bold text-[#154c9a] mt-2 mb-3">
 									{parseFloat(peca.price).toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} akz
 								</div>
 
