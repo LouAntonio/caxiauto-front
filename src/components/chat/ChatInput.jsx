@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { Send } from 'lucide-react';
 import useChatStore from '../../stores/chatStore';
 import { notyf } from '../../services/api';
+import { pixelContact } from '../../pixel';
 
 export default function ChatInput({ conversationId }) {
 	const [text, setText] = useState('');
@@ -33,6 +34,9 @@ export default function ChatInput({ conversationId }) {
 		if (!res?.success) {
 			setText((prev) => (prev ? `${prev} ${trimmed}` : trimmed));
 			notyf.error(res?.message || 'Falha ao enviar mensagem. Tente novamente.');
+		} else {
+			// Mensagem entregue ao vendedor — lead qualificado.
+			pixelContact('chat_message');
 		}
 		inputRef.current?.focus();
 	};

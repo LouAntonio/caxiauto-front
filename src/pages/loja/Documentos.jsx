@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import useAuthStore from '../../stores/authStore';
 import api, { notyf } from '../../services/api';
 import axios from 'axios';
@@ -18,16 +18,19 @@ import {
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import ButtonLoader from '../../components/ButtonLoader';
 
-// Preview de ficheiro local com revogação do blob URL (evita fugas de memória)
+// Preview de ficheiro local. O blob URL é derivado do `file` (não precisa de
+// state) e o effect só trata da revogação, evitando fugas de memória sem
+// provocar renders em cascata.
 const LocalFilePreview = ({ file }) => {
-	const [previewUrl, setPreviewUrl] = useState(null);
+	const previewUrl = useMemo(
+		() => (file && file.type !== 'application/pdf' ? URL.createObjectURL(file) : null),
+		[file]
+	);
 
 	useEffect(() => {
-		if (!file || file.type === 'application/pdf') return;
-		const url = URL.createObjectURL(file);
-		setPreviewUrl(url);
-		return () => URL.revokeObjectURL(url);
-	}, [file]);
+		if (!previewUrl) return;
+		return () => URL.revokeObjectURL(previewUrl);
+	}, [previewUrl]);
 
 	if (!file) return null;
 	if (file.type === 'application/pdf') {
@@ -435,37 +438,37 @@ const Documentos = () => {
 						{/* Formulário */}
 						<form onSubmit={handleSubmit} className="space-y-8">
 							{/* BI / Passaporte */}
-<FilePreview
-							files={idCardFiles}
-							existingUrls={sellerDocs?.idCard}
-							setFiles={setIdCardFiles}
-							onFileChange={handleFileChange}
-							onRemove={removeFile}
-							label="Documento de Identificação (BI ou Passaporte) *"
-							icon={Shield}
-						/>
+							<FilePreview
+								files={idCardFiles}
+								existingUrls={sellerDocs?.idCard}
+								setFiles={setIdCardFiles}
+								onFileChange={handleFileChange}
+								onRemove={removeFile}
+								label="Documento de Identificação (BI ou Passaporte) *"
+								icon={Shield}
+							/>
 
-						{/* Documentos da Organização */}
-						<FilePreview
-							files={orgDocFiles}
-							existingUrls={sellerDocs?.organizationDocs}
-							setFiles={setOrgDocFiles}
-							onFileChange={handleFileChange}
-							onRemove={removeFile}
-							label="Documentos da Empresa (NIF, Certidão de Registo Comercial) — Opcional"
-							icon={Briefcase}
-						/>
+							{/* Documentos da Organização */}
+							<FilePreview
+								files={orgDocFiles}
+								existingUrls={sellerDocs?.organizationDocs}
+								setFiles={setOrgDocFiles}
+								onFileChange={handleFileChange}
+								onRemove={removeFile}
+								label="Documentos da Empresa (NIF, Certidão de Registo Comercial) — Opcional"
+								icon={Briefcase}
+							/>
 
-						{/* Selfies */}
-						<FilePreview
-							files={selfieFiles}
-							existingUrls={sellerDocs?.selfies}
-							setFiles={setSelfieFiles}
-							onFileChange={handleFileChange}
-							onRemove={removeFile}
-							label="Selfies do Vendedor *"
-							icon={Camera}
-						/>
+							{/* Selfies */}
+							<FilePreview
+								files={selfieFiles}
+								existingUrls={sellerDocs?.selfies}
+								setFiles={setSelfieFiles}
+								onFileChange={handleFileChange}
+								onRemove={removeFile}
+								label="Selfies do Vendedor *"
+								icon={Camera}
+							/>
 
 							{/* Aceitação de Termos e Políticas */}
 							<div className="bg-[#eef3fa] border border-[#c9d9ef] rounded-lg p-4">

@@ -19,6 +19,7 @@ import MobileFilterModal from '../../components/MobileFilterModal';
 import api, { API_URL, getImageUrl, notyf } from '../../services/api';
 import useAuthStore from '../../stores/authStore';
 import { useWishlist, useAddVehicleToWishlist, useRemoveVehicleFromWishlist } from '../../hooks/queries/useWishlist';
+import { CATEGORY, pixelContent, pixelSearch, pixelAddToCart } from '../../pixel';
 
 export default function AluguelDeAutomoveis() {
 	useDocumentTitle('Aluguel de Automóveis - Caxiauto');
@@ -110,6 +111,8 @@ export default function AluguelDeAutomoveis() {
 	};
 
 	const handleMobileSearchSubmit = () => {
+		const term = (mobileSearch || '').trim();
+		if (term) pixelSearch(term, CATEGORY.VEHICLE_RENTAL);
 		const nextFilters = {
 			...filters,
 			search: mobileSearch
@@ -155,6 +158,14 @@ export default function AluguelDeAutomoveis() {
 				const response = await addFavoriteMutation.mutateAsync(carId);
 				if (response.success) {
 					notyf.success('Adicionado aos favoritos');
+					const car = vehicles.find((v) => v.id === carId);
+					pixelAddToCart(pixelContent({
+						type: 'rental',
+						id: carId,
+						name: car?.name,
+						price: car?.priceRentDay,
+						category: CATEGORY.VEHICLE_RENTAL,
+					}));
 				} else {
 					notyf.error(response.message || 'Erro ao adicionar favorito');
 				}

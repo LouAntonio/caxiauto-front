@@ -16,6 +16,7 @@ import MobileFilterModal from '../../components/MobileFilterModal';
 import api, { API_URL, getImageUrl, notyf } from '../../services/api';
 import useAuthStore from '../../stores/authStore';
 import { useWishlist, useAddPecaToWishlist, useRemovePecaFromWishlist } from '../../hooks/queries/useWishlist';
+import { CATEGORY, pixelContent, pixelSearch, pixelAddToCart } from '../../pixel';
 
 export default function PecasAcessorios() {
 	useDocumentTitle('Peças e Acessórios - Caxiauto');
@@ -129,6 +130,8 @@ export default function PecasAcessorios() {
 	};
 
 	const handleMobileSearchSubmit = () => {
+		const term = (searchTerm || '').trim();
+		if (term) pixelSearch(term, CATEGORY.PART);
 		setAppliedSearchTerm(searchTerm);
 		setCurrentPage(1);
 	};
@@ -173,6 +176,14 @@ export default function PecasAcessorios() {
 				const response = await addFavoriteMutation.mutateAsync(partId);
 				if (response.success) {
 					notyf.success('Adicionado aos favoritos');
+					const part = parts.find((p) => p.id === partId);
+					pixelAddToCart(pixelContent({
+						type: 'part',
+						id: partId,
+						name: part?.name,
+						price: part?.price,
+						category: CATEGORY.PART,
+					}));
 				} else {
 					notyf.error(response.message || 'Erro ao adicionar favorito');
 				}

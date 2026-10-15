@@ -23,7 +23,10 @@ export default defineConfig([
 			},
 		},
 		rules: {
-			'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+			// `argsIgnorePattern` espelha `varsIgnorePattern`: o ESLint core não
+			// conta o uso de identificadores JSX, e componentes React
+			// (FilePreview `icon: IconComponent`) são sempre capitalizados.
+			'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^[A-Z_]' }],
 			'indent': ['error', 'tab', { 'SwitchCase': 1 }],
 			'no-mixed-spaces-and-tabs': ['error'],
 		},

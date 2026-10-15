@@ -4,7 +4,7 @@ import useAdminStore from '../stores/adminStore';
 import { Loader2 } from 'lucide-react';
 
 const ProtectedAdminRoute = ({ children }) => {
-	const { admin, loading, checkIsLoggedIn } = useAdminStore();
+	const { loading, checkIsLoggedIn } = useAdminStore();
 	const [isValidating, setIsValidating] = React.useState(true);
 	const [isAuthenticated, setIsAuthenticated] = React.useState(false);
 

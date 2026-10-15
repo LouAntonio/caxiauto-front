@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { formatNumber, toLocalDateString } from '../../utils/format'
 import { recordViewOnce } from '../../utils/views'
@@ -30,6 +30,7 @@ import BookingForm from '../../components/BookingForm'
 import { VehicleDetailSkeleton } from '../../components/skeletons'
 import { useVehicle } from '../../hooks/queries/useVehicles'
 import { useWishlist, useAddVehicleToWishlist, useRemoveVehicleFromWishlist } from '../../hooks/queries/useWishlist'
+import { CATEGORY, pixelContent, pixelViewContent, pixelLead, pixelAddToCart, pixelContact } from '../../pixel'
 
 export default function DetalhesAluguel() {
 	const { id } = useParams()
@@ -208,6 +209,23 @@ export default function DetalhesAluguel() {
 	const addFavoriteMutation = useAddVehicleToWishlist()
 	const removeFavoriteMutation = useRemoveVehicleFromWishlist()
 
+	// Uma vista por anúncio de aluguer — o ref evita o duplo StrictMode.
+	const trackedContentId = useRef(null)
+	useEffect(() => {
+		if (!vehicle) return
+		if (trackedContentId.current === vehicle.id) return
+		trackedContentId.current = vehicle.id
+		pixelViewContent(
+			pixelContent({
+				type: 'rental',
+				id: vehicle.id,
+				name: vehicle.title,
+				price: vehicle.price,
+				category: CATEGORY.VEHICLE_RENTAL,
+			})
+		)
+	}, [vehicle])
+
 	useEffect(() => {
 		if (!id) {
 			setError('ID do veículo não fornecido')
@@ -308,6 +326,13 @@ export default function DetalhesAluguel() {
 			})
 			if (response.success) {
 				notyf.success(response.message || 'Pedido de aluguel enviado com sucesso!')
+				pixelLead('rental_request', pixelContent({
+					type: 'rental',
+					id,
+					name: vehicle?.title,
+					price: vehicle?.price,
+					category: CATEGORY.VEHICLE_RENTAL,
+				}))
 				setShowContactModal(false)
 				setRentalFormData({
 					nome: isAuthenticated ? contactData.nome : '',
@@ -356,6 +381,13 @@ export default function DetalhesAluguel() {
 				if (response.success) {
 					setIsFavorite(true)
 					notyf.success('Adicionado aos favoritos')
+					pixelAddToCart(pixelContent({
+						type: 'rental',
+						id,
+						name: vehicle?.title,
+						price: vehicle?.price,
+						category: CATEGORY.VEHICLE_RENTAL,
+					}))
 				} else {
 					notyf.error(response.message || 'Erro ao adicionar favorito')
 				}
@@ -671,7 +703,7 @@ export default function DetalhesAluguel() {
 									onClick={async () => {
 										if (!isAuthenticated) { notyf.error('Faça login para enviar mensagens'); navigate('/auth'); return }
 										const res = await startChat(null, vehicle?.id, null)
-										if (res.success) openChat()
+										if (res.success) { openChat(); pixelContact('negotiate_rental') }
 									}}
 									className="w-full bg-[#eef3fa] hover:bg-[#dce5f5] text-[#154c9a] font-bold py-4 rounded-2xl transition-all shadow-sm hover:shadow-md transform hover:scale-[1.02] cursor-pointer font-body flex items-center justify-center gap-2 mt-3"
 								>

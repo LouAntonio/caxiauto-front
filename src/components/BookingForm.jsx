@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { formatKz, toLocalDateString } from '../utils/format';
 import { notyf } from '../services/api';
 import { useCreateBooking } from '../hooks/queries/useBookings';
+import { CATEGORY, PIXEL_CURRENCY, pixelInitiateCheckout, pixelPurchase } from '../pixel';
 import {
 	Calendar,
 	Clock,
@@ -61,12 +62,23 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 	const handleCreateBooking = async () => {
 		if (!validateDates()) return;
 
+		const days = calculateDays();
 		setLoading(true);
 		try {
 			const response = await createBookingMutation.mutateAsync({ vehicleId: vehicle.id, startDate, endDate });
 
 			if (response.success) {
 				notyf.success('Reserva criada com sucesso! Aguarde confirmação do proprietário.');
+				// Conversão: a reserva é a compra efectiva do anúncio de aluguer.
+				pixelPurchase({
+					content_type: 'product',
+					content_ids: [String(vehicle.id)],
+					content_name: vehicle.title || vehicle.name,
+					content_category: CATEGORY.BOOKING,
+					num_items: days,
+					value: Number(vehicle.price || 0) * days,
+					currency: PIXEL_CURRENCY,
+				});
 				setStartDate('');
 				setEndDate('');
 				setShowForm(false);
@@ -91,7 +103,17 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 	if (!showForm) {
 		return (
 			<button
-				onClick={() => setShowForm(true)}
+				onClick={() => {
+					pixelInitiateCheckout({
+						content_type: 'product',
+						content_ids: [String(vehicle?.id)],
+						content_name: vehicle?.title || vehicle?.name,
+						content_category: CATEGORY.BOOKING,
+						value: Number(vehicle?.price || 0),
+						currency: PIXEL_CURRENCY,
+					});
+					setShowForm(true);
+				}}
 				className="w-full bg-[#154c9a] text-white py-3 px-6 rounded-2xl hover:bg-[#0c2d5e] transition-all duration-300 font-semibold font-body flex items-center justify-center gap-2"
 			>
 				<Calendar className="w-5 h-5" />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { formatNumber, toLocalDateString } from '../../utils/format'
 import { recordViewOnce } from '../../utils/views'
@@ -31,6 +31,7 @@ import { VehicleDetailSkeleton } from '../../components/skeletons'
 import { COMPRA_INCLUDED, COMPRA_REQUIREMENTS } from '../../constants/loja'
 import { useVehicle } from '../../hooks/queries/useVehicles'
 import { useWishlist, useAddVehicleToWishlist, useRemoveVehicleFromWishlist } from '../../hooks/queries/useWishlist'
+import { CATEGORY, pixelContent, pixelViewContent, pixelLead, pixelAddToCart, pixelContact } from '../../pixel'
 
 export default function DetalhesCompra() {
 	const { id } = useParams()
@@ -206,6 +207,24 @@ export default function DetalhesCompra() {
 		}
 	}, [isFetched, apiVehicle, id])
 
+	// O pixel só conta uma vista por anúncio — o ref evita o duplo
+	// disparo do StrictMode sem afectar o `api.addView` (que usa sessão).
+	const trackedContentId = useRef(null)
+	useEffect(() => {
+		if (!vehicle) return
+		if (trackedContentId.current === vehicle.id) return
+		trackedContentId.current = vehicle.id
+		pixelViewContent(
+			pixelContent({
+				type: 'vehicle',
+				id: vehicle.id,
+				name: vehicle.title,
+				price: vehicle.price,
+				category: CATEGORY.VEHICLE,
+			})
+		)
+	}, [vehicle])
+
 	useEffect(() => {
 		if (wishlistData) {
 			setIsFavorite(wishlistData.vehicles?.some(v => v.id === id) || false)
@@ -281,6 +300,13 @@ export default function DetalhesCompra() {
 			})
 			if (response.success) {
 				notyf.success(response.message || 'Proposta enviada com sucesso!')
+				pixelLead('vehicle_purchase', pixelContent({
+					type: 'vehicle',
+					id,
+					name: vehicle?.title,
+					price: vehicle?.price,
+					category: CATEGORY.VEHICLE,
+				}))
 				setShowContactModal(false)
 				setPurchaseFormData({
 					nome: isAuthenticated ? contactData.nome : '',
@@ -317,6 +343,13 @@ export default function DetalhesCompra() {
 			})
 			if (response.success) {
 				notyf.success(response.message || 'Pedido de visita enviado com sucesso!')
+				pixelLead('vehicle_visit', pixelContent({
+					type: 'vehicle',
+					id,
+					name: vehicle?.title,
+					price: vehicle?.price,
+					category: CATEGORY.VEHICLE,
+				}))
 				setShowVisitModal(false)
 				setVisitFormData({
 					nome: isAuthenticated ? contactData.nome : '',
@@ -368,6 +401,13 @@ export default function DetalhesCompra() {
 				if (response.success) {
 					setIsFavorite(true)
 					notyf.success('Adicionado aos favoritos')
+					pixelAddToCart(pixelContent({
+						type: 'vehicle',
+						id,
+						name: vehicle?.title,
+						price: vehicle?.price,
+						category: CATEGORY.VEHICLE,
+					}))
 				} else {
 					notyf.error(response.message || 'Erro ao adicionar favorito')
 				}
@@ -655,7 +695,7 @@ export default function DetalhesCompra() {
 									onClick={async () => {
 										if (!isAuthenticated) { notyf.error('Faça login para enviar mensagens'); navigate('/auth'); return }
 										const res = await startChat(null, vehicle?.id, null)
-										if (res.success) openChat()
+										if (res.success) { openChat(); pixelContact('negotiate_vehicle') }
 									}}
 									className="w-full bg-[#eef3fa] hover:bg-[#dce5f5] text-[#154c9a] font-bold py-4 rounded-2xl transition-all shadow-sm hover:shadow-md transform hover:scale-[1.02] cursor-pointer font-body flex items-center justify-center gap-2"
 								>

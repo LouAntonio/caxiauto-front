@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { pageview } from './analytics'
+import { pixelPageView } from './pixel'
 import Header from './components/Header'
 import ProtectedRoute from './components/ProtectedRoute'
 import ProtectedAdminRoute from './components/ProtectedAdminRoute'
@@ -72,7 +73,11 @@ function Analytics() {
 	const location = useLocation();
 
 	useEffect(() => {
-		pageview(location.pathname + location.search);
+		const path = location.pathname + location.search;
+		pageview(path);
+		// O painel admin não é público — não entra no dataset de publicidade.
+		if (location.pathname.startsWith('/caxiauto')) return;
+		pixelPageView(path);
 	}, [location]);
 
 	return null;

@@ -23,6 +23,7 @@ import {
 	Star
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { CATEGORY, pixelLead } from '../../pixel';
 
 export default function SeguroAutomovel() {
 	useDocumentTitle('Seguro Automóvel - Caxiauto');
@@ -54,6 +55,7 @@ export default function SeguroAutomovel() {
 			const response = await api.contactInsurance(formData);
 			if (response.success) {
 				notyf.success(response.message || 'Pedido de seguro enviado com sucesso!');
+				pixelLead('insurance_request', { content_category: CATEGORY.CONTACT });
 				setFormData({ nome: '', email: '', telefone: '', tipoSeguro: '', tipoViatura: '', mensagem: '' });
 			} else {
 				notyf.error(response.message || 'Erro ao enviar pedido de seguro');

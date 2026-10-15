@@ -38,6 +38,7 @@ import MobileFilterModal from '../../components/MobileFilterModal';
 import api, { API_URL, getImageUrl, notyf } from '../../services/api';
 import useAuthStore from '../../stores/authStore';
 import { useWishlist, useAddVehicleToWishlist, useRemoveVehicleFromWishlist } from '../../hooks/queries/useWishlist';
+import { CATEGORY, pixelContent, pixelSearch, pixelAddToCart } from '../../pixel';
 
 export default function Compra() {
 	useDocumentTitle('Compra de Veículos - Caxiauto');
@@ -159,6 +160,8 @@ export default function Compra() {
 	};
 
 	const handleMobileSearchSubmit = () => {
+		const term = (mobileSearch || '').trim();
+		if (term) pixelSearch(term, CATEGORY.VEHICLE);
 		const nextFilters = {
 			...filters,
 			pesquisa: mobileSearch
@@ -207,6 +210,14 @@ export default function Compra() {
 				const response = await addFavoriteMutation.mutateAsync(carId);
 				if (response.success) {
 					notyf.success('Adicionado aos favoritos');
+					const car = vehicles.find((v) => v.id === carId);
+					pixelAddToCart(pixelContent({
+						type: 'vehicle',
+						id: carId,
+						name: car?.name,
+						price: car?.priceSale,
+						category: CATEGORY.VEHICLE,
+					}));
 				} else {
 					notyf.error(response.message || 'Erro ao adicionar favorito');
 				}

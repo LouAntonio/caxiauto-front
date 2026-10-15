@@ -749,22 +749,22 @@ const VeiculosAluguel = () => {
 								</div>
 
 								{/* Condição */}
-										<div>
-											<label className="block text-gray-700 font-semibold mb-2">
+								<div>
+									<label className="block text-gray-700 font-semibold mb-2">
 												Condição <span className="text-red-500">*</span>
-											</label>
-											<select
-												name="condition"
-												value={formData.condition}
-												onChange={handleChange}
-												required
-												className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
-											>
-												<option value="">Selecione</option>
-												<option value="NEW">Novo</option>
-												<option value="USED">Usado</option>
-											</select>
-										</div>
+									</label>
+									<select
+										name="condition"
+										value={formData.condition}
+										onChange={handleChange}
+										required
+										className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"
+									>
+										<option value="">Selecione</option>
+										<option value="NEW">Novo</option>
+										<option value="USED">Usado</option>
+									</select>
+								</div>
 
 								{/* Combustível */}
 								<div>

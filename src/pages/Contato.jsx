@@ -15,6 +15,7 @@ import {
 	ArrowRight
 } from 'lucide-react'
 import { useSendContact } from '../hooks/queries/useContact'
+import { CATEGORY, pixelLead } from '../pixel'
 
 export default function Contato() {
 	useDocumentTitle('Contactos - Caxiauto')
@@ -35,6 +36,7 @@ export default function Contato() {
 			const response = await sendContactMutation.mutateAsync(formData)
 			if (response.success) {
 				notyf.success(response.message || 'Mensagem enviada com sucesso!')
+				pixelLead('contact_form', { content_category: CATEGORY.CONTACT })
 				setFormData({ nome: '', email: '', telefone: '', assunto: '', mensagem: '' })
 			} else {
 				notyf.error(response.message || 'Erro ao enviar mensagem')

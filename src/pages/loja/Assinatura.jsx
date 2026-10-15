@@ -24,6 +24,7 @@ import { useMyVehicles } from '../../hooks/queries/useVehicles';
 import { useMyPecas } from '../../hooks/queries/usePecas';
 import { usePublicConfig } from '../../hooks/queries/useSubscription';
 import { formatKz, formatPercent } from '../../utils/format';
+import { CATEGORY, PIXEL_CURRENCY, pixelStartTrial, pixelInitiateCheckout, pixelPurchase, pixelSubscribe } from '../../pixel';
 
 // Fallback usado enquanto não houver dados bancários configurados pelo admin.
 const DEFAULT_BANK_DETAILS = {
@@ -92,7 +93,7 @@ const Assinatura = () => {
 	const { data: sellerHome } = useSellerHome();
 	const freeCommissionRate = sellerHome?.freeCommissionRate ?? sellerHome?.commissionRate ?? 0.035;
 	const premiumCommissionRate = Math.max(0, freeCommissionRate - 0.015);
-	const { data: mySubscriptions, bySection, isLoading: subscriptionLoading } = useMySubscriptions();
+	const { bySection, isLoading: subscriptionLoading } = useMySubscriptions();
 	const { data: myPayments, isLoading: paymentsLoading } = useMyPayments();
 	const { data: publicConfig } = usePublicConfig();
 	const bankDetails = publicConfig?.bankDetails || DEFAULT_BANK_DETAILS;
@@ -142,12 +143,22 @@ const Assinatura = () => {
 	};
 
 	const handleSubscribe = async (planId) => {
+		const plan = (allPlans || []).find((p) => p.id === planId);
 		setProcessing(true);
 		setSelectedPlan(planId);
 		try {
 			const response = await createSubscriptionPayment.mutateAsync(planId);
 			if (response.success) {
 				notyf.success('Pagamento criado! Faça upload do comprovativo.');
+				// Início do checkout — a compra só fecha no comprovativo.
+				pixelInitiateCheckout({
+					content_type: 'product_group',
+					content_ids: [String(planId)],
+					content_name: plan?.name,
+					content_category: CATEGORY.SUBSCRIPTION,
+					value: Number(plan?.price || 0),
+					currency: PIXEL_CURRENCY,
+				});
 			} else {
 				notyf.error(response.message || 'Erro ao criar pagamento');
 			}
@@ -185,6 +196,14 @@ const Assinatura = () => {
 			});
 			if (response.success) {
 				notyf.success('Pagamento criado! Faça upload do comprovativo.');
+				pixelInitiateCheckout({
+					content_type: 'product_group',
+					content_ids: [String(planId)],
+					content_name: plan?.name,
+					content_category: CATEGORY.HIGHLIGHT,
+					value: Number(plan?.price || 0),
+					currency: PIXEL_CURRENCY,
+				});
 				setSelectedItemId('');
 			} else {
 				notyf.error(response.message || 'Erro ao criar pagamento');
@@ -204,6 +223,19 @@ const Assinatura = () => {
 			const response = await uploadProof.mutateAsync({ paymentId, proofUrl });
 			if (response.success) {
 				notyf.success('Comprovativo enviado com sucesso!');
+				// Comprovativo enviado = compra fechada pelo vendedor.
+				const payment = (myPayments || []).find((p) => p.id === paymentId);
+				const isSubscription = payment?.for === 'SUBSCRIPTION';
+				const details = {
+					content_type: 'product_group',
+					content_ids: [String(paymentId)],
+					content_name: payment?.plan?.name,
+					content_category: isSubscription ? CATEGORY.SUBSCRIPTION : CATEGORY.HIGHLIGHT,
+					value: Number(payment?.amount || 0),
+					currency: PIXEL_CURRENCY,
+				};
+				pixelPurchase(details);
+				if (isSubscription) pixelSubscribe(details);
 				setProofUploads((prev) => ({ ...prev, [paymentId]: null }));
 			} else {
 				notyf.error(response.message || 'Erro ao enviar comprovativo');
@@ -559,63 +591,73 @@ const Assinatura = () => {
 									const isCurrent = isCurrentActive && currentSub.planId === plan.id;
 									return (
 										<div key={plan.id} className={`border-2 rounded-xl p-6 transition-all hover:shadow-lg ${isCurrent ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-blue-300'}`}>
-									{isCurrent && (
-										<div className="mb-4">
-											<span className="px-3 py-1 bg-green-600 text-white rounded-full text-xs font-semibold">Seu Plano Atual</span>
-										</div>
-									)}
-									<div className="flex items-center gap-3 mb-4">
-										<div className={`w-12 h-12 bg-gradient-to-br ${activeSection.color} rounded-lg flex items-center justify-center`}>
-											<activeSection.icon className="w-6 h-6 text-white" />
-										</div>
-										<h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
-									</div>
-									<div className="mb-6">
-										<span className="text-3xl font-bold text-[#154c9a]">{formatPrice(plan.price)}</span>
-										{plan.validUntil ? (
-											<span className="text-gray-600 text-sm ml-1">(pagamento único)</span>
-										) : (
-											<span className="text-gray-600 text-sm">/{plan.durationDays || 30} dias</span>
-										)}
-									</div>
-									{plan.description && (
-										<p className="text-sm text-gray-600 mb-4">{plan.description}</p>
-									)}
-									{plan.validUntil && (
-										<div className="mb-3">
-											<span className="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold">
-												Válido até {formatDate(plan.validUntil)}
-											</span>
-										</div>
-									)}
-									<div className="space-y-3 mb-6">
-										{(Array.isArray(plan.benefits) && plan.benefits.length > 0
-											? plan.benefits
-											: [activeSection.limitLabel(
-												activeTab === 'ALUGUEL' ? plan.maxVehicles : activeTab === 'PECAS' ? plan.maxPecas : plan.maxPartners
-											)]
-										).map((benefit, i) => (
-											<div key={i} className="flex items-center gap-2 text-sm">
-												<Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-												<span>{benefit}</span>
+											{isCurrent && (
+												<div className="mb-4">
+													<span className="px-3 py-1 bg-green-600 text-white rounded-full text-xs font-semibold">Seu Plano Atual</span>
+												</div>
+											)}
+											<div className="flex items-center gap-3 mb-4">
+												<div className={`w-12 h-12 bg-gradient-to-br ${activeSection.color} rounded-lg flex items-center justify-center`}>
+													<activeSection.icon className="w-6 h-6 text-white" />
+												</div>
+												<h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
 											</div>
-										))}
-									</div>
-									<ButtonLoader
-										onClick={() => handleSubscribe(plan.id)}
-										loading={processing && selectedPlan === plan.id}
-										loadingText="Processando..."
-										variant={isCurrent ? 'success' : 'primary'}
-										className={`w-full ${isCurrent ? 'cursor-not-allowed' : ''}`}
-										disabled={isCurrent}
-									>
-										{isCurrent ? 'Plano Atual' : 'Assinar Agora'}
-									</ButtonLoader>
-								</div>
-							);
-						})}
-						</div>
-					)}
+											<div className="mb-6">
+												<span className="text-3xl font-bold text-[#154c9a]">{formatPrice(plan.price)}</span>
+												{plan.validUntil ? (
+													<span className="text-gray-600 text-sm ml-1">(pagamento único)</span>
+												) : (
+													<span className="text-gray-600 text-sm">/{plan.durationDays || 30} dias</span>
+												)}
+											</div>
+											{plan.description && (
+												<p className="text-sm text-gray-600 mb-4">{plan.description}</p>
+											)}
+											{plan.validUntil && (
+												<div className="mb-3">
+													<span className="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold">
+												Válido até {formatDate(plan.validUntil)}
+													</span>
+												</div>
+											)}
+											<div className="space-y-3 mb-6">
+												{(Array.isArray(plan.benefits) && plan.benefits.length > 0
+													? plan.benefits
+													: [activeSection.limitLabel(
+														activeTab === 'ALUGUEL' ? plan.maxVehicles : activeTab === 'PECAS' ? plan.maxPecas : plan.maxPartners
+													)]
+												).map((benefit, i) => (
+													<div key={i} className="flex items-center gap-2 text-sm">
+														<Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+														<span>{benefit}</span>
+													</div>
+												))}
+											</div>
+											<ButtonLoader
+												onClick={() => {
+													pixelStartTrial({
+														content_type: 'product_group',
+														content_ids: [String(plan.id)],
+														content_name: plan.name,
+														content_category: CATEGORY.SUBSCRIPTION,
+														value: Number(plan.price || 0),
+														currency: PIXEL_CURRENCY,
+													});
+													handleSubscribe(plan.id);
+												}}
+												loading={processing && selectedPlan === plan.id}
+												loadingText="Processando..."
+												variant={isCurrent ? 'success' : 'primary'}
+												className={`w-full ${isCurrent ? 'cursor-not-allowed' : ''}`}
+												disabled={isCurrent}
+											>
+												{isCurrent ? 'Plano Atual' : 'Assinar Agora'}
+											</ButtonLoader>
+										</div>
+									);
+								})}
+							</div>
+						)}
 					</>
 				)}
 			</div>
@@ -709,7 +751,17 @@ const Assinatura = () => {
 									</span>
 								</div>
 								<ButtonLoader
-									onClick={() => handleBuyHighlight(plan.id)}
+									onClick={() => {
+										pixelStartTrial({
+											content_type: 'product_group',
+											content_ids: [String(plan.id)],
+											content_name: plan.name,
+											content_category: CATEGORY.HIGHLIGHT,
+											value: Number(plan.price || 0),
+											currency: PIXEL_CURRENCY,
+										});
+										handleBuyHighlight(plan.id);
+									}}
 									loading={processing && selectedHlPlan === plan.id}
 									loadingText="Processando..."
 									variant="yellow"

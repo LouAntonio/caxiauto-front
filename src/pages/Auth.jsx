@@ -320,7 +320,7 @@ const Auth = () => {
 				const result = await completeRegistration(formData);
 				if (result.success) {
 					notyf.success(result.message + ' Agora você pode fazer login!');
-// Limpar formulário e mostrar tela de login
+					// Limpar formulário e mostrar tela de login
 					setFormData({
 						firstName: '',
 						lastName: '',

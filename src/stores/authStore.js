@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import api from '../services/api';
 import { queryClient } from '../services/queryClient';
+import { pixelCompleteRegistration, pixelLogin, pixelReset } from '../pixel';
 
 const getStoredUser = () => {
 	try {
@@ -43,6 +44,7 @@ const useAuthStore = create((set, get) => ({
 		localStorage.setItem('caxiauto_token', data.data.token);
 		localStorage.setItem('caxiauto_user', JSON.stringify(userData));
 		set({ user: userData, isAuthenticated: true });
+		pixelLogin('password');
 		return { success: true, message: 'Login realizado com sucesso!' };
 	},
 
@@ -57,6 +59,7 @@ const useAuthStore = create((set, get) => ({
 		set({ user: null, isAuthenticated: false });
 		localStorage.removeItem('caxiauto_user');
 		localStorage.removeItem('caxiauto_token');
+		pixelReset();
 	},
 
 	checkEmail: async (email) => {
@@ -88,6 +91,7 @@ const useAuthStore = create((set, get) => ({
 		if (!data.success) {
 			return { success: false, message: data.message || 'Erro ao completar registro' };
 		}
+		pixelCompleteRegistration();
 		return { success: true, message: data.message };
 	},
 
@@ -147,6 +151,7 @@ const useAuthStore = create((set, get) => ({
 		localStorage.setItem('caxiauto_token', data.data.token);
 		localStorage.setItem('caxiauto_user', JSON.stringify(userData));
 		set({ user: userData, isAuthenticated: true });
+		pixelLogin('google');
 		return { success: true, message: 'Login realizado com sucesso!' };
 	},
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { formatNumber } from '../../utils/format'
 import { recordViewOnce } from '../../utils/views'
@@ -26,6 +26,7 @@ import useChatStore from '../../stores/chatStore'
 import { PecaDetailSkeleton } from '../../components/skeletons'
 import { usePeca } from '../../hooks/queries/usePecas'
 import { useWishlist, useAddPecaToWishlist, useRemovePecaFromWishlist } from '../../hooks/queries/useWishlist'
+import { CATEGORY, pixelContent, pixelViewContent, pixelLead, pixelAddToCart, pixelContact } from '../../pixel'
 
 export default function DetalhesPecas() {
 	const { id } = useParams()
@@ -146,6 +147,23 @@ export default function DetalhesPecas() {
 	const addFavoriteMutation = useAddPecaToWishlist()
 	const removeFavoriteMutation = useRemovePecaFromWishlist()
 
+	// Uma vista por peça — o ref evita o duplo disparo do StrictMode.
+	const trackedContentId = useRef(null)
+	useEffect(() => {
+		if (!peca) return
+		if (trackedContentId.current === peca.id) return
+		trackedContentId.current = peca.id
+		pixelViewContent(
+			pixelContent({
+				type: 'part',
+				id: peca.id,
+				name: peca.name,
+				price: peca.price,
+				category: CATEGORY.PART,
+			})
+		)
+	}, [peca])
+
 	useEffect(() => {
 		if (wishlistData) {
 			setIsFavorite(wishlistData.pecas?.some(p => p.id === id) || false)
@@ -251,6 +269,13 @@ export default function DetalhesPecas() {
 				if (response.success) {
 					setIsFavorite(true)
 					notyf.success('Adicionado aos favoritos')
+					pixelAddToCart(pixelContent({
+						type: 'part',
+						id,
+						name: peca?.name,
+						price: peca?.price,
+						category: CATEGORY.PART,
+					}))
 				} else {
 					notyf.error(response.message || 'Erro ao adicionar favorito')
 				}
@@ -279,6 +304,13 @@ export default function DetalhesPecas() {
 			})
 			if (response.success) {
 				notyf.success(response.message || 'Pedido de compra enviado com sucesso!')
+				pixelLead('part_purchase', pixelContent({
+					type: 'part',
+					id,
+					name: peca?.name,
+					price: Number(peca?.price || 0) * (requestedQuantity || 1),
+					category: CATEGORY.PART,
+				}))
 				setShowContactModal(false)
 				setPartPurchaseFormData({
 					nome: isAuthenticated ? contactData.nome : '',
@@ -316,6 +348,13 @@ export default function DetalhesPecas() {
 			})
 			if (response.success) {
 				notyf.success(response.message || 'Consulta enviada com sucesso!')
+				pixelLead('part_availability', pixelContent({
+					type: 'part',
+					id,
+					name: peca?.name,
+					price: peca?.price,
+					category: CATEGORY.PART,
+				}))
 				setShowAvailabilityModal(false)
 				setAvailabilityFormData({
 					nome: isAuthenticated ? contactData.nome : '',
@@ -593,7 +632,7 @@ export default function DetalhesPecas() {
 									onClick={async () => {
 										if (!isAuthenticated) { notyf.error('Faça login para enviar mensagens'); navigate('/auth'); return }
 										const res = await startChat(null, null, peca?.id)
-										if (res.success) openChat()
+										if (res.success) { openChat(); pixelContact('negotiate_part') }
 									}}
 									className="w-full bg-[#eef3fa] hover:bg-[#dce5f5] text-[#154c9a] font-bold py-4 rounded-2xl transition-all shadow-sm hover:shadow-md transform hover:scale-[1.02] cursor-pointer font-body flex items-center justify-center gap-2 mt-3"
 								>

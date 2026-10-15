@@ -88,7 +88,7 @@ const Home = () => {
 			} else {
 				notyf.error(res.message || 'Erro ao atualizar o logotipo');
 			}
-		} catch (error) {
+		} catch {
 			notyf.error('Erro ao fazer upload do logotipo');
 		} finally {
 			setLogoUploading(false);

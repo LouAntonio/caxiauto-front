@@ -2,6 +2,7 @@ import React from 'react';
 import { MessageSquare, X } from 'lucide-react';
 import useChatStore from '../../stores/chatStore';
 import useAuthStore from '../../stores/authStore';
+import { pixelContact } from '../../pixel';
 
 export default function ChatButton() {
 	const { user } = useAuthStore();
@@ -9,9 +10,19 @@ export default function ChatButton() {
 
 	if (!user) return null;
 
+	// Abrir o chat é o ponto de maior intenção do site.
+	const handleToggle = () => {
+		if (isChatOpen) {
+			closeChat();
+		} else {
+			pixelContact('chat_open');
+			openChat();
+		}
+	};
+
 	return (
 		<button
-			onClick={isChatOpen ? closeChat : openChat}
+			onClick={handleToggle}
 			className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#154c9a] hover:bg-[#123f80] text-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center cursor-pointer"
 			aria-label={isChatOpen ? 'Fechar chat' : 'Abrir chat'}
 		>
