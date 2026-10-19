@@ -190,7 +190,7 @@ const Auth = () => {
 		setLoading(true);
 
 		try {
-			const result = await requestPasswordReset(formData.email);
+			const result = await requestPasswordReset(formData.email.trim());
 			if (result.success) {
 				notyf.success(result.message || 'Enviamos um link de recuperação para seu email. Verifique sua caixa de entrada.');
 				setFormData({ ...formData, email: '' });
@@ -211,7 +211,7 @@ const Auth = () => {
 	const handleSendOTP = async () => {
 		setLoading(true);
 		try {
-			const result = await checkEmail(formData.email);
+			const result = await checkEmail(formData.email.trim());
 			if (result.success) {
 				notyf.success(result.message);
 				setRegistrationStep(1);
@@ -249,7 +249,7 @@ const Auth = () => {
 	const handleResendOTP = async () => {
 		setLoading(true);
 		try {
-			const result = await resendOTP(formData.email);
+			const result = await resendOTP(formData.email.trim());
 			if (result.success) {
 				notyf.success(result.message);
 			} else {
@@ -266,7 +266,7 @@ const Auth = () => {
 		setLoading(true);
 		try {
 			const otpString = otp.join('');
-			const result = await verifyOTP(formData.email, otpString);
+			const result = await verifyOTP(formData.email.trim(), otpString);
 			if (result.success) {
 				notyf.success(result.message);
 				setRegistrationStep(2);
@@ -308,7 +308,7 @@ const Auth = () => {
 
 		try {
 			if (isLogin) {
-				const result = await login(formData.email, formData.password);
+				const result = await login(formData.email.trim(), formData.password);
 				if (result.success) {
 					notyf.success(result.message);
 					navigate(from, { replace: true });

@@ -38,6 +38,7 @@ const useAuthStore = create((set, get) => ({
 			status: data.data.status,
 			isVerified: data.data.isVerified,
 			googleId: data.data.googleId,
+			hasPassword: !!data.data.hasPassword,
 			sellerDocs: !!data.data.sellerDocs,
 			createdAt: data.data.createdAt,
 		};
@@ -119,6 +120,8 @@ const useAuthStore = create((set, get) => ({
 			const serverData = response.data || {};
 			const updatedUser = { ...currentUser, ...serverData };
 			['currentPassword', 'newPassword', 'confirmPassword'].forEach(k => delete updatedUser[k]);
+			// Ao definir/trocar senha com sucesso, o utilizador passa a ter senha.
+			if (payload.newPassword) updatedUser.hasPassword = true;
 			localStorage.setItem('caxiauto_user', JSON.stringify(updatedUser));
 			set({ user: updatedUser, isAuthenticated: true });
 			return { success: true, message: 'Perfil atualizado com sucesso!' };
@@ -145,6 +148,7 @@ const useAuthStore = create((set, get) => ({
 			status: data.data.status,
 			isVerified: data.data.isVerified,
 			googleId: data.data.googleId,
+			hasPassword: !!data.data.hasPassword,
 			sellerDocs: !!data.data.sellerDocs,
 			createdAt: data.data.createdAt,
 		};
@@ -182,6 +186,7 @@ const useAuthStore = create((set, get) => ({
 						status: data.data.status,
 						isVerified: data.data.isVerified,
 						googleId: data.data.googleId,
+						hasPassword: !!data.data.hasPassword,
 						provincia: data.data.provincia,
 						municipio: data.data.municipio,
 						sellerDocs: !!data.data.sellerDocs,
