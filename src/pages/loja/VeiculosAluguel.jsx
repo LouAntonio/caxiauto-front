@@ -42,8 +42,8 @@ const VeiculosAluguel = () => {
 	const { data: myData, isLoading } = useMyVehicles({ type: 'RENT', page });
 	const { isActive: isSectionActive } = useMySubscriptions();
 	const hasPlan = isSectionActive('ALUGUEL');
-	const { data: manufacturers } = useManufacturers();
-	const { data: vehicleClasses } = useClasses();
+	const { data: manufacturers = [] } = useManufacturers();
+	const { data: vehicleClasses = [] } = useClasses();
 	const createVehicle = useCreateVehicle();
 	const updateVehicle = useUpdateVehicle();
 	const deleteVehicle = useDeleteVehicle();

@@ -7,7 +7,10 @@ import { Link } from 'react-router-dom';
 import { AdminTableSkeleton } from '../../components/skeletons';
 
 const AdminMensagens = () => {
-	const { data: conversations, isLoading } = useAdminConversations();
+	const { data: conversationsData, isLoading } = useAdminConversations();
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render (página em branco).
+	const conversations = conversationsData ?? [];
 	const [selectedConv, setSelectedConv] = useState(null);
 
 	const formatRelativeTime = (dateStr) => {

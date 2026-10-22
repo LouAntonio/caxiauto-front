@@ -694,8 +694,13 @@ export default function DetalhesCompra() {
 								<button
 									onClick={async () => {
 										if (!isAuthenticated) { notyf.error('Faça login para enviar mensagens'); navigate('/auth'); return }
-										const res = await startChat(null, vehicle?.id, null)
-										if (res.success) { openChat(); pixelContact('negotiate_vehicle') }
+										try {
+											const res = await startChat(null, vehicle?.id, null)
+											if (res?.success) { openChat(); pixelContact('negotiate_vehicle') }
+										} catch (error) {
+											console.error('Erro ao iniciar conversa:', error)
+											notyf.error('Erro ao iniciar conversa. Tente novamente.')
+										}
 									}}
 									className="w-full bg-[#eef3fa] hover:bg-[#dce5f5] text-[#154c9a] font-bold py-4 rounded-2xl transition-all shadow-sm hover:shadow-md transform hover:scale-[1.02] cursor-pointer font-body flex items-center justify-center gap-2"
 								>

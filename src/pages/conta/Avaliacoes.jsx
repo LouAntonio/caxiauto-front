@@ -27,7 +27,10 @@ const Avaliacoes = () => {
 	const [deletingId, setDeletingId] = useState(null);
 
 	const params = useMemo(() => ({ page, limit: 10 }), [page]);
-	const { data: reviews, isLoading } = useMyReviews(params);
+	const { data: reviewsData, isLoading } = useMyReviews(params);
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render (página em branco).
+	const reviews = reviewsData ?? [];
 	const deleteReview = useDeleteReview();
 
 	useEffect(() => {
@@ -36,7 +39,7 @@ const Avaliacoes = () => {
 			setTotal(raw.pagination?.total || 0);
 			setTotalPages(raw.pagination?.totalPages || 1);
 		}
-	}, [reviews, page, params, queryClient]);
+	}, [reviewsData, page, params, queryClient]);
 
 	const handleDeleteReview = async (reviewId) => {
 		if (deletingId) return;

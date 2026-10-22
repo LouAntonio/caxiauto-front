@@ -48,8 +48,8 @@ const Veiculos = () => {
 	const standUsed = standSection?.used ?? 0;
 	const standLimit = standSection?.limit ?? 10;
 	const isStandPremium = !!(standSection?.isActive);
-	const { data: manufacturers } = useManufacturers();
-	const { data: vehicleClasses } = useClasses();
+	const { data: manufacturers = [] } = useManufacturers();
+	const { data: vehicleClasses = [] } = useClasses();
 	const createVehicle = useCreateVehicle();
 	const updateVehicle = useUpdateVehicle();
 	const deleteVehicle = useDeleteVehicle();

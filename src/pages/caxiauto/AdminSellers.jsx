@@ -42,8 +42,12 @@ const AdminSellers = () => {
 	const [docsModal, setDocsModal] = useState({ open: false, seller: null, docs: null });
 	const [confirmModal, setConfirmModal] = useState({ open: false, sellerId: null, sellerName: '', action: 'verify' });
 
-	const { data: pendingSellers, isLoading: isPendingLoading } = useAdminPendingSellers({ page: pagination.currentPage, limit: 15 });
-	const { data: sellerDocs, isLoading: isDocsLoading } = useAdminSellerDocs({ page: pagination.currentPage, limit: 20 });
+	const { data: pendingSellersData, isLoading: isPendingLoading } = useAdminPendingSellers({ page: pagination.currentPage, limit: 15 });
+	const { data: sellerDocsData, isLoading: isDocsLoading } = useAdminSellerDocs({ page: pagination.currentPage, limit: 20 });
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render (página em branco).
+	const pendingSellers = pendingSellersData ?? [];
+	const sellerDocs = sellerDocsData ?? [];
 	const verifySellerMutation = useAdminVerifySeller();
 	const pendingCount = pendingSellers?.length || 0;
 

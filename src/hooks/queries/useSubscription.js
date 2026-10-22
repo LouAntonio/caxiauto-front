@@ -39,12 +39,13 @@ export const useMySubscriptions = () => {
 
 	const bySection = {};
 	for (const section of STORE_SECTIONS) bySection[section] = null;
-	if (query.data) {
-		for (const sub of query.data) {
-			const current = bySection[sub.section];
-			if (!current || new Date(sub.endDate) > new Date(current.endDate)) {
-				bySection[sub.section] = sub;
-			}
+	// `Array.isArray` porque um payload malformado (não-array) faria o `for...of`
+	// lançar TypeError já no render.
+	const subscriptions = Array.isArray(query.data) ? query.data : [];
+	for (const sub of subscriptions) {
+		const current = bySection[sub.section];
+		if (!current || new Date(sub.endDate) > new Date(current.endDate)) {
+			bySection[sub.section] = sub;
 		}
 	}
 

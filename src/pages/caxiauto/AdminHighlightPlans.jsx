@@ -32,7 +32,10 @@ const AdminHighlightPlans = () => {
 		daysDuration: '',
 	});
 
-	const { data: plans, isLoading: loading } = useAdminHighlightPlans();
+	const { data: plansData, isLoading: loading } = useAdminHighlightPlans();
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render (página em branco).
+	const plans = plansData ?? [];
 	const createPlanMutation = useAdminCreateHighlightPlan();
 	const updatePlanMutation = useAdminUpdateHighlightPlan();
 	const deletePlanMutation = useAdminDeleteHighlightPlan();

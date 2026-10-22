@@ -55,7 +55,10 @@ const AdminVehicles = () => {
 	const [rejectModal, setRejectModal] = useState({ open: false, vehicleId: null, vehicleName: '', reason: '' });
 	const [featuredModal, setFeaturedModal] = useState({ open: false, vehicleId: null, vehicleName: '', days: '7' });
 
-	const { data: pendingVehicles, isLoading: isPendingLoading } = useAdminPendingVehicles({ page: 1, limit: 50 });
+	const { data: pendingVehiclesData, isLoading: isPendingLoading } = useAdminPendingVehicles({ page: 1, limit: 50 });
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render (página em branco) na tab pendentes.
+	const pendingVehicles = pendingVehiclesData ?? [];
 	const approveVehicleMutation = useAdminApproveVehicle();
 	const rejectVehicleMutation = useAdminRejectVehicle();
 	const deleteVehicleMutation = useAdminDeleteVehicle();

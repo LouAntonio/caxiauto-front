@@ -9,7 +9,10 @@ import CarCardSkeleton from './CarCardSkeleton';
 
 export default function FeaturedCars({ title = 'Carros em Destaque', useVehicleQuery = useFeaturedVehicles, linkTo, linkState }) {
 	const railRef = useRef(null);
-	const { data: vehicles, isLoading } = useVehicleQuery();
+	const { data: vehiclesData, isLoading } = useVehicleQuery();
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render inteiro (página em branco).
+	const vehicles = vehiclesData ?? [];
 	const [wishlist, setWishlist] = useState(new Set());
 	const [loadingWishlist, setLoadingWishlist] = useState(new Set());
 	const { isAuthenticated } = useAuthStore();

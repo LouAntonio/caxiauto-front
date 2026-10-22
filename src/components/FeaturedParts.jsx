@@ -8,7 +8,10 @@ import useAuthStore from '../stores/authStore'
 
 export default function FeaturedParts({ linkState }) {
 	const railRef = useRef(null)
-	const { data: pecas, isLoading } = useFeaturedPecas()
+	const { data: pecasData, isLoading } = useFeaturedPecas()
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render (página em branco).
+	const pecas = pecasData ?? []
 	const [favorites, setFavorites] = useState(new Set())
 	const [loadingFavorites, setLoadingFavorites] = useState(new Set())
 	const { isAuthenticated } = useAuthStore()

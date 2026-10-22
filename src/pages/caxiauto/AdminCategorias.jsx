@@ -16,7 +16,10 @@ const AdminCategorias = () => {
 
 	const params = { page: pagination.currentPage, limit: 20 };
 	if (search.trim()) params.search = search.trim();
-	const { data: categorias, isLoading: loading } = useCategorias(params);
+	const { data: categoriasData, isLoading: loading } = useCategorias(params);
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render (página em branco).
+	const categorias = categoriasData ?? [];
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();

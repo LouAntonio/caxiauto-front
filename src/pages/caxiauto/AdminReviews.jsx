@@ -16,7 +16,10 @@ const AdminReviews = () => {
 	const params = { page: pagination.currentPage, limit: 20 };
 	if (filters.minRating) params.minRating = filters.minRating;
 	if (filters.search) params.search = filters.search;
-	const { data: reviews, isLoading: loading } = useAdminReviews(params);
+	const { data: reviewsData, isLoading: loading } = useAdminReviews(params);
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render (página em branco).
+	const reviews = reviewsData ?? [];
 
 	// Auto-search quando o valor debounce muda
 	useEffect(() => {

@@ -38,7 +38,10 @@ const Pecas = () => {
 
 	useAuthStore();
 	const { isVerified, needsVerification } = useVerificationCheck();
-	const { data: pecas, isLoading } = useMyPecas();
+	const { data: pecasData, isLoading } = useMyPecas();
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render (página em branco).
+	const pecas = pecasData ?? [];
 	const { isActive: isSectionActive } = useMySubscriptions();
 	const hasPlan = isSectionActive('PECAS');
 	const createPeca = useCreatePeca();
@@ -348,6 +351,7 @@ const Pecas = () => {
 
 	const getAllImages = (peca) => {
 		const images = [];
+		if (!peca) return images;
 		if (peca.image) images.push(peca.image);
 		if (peca.gallery && peca.gallery.length > 0) images.push(...peca.gallery);
 		return images;

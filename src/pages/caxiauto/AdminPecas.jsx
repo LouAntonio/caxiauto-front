@@ -65,7 +65,10 @@ const AdminPecas = () => {
 		}
 	}, [pagination.currentPage, filters]);
 
-	const { data: pendingPecas, isLoading: isPendingLoading } = useAdminPendingPecas({ page: 1, limit: 50 });
+	const { data: pendingPecasData, isLoading: isPendingLoading } = useAdminPendingPecas({ page: 1, limit: 50 });
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render (página em branco) na tab pendentes.
+	const pendingPecas = pendingPecasData ?? [];
 	const approvePecaMutation = useAdminApprovePeca();
 	const rejectPecaMutation = useAdminRejectPeca();
 	const deletePecaMutation = useAdminDeletePeca();

@@ -572,7 +572,7 @@ export default function DetalhesPecas() {
 									<div className="text-4xl font-bold text-[#154c9a] font-price mb-1">
 										{formatPrice(peca.price)}
 									</div>
-									<div className="font-body text-sm text-[#6b7280">kz</div>
+									<div className="font-body text-sm text-[#6b7280]">kz</div>
 								</div>
 
 								{/* Quantidade */}
@@ -631,8 +631,13 @@ export default function DetalhesPecas() {
 								<button
 									onClick={async () => {
 										if (!isAuthenticated) { notyf.error('Faça login para enviar mensagens'); navigate('/auth'); return }
-										const res = await startChat(null, null, peca?.id)
-										if (res.success) { openChat(); pixelContact('negotiate_part') }
+										try {
+											const res = await startChat(null, null, peca?.id)
+											if (res?.success) { openChat(); pixelContact('negotiate_part') }
+										} catch (error) {
+											console.error('Erro ao iniciar conversa:', error)
+											notyf.error('Erro ao iniciar conversa. Tente novamente.')
+										}
 									}}
 									className="w-full bg-[#eef3fa] hover:bg-[#dce5f5] text-[#154c9a] font-bold py-4 rounded-2xl transition-all shadow-sm hover:shadow-md transform hover:scale-[1.02] cursor-pointer font-body flex items-center justify-center gap-2 mt-3"
 								>

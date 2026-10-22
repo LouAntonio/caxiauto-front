@@ -88,13 +88,17 @@ const Assinatura = () => {
 	useDocumentTitle('Assinaturas - CaxiAuto');
 
 	useAuthStore();
-	const { data: highlightPlans, isLoading: highlightLoading } = useHighlightPlans();
+	const { data: highlightPlansData, isLoading: highlightLoading } = useHighlightPlans();
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render (página em branco).
+	const highlightPlans = highlightPlansData ?? [];
 	const { data: allPlans, isLoading: plansLoading } = usePlans();
 	const { data: sellerHome } = useSellerHome();
 	const freeCommissionRate = sellerHome?.freeCommissionRate ?? sellerHome?.commissionRate ?? 0.035;
 	const premiumCommissionRate = Math.max(0, freeCommissionRate - 0.015);
 	const { bySection, isLoading: subscriptionLoading } = useMySubscriptions();
-	const { data: myPayments, isLoading: paymentsLoading } = useMyPayments();
+	const { data: myPaymentsData, isLoading: paymentsLoading } = useMyPayments();
+	const myPayments = myPaymentsData ?? [];
 	const { data: publicConfig } = usePublicConfig();
 	const bankDetails = publicConfig?.bankDetails || DEFAULT_BANK_DETAILS;
 	const cancelSubscription = useCancelSubscription();

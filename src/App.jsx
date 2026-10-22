@@ -65,6 +65,7 @@ import AdminConfig from './pages/caxiauto/AdminConfig'
 import Comercial from './pages/Comercial'
 import ChatButton from './components/chat/ChatButton'
 import ChatDrawer from './components/chat/ChatDrawer'
+import ErrorBoundary from './components/ErrorBoundary'
 import useAuthStore from './stores/authStore'
 import useChatStore from './stores/chatStore'
 
@@ -224,10 +225,19 @@ function AppContent() {
 	)
 }
 
+function AppShell() {
+	const location = useLocation();
+	return (
+		<ErrorBoundary resetKey={location.pathname + location.search}>
+			<AppContent />
+		</ErrorBoundary>
+	);
+}
+
 function App() {
 	return (
 		<Router>
-			<AppContent />
+			<AppShell />
 		</Router>
 	)
 }

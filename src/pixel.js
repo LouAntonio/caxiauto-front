@@ -2,8 +2,9 @@
 // Facebook Pixel — módulo central
 // =============================================================
 // Espelha a estrutura de `analytics.js` (GA4), mas com as regras do
-// Pixel numa SPA (BrowserRouter): `autoPageView: false` e PageView
-// manual a cada navegação.
+// Pixel numa SPA (BrowserRouter): `disablePushState` desliga o PageView
+// automático do pixel e o PageView é disparado manualmente a cada
+// navegação.
 //
 // Se VITE_FACEBOOK_PIXEL_ID estiver vazio/ausente, `initPixel()` não faz
 // nada e todos os helpers abaixo são no-op — zero impacto em produção.
@@ -41,45 +42,61 @@ const isReady = () =>
 	typeof window !== 'undefined' && READY_FLAG in window && typeof window.fbq === 'function';
 
 /**
- * Carrega o snippet base do Facebook e faz `init` com autoPageView
- * desligado (numa SPA quem dispara o PageView é o router).
- * Idempotente — pode ser chamado várias vezes (StrictMode) sem
- * duplicar o script nem os listeners.
+ * Carrega o snippet base do Facebook e faz `init` com o PageView
+ * automático por history desligado (numa SPA quem dispara o PageView é
+ * o router). Idempotente — pode ser chamado várias vezes (StrictMode)
+ * sem duplicar o script nem os listeners.
  */
 export const initPixel = () => {
 	if (typeof window === 'undefined' || !PIXEL_ID) return;
 
-	if (READY_FLAG in window) {
-		if (isReady()) window.fbq('init', PIXEL_ID, { autoPageView: false });
-		return;
-	}
+	// Já instalado (StrictMode / hot reload): nada a fazer.
+	if (READY_FLAG in window) return;
 
 	window[READY_FLAG] = true;
 
-	// Snippet base do Facebook: cria a fila antes de o script carregar,
-	// para que nenhum evento inicial se perca.
-	const fbq = (window.fbq = function () {
-		if (fbq.callMethod) return fbq.callMethod(...arguments);
-		(fbq.queue = fbq.queue || []).push(arguments);
-	});
-	fbq.version = '2.0';
-	fbq.callMethod = window.fbq.callMethod || function () {
-		return fbq.callMethod(...arguments);
-	};
-	window.fbq.queue = [];
+	// O pixel nunca pode derrubar a aplicação: `initPixel()` corre antes do
+	// primeiro render, e um erro aqui deixava a página em branco.
+	try {
+		// Snippet base oficial da Meta. `callMethod` NÃO é atribuído aqui —
+		// é a fbevents.js que o publica ao carregar. Atribuí-lo a uma função
+		// que se chama a si própria provoca recursão infinita
+		// (RangeError: Maximum call stack size exceeded) no primeiro fbq().
+		const fbq = (window.fbq = function () {
+			if (fbq.callMethod) return fbq.callMethod(...arguments);
+			(fbq.queue = fbq.queue || []).push(arguments);
+		});
+		fbq.version = '2.0';
+		fbq.push = fbq;
+		fbq.loaded = true;
+		window._fbq = fbq;
+		fbq.queue = [];
 
-	// A SPA não recarrega a página, por isso apenas o <noscript> garante
-	// a cobertura para crawlers/bots que não executam JS.
-	const noscript = document.createElement('noscript');
-	noscript.innerHTML = `<img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1" />`;
-	document.body.appendChild(noscript);
+		// Numa SPA quem dispara os PageView é o router (pixelPageView), não o
+		// listener de history do próprio pixel. `disablePushState` é a flag
+		// lida pelo módulo setupSPANavigation do fbevents — sem ela, cada
+		// navegação (a React Router usa replaceState) gerava um PageView
+		// automático somado ao nosso. `allowDuplicatePageViews` permite os
+		// nossos `track('PageView')` explícitos em navegações sucessivas.
+		fbq.disablePushState = true;
+		fbq.allowDuplicatePageViews = true;
 
-	const script = document.createElement('script');
-	script.async = true;
-	script.src = 'https://connect.facebook.net/en_US/fbevents.js';
-	document.body.appendChild(script);
+		// A SPA não recarrega a página, por isso apenas o <noscript> garante
+		// a cobertura para crawlers/bots que não executam JS.
+		const noscript = document.createElement('noscript');
+		noscript.innerHTML = `<img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1" />`;
+		document.body.appendChild(noscript);
 
-	fbq('init', PIXEL_ID, { autoPageView: false });
+		const script = document.createElement('script');
+		script.async = true;
+		script.src = 'https://connect.facebook.net/en_US/fbevents.js';
+		document.body.appendChild(script);
+
+		fbq('init', PIXEL_ID);
+	} catch (error) {
+		// O pixel é acessório: falhar aqui nunca deve impedir a app de arrancar.
+		console.error('[pixel] Falha ao inicializar o Facebook Pixel:', error);
+	}
 };
 
 /**
@@ -176,7 +193,9 @@ export const pixelLogin = (method) => pixelEvent('Login', { content_category: me
  * browser herdem o contexto do anterior.
  */
 export const pixelReset = () => {
-	if (!isReady()) return;
-	window.fbq('fbDeauthenticate');
+	if (typeof window === 'undefined') return;
+	// Não existe método público de logout no fbevents (`fbDeauthenticate`
+	// não é um comando válido). Como não enviamos PII, basta esquecer o
+	// último PageView para que a próxima rota volte a ser contada.
 	window[LAST_PAGEVIEW] = undefined;
 };

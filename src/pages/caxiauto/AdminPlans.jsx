@@ -60,7 +60,10 @@ const AdminPlans = () => {
 		return uploadData.secure_url;
 	};
 
-	const { data: plans, isLoading: loading } = useAdminPlans();
+	const { data: plansData, isLoading: loading } = useAdminPlans();
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render (página em branco).
+	const plans = plansData ?? [];
 	const createPlanMutation = useAdminCreatePlan();
 	const updatePlanMutation = useAdminUpdatePlan();
 	const deletePlanMutation = useAdminDeletePlan();

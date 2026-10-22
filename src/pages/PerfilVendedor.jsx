@@ -36,10 +36,6 @@ const PerfilVendedor = () => {
 	const { isAuthenticated } = useAuthStore();
 	const [reviewsPage, setReviewsPage] = useState(1);
 
-	useEffect(() => {
-		fetchSellerProfile();
-	}, [fetchSellerProfile]);
-
 	const fetchSellerProfile = useCallback(async () => {
 		setLoading(true);
 		try {
@@ -65,6 +61,13 @@ const PerfilVendedor = () => {
 			setLoading(false);
 		}
 	}, [id]);
+
+	// Tem de ficar DEPOIS da declaração de `fetchSellerProfile`: referenciá-lo
+	// no array de dependências antes do `const` lançava ReferenceError (TDZ)
+	// e a página ficava em branco em todas as visitas.
+	useEffect(() => {
+		fetchSellerProfile();
+	}, [fetchSellerProfile]);
 
 	const { data: reviewsRes } = useQuery({
 		queryKey: ['reviews', 'seller', id, { page: reviewsPage, limit: 5 }],
@@ -474,8 +477,13 @@ const PerfilVendedor = () => {
 								<button
 									onClick={async () => {
 										if (!isAuthenticated) { notyf.error('Faça login para enviar mensagens'); navigate('/auth'); return }
-										const res = await startChat(null)
-										if (res.success) openChat()
+										try {
+											const res = await startChat(null)
+											if (res?.success) openChat()
+										} catch (error) {
+											console.error('Erro ao iniciar conversa:', error)
+											notyf.error('Erro ao iniciar conversa. Tente novamente.')
+										}
 									}}
 									className="w-full bg-[#154c9a] hover:bg-[#123f80] text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
 								>

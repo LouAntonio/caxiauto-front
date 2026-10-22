@@ -35,7 +35,10 @@ const Reservas = () => {
 
 	const params = useMemo(() => ({ page, limit: 10, ...(filter && { status: filter }) }), [page, filter]);
 
-	const { data: reservas, isLoading } = useMyBookings(params);
+	const { data: reservasData, isLoading } = useMyBookings(params);
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render (página em branco).
+	const reservas = reservasData ?? [];
 	const cancelBooking = useCancelBooking();
 
 	useEffect(() => {
@@ -44,7 +47,7 @@ const Reservas = () => {
 			setTotal(raw.pagination?.total || 0);
 			setTotalPages(raw.pagination?.totalPages || 1);
 		}
-	}, [reservas, page, filter, params, queryClient]);
+	}, [reservasData, page, filter, params, queryClient]);
 
 	const handleCancelReserva = async (reservaId) => {
 		if (cancelingId) return;

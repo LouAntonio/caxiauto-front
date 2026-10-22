@@ -41,7 +41,10 @@ const AdminUsers = () => {
 	const params = { page: pagination.currentPage, limit: 10 };
 	if (filters.search) params.search = filters.search;
 	if (filters.status) params.status = filters.status;
-	const { data: users, isLoading: loading, refetch: refetchUsers } = useAdminUsers(params);
+	const { data: usersData, isLoading: loading, refetch: refetchUsers } = useAdminUsers(params);
+	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
+	// array evita rebentar o render (página em branco).
+	const users = usersData ?? [];
 
 	const handleSearch = (e) => {
 		e.preventDefault();
