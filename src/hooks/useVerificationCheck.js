@@ -1,6 +1,6 @@
-import { useAuthStore } from '../stores/authStore';
+import useAuthStore from '../stores/authStore';
 
-export const useVerificationCheck = () => {
+const useVerificationCheck = () => {
 	const { user } = useAuthStore();
 
 	const isVerified = user?.isVerified === true;
@@ -8,3 +8,5 @@ export const useVerificationCheck = () => {
 
 	return { isVerified, needsVerification };
 };
+
+export default useVerificationCheck;
