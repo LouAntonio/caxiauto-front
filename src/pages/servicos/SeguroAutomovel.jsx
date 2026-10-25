@@ -61,7 +61,7 @@ export default function SeguroAutomovel() {
 				notyf.error(response.message || 'Erro ao enviar pedido de seguro');
 			}
 		} catch (error) {
-			console.error('Erro ao enviar pedido de seguro:', error);
+			logger.error('Erro ao enviar pedido de seguro:', { error: error.message });
 			notyf.error('Erro ao enviar pedido de seguro');
 		} finally {
 			setLoading(false);

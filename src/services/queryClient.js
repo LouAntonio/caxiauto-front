@@ -1,5 +1,6 @@
 import { QueryClient, QueryCache } from '@tanstack/react-query';
 import { notyf } from './axios';
+import logger from '../utils/logger';
 
 export const queryClient = new QueryClient({
 	// No TanStack Query v5, `onError` dentro de `defaultOptions.queries` é
@@ -11,7 +12,7 @@ export const queryClient = new QueryClient({
 			// quando ainda não há dados no ecrã (evita ruído em refetches de fundo).
 			if (query.state.data === undefined) {
 				notyf.error(error?.message || 'Erro ao comunicar com o servidor');
-				console.error('Query error:', error);
+				logger.error('Query error:', { error: error.message });
 			}
 		},
 	}),

@@ -261,7 +261,7 @@ const VeiculosAluguel = () => {
 				setMessage({ type: 'error', text: errorMessage });
 			}
 		} catch (error) {
-			console.error('Erro ao processar veículo:', error);
+			logger.error('Erro ao processar veículo:', { error: error.message });
 			const errorText = editingVehicle
 				? `Erro ao solicitar edição: ${error.message}`
 				: `Erro ao cadastrar veículo: ${error.message}`;
@@ -287,7 +287,7 @@ const VeiculosAluguel = () => {
 					setMessage({ type: 'error', text: response.message || 'Erro ao excluir veículo.' });
 				}
 			} catch (error) {
-				console.error('Erro ao excluir veículo:', error);
+				logger.error('Erro ao excluir veículo:', { error: error.message });
 				setMessage({ type: 'error', text: 'Erro ao excluir veículo.' });
 			} finally {
 				setActionLoading(prev => {
@@ -317,7 +317,7 @@ const VeiculosAluguel = () => {
 					setMessage({ type: 'error', text: response.message || 'Erro ao alterar status.' });
 				}
 			} catch (error) {
-				console.error('Erro ao alterar status:', error);
+				logger.error('Erro ao alterar status:', { error: error.message });
 				setMessage({ type: 'error', text: 'Erro ao alterar status do veículo.' });
 			} finally {
 				setActionLoading(prev => {

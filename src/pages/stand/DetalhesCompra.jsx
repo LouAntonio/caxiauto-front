@@ -201,7 +201,7 @@ export default function DetalhesCompra() {
 			setCurrentImageIndex(0)
 			if (recordViewOnce('sell', id)) {
 				api.addView('sell', id).catch(viewError => {
-					console.error('Erro ao registrar visualização:', viewError)
+					logger.error('Erro ao registrar visualização:', { error: viewError?.message || viewError })
 				})
 			}
 		}
@@ -319,7 +319,7 @@ export default function DetalhesCompra() {
 				notyf.error(response.message || 'Erro ao enviar proposta')
 			}
 		} catch (error) {
-			console.error('Erro ao enviar proposta:', error)
+			logger.error('Erro ao enviar proposta:', { error: error.message })
 			notyf.error('Erro ao enviar proposta')
 		} finally {
 			setPurchaseLoading(false)
@@ -364,7 +364,7 @@ export default function DetalhesCompra() {
 				notyf.error(response.message || 'Erro ao enviar pedido de visita')
 			}
 		} catch (error) {
-			console.error('Erro ao enviar pedido de visita:', error)
+			logger.error('Erro ao enviar pedido de visita:', { error: error.message })
 			notyf.error('Erro ao enviar pedido de visita')
 		} finally {
 			setVisitLoading(false)
@@ -413,7 +413,7 @@ export default function DetalhesCompra() {
 				}
 			}
 		} catch (error) {
-			console.error('Erro ao alternar favorito:', error)
+			logger.error('Erro ao alternar favorito:', { error: error.message })
 			notyf.error('Erro ao processar favorito')
 		}
 	}
@@ -698,7 +698,7 @@ export default function DetalhesCompra() {
 											const res = await startChat(null, vehicle?.id, null)
 											if (res?.success) { openChat(); pixelContact('negotiate_vehicle') }
 										} catch (error) {
-											console.error('Erro ao iniciar conversa:', error)
+											logger.error('Erro ao iniciar conversa:', { error: error.message })
 											notyf.error('Erro ao iniciar conversa. Tente novamente.')
 										}
 									}}

@@ -42,7 +42,7 @@ export default function Contato() {
 				notyf.error(response.message || 'Erro ao enviar mensagem')
 			}
 		} catch (error) {
-			console.error('Erro ao enviar contacto:', error)
+			logger.error('Erro ao enviar contacto:', { error: error.message })
 			notyf.error('Erro ao enviar mensagem')
 		}
 	}

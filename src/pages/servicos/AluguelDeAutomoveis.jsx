@@ -171,7 +171,7 @@ export default function AluguelDeAutomoveis() {
 				}
 			}
 		} catch (error) {
-			console.error('Erro ao alternar favorito:', error);
+			logger.error('Erro ao alternar favorito:', { error: error.message });
 			notyf.error('Erro ao processar favorito');
 		}
 	};

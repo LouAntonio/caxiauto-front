@@ -164,7 +164,7 @@ const useAuthStore = create((set, get) => ({
 			const data = await api.isLoggedIn();
 			return data.success === true;
 		} catch (error) {
-			console.error('Erro ao verificar login:', error);
+			logger.error('Erro ao verificar login:', { error: error.message });
 			return false;
 		}
 	},
@@ -198,7 +198,7 @@ const useAuthStore = create((set, get) => ({
 				}
 				return false;
 			} catch (error) {
-				console.error('Erro ao recarregar usuário:', error);
+				logger.error('Erro ao recarregar usuário:', { error: error.message });
 				return false;
 			} finally {
 				refreshUserPromise = null;

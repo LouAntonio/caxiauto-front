@@ -91,7 +91,7 @@ const AdminVehicles = () => {
 				notyf.error(response.message || 'Erro ao carregar veículos');
 			}
 		} catch (error) {
-			console.error('Erro ao carregar veículos:', error);
+			logger.error('Erro ao carregar veículos:', { error: error.message });
 			notyf.error('Erro ao carregar veículos');
 		} finally {
 			setLoading(false);
@@ -203,7 +203,7 @@ const AdminVehicles = () => {
 					notyf.error(response.message || 'Erro ao definir destaque');
 				}
 			} catch (error) {
-				console.error('Erro ao definir destaque:', error);
+				logger.error('Erro ao definir destaque:', { error: error.message });
 				notyf.error('Erro ao definir destaque');
 			}
 		});

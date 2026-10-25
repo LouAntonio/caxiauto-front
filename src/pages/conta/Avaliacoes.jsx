@@ -57,7 +57,7 @@ const Avaliacoes = () => {
 				notyf.error(response.message || 'Erro ao excluir avaliação');
 			}
 		} catch (error) {
-			console.error('Erro ao excluir avaliação:', error);
+			logger.error('Erro ao excluir avaliação:', { error: error.message });
 			notyf.error('Erro ao excluir avaliação');
 		} finally {
 			setDeletingId(null);

@@ -137,7 +137,7 @@ export default function DetalhesPecas() {
 			setCurrentImageIndex(0)
 			if (recordViewOnce('part', id)) {
 				api.addView('part', id).catch(viewError => {
-					console.error('Erro ao registrar visualização:', viewError)
+					logger.error('Erro ao registrar visualização:', { error: viewError?.message || viewError })
 				})
 			}
 		}
@@ -281,7 +281,7 @@ export default function DetalhesPecas() {
 				}
 			}
 		} catch (error) {
-			console.error('Erro ao alternar favorito:', error)
+			logger.error('Erro ao alternar favorito:', { error: error.message })
 			notyf.error('Erro ao processar favorito')
 		}
 	}
@@ -322,7 +322,7 @@ export default function DetalhesPecas() {
 				notyf.error(response.message || 'Erro ao enviar pedido de compra')
 			}
 		} catch (error) {
-			console.error('Erro ao enviar pedido de compra:', error)
+			logger.error('Erro ao enviar pedido de compra:', { error: error.message })
 			notyf.error('Erro ao enviar pedido de compra')
 		} finally {
 			setPartPurchaseLoading(false)
@@ -366,7 +366,7 @@ export default function DetalhesPecas() {
 				notyf.error(response.message || 'Erro ao enviar consulta')
 			}
 		} catch (error) {
-			console.error('Erro ao enviar consulta:', error)
+			logger.error('Erro ao enviar consulta:', { error: error.message })
 			notyf.error('Erro ao enviar consulta')
 		} finally {
 			setAvailabilityLoading(false)
@@ -635,7 +635,7 @@ export default function DetalhesPecas() {
 											const res = await startChat(null, null, peca?.id)
 											if (res?.success) { openChat(); pixelContact('negotiate_part') }
 										} catch (error) {
-											console.error('Erro ao iniciar conversa:', error)
+											logger.error('Erro ao iniciar conversa:', { error: error.message })
 											notyf.error('Erro ao iniciar conversa. Tente novamente.')
 										}
 									}}

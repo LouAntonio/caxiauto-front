@@ -35,7 +35,7 @@ const useAdminStore = create((set, get) => ({
 			set({ admin: adminData });
 			return { success: true, message: 'Login realizado com sucesso!' };
 		} catch (error) {
-			console.error('Erro no login admin:', error);
+			logger.error('Erro no login admin:', { error: error.message });
 			return { success: false, message: error.message };
 		}
 	},
@@ -65,54 +65,54 @@ const useAdminStore = create((set, get) => ({
 	// ==================== DASHBOARD ====================
 	getDashboardStats: async () => {
 		try { return await api.getDashboardStats(); }
-		catch (error) { console.error('Erro ao obter estatísticas:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao obter estatísticas:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	getRecentVehicles: async (limit = 5) => {
 		try { return await api.getRecentVehicles(limit); }
-		catch (error) { console.error('Erro ao obter veículos recentes:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao obter veículos recentes:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	getRecentPecas: async (limit = 5) => {
 		try { return await api.getRecentPecas(limit); }
-		catch (error) { console.error('Erro ao obter peças recentes:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao obter peças recentes:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	getRecentUsers: async (limit = 5) => {
 		try { return await api.getRecentUsers(limit); }
-		catch (error) { console.error('Erro ao obter usuários recentes:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao obter usuários recentes:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	// ==================== VENDEDORES ====================
 	getPendingSellers: async (params = {}) => {
 		try { return await api.getPendingSellers(params); }
-		catch (error) { console.error('Erro ao obter vendedores pendentes:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao obter vendedores pendentes:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	getSellerDocs: async (params = {}) => {
 		try { return await api.getSellerDocs(params); }
-		catch (error) { console.error('Erro ao obter documentos:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao obter documentos:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	verifySeller: async (sellerId, isVerified = true) => {
 		try { return await api.verifySeller(sellerId, isVerified); }
-		catch (error) { console.error('Erro ao verificar vendedor:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao verificar vendedor:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	adminGetSellerDetails: async (id) => {
 		try { return await api.adminGetSellerDetails(id); }
-		catch (error) { console.error('Erro ao obter detalhes do vendedor:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao obter detalhes do vendedor:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	// ==================== FABRICANTES E CLASSES ====================
 	listManufacturers: async () => {
 		try { return await api.listManufacturers(); }
-		catch (error) { console.error('Erro ao listar fabricantes:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao listar fabricantes:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	createManufacturer: async (name) => {
 		try { return await api.createManufacturer(name); }
-		catch (error) { console.error('Erro ao criar fabricante:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao criar fabricante:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	updateManufacturer: async (id, name) => {
@@ -127,7 +127,7 @@ const useAdminStore = create((set, get) => ({
 
 	listClasses: async () => {
 		try { return await api.listClasses(); }
-		catch (error) { console.error('Erro ao listar classes:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao listar classes:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	createClass: async (name) => {
@@ -153,64 +153,64 @@ const useAdminStore = create((set, get) => ({
 	// ==================== PLANOS ====================
 	adminListPlans: async () => {
 		try { return await api.adminListPlans(); }
-		catch (error) { console.error('Erro ao listar planos:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao listar planos:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	adminCreatePlan: async (data) => {
 		try { return await api.adminCreatePlan(data); }
-		catch (error) { console.error('Erro ao criar plano:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao criar plano:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	adminUpdatePlan: async (id, data) => {
 		try { return await api.adminUpdatePlan(id, data); }
-		catch (error) { console.error('Erro ao atualizar plano:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao atualizar plano:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	adminDeletePlan: async (id) => {
 		try { return await api.adminDeletePlan(id); }
-		catch (error) { console.error('Erro ao remover plano:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao remover plano:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	// ==================== PLANOS DE DESTAQUE ====================
 	adminListHighlightPlans: async () => {
 		try { return await api.adminListHighlightPlans(); }
-		catch (error) { console.error('Erro ao listar planos de destaque:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao listar planos de destaque:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	adminCreateHighlightPlan: async (data) => {
 		try { return await api.adminCreateHighlightPlan(data); }
-		catch (error) { console.error('Erro ao criar plano de destaque:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao criar plano de destaque:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	adminUpdateHighlightPlan: async (id, data) => {
 		try { return await api.adminUpdateHighlightPlan(id, data); }
-		catch (error) { console.error('Erro ao atualizar plano de destaque:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao atualizar plano de destaque:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	adminDeleteHighlightPlan: async (id) => {
 		try { return await api.adminDeleteHighlightPlan(id); }
-		catch (error) { console.error('Erro ao remover plano de destaque:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao remover plano de destaque:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	// ==================== PAGAMENTOS ====================
 	adminListPayments: async (params = {}) => {
 		try { return await api.adminListPayments(params); }
-		catch (error) { console.error('Erro ao listar pagamentos:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao listar pagamentos:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	adminApprovePayment: async (id) => {
 		try { return await api.adminApprovePayment(id); }
-		catch (error) { console.error('Erro ao aprovar pagamento:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao aprovar pagamento:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	adminRejectPayment: async (id, adminNotes) => {
 		try { return await api.adminRejectPayment(id, adminNotes); }
-		catch (error) { console.error('Erro ao rejeitar pagamento:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao rejeitar pagamento:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 
 	adminMarkVehicleAsSold: async (id) => {
 		try { return await api.adminMarkVehicleAsSold(id); }
-		catch (error) { console.error('Erro ao marcar veículo como vendido:', error); return { success: false, message: error.message }; }
+		catch (error) { logger.error('Erro ao marcar veículo como vendido:', { error: error.message }); return { success: false, message: error.message }; }
 	},
 }));
 

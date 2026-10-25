@@ -55,7 +55,7 @@ const PerfilVendedor = () => {
 				notyf.error('Vendedor não encontrado');
 			}
 		} catch (error) {
-			console.error('Erro ao carregar perfil do vendedor:', error);
+			logger.error('Erro ao carregar perfil do vendedor:', { error: error.message });
 			notyf.error('Erro ao carregar perfil do vendedor');
 		} finally {
 			setLoading(false);
@@ -481,7 +481,7 @@ const PerfilVendedor = () => {
 											const res = await startChat(null)
 											if (res?.success) openChat()
 										} catch (error) {
-											console.error('Erro ao iniciar conversa:', error)
+											logger.error('Erro ao iniciar conversa:', { error: error.message })
 											notyf.error('Erro ao iniciar conversa. Tente novamente.')
 										}
 									}}

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import api, { notyf } from '../services/api';
 import { connectSocket, disconnectSocket, getSocket } from '../services/socket';
+import logger from '../utils/logger';
 
 // Timers de "a escrever..." por conversa (TTL — evita indicador preso se o
 // stop_typing se perder durante uma reconexão).
@@ -160,7 +161,7 @@ const useChatStore = create((set, get) => ({
 				}
 			}
 		} catch (error) {
-			console.error('Erro ao buscar conversas:', error);
+			logger.error('Erro ao buscar conversas:', { error: error.message });
 		} finally {
 			set({ loading: false });
 		}
@@ -189,7 +190,7 @@ const useChatStore = create((set, get) => ({
 				return res.pagination;
 			}
 		} catch (error) {
-			console.error('Erro ao buscar mensagens:', error);
+			logger.error('Erro ao buscar mensagens:', { error: error.message });
 		} finally {
 			set({ messagesLoading: false });
 		}
@@ -246,7 +247,7 @@ const useChatStore = create((set, get) => ({
 			const totalUnread = conversations.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
 			set({ conversations, unreadCount: totalUnread });
 		} catch (error) {
-			console.error('Erro ao marcar como lidas:', error);
+			logger.error('Erro ao marcar como lidas:', { error: error.message });
 		}
 	},
 

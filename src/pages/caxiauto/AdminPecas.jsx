@@ -58,7 +58,7 @@ const AdminPecas = () => {
 				notyf.error(response.message || 'Erro ao carregar peças');
 			}
 		} catch (error) {
-			console.error('Erro ao carregar peças:', error);
+			logger.error('Erro ao carregar peças:', { error: error.message });
 			notyf.error('Erro ao carregar peças');
 		} finally {
 			setLoading(false);
@@ -99,7 +99,7 @@ const AdminPecas = () => {
 				notyf.error('Erro ao carregar detalhes');
 			}
 		} catch (error) {
-			console.error('Erro ao carregar detalhes:', error);
+			logger.error('Erro ao carregar detalhes:', { error: error.message });
 			notyf.error('Erro ao carregar detalhes');
 		}
 	};
@@ -115,7 +115,7 @@ const AdminPecas = () => {
 				notyf.error(response.message || 'Erro ao aprovar peça');
 			}
 		} catch (error) {
-			console.error('Erro ao aprovar:', error);
+			logger.error('Erro ao aprovar:', { error: error.message });
 			notyf.error('Erro ao aprovar peça');
 		}
 	};
@@ -140,7 +140,7 @@ const AdminPecas = () => {
 				notyf.error(response.message || 'Erro ao negar peça');
 			}
 		} catch (error) {
-			console.error('Erro ao negar:', error);
+			logger.error('Erro ao negar:', { error: error.message });
 			notyf.error('Erro ao negar peça');
 		}
 	};
@@ -176,7 +176,7 @@ const AdminPecas = () => {
 				notyf.error(response.message || 'Erro ao definir destaque');
 			}
 		} catch (error) {
-			console.error('Erro ao definir destaque:', error);
+			logger.error('Erro ao definir destaque:', { error: error.message });
 			notyf.error('Erro ao definir destaque');
 		}
 	};
@@ -191,7 +191,7 @@ const AdminPecas = () => {
 				notyf.error(response.message || 'Erro ao remover destaque');
 			}
 		} catch (error) {
-			console.error('Erro ao remover destaque:', error);
+			logger.error('Erro ao remover destaque:', { error: error.message });
 			notyf.error('Erro ao remover destaque');
 		}
 	};
@@ -207,7 +207,7 @@ const AdminPecas = () => {
 				notyf.error(response.message || 'Erro ao atualizar status');
 			}
 		} catch (error) {
-			console.error('Erro ao atualizar status:', error);
+			logger.error('Erro ao atualizar status:', { error: error.message });
 			notyf.error('Erro ao atualizar status');
 		}
 	};

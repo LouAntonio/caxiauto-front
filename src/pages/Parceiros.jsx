@@ -32,7 +32,7 @@ export default function Parceiros() {
 					setPartners(response.data)
 				}
 			} catch (error) {
-				console.error('Erro ao carregar parceiros:', error)
+				logger.error('Erro ao carregar parceiros:', { error: error.message })
 			} finally {
 				setLoading(false)
 			}

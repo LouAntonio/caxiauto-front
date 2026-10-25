@@ -74,7 +74,7 @@ const AdminSellers = () => {
 				});
 			}
 		} catch (error) {
-			console.error('Erro:', error);
+			logger.error('Erro:', { error: error.message });
 		} finally {
 			setLoading(false);
 		}

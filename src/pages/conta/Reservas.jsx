@@ -65,7 +65,7 @@ const Reservas = () => {
 				notyf.error(response.message || 'Erro ao cancelar reserva');
 			}
 		} catch (error) {
-			console.error('Erro ao cancelar reserva:', error);
+			logger.error('Erro ao cancelar reserva:', { error: error.message });
 			notyf.error('Erro ao cancelar reserva');
 		} finally {
 			setCancelingId(null);

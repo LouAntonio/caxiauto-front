@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
 import { notyf } from '../services/api';
+import logger from '../utils/logger';
 
 const isTokenExpired = (token) => {
 	if (!token) return true;
@@ -54,7 +55,7 @@ const ProtectedRoute = ({ children, requireRole, toLogin = '/auth' }) => {
 					setIsServerAuthenticated(true);
 				}
 			} catch (error) {
-				console.error('Erro ao verificar autenticação do servidor:', error);
+				logger.error('Erro ao verificar autenticação do servidor:', { error: error.message });
 				notyf.error('Erro ao verificar sua sessão. Faça login novamente para aceder à sua conta.');
 				logout();
 				setIsServerAuthenticated(false);

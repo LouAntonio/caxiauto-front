@@ -36,7 +36,7 @@ export default function FeaturedCars({ title = 'Carros em Destaque', useVehicleQ
 					setWishlist(wishlistIds);
 				}
 			} catch (error) {
-				console.error('Erro ao buscar wishlist:', error);
+				logger.error('Erro ao buscar wishlist:', { error: error.message });
 			}
 		};
 
@@ -83,7 +83,7 @@ export default function FeaturedCars({ title = 'Carros em Destaque', useVehicleQ
 				}
 			}
 		} catch (error) {
-			console.error('Erro ao alternar wishlist:', error);
+			logger.error('Erro ao alternar wishlist:', { error: error.message });
 			notyf.error('Erro ao processar wishlist');
 		} finally {
 			setLoadingWishlist(prev => {

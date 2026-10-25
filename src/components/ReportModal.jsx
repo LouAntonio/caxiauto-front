@@ -95,7 +95,7 @@ const ReportModal = ({ targetType, targetId, targetName, onReportSubmitted }) =>
 				notyf.error(response.message || 'Erro ao enviar denúncia');
 			}
 		} catch (error) {
-			console.error('Erro ao enviar denúncia:', error);
+			logger.error('Erro ao enviar denúncia:', { error: error.message });
 			notyf.error('Erro ao enviar denúncia. Tente novamente.');
 		} finally {
 			setLoading(false);

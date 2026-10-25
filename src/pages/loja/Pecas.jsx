@@ -96,7 +96,7 @@ const Pecas = () => {
 					setCategorias(response.data);
 				}
 			} catch (error) {
-				console.error('Erro ao carregar categorias:', error);
+				logger.error('Erro ao carregar categorias:', { error: error.message });
 			}
 		};
 		loadCategorias();
@@ -266,7 +266,7 @@ const Pecas = () => {
 				setMessage({ type: 'error', text: response.message || 'Erro ao processar peça.' });
 			}
 		} catch (error) {
-			console.error('Erro ao processar peça:', error);
+			logger.error('Erro ao processar peça:', { error: error.message });
 			setMessage({ type: 'error', text: `Erro ao processar peça: ${error.message}` });
 		} finally {
 			setLoading(false);
@@ -289,7 +289,7 @@ const Pecas = () => {
 					setMessage({ type: 'error', text: response.message || 'Erro ao excluir peça.' });
 				}
 			} catch (error) {
-				console.error('Erro ao excluir peça:', error);
+				logger.error('Erro ao excluir peça:', { error: error.message });
 				setMessage({ type: 'error', text: 'Erro ao excluir peça.' });
 			} finally {
 				setActionLoading(prev => {
@@ -319,7 +319,7 @@ const Pecas = () => {
 					setMessage({ type: 'error', text: response.message || 'Erro ao alterar visibilidade.' });
 				}
 			} catch (error) {
-				console.error('Erro ao alterar visibilidade:', error);
+				logger.error('Erro ao alterar visibilidade:', { error: error.message });
 				setMessage({ type: 'error', text: 'Erro ao alterar visibilidade da peça.' });
 			} finally {
 				setActionLoading(prev => {

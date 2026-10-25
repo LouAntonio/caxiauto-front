@@ -241,7 +241,7 @@ export default function DetalhesAluguel() {
 			setCurrentImageIndex(0)
 			if (recordViewOnce('rent', id)) {
 				api.addView('rent', id).catch(viewError => {
-					console.error('Erro ao registrar visualização:', viewError)
+					logger.error('Erro ao registrar visualização:', { error: viewError?.message || viewError })
 				})
 			}
 		}
@@ -347,7 +347,7 @@ export default function DetalhesAluguel() {
 				notyf.error(response.message || 'Erro ao enviar pedido de aluguel')
 			}
 		} catch (error) {
-			console.error('Erro ao enviar pedido de aluguel:', error)
+			logger.error('Erro ao enviar pedido de aluguel:', { error: error.message })
 			notyf.error('Erro ao enviar pedido de aluguel')
 		} finally {
 			setRentalLoading(false)
@@ -393,7 +393,7 @@ export default function DetalhesAluguel() {
 				}
 			}
 		} catch (error) {
-			console.error('Erro ao alternar favorito:', error)
+			logger.error('Erro ao alternar favorito:', { error: error.message })
 			notyf.error('Erro ao processar favorito')
 		}
 	}
@@ -706,7 +706,7 @@ export default function DetalhesAluguel() {
 											const res = await startChat(null, vehicle?.id, null)
 											if (res?.success) { openChat(); pixelContact('negotiate_rental') }
 										} catch (error) {
-											console.error('Erro ao iniciar conversa:', error)
+											logger.error('Erro ao iniciar conversa:', { error: error.message })
 											notyf.error('Erro ao iniciar conversa. Tente novamente.')
 										}
 									}}

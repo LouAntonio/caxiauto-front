@@ -33,7 +33,7 @@ export default function FeaturedParts({ linkState }) {
 					setFavorites(favoriteIds)
 				}
 			} catch (error) {
-				console.error('Erro ao buscar favoritos:', error)
+				logger.error('Erro ao buscar favoritos:', { error: error.message })
 			}
 		}
 
@@ -80,7 +80,7 @@ export default function FeaturedParts({ linkState }) {
 				}
 			}
 		} catch (error) {
-			console.error('Erro ao alternar favorito:', error)
+			logger.error('Erro ao alternar favorito:', { error: error.message })
 			notyf.error('Erro ao processar favorito')
 		} finally {
 			setLoadingFavorites(prev => {

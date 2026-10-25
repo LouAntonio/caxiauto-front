@@ -89,7 +89,7 @@ const BookingForm = ({ vehicle, onBookingCreated }) => {
 				notyf.error(response.message || 'Erro ao criar reserva');
 			}
 		} catch (error) {
-			console.error('Erro ao criar reserva:', error);
+			logger.error('Erro ao criar reserva:', { error: error.message });
 			notyf.error('Erro ao criar reserva. Tente novamente.');
 		} finally {
 			setLoading(false);

@@ -152,7 +152,7 @@ const Documentos = () => {
 				}
 			}
 		} catch (error) {
-			console.error('Erro ao carregar documentos:', error);
+			logger.error('Erro ao carregar documentos:', { error: error.message });
 		} finally {
 			setLoading(false);
 		}
@@ -231,7 +231,7 @@ const Documentos = () => {
 				notyf.error(res.message || 'Erro ao enviar documentos');
 			}
 		} catch (error) {
-			console.error('Erro ao enviar documentos:', error);
+			logger.error('Erro ao enviar documentos:', { error: error.message });
 			notyf.error(`Erro ao enviar: ${error.message}`);
 		} finally {
 			setUploading(false);

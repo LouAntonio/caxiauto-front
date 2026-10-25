@@ -144,7 +144,7 @@ axiosInstance.interceptors.response.use(
 		}
 
 		// 4xx mantêm o contrato {success:false} usado pelas ~100 chamadas da app.
-		console.error('Erro na requisição:', error);
+		logger.error('Erro na requisição:', { error: error.message });
 		return {
 			success: false,
 			message: error.response?.data?.message || error.message || 'Erro ao comunicar com o servidor',

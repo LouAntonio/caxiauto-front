@@ -95,7 +95,7 @@ export const initPixel = () => {
 		fbq('init', PIXEL_ID);
 	} catch (error) {
 		// O pixel é acessório: falhar aqui nunca deve impedir a app de arrancar.
-		console.error('[pixel] Falha ao inicializar o Facebook Pixel:', error);
+		logger.error('[pixel] Falha ao inicializar o Facebook Pixel:', { error: error.message });
 	}
 };
 

@@ -48,7 +48,7 @@ const ReviewForm = ({ sellerId, sellerName, onReviewSubmitted }) => {
 				notyf.error(response.message || 'Erro ao enviar avaliação');
 			}
 		} catch (error) {
-			console.error('Erro ao enviar avaliação:', error);
+			logger.error('Erro ao enviar avaliação:', { error: error.message });
 			notyf.error('Erro ao enviar avaliação. Tente novamente.');
 		} finally {
 			setLoading(false);
