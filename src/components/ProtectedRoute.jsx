@@ -19,7 +19,7 @@ const isTokenExpired = (token) => {
  * (eram duplicados linha a linha). requireRole: string|array de roles admitidos;
  * sem requireRole, qualquer user autenticado passa. Redirect de role insuficiente = "/".
  */
-const ProtectedRoute = ({ children, requireRole, toLogin = '/auth' }) => {
+const ProtectedRoute = ({ children, requireRole, toLogin = '/auth', allowSellerDocs }) => {
 	const { user, loading, logout, checkIsLoggedIn } = useAuthStore();
 	const [isVerifying, setIsVerifying] = useState(true);
 	const [isServerAuthenticated, setIsServerAuthenticated] = useState(false);
@@ -87,7 +87,8 @@ const ProtectedRoute = ({ children, requireRole, toLogin = '/auth' }) => {
 	// Restrição opcional de role
 	if (requireRole) {
 		const allowed = Array.isArray(requireRole) ? requireRole : [requireRole];
-		if (!allowed.includes(user.role)) {
+		const hasSellerAccess = allowSellerDocs && user.sellerDocs;
+		if (!allowed.includes(user.role) && !hasSellerAccess) {
 			return <Navigate to="/" replace />;
 		}
 	}

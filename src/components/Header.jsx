@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import useAuthStore from "../stores/authStore";
-import { User, LogOut, Store } from "lucide-react";
+import { User, LogOut, Store, Settings } from "lucide-react";
 
 export default function Header() {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -132,6 +132,16 @@ export default function Header() {
 
 					{/* Right: actions */}
 					<div className="flex items-center gap-4">
+						{/* Admin panel button for admins */}
+						{user?.role === 'ADMIN' && (
+							<Link
+								to="/caxiauto"
+								className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-medium font-body transition-colors cursor-pointer ${isSolid ? "text-[#6b7280] hover:bg-[#f8f6f2]" : "text-white/90 hover:bg-white/10"}`}
+							>
+								<Settings className="w-5 h-5" />
+								Painel Admin
+							</Link>
+						)}
 						<div className="hidden min-[971px]:flex items-center gap-3">
 							{user ? (
 								<div className="relative group">
@@ -155,7 +165,7 @@ export default function Header() {
 											className="block px-4 py-2.5 text-[#6b7280] hover:bg-[#f8f6f2] hover:text-[#154c9a] transition-colors font-body font-medium flex items-center gap-2"
 										>
 											<Store className="w-4 h-4" />
-											{user.role === 'SELLER' || user.sellerDocs ? 'Minha Loja' : 'Vender'}
+											{user.role === 'SELLER' ? 'Minha Loja' : 'Vender'}
 										</Link>
 										<button
 											onClick={handleLogout}
@@ -363,7 +373,7 @@ export default function Header() {
 										className="block text-center px-4 py-3 rounded-2xl text-white font-semibold font-body shadow-lg mt-2 flex items-center justify-center gap-2 bg-[#154c9a] hover:bg-blue-800 transition-colors"
 									>
 										<Store className="w-5 h-5" />
-										{user.role === 'SELLER' || user.sellerDocs ? 'Minha Loja' : 'Vender no Caxiauto'}
+										{user.role === 'SELLER' ? 'Minha Loja' : 'Vender no Caxiauto'}
 									</Link>
 									<button
 										onClick={handleLogout}

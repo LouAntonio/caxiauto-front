@@ -166,11 +166,23 @@ function AppContent() {
 					<Route path="mensagens" element={<Mensagens />} />
 				</Route>
 
-				{/* Protected routes - Painel Minha Loja (vendedor) */}
+				{/* Rota pública para submissão de documentos (USER pode acessar para virar SELLER) */}
+				<Route
+					path="/minha-loja/documentos"
+					element={
+						<ProtectedRoute requireRole={['USER', 'SELLER', 'ADMIN']}>
+							<SellerLayout />
+						</ProtectedRoute>
+					}
+				>
+					<Route index element={<Documentos />} />
+				</Route>
+
+				{/* Protected routes - Painel Minha Loja (vendedor) - Requer SELLER/ADMIN */}
 				<Route
 					path="/minha-loja"
 					element={
-						<ProtectedRoute requireRole={['SELLER', 'ADMIN']}>
+						<ProtectedRoute requireRole={['SELLER', 'ADMIN']} allowSellerDocs>
 							<SellerLayout />
 						</ProtectedRoute>
 					}
@@ -179,7 +191,6 @@ function AppContent() {
 					<Route path="veiculos" element={<Veiculos />} />
 					<Route path="veiculos-aluguel" element={<VeiculosAluguel />} />
 					<Route path="pecas" element={<Pecas />} />
-					<Route path="documentos" element={<Documentos />} />
 					<Route path="assinatura" element={<Assinatura />} />
 					<Route path="empresas" element={<LojaEmpresas />} />
 					<Route path="mensagens" element={<Mensagens />} />

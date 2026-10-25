@@ -52,6 +52,7 @@ const SECTION_META = {
 };
 
 const Home = () => {
+	const { upload, isUploading } = useUploadToCloudinary();
 	const { data: home, isLoading, refetch } = useSellerHome();
 	const [logoUploading, setLogoUploading] = useState(false);
 	const fileInputRef = useRef(null);
@@ -64,8 +65,6 @@ const Home = () => {
 	const freeCommissionRate = home.freeCommissionRate ?? home.commissionRate ?? 0.035;
 	const effectiveCommissionRate = home.commissionRate ?? freeCommissionRate;
 	const userLogo = home.user?.logo;
-
-	const { upload, isUploading } = useUploadToCloudinary();
 
 	const uploadLogo = async (file) => {
 		if (!file) return;
