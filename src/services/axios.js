@@ -56,9 +56,35 @@ const getAuthToken = (isAdmin) => {
 
 const getImageUrl = (imagePath, fallback = '/images/i10.jpg') => {
 	if (!imagePath) return fallback;
+	
+	// Cloudinary URLs (https://res.cloudinary.com/...) - retornar direto
 	if (imagePath.startsWith('http')) return imagePath;
+	
+	// Uploads locais (/uploads/...) - servidos pelo Express static
+	// Se API em domínio diferente, pode precisar de proxy ou CORS configurado
 	const cleanPath = imagePath.replace(/^\//, '');
+	
+	// Se VITE_API_URL aponta para domínio diferente do frontend,
+	// uploads locais podem ter CORS issues. 
+	// Opção: usar URL relativa se mesmo domínio, ou proxy via API.
 	return `${API_URL}/${cleanPath}`;
+};
+
+/**
+ * Para uploads locais quando API e frontend estão em domínios diferentes.
+ * Usa endpoint proxy da API para evitar CORS.
+ */
+export const getProxiedImageUrl = (imagePath, fallback = '/images/i10.jpg') => {
+	if (!imagePath) return fallback;
+	if (imagePath.startsWith('http')) return imagePath;
+	
+	// Se é upload local, usar endpoint que serve a imagem via API (com auth se necessário)
+	if (imagePath.startsWith('/uploads/') || imagePath.startsWith('uploads/')) {
+		const cleanPath = imagePath.replace(/^\//, '');
+		return `${API_URL}/uploads/${cleanPath}`;
+	}
+	
+	return `${API_URL}/${imagePath.replace(/^\//, '')}`;
 };
 
 const handleSessionExpired = (isAdmin) => {
@@ -127,4 +153,4 @@ axiosInstance.interceptors.response.use(
 );
 
 export default axiosInstance;
-export { API_URL, getImageUrl, notyf };
+export { API_URL, getImageUrl, getProxiedImageUrl, notyf };
