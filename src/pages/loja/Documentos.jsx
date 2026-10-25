@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import useAuthStore from '../../stores/authStore';
 import api, { notyf } from '../../services/api';
-import axios from 'axios';
 import {
 	FileText,
 	Upload,
@@ -17,6 +16,7 @@ import {
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import ButtonLoader from '../../components/ButtonLoader';
+import { useUploadToCloudinary, validateFiles } from '../../hooks/queries/useCloudinary';
 
 // Preview de ficheiro local. O blob URL é derivado do `file` (não precisa de
 // state) e o effect só trata da revogação, evitando fugas de memória sem
@@ -158,45 +158,28 @@ const Documentos = () => {
 		}
 	};
 
+	const { uploadMultiple, isUploading } = useUploadToCloudinary();
+
 	const handleFileChange = (e, setFiles) => {
 		const selected = Array.from(e.target.files);
 		if (selected.length === 0) return;
 
-		const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
-		const invalid = selected.filter(f => !validTypes.includes(f.type));
-		if (invalid.length > 0) {
-			notyf.error('Apenas imagens (JPG, PNG, WEBP) e PDF são aceitos');
+		// PDFs permitidos para documentos
+		const validation = validateFiles(selected, { 
+			maxSize: 5 * 1024 * 1024, 
+			maxCount: 10,
+			allowedTypes: ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf']
+		});
+		if (!validation.valid) {
+			notyf.error(validation.errors.join('. '));
 			return;
 		}
 
-		const maxSize = 5 * 1024 * 1024;
-		const oversized = selected.filter(f => f.size > maxSize);
-		if (oversized.length > 0) {
-			notyf.error('Cada arquivo deve ter no máximo 5MB');
-			return;
-		}
-
-		setFiles(prev => [...prev, ...selected]);
+		setFiles(prev => [...prev, ...validation.files]);
 	};
 
 	const removeFile = (index, setFiles) => {
 		setFiles(prev => prev.filter((_, i) => i !== index));
-	};
-
-	const uploadToCloudinary = async (file) => {
-		const signRes = await api.getCloudinarySignature('seller-docs');
-		if (!signRes.success) throw new Error('Falha na assinatura de upload');
-
-		const { timestamp, signature, cloudname, apikey, folder } = signRes;
-		const formData = new FormData();
-		formData.append('file', file);
-		formData.append('api_key', apikey);
-		formData.append('timestamp', timestamp);
-		formData.append('signature', signature);
-		formData.append('folder', folder);
-
-		const { data: uploadData } = await axios.post(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, formData);
-		return uploadData.secure_url;
 	};
 
 	const handleSubmit = async (e) => {
@@ -219,10 +202,10 @@ const Documentos = () => {
 
 		setUploading(true);
 		try {
-			// Upload de novos ficheiros
-			const uploadedIdCards = await Promise.all(idCardFiles.map(uploadToCloudinary));
-			const uploadedOrgDocs = await Promise.all(orgDocFiles.map(uploadToCloudinary));
-			const uploadedSelfies = await Promise.all(selfieFiles.map(uploadToCloudinary));
+			// Upload de novos ficheiros usando hook centralizado
+			const uploadedIdCards = await uploadMultiple({ files: idCardFiles, folder: 'seller-docs' });
+			const uploadedOrgDocs = await uploadMultiple({ files: orgDocFiles, folder: 'seller-docs' });
+			const uploadedSelfies = await uploadMultiple({ files: selfieFiles, folder: 'seller-docs' });
 
 			// Combinar com URLs existentes (se houver)
 			const finalIdCards = uploadedIdCards.length > 0 ? uploadedIdCards : (sellerDocs?.idCard || []);

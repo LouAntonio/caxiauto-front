@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { notyf } from '../../services/api';
 import api from '../../services/api';
-import axios from 'axios';
 import {
 	Handshake,
 	Plus,
@@ -23,6 +22,7 @@ import {
 	useUpdateMyPartner,
 	useDeleteMyPartner
 } from '../../hooks/queries/usePartners';
+import { useUploadToCloudinary, validateFiles } from '../../hooks/queries/useCloudinary';
 
 const LojaEmpresas = () => {
 	const { data, isLoading } = useMyPartners({ limit: 100 });
@@ -136,7 +136,7 @@ const LojaEmpresas = () => {
 			let bannerUrl = formData.banner;
 
 			if (logoFile) {
-				logoUrl = await uploadToCloudinary(logoFile, 'partners');
+				logoUrl = await upload({ file: logoFile, folder: 'partners' });
 			} else if (!editing) {
 				notyf.error('Selecione uma logo para a empresa');
 				setSubmitting(false);
@@ -144,7 +144,7 @@ const LojaEmpresas = () => {
 			}
 
 			if (bannerFile) {
-				bannerUrl = await uploadToCloudinary(bannerFile, 'partners');
+				bannerUrl = await upload({ file: bannerFile, folder: 'partners' });
 			}
 
 			const dataToSend = {

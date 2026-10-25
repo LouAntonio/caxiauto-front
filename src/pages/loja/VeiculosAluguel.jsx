@@ -23,7 +23,6 @@ import {
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import api, { getImageUrl } from '../../services/api';
-import axios from 'axios';
 import { VehicleCardSkeleton } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
 import VerificationWarning from '../../components/VerificationWarning';
@@ -31,6 +30,7 @@ import useVerificationCheck from '../../hooks/useVerificationCheck';
 import { useMyVehicles, useCreateVehicle, useUpdateVehicle, useDeleteVehicle, useToggleVehicleStatus } from '../../hooks/queries/useVehicles';
 import { useManufacturers, useClasses } from '../../hooks/queries/useManufacturers';
 import { useMySubscriptions } from '../../hooks/queries/useSubscription';
+import { useUploadToCloudinary, validateFiles } from '../../hooks/queries/useCloudinary';
 import { formatKz } from '../../utils/format';
 
 const VeiculosAluguel = () => {
@@ -100,9 +100,17 @@ const VeiculosAluguel = () => {
 		}));
 	};
 
+	const { uploadMultiple, isUploading } = useUploadToCloudinary();
+
 	const handleMediaChange = (e) => {
 		const files = Array.from(e.target.files);
-		setMediaFiles(files);
+		const validation = validateFiles(files, { maxSize: 10 * 1024 * 1024, maxCount: 10 });
+		if (!validation.valid) {
+			setMessage({ type: 'error', text: validation.errors.join('. ') });
+			e.target.value = '';
+			return;
+		}
+		setMediaFiles(validation.files);
 	};
 
 	const handleAddCharacteristic = () => {
@@ -185,24 +193,6 @@ const VeiculosAluguel = () => {
 		setMessage({ type: '', text: '' });
 	};
 
-	const uploadToCloudinary = async (file, folder) => {
-		const signatureResponse = await api.get(`/cloudinary/authorize-upload?folder=${folder}`);
-		if (!signatureResponse.success) {
-			throw new Error('Não foi possível autorizar o upload.');
-		}
-		const { timestamp, signature, cloudname, apikey } = signatureResponse;
-
-		const formData = new FormData();
-		formData.append('file', file);
-		formData.append('api_key', apikey);
-		formData.append('timestamp', timestamp);
-		formData.append('signature', signature);
-		formData.append('folder', folder);
-
-		const { data: uploadData } = await axios.post(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, formData);
-		return uploadData.secure_url;
-	};
-
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
@@ -222,11 +212,10 @@ const VeiculosAluguel = () => {
 		setLoading(true);
 
 		try {
-			// Upload de imagens
+			// Upload de imagens usando hook centralizado
 			let uploadedImages = [];
 			if (mediaFiles.length > 0) {
-				const imageUploadPromises = mediaFiles.map(file => uploadToCloudinary(file, 'rentCar'));
-				uploadedImages = await Promise.all(imageUploadPromises);
+				uploadedImages = await uploadMultiple({ files: mediaFiles, folder: 'rentCar' });
 			}
 
 			// Preparar dados para envio (mapeados para o schema Vehicle)

@@ -24,13 +24,13 @@ import {
 } from 'lucide-react';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import api, { getImageUrl } from '../../services/api';
-import axios from 'axios';
 import { PecaCardSkeleton } from '../../components/skeletons';
 import ButtonLoader from '../../components/ButtonLoader';
 import VerificationWarning from '../../components/VerificationWarning';
 import useVerificationCheck from '../../hooks/useVerificationCheck';
 import { useMyPecas, useCreatePeca, useUpdatePeca, useDeletePeca, useTogglePecaStatus, useSwapActivePeca } from '../../hooks/queries/usePecas';
 import { useMySubscriptions } from '../../hooks/queries/useSubscription';
+import { useUploadToCloudinary, validateFiles } from '../../hooks/queries/useCloudinary';
 import { formatKz } from '../../utils/format';
 
 const Pecas = () => {
@@ -110,14 +110,28 @@ const Pecas = () => {
 		}));
 	};
 
+	const { uploadMultiple, isUploading } = useUploadToCloudinary();
+
 	const handleMediaChange = (e) => {
 		const files = Array.from(e.target.files);
-		setMediaFiles(files);
+		const validation = validateFiles(files, { maxSize: 5 * 1024 * 1024, maxCount: 1 });
+		if (!validation.valid) {
+			setMessage({ type: 'error', text: validation.errors.join('. ') });
+			e.target.value = '';
+			return;
+		}
+		setMediaFiles(validation.files);
 	};
 
 	const handleGalleryChange = (e) => {
 		const files = Array.from(e.target.files);
-		setGalleryFiles(prev => [...prev, ...files]);
+		const validation = validateFiles(files, { maxSize: 5 * 1024 * 1024, maxCount: 10 });
+		if (!validation.valid) {
+			setMessage({ type: 'error', text: validation.errors.join('. ') });
+			e.target.value = '';
+			return;
+		}
+		setGalleryFiles(prev => [...prev, ...validation.files]);
 	};
 
 	const handleRemoveGalleryImage = (index) => {
@@ -189,31 +203,6 @@ const Pecas = () => {
 		setMessage({ type: '', text: '' });
 	};
 
-	const uploadToCloudinary = async (file, folder) => {
-		try {
-			const authResponse = await api.get(`/cloudinary/authorize-upload?folder=${folder}`);
-
-			if (!authResponse.success) {
-				throw new Error('Falha ao autorizar upload');
-			}
-
-			const { timestamp, signature, cloudname, apikey } = authResponse;
-
-			const formData = new FormData();
-			formData.append('file', file);
-			formData.append('api_key', apikey);
-			formData.append('timestamp', timestamp);
-			formData.append('signature', signature);
-			formData.append('folder', folder);
-
-			const { data: uploadData } = await axios.post(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, formData);
-			return uploadData.secure_url;
-		} catch (error) {
-			console.error('Erro no upload:', error);
-			throw error;
-		}
-	};
-
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
@@ -233,14 +222,12 @@ const Pecas = () => {
 		try {
 			let uploadedImages = [];
 			if (mediaFiles.length > 0) {
-				const imageUploadPromises = mediaFiles.map(file => uploadToCloudinary(file, 'parts'));
-				uploadedImages = await Promise.all(imageUploadPromises);
+				uploadedImages = await uploadMultiple({ files: mediaFiles, folder: 'parts' });
 			}
 
 			let uploadedGallery = [];
 			if (galleryFiles.length > 0) {
-				const galleryUploadPromises = galleryFiles.map(file => uploadToCloudinary(file, 'parts'));
-				uploadedGallery = await Promise.all(galleryUploadPromises);
+				uploadedGallery = await uploadMultiple({ files: galleryFiles, folder: 'parts' });
 			}
 
 			const pecaData = {

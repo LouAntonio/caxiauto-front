@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import api, { notyf } from '../../services/api';
 import {
 	Car,
@@ -20,6 +19,7 @@ import {
 import LojaPageHeader from './PageHeader';
 import { useSellerHome } from '../../hooks/queries/useSubscription';
 import DashboardSkeleton from '../../components/skeletons/DashboardSkeleton';
+import { useUploadToCloudinary } from '../../hooks/queries/useCloudinary';
 
 const SECTION_META = {
 	ALUGUEL: {
@@ -65,23 +65,14 @@ const Home = () => {
 	const effectiveCommissionRate = home.commissionRate ?? freeCommissionRate;
 	const userLogo = home.user?.logo;
 
+	const { upload, isUploading } = useUploadToCloudinary();
+
 	const uploadLogo = async (file) => {
 		if (!file) return;
 		try {
 			setLogoUploading(true);
-			const authResponse = await api.getCloudinarySignature('logos');
-			if (!authResponse.success) throw new Error('Falha ao autorizar upload');
-
-			const { cloudname, timestamp, signature, apikey } = authResponse;
-			const formData = new FormData();
-			formData.append('file', file);
-			formData.append('api_key', apikey);
-			formData.append('timestamp', timestamp);
-			formData.append('signature', signature);
-			formData.append('folder', 'logos');
-
-			const { data: uploadData } = await axios.post(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, formData);
-			const res = await api.updateProfile({ logo: uploadData.secure_url });
+			const uploadData = await upload({ file, folder: 'logos' });
+			const res = await api.updateProfile({ logo: uploadData });
 			if (res.success) {
 				notyf.success('Logotipo atualizado com sucesso!');
 				refetch();

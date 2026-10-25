@@ -153,4 +153,4 @@ axiosInstance.interceptors.response.use(
 );
 
 export default axiosInstance;
-export { API_URL, getImageUrl, getProxiedImageUrl, notyf };
+export { API_URL, getImageUrl, notyf };
