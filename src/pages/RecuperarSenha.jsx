@@ -34,22 +34,17 @@ const RecuperarSenha = () => {
 		}
 	}, [email, token, navigate]);
 
-	// Funções de validação de senha
+	// Funções de validação de senha (NIST 800-63B: apenas comprimento)
 	const getPasswordRequirements = (password) => ({
 		minLength: password.length >= 8,
-		hasUppercase: /[A-Z]/.test(password),
-		hasLowercase: /[a-z]/.test(password),
-		hasNumber: /[0-9]/.test(password),
-		hasSpecial: /[!@#$%^&*(),.?":{}|<>_\-+=[\]\\/~`]/.test(password)
+		maxLength: password.length <= 128
 	});
 
 	const getPasswordStrength = (password) => {
 		const requirements = getPasswordRequirements(password);
 		const passedCount = Object.values(requirements).filter(Boolean).length;
 		if (passedCount <= 1) return 1; // Fraca
-		if (passedCount <= 2) return 2; // Regular
-		if (passedCount <= 4) return 3; // Boa
-		return 4; // Forte
+		return 2; // Forte
 	};
 
 	const handleChange = (e) => {
@@ -227,11 +222,8 @@ const RecuperarSenha = () => {
 							<div className="mt-3 space-y-1">
 								<p className="text-xs font-medium text-gray-700 mb-1">A senha deve conter:</p>
 								{Object.entries({
-									minLength: 'Pelo menos 8 caracteres',
-									hasUppercase: 'Uma letra maiúscula',
-									hasLowercase: 'Uma letra minúscula',
-									hasNumber: 'Um número',
-									hasSpecial: 'Um caractere especial (!@#$%...)',
+									minLength: 'Mín. 8 caracteres',
+									maxLength: 'Máx. 128 caracteres'
 								}).map(([key, label]) => (
 									<div key={key} className="flex items-center gap-2">
 										{passwordRequirements[key] ? (

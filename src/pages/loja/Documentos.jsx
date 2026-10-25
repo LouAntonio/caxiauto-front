@@ -215,9 +215,9 @@ const Documentos = () => {
 			const finalSelfies = uploadedSelfies.length > 0 ? uploadedSelfies : (sellerDocs?.selfies || []);
 
 			const res = await api.updateSellerDocs({
-				idCardUrls: finalIdCards,
-				organizationDocUrls: finalOrgDocs,
-				selfieUrls: finalSelfies
+				idCard: finalIdCards,
+				organizationDocs: finalOrgDocs,
+				selfies: finalSelfies
 			});
 
 			if (res.success) {

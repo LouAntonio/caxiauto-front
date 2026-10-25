@@ -61,19 +61,14 @@ const Auth = () => {
 	// Password Security Functions
 	const getPasswordRequirements = (password) => ({
 		minLength: password.length >= 8,
-		hasUppercase: /[A-Z]/.test(password),
-		hasLowercase: /[a-z]/.test(password),
-		hasNumber: /[0-9]/.test(password),
-		hasSpecial: /[!@#$%^&*(),.?":{}|<>_\-+=[\]\\/~`]/.test(password)
+		maxLength: password.length <= 128
 	});
 
 	const getPasswordStrength = (password) => {
 		const requirements = getPasswordRequirements(password);
 		const passedCount = Object.values(requirements).filter(Boolean).length;
 		if (passedCount <= 1) return 1; // Fraca
-		if (passedCount <= 2) return 2; // Regular
-		if (passedCount <= 4) return 3; // Boa
-		return 4; // Forte (all 5 requirements)
+		return 2; // Forte (only need min/max length)
 	};
 
 	const [formData, setFormData] = useState({
@@ -639,11 +634,8 @@ const Auth = () => {
 													{passed ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
 													<span>{
 														{
-															minLength: '8+ caracteres',
-															hasUppercase: 'Letra maiúscula',
-															hasLowercase: 'Letra minúscula',
-															hasNumber: 'Número',
-															hasSpecial: 'Caractere especial'
+															minLength: 'Mín. 8 caracteres',
+															maxLength: 'Máx. 128 caracteres'
 														}[key]
 													}</span>
 												</div>
