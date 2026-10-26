@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { notyf } from '../../services/api';
-import api from '../../services/api';
 import {
 	Handshake,
 	Plus,
@@ -22,7 +21,7 @@ import {
 	useUpdateMyPartner,
 	useDeleteMyPartner
 } from '../../hooks/queries/usePartners';
-import { useUploadToCloudinary, validateFiles } from '../../hooks/queries/useCloudinary';
+import { useUploadToCloudinary } from '../../hooks/queries/useCloudinary';
 
 const LojaEmpresas = () => {
 	const { data, isLoading } = useMyPartners({ limit: 100 });
@@ -56,22 +55,7 @@ const LojaEmpresas = () => {
 
 	const canAdd = meta.hasActivePlan && partners.length < meta.maxPartners;
 
-	const uploadToCloudinary = async (file, folder) => {
-		const authResponse = await api.get(`/cloudinary/authorize-upload?folder=${folder}`);
-		if (!authResponse.success) throw new Error('Falha ao autorizar upload');
-
-		const { timestamp, signature, cloudname, apikey } = authResponse;
-
-		const formDataUpload = new FormData();
-		formDataUpload.append('file', file);
-		formDataUpload.append('api_key', apikey);
-		formDataUpload.append('timestamp', timestamp);
-		formDataUpload.append('signature', signature);
-		formDataUpload.append('folder', folder);
-
-		const { data: uploadData } = await axios.post(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, formDataUpload);
-		return uploadData.secure_url;
-	};
+	const { upload } = useUploadToCloudinary();
 
 	const handleFileChange = (type, file) => {
 		if (type === 'logo') {

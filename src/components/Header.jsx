@@ -9,6 +9,7 @@ export default function Header() {
 	const [mobileStandOpen, setMobileStandOpen] = useState(false);
 	const [mobileInstitucionalOpen, setMobileInstitucionalOpen] = useState(false);
 	const { user, logout } = useAuthStore();
+	const hasStoreAccess = user?.role === 'SELLER' || user?.role === 'ADMIN' || !!user?.sellerDocs;
 	const location = useLocation();
 	const isHomePage = location.pathname === "/";
 	const [scrolledPastHero, setScrolledPastHero] = useState(!isHomePage);
@@ -161,11 +162,11 @@ export default function Header() {
 											Minha Conta
 										</Link>
 										<Link
-											to="/minha-loja"
+											to={hasStoreAccess ? "/minha-loja" : "/minha-loja/documentos"}
 											className="block px-4 py-2.5 text-[#6b7280] hover:bg-[#f8f6f2] hover:text-[#154c9a] transition-colors font-body font-medium flex items-center gap-2"
 										>
 											<Store className="w-4 h-4" />
-											{user.role === 'SELLER' ? 'Minha Loja' : 'Vender'}
+											{hasStoreAccess ? 'Minha Loja' : 'Vender'}
 										</Link>
 										<button
 											onClick={handleLogout}
@@ -368,12 +369,12 @@ export default function Header() {
 										Minha Conta
 									</Link>
 									<Link
-										to="/minha-loja"
+										to={hasStoreAccess ? "/minha-loja" : "/minha-loja/documentos"}
 										onClick={() => setMobileMenuOpen(false)}
 										className="block text-center px-4 py-3 rounded-2xl text-white font-semibold font-body shadow-lg mt-2 flex items-center justify-center gap-2 bg-[#154c9a] hover:bg-blue-800 transition-colors"
 									>
 										<Store className="w-5 h-5" />
-										{user.role === 'SELLER' ? 'Minha Loja' : 'Vender no Caxiauto'}
+										{hasStoreAccess ? 'Minha Loja' : 'Vender no Caxiauto'}
 									</Link>
 									<button
 										onClick={handleLogout}

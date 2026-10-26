@@ -3,55 +3,60 @@ import { useCallback } from 'react';
 import axios from 'axios';
 import api from '../../services/api';
 
-/**
- * Hook centralizado para uploads Cloudinary.
- * Substitui código duplicado em 8+ componentes.
- * 
- * Uso:
- *   const { upload, uploadMultiple, isLoading } = useUploadToCloudinary();
- *   const url = await upload({ file, folder: 'sellCar' });
- *   const urls = await uploadMultiple({ files: [...], folder: 'parts' });
- */
+// O Cloudinary só valida a assinatura se o POST reenviar exatamente os mesmos
+// parâmetros assinados pelo backend (ver authentication_signatures).
+// Por isso o backend devolve `paramsToSign` e o hook limita-se a reenvia-lo.
+const MAX_MB = (bytes) => Math.round(bytes / 1024 / 1024);
+
 export const useUploadToCloudinary = () => {
-	// Upload de arquivo único
 	const singleUpload = useMutation({
-		mutationFn: async ({ file, folder, maxBytes, allowedFormats }) => {
-			const authResponse = await api.getCloudinarySignature(folder, maxBytes, allowedFormats);
-			if (!authResponse.success) throw new Error('Falha ao autorizar upload');
-			const { timestamp, signature, cloudname, apikey, maxBytes: maxBytesRes, allowedFormats: allowedFormatsRes } = authResponse;
+		mutationFn: async ({ file, folder, admin = false }) => {
+			const auth = await api.getCloudinarySignature(folder, admin);
+			if (!auth?.success) throw new Error(auth?.message || 'Falha ao autorizar upload');
+
+			const { signature, cloudname, apikey, maxBytes, paramsToSign } = auth;
+
+			if (maxBytes && file.size > maxBytes) {
+				throw new Error(`O ficheiro "${file.name}" excede ${MAX_MB(maxBytes)}MB`);
+			}
+
 			const formData = new FormData();
 			formData.append('file', file);
 			formData.append('api_key', apikey);
-			formData.append('timestamp', timestamp);
 			formData.append('signature', signature);
-			formData.append('folder', folder);
-			if (maxBytes) formData.append('bytes', maxBytes);
-			else if (authResponse.maxBytes) formData.append('bytes', authResponse.maxBytes);
-			if (allowedFormats) formData.append('allowed_formats', allowedFormats.join(','));
-			else if (authResponse.allowedFormats) formData.append('allowed_formats', authResponse.allowedFormats.join(','));
-			const { data } = await axios.post(`https://api.cloudinary.com/v1_1/${authResponse.cloudname}/auto/upload`, formData);
+
+			// Parâmetros assinados (folder, allowed_formats, timestamp).
+			Object.entries(paramsToSign || {}).forEach(([key, value]) => {
+				formData.append(key, value);
+			});
+
+			const { data } = await axios.post(
+				`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`,
+				formData
+			);
+
+			if (!data?.secure_url) throw new Error('Cloudinary não devolveu o URL do ficheiro');
 			return data.secure_url;
 		},
 	});
 
-	// Upload múltiplo (sequencial para evitar rate limit Cloudinary)
-	const uploadMultiple = useCallback(async ({ files, folder, maxBytes, allowedFormats }) => {
+	// Upload múltiplo sequencial (evita rate limit do Cloudinary)
+	const uploadMultiple = useCallback(async ({ files, folder, admin = false }) => {
 		const urls = [];
 		for (const file of files) {
-			const url = await singleUpload.mutateAsync({ file, folder, maxBytes, allowedFormats });
+			const url = await singleUpload.mutateAsync({ file, folder, admin });
 			urls.push(url);
 		}
 		return urls;
 	}, [singleUpload]);
 
-	// Upload múltiplo paralelo (mais rápido, mas pode hit rate limit)
-	const uploadMultipleParallel = useCallback(async ({ files, folder, maxBytes, allowedFormats }) => {
-		const promises = files.map(file => singleUpload.mutateAsync({ file, folder, maxBytes, allowedFormats }));
+	// Upload múltiplo paralelo (mais rápido, mas pode atingir o rate limit)
+	const uploadMultipleParallel = useCallback(async ({ files, folder, admin = false }) => {
+		const promises = files.map((file) => singleUpload.mutateAsync({ file, folder, admin }));
 		return Promise.all(promises);
 	}, [singleUpload]);
 
 	return {
-		// Single file
 		upload: singleUpload.mutateAsync,
 		uploadSync: singleUpload.mutate,
 		isUploading: singleUpload.isPending,
@@ -59,8 +64,6 @@ export const useUploadToCloudinary = () => {
 		isError: singleUpload.isError,
 		error: singleUpload.error,
 		reset: singleUpload.reset,
-
-		// Multiple files
 		uploadMultiple,
 		uploadMultipleParallel,
 	};

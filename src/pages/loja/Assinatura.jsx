@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
 import { notyf } from '../../services/api';
-import api from '../../services/api';
-import axios from 'axios';
 import {
 	CreditCard,
 	Check,
@@ -23,6 +21,7 @@ import { usePlans, useHighlightPlans, useMySubscriptions, useMyPayments, useCanc
 import { useMyVehicles } from '../../hooks/queries/useVehicles';
 import { useMyPecas } from '../../hooks/queries/usePecas';
 import { usePublicConfig } from '../../hooks/queries/useSubscription';
+import { useUploadToCloudinary } from '../../hooks/queries/useCloudinary';
 import { formatKz, formatPercent } from '../../utils/format';
 import { CATEGORY, PIXEL_CURRENCY, pixelStartTrial, pixelInitiateCheckout, pixelPurchase, pixelSubscribe } from '../../pixel';
 
@@ -130,21 +129,7 @@ const Assinatura = () => {
 	const TARGET_LABELS = { SALE: 'Venda', RENT: 'Aluguer', PECA: 'Peças/Acessórios' };
 	const ITEM_TYPE_LABELS = { VEHICLE: 'Veículo', PECA: 'Peça' };
 
-	const uploadToCloudinary = async (file, folder) => {
-		const authResponse = await api.get(`/cloudinary/authorize-upload?folder=${folder}`);
-		if (!authResponse.success) throw new Error('Falha ao autorizar upload');
-
-		const { cloudname, timestamp, signature, apikey } = authResponse;
-		const formData = new FormData();
-		formData.append('file', file);
-		formData.append('api_key', apikey);
-		formData.append('timestamp', timestamp);
-		formData.append('signature', signature);
-		formData.append('folder', folder);
-
-		const { data: uploadData } = await axios.post(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, formData);
-		return uploadData.secure_url;
-	};
+	const { upload } = useUploadToCloudinary();
 
 	const handleSubscribe = async (planId) => {
 		const plan = (allPlans || []).find((p) => p.id === planId);

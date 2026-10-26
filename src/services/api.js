@@ -263,7 +263,7 @@ const api = {
 	getMostViewed: () => api.get('/views/user/most-viewed'),
 
 	// ==================== CLOUDINARY ====================
-	getCloudinarySignature: (folder) => api.get(`/cloudinary/authorize-upload?folder=${folder}`),
+	getCloudinarySignature: (folder, isAdmin = false) => api.get('/cloudinary/authorize-upload', { params: { folder } }, isAdmin),
 
 	deleteCloudinaryResource: (publicId) => api.delete(`/cloudinary/delete-resource?publicId=${publicId}`, {}, true),
 

@@ -30,6 +30,7 @@ const Dashboard = () => {
 	useDocumentTitle('Dashboard - CaxiAuto');
 
 	const { user, logout, updateUser, refreshUser } = useAuthStore();
+	const hasStoreAccess = user?.role === 'SELLER' || user?.role === 'ADMIN' || !!user?.sellerDocs;
 	const [stats, setStats] = useState(null);
 	const [loadingStats, setLoadingStats] = useState(true);
 
@@ -478,20 +479,20 @@ const Dashboard = () => {
 						</div>
 						<div>
 							<h3 className="font-semibold text-lg text-gray-900">
-								{user?.role === 'SELLER' || user?.sellerDocs ? 'Minha Loja' : 'Torne-se vendedor'}
+								{hasStoreAccess ? 'Minha Loja' : 'Torne-se vendedor'}
 							</h3>
 							<p className="text-sm text-gray-500">
-								{user?.role === 'SELLER' || user?.sellerDocs
+								{hasStoreAccess
 									? 'Gerencia os teus veículos, peças, documentos e assinaturas.'
 									: 'Vende veículos e peças com o selo de confiança Caxiauto.'}
 							</p>
 						</div>
 					</div>
 					<Link
-						to="/minha-loja"
+						to={hasStoreAccess ? '/minha-loja' : '/minha-loja/documentos'}
 						className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#154c9a] text-white rounded-lg font-semibold text-sm hover:bg-[#123f80] transition-colors"
 					>
-						{user?.role === 'SELLER' || user?.sellerDocs ? 'Abrir Minha Loja' : 'Começar'}
+						{hasStoreAccess ? 'Abrir Minha Loja' : 'Começar'}
 						<ArrowRight className="w-4 h-4" />
 					</Link>
 				</div>

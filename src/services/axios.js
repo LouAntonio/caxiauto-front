@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
+import logger from '../utils/logger';
 
 const notyf = new Notyf({
 	duration: 4000,

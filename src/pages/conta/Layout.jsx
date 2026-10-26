@@ -18,6 +18,7 @@ import {
 const ContaLayout = () => {
 	const location = useLocation();
 	const { user } = useAuthStore();
+	const hasStoreAccess = user?.role === 'SELLER' || user?.role === 'ADMIN' || !!user?.sellerDocs;
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 
 	useSyncUser();
@@ -85,12 +86,12 @@ const ContaLayout = () => {
 						</div>
 						<div className="ml-auto flex-shrink-0">
 							<Link
-								to="/minha-loja"
+								to={hasStoreAccess ? '/minha-loja' : '/minha-loja/documentos'}
 								className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#154c9a] text-white rounded-lg font-semibold text-sm hover:bg-[#123f80] transition-colors"
-								title={user?.role === 'SELLER' || user?.sellerDocs ? 'Abrir Minha Loja' : 'Tornar-se vendedor'}
+								title={hasStoreAccess ? 'Abrir Minha Loja' : 'Tornar-se vendedor'}
 							>
 								<Store className="w-4 h-4" />
-								<span className="hidden sm:inline">{user?.role === 'SELLER' || user?.sellerDocs ? 'Minha Loja' : 'Vender'}</span>
+								<span className="hidden sm:inline">{hasStoreAccess ? 'Minha Loja' : 'Vender'}</span>
 							</Link>
 						</div>
 					</div>

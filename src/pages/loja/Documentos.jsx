@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import useAuthStore from '../../stores/authStore';
 import api, { notyf } from '../../services/api';
 import logger from '../../utils/logger';
@@ -220,17 +220,16 @@ const Documentos = () => {
 			const uploadedOrgDocs = await uploadMultiple({ files: orgDocFiles, folder: 'seller-docs' });
 			const uploadedSelfies = await uploadMultiple({ files: selfieFiles, folder: 'seller-docs' });
 
-			// Combinar com URLs existentes (se houver)
+			// Combinar com URLs existentes (sem duplicar em re-submissões)
+			const mergeUrls = (existing = [], uploaded = []) => [...new Set([...existing, ...uploaded])];
 			const finalIdCards = uploadedIdCards.length > 0 ? uploadedIdCards : (sellerDocs?.idCard || []);
-			const finalOrgDocs = uploadedOrgDocs.length > 0
-				? [...(sellerDocs?.organizationDocs || []), ...uploadedOrgDocs]
-				: (sellerDocs?.organizationDocs || []);
+			const finalOrgDocs = mergeUrls(sellerDocs?.organizationDocs, uploadedOrgDocs);
 			const finalSelfies = uploadedSelfies.length > 0 ? uploadedSelfies : (sellerDocs?.selfies || []);
 
 			const res = await api.updateSellerDocs({
-				idCard: finalIdCards,
-				organizationDocs: finalOrgDocs,
-				selfies: finalSelfies
+				idCardUrls: finalIdCards,
+				organizationDocUrls: finalOrgDocs,
+				selfieUrls: finalSelfies
 			});
 
 			if (res.success) {
@@ -327,8 +326,9 @@ const Documentos = () => {
 					</div>
 				</div>
 
-				{/* Se já submeteu: mostrar painel informativo com docs enviados, sem formulário */}
-				{hasSubmittedDocs ? (
+				{/* Só bloqueia re-submissão depois de aprovado (isVerified=true).
+				    Com documentos em análise/rejeitados o formulário continua disponível. */}
+				{hasSubmittedDocs && user?.isVerified ? (
 					<div className="space-y-6">
 						{/* Aviso de bloqueio */}
 						<div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
@@ -337,8 +337,8 @@ const Documentos = () => {
 								<div className="text-sm text-amber-800">
 									<p className="font-semibold mb-1">Envio de documentos bloqueado</p>
 									<p>
-										Os seus documentos já foram submetidos.
-										Não é possível enviar novos documentos após a submissão.
+										Os seus documentos já foram aprovados.
+										Não é possível enviar novos documentos após a aprovação.
 										Caso precise de corrigir alguma informação, contacte o suporte.
 									</p>
 								</div>
@@ -417,6 +417,21 @@ const Documentos = () => {
 					</div>
 				) : (
 					<>
+						{hasSubmittedDocs && (
+							<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+								<div className="flex items-start gap-2">
+									<Clock className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+									<div className="text-sm text-blue-700">
+										<p className="font-semibold mb-1">Documentos em análise</p>
+										<p>
+											Os seus documentos já foram recebidos. Se precisar de corrigir ou substituir
+											algum ficheiro, pode reenviar abaixo enquanto a verificação não for aprovada.
+										</p>
+									</div>
+								</div>
+							</div>
+						)}
+
 						{/* Info */}
 						<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
 							<div className="flex items-start gap-2">

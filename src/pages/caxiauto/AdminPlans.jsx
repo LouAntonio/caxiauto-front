@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { formatKz } from '../../utils/format';
 import { CreditCard, Plus, Pencil, Trash2, Loader2, X, Image as ImageIcon } from 'lucide-react';
 import { notyf } from '../../services/api';
-import api from '../../services/api';
-import axios from 'axios';
 import { useAdminPlans, useAdminCreatePlan, useAdminUpdatePlan, useAdminDeletePlan } from '../../hooks/queries/useAdmin';
+import { useUploadToCloudinary } from '../../hooks/queries/useCloudinary';
 
 const SECTION_LABELS = {
 	ALUGUEL: 'Aluguel',
@@ -43,22 +42,7 @@ const AdminPlans = () => {
 		benefits: [],
 	});
 
-	const uploadToCloudinary = async (file, folder) => {
-		const authResponse = await api.get(`/cloudinary/authorize-upload?folder=${folder}`, {}, true);
-		if (!authResponse.success) throw new Error('Falha ao autorizar upload');
-
-		const { cloudname, timestamp, signature, apikey } = authResponse;
-
-		const formDataUpload = new FormData();
-		formDataUpload.append('file', file);
-		formDataUpload.append('api_key', apikey);
-		formDataUpload.append('timestamp', timestamp);
-		formDataUpload.append('signature', signature);
-		formDataUpload.append('folder', folder);
-
-		const { data: uploadData } = await axios.post(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, formDataUpload);
-		return uploadData.secure_url;
-	};
+	const { upload } = useUploadToCloudinary();
 
 	const { data: plansData, isLoading: loading } = useAdminPlans();
 	// `data` fica undefined quando a query falha (5xx/rede) — normalizar para
@@ -137,7 +121,7 @@ const AdminPlans = () => {
 			let bannerUrl = bannerPreview && !bannerFile ? bannerPreview : undefined;
 
 			if (bannerFile) {
-				bannerUrl = await uploadToCloudinary(bannerFile, 'plans');
+				bannerUrl = await upload({ file: bannerFile, folder: 'plans', admin: true });
 			}
 
 			const payload = {
