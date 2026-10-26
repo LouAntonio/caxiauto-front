@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import useAuthStore from '../../stores/authStore';
 import api, { notyf } from '../../services/api';
+import logger from '../../utils/logger';
 import {
 	FileText,
 	Upload,
@@ -22,15 +23,27 @@ import { useUploadToCloudinary, validateFiles } from '../../hooks/queries/useClo
 // state) e o effect só trata da revogação, evitando fugas de memória sem
 // provocar renders em cascata.
 const LocalFilePreview = ({ file }) => {
-	const previewUrl = useMemo(
-		() => (file && file.type !== 'application/pdf' ? URL.createObjectURL(file) : null),
-		[file]
-	);
+	const previewUrlRef = useRef(null);
+	const [previewUrl, setPreviewUrl] = useState(null);
 
+	// Create blob URL once when file changes
 	useEffect(() => {
-		if (!previewUrl) return;
-		return () => URL.revokeObjectURL(previewUrl);
-	}, [previewUrl]);
+		if (file && file.type !== 'application/pdf') {
+			const url = URL.createObjectURL(file);
+			previewUrlRef.current = url;
+			setPreviewUrl(url);
+		} else {
+			setPreviewUrl(null);
+		}
+
+		// Cleanup only on unmount or file change
+		return () => {
+			if (previewUrlRef.current) {
+				URL.revokeObjectURL(previewUrlRef.current);
+				previewUrlRef.current = null;
+			}
+		};
+	}, [file]);
 
 	if (!file) return null;
 	if (file.type === 'application/pdf') {

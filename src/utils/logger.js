@@ -55,7 +55,7 @@ export const logger = {
 	error: (message, meta = {}) => {
 		// Em produção, enviar para serviço de monitoramento (Sentry, etc.)
 		const errorData = formatMessage('error', message, meta);
-		logger.error(errorData?.message || errorData);
+		console.error(errorData);
 		
 		// TODO: Integrar com Sentry/LogRocket em produção
 		// if (isProduction && window.Sentry) {

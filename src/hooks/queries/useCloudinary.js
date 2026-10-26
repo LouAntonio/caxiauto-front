@@ -15,34 +15,38 @@ import api from '../../services/api';
 export const useUploadToCloudinary = () => {
 	// Upload de arquivo único
 	const singleUpload = useMutation({
-		mutationFn: async ({ file, folder }) => {
-			const authResponse = await api.getCloudinarySignature(folder);
+		mutationFn: async ({ file, folder, maxBytes, allowedFormats }) => {
+			const authResponse = await api.getCloudinarySignature(folder, maxBytes, allowedFormats);
 			if (!authResponse.success) throw new Error('Falha ao autorizar upload');
-			const { timestamp, signature, cloudname, apikey } = authResponse;
+			const { timestamp, signature, cloudname, apikey, maxBytes: maxBytesRes, allowedFormats: allowedFormatsRes } = authResponse;
 			const formData = new FormData();
 			formData.append('file', file);
 			formData.append('api_key', apikey);
 			formData.append('timestamp', timestamp);
 			formData.append('signature', signature);
 			formData.append('folder', folder);
-			const { data } = await axios.post(`https://api.cloudinary.com/v1_1/${cloudname}/auto/upload`, formData);
+			if (maxBytes) formData.append('bytes', maxBytes);
+			else if (authResponse.maxBytes) formData.append('bytes', authResponse.maxBytes);
+			if (allowedFormats) formData.append('allowed_formats', allowedFormats.join(','));
+			else if (authResponse.allowedFormats) formData.append('allowed_formats', authResponse.allowedFormats.join(','));
+			const { data } = await axios.post(`https://api.cloudinary.com/v1_1/${authResponse.cloudname}/auto/upload`, formData);
 			return data.secure_url;
 		},
 	});
 
 	// Upload múltiplo (sequencial para evitar rate limit Cloudinary)
-	const uploadMultiple = useCallback(async ({ files, folder }) => {
+	const uploadMultiple = useCallback(async ({ files, folder, maxBytes, allowedFormats }) => {
 		const urls = [];
 		for (const file of files) {
-			const url = await singleUpload.mutateAsync({ file, folder });
+			const url = await singleUpload.mutateAsync({ file, folder, maxBytes, allowedFormats });
 			urls.push(url);
 		}
 		return urls;
 	}, [singleUpload]);
 
 	// Upload múltiplo paralelo (mais rápido, mas pode hit rate limit)
-	const uploadMultipleParallel = useCallback(async ({ files, folder }) => {
-		const promises = files.map(file => singleUpload.mutateAsync({ file, folder }));
+	const uploadMultipleParallel = useCallback(async ({ files, folder, maxBytes, allowedFormats }) => {
+		const promises = files.map(file => singleUpload.mutateAsync({ file, folder, maxBytes, allowedFormats }));
 		return Promise.all(promises);
 	}, [singleUpload]);
 
