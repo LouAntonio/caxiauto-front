@@ -108,12 +108,22 @@ const AdminSellers = () => {
 		setConfirmModal({ open: true, sellerId, sellerName, action: isVerified ? 'revoke' : 'verify' });
 	};
 
+	const handleRejectSeller = (sellerId, sellerName) => {
+		setConfirmModal({ open: true, sellerId, sellerName, action: 'reject', reason: '' });
+	};
+
 	const submitVerify = async () => {
 		const isVerified = confirmModal.action === 'verify';
+		const rejectDocs = confirmModal.action === 'reject';
 		try {
-			const response = await verifySellerMutation.mutateAsync({ sellerId: confirmModal.sellerId, isVerified });
+			const response = await verifySellerMutation.mutateAsync({
+				sellerId: confirmModal.sellerId,
+				isVerified,
+				rejectDocs,
+				reason: rejectDocs ? (confirmModal.reason || '').trim() : undefined
+			});
 			if (response.success) {
-				notyf.success(isVerified ? 'Vendedor verificado! Email enviado.' : 'Verificação removida! Email enviado.');
+				notyf.success(response.message || (isVerified ? 'Vendedor verificado! Email enviado.' : 'Verificação atualizada! Email enviado.'));
 				setConfirmModal({ open: false, sellerId: null, sellerName: '', action: 'verify' });
 				if (activeTab === 'all') loadAllSellers();
 			} else {
@@ -280,6 +290,13 @@ const AdminSellers = () => {
 											<td className="px-6 py-4">
 												<p className="font-medium text-gray-900">{seller.name} {seller.surname}</p>
 												<p className="text-sm text-gray-500">{seller.email}</p>
+												<p className="text-xs mt-1">
+													{seller.sellerDocs?.rejectedAt ? (
+														<span className="text-red-600 font-medium">Documentos rejeitados</span>
+													) : (
+														<span className="text-blue-600 font-medium">Documentos em análise</span>
+													)}
+												</p>
 											</td>
 											<td className="px-6 py-4 text-sm text-gray-900">{seller.phone || 'N/A'}</td>
 											<td className="px-6 py-4 text-sm text-gray-900">{seller.provincia ? getProvinciaLabel(seller.provincia) : 'N/A'}</td>
@@ -370,6 +387,16 @@ const AdminSellers = () => {
 													>
 														{actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
 													</button>
+													{!seller.isVerified && seller.sellerDocs && (
+														<button
+															onClick={() => handleRejectSeller(seller.id, `${seller.name} ${seller.surname}`)}
+															className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+															title="Rejeitar documentos"
+															disabled={actionLoading}
+														>
+															<XCircle className="w-4 h-4" />
+														</button>
+													)}
 													<button
 														onClick={() => handleVerifySeller(seller.id, `${seller.name} ${seller.surname}`, seller.isVerified)}
 														className={`p-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
@@ -717,6 +744,23 @@ const AdminSellers = () => {
 										: `Tem certeza que deseja remover a verificação de ${confirmModal.sellerName}?`}
 							</p>
 							<p className="text-sm text-gray-500 mt-2">Um email será enviado ao vendedor informando a alteração.</p>
+
+							{confirmModal.action === 'reject' && (
+								<div className="mt-4">
+									<label className="block text-sm font-medium text-gray-700 mb-1">
+										Motivo da rejeição (opcional)
+									</label>
+									<textarea
+										value={confirmModal.reason || ''}
+										onChange={(e) => setConfirmModal((prev) => ({ ...prev, reason: e.target.value }))}
+										rows={3}
+										maxLength={500}
+										placeholder="Ex.: BI ilegível, selfie não corresponde ao documento..."
+										className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#154c9a] focus:border-transparent"
+									/>
+									<p className="text-xs text-gray-500 mt-1">O vendedor poderá reenviar os documentos e verá este motivo.</p>
+								</div>
+							)}
 						</div>
 						<div className="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3">
 							<button

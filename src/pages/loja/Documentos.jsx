@@ -198,6 +198,11 @@ const Documentos = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
+		if (!canSubmitDocs) {
+			notyf.error('Os documentos estão em análise. Só pode reenviar depois de serem rejeitados pela equipa administrativa.');
+			return;
+		}
+
 		if (idCardFiles.length === 0 && (!sellerDocs?.idCard || sellerDocs.idCard.length === 0)) {
 			notyf.error('Envie pelo menos um documento de identificação (BI ou Passaporte)');
 			return;
@@ -237,6 +242,7 @@ const Documentos = () => {
 				setIdCardFiles([]);
 				setOrgDocFiles([]);
 				setSelfieFiles([]);
+				setAcceptedTerms(false);
 				fetchDocuments();
 				refreshUser();
 			} else {
@@ -250,16 +256,18 @@ const Documentos = () => {
 		}
 	};
 
-	const hasSubmittedDocs = !!(sellerDocs && (
-		(sellerDocs.idCard && sellerDocs.idCard.length > 0) ||
-		(sellerDocs.selfies && sellerDocs.selfies.length > 0)
-	));
+	const hasSubmittedDocs = !!sellerDocs;
+	const isRejected = !!sellerDocs?.rejectedAt;
+	// Só pode enviar se nunca enviou ou se o envio anterior foi rejeitado pelo admin.
+	const canSubmitDocs = !hasSubmittedDocs || isRejected;
 
 	const statusBadge = user?.isVerified
 		? { label: 'Verificado', icon: CheckCircle, bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200' }
-		: hasSubmittedDocs
-			? { label: 'Em Análise', icon: Clock, bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200' }
-			: { label: 'Pendente de Verificação', icon: Clock, bg: 'bg-yellow-100', text: 'text-yellow-700', border: 'border-yellow-200' };
+		: isRejected
+			? { label: 'Documentos Rejeitados', icon: AlertCircle, bg: 'bg-red-100', text: 'text-red-700', border: 'border-red-200' }
+			: hasSubmittedDocs
+				? { label: 'Em Análise', icon: Clock, bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200' }
+				: { label: 'Pendente de Verificação', icon: Clock, bg: 'bg-yellow-100', text: 'text-yellow-700', border: 'border-yellow-200' };
 
 	const StatusIcon = statusBadge.icon;
 
@@ -318,17 +326,19 @@ const Documentos = () => {
 							<p className="text-sm text-gray-600 mt-1">
 								{user?.isVerified
 									? 'Seu perfil está verificado com o selo de confiança.'
-									: hasSubmittedDocs
-										? 'Os seus documentos foram enviados e estão a ser analisados pela equipa administrativa.'
-										: 'Documentos pendentes de análise pela equipa administrativa.'}
+									: isRejected
+										? 'Os documentos foram rejeitados. Corrija os ficheiros indicados e reenvie.'
+										: hasSubmittedDocs
+											? 'Os seus documentos foram enviados e estão a ser analisados pela equipa administrativa. Só poderá reenviar se forem rejeitados.'
+											: 'Documentos pendentes de envio para análise pela equipa administrativa.'}
 							</p>
 						</div>
 					</div>
 				</div>
 
-				{/* Só bloqueia re-submissão depois de aprovado (isVerified=true).
-				    Com documentos em análise/rejeitados o formulário continua disponível. */}
-				{hasSubmittedDocs && user?.isVerified ? (
+				{/* Em análise ou aprovado: bloqueia o reenvio. Só depois de rejeição
+				    (rejectedAt preenchido pelo admin) o formulário volta a aparecer. */}
+				{hasSubmittedDocs && !isRejected ? (
 					<div className="space-y-6">
 						{/* Aviso de bloqueio */}
 						<div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
@@ -337,9 +347,9 @@ const Documentos = () => {
 								<div className="text-sm text-amber-800">
 									<p className="font-semibold mb-1">Envio de documentos bloqueado</p>
 									<p>
-										Os seus documentos já foram aprovados.
-										Não é possível enviar novos documentos após a aprovação.
-										Caso precise de corrigir alguma informação, contacte o suporte.
+										{user?.isVerified
+											? 'Os seus documentos já foram aprovados. Não é possível enviar novos documentos após a aprovação. Caso precise de corrigir alguma informação, contacte o suporte.'
+											: 'Os seus documentos estão em análise. Só poderá reenviar se forem rejeitados pela equipa administrativa.'}
 									</p>
 								</div>
 							</div>
@@ -417,15 +427,16 @@ const Documentos = () => {
 					</div>
 				) : (
 					<>
-						{hasSubmittedDocs && (
-							<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+						{isRejected && (
+							<div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
 								<div className="flex items-start gap-2">
-									<Clock className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-									<div className="text-sm text-blue-700">
-										<p className="font-semibold mb-1">Documentos em análise</p>
+									<AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+									<div className="text-sm text-red-800">
+										<p className="font-semibold mb-1">Documentos rejeitados</p>
 										<p>
-											Os seus documentos já foram recebidos. Se precisar de corrigir ou substituir
-											algum ficheiro, pode reenviar abaixo enquanto a verificação não for aprovada.
+											{sellerDocs?.rejectionReason
+												? `Motivo: ${sellerDocs.rejectionReason}`
+												: 'A equipa administrativa rejeitou os documentos enviados. Corrija os ficheiros e reenvie abaixo.'}
 										</p>
 									</div>
 								</div>

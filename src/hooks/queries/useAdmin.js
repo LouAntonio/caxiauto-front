@@ -202,7 +202,8 @@ export const useAdminSellerDocs = (params = {}) => {
 export const useAdminVerifySeller = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: ({ sellerId, isVerified }) => api.verifySeller(sellerId, isVerified),
+		mutationFn: ({ sellerId, isVerified, rejectDocs, reason }) =>
+			api.verifySeller(sellerId, isVerified, { rejectDocs, reason }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['admin', 'sellers'] });
 		},

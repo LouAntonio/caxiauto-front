@@ -283,7 +283,7 @@ const api = {
 
 	getSellerDocs: (params = {}) => api.get('/admin/sellers/docs', { params }, true),
 
-	verifySeller: (sellerId, isVerified = true) => api.put(`/admin/sellers/${sellerId}/verify`, { isVerified }, {}, true),
+	verifySeller: (sellerId, isVerified = true, options = {}) => api.put(`/admin/sellers/${sellerId}/verify`, { isVerified, ...options }, {}, true),
 
 	adminGetSellerDetails: (id) => api.get(`/admin/sellers/${id}/details`, {}, true),
 
